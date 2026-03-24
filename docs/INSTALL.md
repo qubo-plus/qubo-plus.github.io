@@ -52,7 +52,7 @@ sudo apt remove qbpp
 
 ## Method 2: Install via tar.gz
 
-Download the `.tar.gz` file of the latest QUBO++ release from the [**Latest Releases**](https://github.com/nakanocs/qbpp/releases/latest) page.
+Download the `.tar.gz` file of the latest QUBO++ release from the [**Latest Releases**](https://github.com/qubo-plus/qbpp/releases/latest) page.
 Extract the archive as follows:
 ```bash
 tar xf qbpp_<arch>_<version>.tar.gz
@@ -134,7 +134,7 @@ sudo apt remove qbpp
 
 ## 方法2: tar.gz によるインストール
 
-[**Latest Releases**](https://github.com/nakanocs/qbpp/releases/latest) ページから最新の QUBO++ リリースの `.tar.gz` ファイルをダウンロードします。
+[**Latest Releases**](https://github.com/qubo-plus/qbpp/releases/latest) ページから最新の QUBO++ リリースの `.tar.gz` ファイルをダウンロードします。
 以下のようにアーカイブを展開します：
 ```bash
 tar xf qbpp_<arch>_<version>.tar.gz

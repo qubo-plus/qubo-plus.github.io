@@ -48,7 +48,7 @@ Follow the instructions in [**Installation**](INSTALL) to install QUBO++.
 
 When using **Method 2 (tar.gz)**, note the following WSL-specific details:
 
-Download one of the following files from the [**Latest Release**](https://github.com/nakanocs/qbpp/releases/latest) page, depending on your Windows PC architecture:
+Download one of the following files from the [**Latest Release**](https://github.com/qubo-plus/qbpp/releases/latest) page, depending on your Windows PC architecture:
 - **`qbpp_amd64_<version>.tar.gz`** : For Intel- or AMD-based Windows PCs
 - **`qbpp_arm64_<version>.tar.gz`** : For ARM-based Windows PCs (e.g., Copilot+ PCs)
 
@@ -135,7 +135,7 @@ sudo apt install -y build-essential
 
 **方法2（tar.gz）** を使用する場合は、以下の WSL 固有の注意点があります：
 
-Windows PC のアーキテクチャに応じて、[**Latest Release**](https://github.com/nakanocs/qbpp/releases/latest) ページから以下のファイルのいずれかをダウンロードしてください：
+Windows PC のアーキテクチャに応じて、[**Latest Release**](https://github.com/qubo-plus/qbpp/releases/latest) ページから以下のファイルのいずれかをダウンロードしてください：
 - **`qbpp_amd64_<version>.tar.gz`** : Intel または AMD ベースの Windows PC 用
 - **`qbpp_arm64_<version>.tar.gz`** : ARM ベースの Windows PC 用（例：Copilot+ PC）
 
