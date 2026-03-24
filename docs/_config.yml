@@ -6,7 +6,7 @@ theme: just-the-docs
 
 highlighter: rouge
 
-url: "https://qubo-plus.github.io"
+url: "https://qbpp-doc.cs.hiroshima-u.ac.jp"
 baseurl: ""
 
 kramdown:
