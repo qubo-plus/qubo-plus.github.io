@@ -22,6 +22,10 @@
     var cppItems = [], pythonItems = [], releaseLinks = [];
     var shared = ['Home', 'HUBO and QUBO', 'License Management', 'Demos', 'Latest Release'];
 
+    /* Detect current language from URL */
+    var curPath = window.location.pathname;
+    var curLang = curPath.indexOf('/ja/') !== -1 ? 'ja' : 'en';
+
     for (var n = 0; n < navEls.length; n++) {
       var uls = navEls[n].querySelectorAll('ul.nav-list');
       for (var u = 0; u < uls.length; u++) {
@@ -30,14 +34,19 @@
           if (lis[i].tagName !== 'LI') continue;
           var a = lis[i].querySelector('a');
           if (!a) continue;
+          var rawHref = a.getAttribute('href') || '';
+
+          /* Hide nav items for the other language */
+          if (curLang === 'en' && rawHref.indexOf('/ja/') !== -1) { lis[i].style.display = 'none'; continue; }
+          if (curLang === 'ja' && rawHref.indexOf('/en/') !== -1) { lis[i].style.display = 'none'; continue; }
+
           var txt = (a.childNodes[0] ? a.childNodes[0].textContent : a.textContent).trim();
           if (txt === 'Latest Release') releaseLinks.push(a);
           var isShared = false;
           for (var s = 0; s < shared.length; s++) { if (txt === shared[s]) { isShared = true; break; } }
           if (isShared) continue;
-          var rawHref = a.getAttribute('href');
           var href = (rawHref || '') + ' ' + (a.href || '');
-          if (rawHref === null) href = window.location.pathname;
+          if (rawHref === null) href = curPath;
           if (txt === 'PyQBPP (Python)' || txt.indexOf('PyQBPP') !== -1 || href.indexOf('/python/') !== -1) {
             pythonItems.push(lis[i]);
           } else {
