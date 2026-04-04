@@ -1,0 +1,85 @@
+---
+layout: default
+nav_exclude: true
+title: "3-Digit Math"
+nav_order: 6
+lang: ja
+hreflang_alt: "en/3DIGIT_MATH"
+hreflang_lang: "en"
+---
+
+# 3桁の数学問題
+
+以下の数学問題をQUBO++を使って解きましょう。
+
+> **数学問題**:
+> **各桁の積**が **252** となる3桁の奇数をすべて求めよ。
+
+$x$、$y$、$z$ をそれぞれ百の位、十の位、一の位の数字とします。
+より具体的には:
+- $x$ は $[1, 9]$ の整数、
+- $y$ は $[0, 9]$ の整数、
+- $t$ は $[0, 4]$ の整数、
+- $z = 2t + 1$（$z$ は奇数）。
+
+3桁の整数 $xyz$ の値 $v$ は
+
+$$
+\begin{aligned}
+v&=100x+10y+z
+\end{aligned}
+$$
+
+
+次の条件を満たすすべての解を求めます:
+
+$$
+\begin{aligned}
+xyz &= 252
+\end{aligned}
+$$
+
+## QUBO++プログラム
+以下のQUBO++プログラムはすべての解を求めます:
+{% raw %}
+```cpp
+#include <set>
+
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto x = 1 <= qbpp::var_int("x") <= 9;
+  auto y = 0 <= qbpp::var_int("y") <= 9;
+  auto t = 0 <= qbpp::var_int("t") <= 4;
+  auto z = 2 * t + 1;
+  auto v = x * 100 + y * 10 + z;
+
+  auto f = x * y * z == 252;
+
+  f.simplify_as_binary();
+  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto sols = solver.search({{"best_energy_sols", 1}});
+  std::set<int> s;
+  for (const auto& sol : sols) {
+    s.insert(static_cast<int>(sol(v)));
+  }
+  for (auto v : s) {
+    std::cout << v << " ";
+  }
+  std::cout << std::endl;
+}
+```
+{% endraw %}
+このプログラムでは、**`x`**、**`y`**、**`t`** が上記の範囲を持つ整数変数として定義されています。
+次に **`z`**、**`v`**、**`f`** が式として定義されます。
+`f` に対するExhaustive Solverインスタンスを作成し、すべての最適解を `sols` に格納します。
+
+`x`、`y`、`t` は複数のバイナリ変数で符号化されるため、異なるバイナリ割り当てが同じ整数値を表す場合があります。
+その結果、同じ桁の組 (`x`,`y`,`z`) が `sols` に複数回現れることがあります。
+そのため、結果の整数値 `v` のみを収集する `std::set<int>` 型の `s` を使用して重複を除去しています。
+
+`s` 内の整数は以下のように出力されます:
+```
+479 497 667 749 947
+```

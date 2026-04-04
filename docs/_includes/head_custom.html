@@ -1,5 +1,16 @@
 <meta name="google-site-verification" content="R4v2nXwRZ8rUSkQZV_fo-qIyh1VUbNsqeQsRoTS-IwI" />
 
+{% if page.lang %}
+<link rel="alternate" hreflang="{{ page.lang }}" href="{{ page.url | absolute_url }}" />
+{% if page.hreflang_alt %}
+<link rel="alternate" hreflang="{{ page.hreflang_lang }}" href="{{ site.url }}{{ site.baseurl }}/{{ page.hreflang_alt }}" />
+{% endif %}
+{% endif %}
+
+{% if page.redirect_to %}
+<meta http-equiv="refresh" content="0; url={{ page.redirect_to }}">
+{% endif %}
+
 <!-- MathJax -->
 <script>
   window.MathJax = {

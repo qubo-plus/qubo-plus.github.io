@@ -1,0 +1,76 @@
+---
+layout: default
+nav_exclude: true
+title: "3-Digit Math"
+nav_order: 45
+lang: en
+hreflang_alt: "ja/python/3DIGIT_MATH"
+hreflang_lang: "ja"
+---
+
+# 3-Digit Math Problem
+
+Let us solve the following math problem using PyQBPP.
+
+> **Math Problem**:
+> Find all three-digit odd integers whose **product of digits** is **252**.
+
+Let $x$, $y$, and $z$ be the hundreds, tens, and ones digits of the integer, respectively.
+More specifically:
+- $x$ is an integer in $[1, 9]$,
+- $y$ is an integer in $[0, 9]$,
+- $t$ is an integer in $[0, 4]$,
+- $z = 2t + 1$ (so $z$ is odd).
+
+Then the value $v$ of the three-digit integer $xyz$ is
+
+$$
+\begin{aligned}
+v&=100x+10y+z
+\end{aligned}
+$$
+
+
+We find all solutions satisfying:
+
+$$
+\begin{aligned}
+xyz &= 252
+\end{aligned}
+$$
+
+## PyQBPP program
+The following PyQBPP program finds all solutions:
+```python
+import pyqbpp as qbpp
+
+x = qbpp.between(qbpp.var_int("x"), 1, 9)
+y = qbpp.between(qbpp.var_int("y"), 0, 9)
+t = qbpp.between(qbpp.var_int("t"), 0, 4)
+z = 2 * t + 1
+v = x * 100 + y * 10 + z
+
+f = x * y * z == 252
+
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search({"best_energy_sols": 0})
+results = set()
+for sol in result.sols():
+    results.add(sol(v))
+for val in sorted(results):
+    print(val, end=" ")
+print()
+```
+In this program, **`x`**, **`y`**, and **`t`** are defined as integer variables with the ranges above.
+Then **`z`**, **`v`**, and **`f`** are defined as expressions.
+We create an Exhaustive Solver instance for `f` and store all optimal solutions in `sols`.
+
+Because `x`, `y`, and `t` are encoded by multiple binary variables, different binary assignments can represent the same integer values.
+As a result, the same digit triple (`x`,`y`,`z`) may appear multiple times in `sols`.
+Therefore, we use a `set` to remove duplicates by collecting only the resulting integer values `v`.
+
+The integers are printed as follows:
+```
+479 497 667 749 947
+```

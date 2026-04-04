@@ -1,19 +1,9 @@
 ---
 layout: default
 title: "Playground"
-nav_order: 8
-alt_lang: "Python version"
-alt_lang_url: "python/PLAYGROUND"
+nav_exclude: true
+redirect_to: "/en/PLAYGROUND"
+sitemap: false
 ---
-
-<div class="lang-en" markdown="1">
-<iframe src="https://233dwj2zapcrsk6kvnlhwcc3gu0jydbw.lambda-url.ap-northeast-1.on.aws/"
-  style="width:100%; height:80vh; border:1px solid #ddd; border-radius:4px;">
-</iframe>
-</div>
-
-<div class="lang-ja" markdown="1">
-<iframe src="https://233dwj2zapcrsk6kvnlhwcc3gu0jydbw.lambda-url.ap-northeast-1.on.aws/"
-  style="width:100%; height:80vh; border:1px solid #ddd; border-radius:4px;">
-</iframe>
-</div>
+<meta http-equiv="refresh" content="0; url=/en/PLAYGROUND">
+<p><a href="/en/PLAYGROUND">Redirect</a></p>

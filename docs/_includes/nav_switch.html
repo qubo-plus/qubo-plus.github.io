@@ -188,27 +188,43 @@
 
     collectNavLinks();
 
-    function showLang(lang) {
-      var en = document.querySelectorAll('.main-content .lang-en');
-      var ja = document.querySelectorAll('.main-content .lang-ja');
-      for (var i = 0; i < en.length; i++) en[i].style.display = lang === 'en' ? '' : 'none';
-      for (var i = 0; i < ja.length; i++) ja[i].style.display = lang === 'ja' ? '' : 'none';
-      for (var i = 0; i < navLinks.length; i++) {
-        navLinks[i].node.textContent = lang === 'ja' ? navLinks[i].ja : navLinks[i].en;
-      }
+    /* Detect current language from URL path */
+    var path = window.location.pathname;
+    var currentLang = 'en';
+    if (path.indexOf('/ja/') !== -1) currentLang = 'ja';
+    else if (path.indexOf('/en/') !== -1) currentLang = 'en';
+
+    /* Style active button */
+    function styleButtons(lang) {
       bEn.style.background = lang === 'en' ? '#7253ed' : '';
       bEn.style.color = lang === 'en' ? '#fff' : '';
       bEn.style.borderColor = lang === 'en' ? '#7253ed' : '#ccc';
       bJa.style.background = lang === 'ja' ? '#7253ed' : '';
       bJa.style.color = lang === 'ja' ? '#fff' : '';
       bJa.style.borderColor = lang === 'ja' ? '#7253ed' : '#ccc';
-      try { localStorage.setItem('qbpp-lang', lang); } catch(e) {}
+      /* Translate nav labels */
+      for (var i = 0; i < navLinks.length; i++) {
+        navLinks[i].node.textContent = lang === 'ja' ? navLinks[i].ja : navLinks[i].en;
+      }
     }
-    bEn.onclick = function() { showLang('en'); };
-    bJa.onclick = function() { showLang('ja'); };
-    var s = '';
-    try { s = localStorage.getItem('qbpp-lang') || ''; } catch(e) {}
-    showLang(s === 'ja' ? 'ja' : 'en');
+    styleButtons(currentLang);
+
+    /* EN/JA buttons navigate to alternate language URL */
+    function switchLang(targetLang) {
+      if (targetLang === currentLang) return;
+      var newPath;
+      if (currentLang === 'en' && targetLang === 'ja') {
+        newPath = path.replace('/en/', '/ja/');
+      } else if (currentLang === 'ja' && targetLang === 'en') {
+        newPath = path.replace('/ja/', '/en/');
+      } else {
+        /* Fallback: page not under en/ or ja/ (e.g. redirect page) */
+        newPath = '/' + targetLang + path;
+      }
+      window.location.href = newPath;
+    }
+    bEn.onclick = function() { switchLang('en'); };
+    bJa.onclick = function() { switchLang('ja'); };
   }
 
   function tryInit() {
