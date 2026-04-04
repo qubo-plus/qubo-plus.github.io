@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Exhaustive Solver"
 nav_order: 20
+alt_lang: "Python version"
+alt_lang_url: "python/EXHAUSTIVE"
 ---
+
 <div class="lang-en" markdown="1">
 # Exhaustive Solver Usage
 The **Exhaustive Solver** is a complete-search solver for QUBO/HUBO expressions.
@@ -12,8 +15,7 @@ The search is parallelized using CPU threads, and if a CUDA GPU is available, GP
 
 Solving a problem with the Exhaustive Solver consists of the following three steps:
 1. Create an Exhaustive Solver (`qbpp::exhaustive_solver::ExhaustiveSolver`) object.
-2. Create a `qbpp::Params` object and set search parameters.
-3. Call the `search()` member function with the `Params` object.
+2. Call the `search()` member function, optionally passing parameters as an initializer list.
 
 
 ## Creating Exhaustive Solver object
@@ -28,7 +30,7 @@ This function converts the given expression `f` into an internal format that is
 used during the solution search.
 
 ## Setting Parameters
-Search parameters are set via a `qbpp::Params` object using the `set()` method.
+Search parameters are passed directly to `search()` as an initializer list of key-value pairs.
 The following parameters are available:
 
 | Parameter | Value | Description |
@@ -48,8 +50,8 @@ The following parameters are available:
 The following program searches for a solution to the
 **Low Autocorrelation Binary Sequences (LABS)** problem using the Exhaustive
 Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -66,10 +68,8 @@ int main() {
   }
   f.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("enable_default_callback", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -77,6 +77,7 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 The output of this program is as follows:
 {% raw %}
 ```
@@ -96,11 +97,10 @@ TTS = 0.004s Energy = 26
 ```
 {% endraw %}
 All optimal solutions can be obtained by setting `best_energy_sols` as follows:
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -109,6 +109,7 @@ All optimal solutions can be obtained by setting `best_energy_sols` as follows:
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 The output is as follows:
 {% raw %}
 ```
@@ -123,11 +124,10 @@ The output is as follows:
 ```
 {% endraw %}
 The top-k solutions with the lowest energy can be obtained by setting `topk_sols` as follows:
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("topk_sols", "10");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"topk_sols", 10}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -136,6 +136,7 @@ The top-k solutions with the lowest energy can be obtained by setting `topk_sols
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 The output is as follows:
 {% raw %}
 ```
@@ -155,11 +156,10 @@ Furthermore, all solutions, including non-optimal ones, can be obtained by setti
 Note that this stores all $2^n$ solutions in memory, where $n$ is the number of variables.
 For example, with $n = 20$, over one million solutions are stored, and memory usage grows exponentially with $n$.
 Use this only when $n$ is small enough.
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("all_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"all_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -168,6 +168,7 @@ Use this only when $n$ is small enough.
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 This prints all $2^{20}$ solutions in increasing order of energy, as
 shown below:
 {% raw %}
@@ -203,8 +204,7 @@ shown below:
 
 Exhaustive Solverを使って問題を解くには、以下の3つのステップで行います：
 1. Exhaustive Solver（`qbpp::exhaustive_solver::ExhaustiveSolver`）オブジェクトを作成します。
-2. `qbpp::Params` オブジェクトを作成し、探索パラメータを設定します。
-3. `Params` オブジェクトを引数として `search()` メンバ関数を呼び出します。
+2. `search()` メンバ関数を呼び出します。パラメータは初期化子リストとして渡すことができます。
 
 
 ## Exhaustive Solverオブジェクトの作成
@@ -215,7 +215,7 @@ Exhaustive Solverを使用するには、式（`qbpp::Expr`）オブジェクト
 この関数は与えられた式 `f` を解探索中に使用される内部フォーマットに変換します。
 
 ## パラメータの設定
-探索パラメータは `qbpp::Params` オブジェクトの `set()` メソッドで設定します。
+探索パラメータは `search()` に初期化子リストとして直接渡します。
 以下のパラメータが利用可能です：
 
 | パラメータ | 値 | 説明 |
@@ -233,8 +233,8 @@ Exhaustive Solverを使用するには、式（`qbpp::Expr`）オブジェクト
 
 # プログラム例
 以下のプログラムは、Exhaustive Solverを使用して**Low Autocorrelation Binary Sequences (LABS)**問題の解を探索します：
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -251,10 +251,8 @@ int main() {
   }
   f.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("enable_default_callback", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -262,6 +260,7 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 このプログラムの出力は以下のとおりです：
 {% raw %}
 ```
@@ -281,11 +280,10 @@ TTS = 0.004s Energy = 26
 ```
 {% endraw %}
 すべての最適解は `best_energy_sols` を設定することで取得できます：
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -294,6 +292,7 @@ TTS = 0.004s Energy = 26
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 出力は以下のとおりです：
 {% raw %}
 ```
@@ -308,11 +307,10 @@ TTS = 0.004s Energy = 26
 ```
 {% endraw %}
 最小エネルギーのtop-k解は `topk_sols` を設定することで取得できます：
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("topk_sols", "10");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"topk_sols", 10}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -321,6 +319,7 @@ TTS = 0.004s Energy = 26
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 出力は以下のとおりです：
 {% raw %}
 ```
@@ -340,11 +339,10 @@ TTS = 0.004s Energy = 26
 すべての $2^n$ 個の解をメモリに格納することに注意してください。ここで $n$ は変数の数です。
 例えば、$n = 20$ の場合、100万個以上の解が格納され、メモリ使用量は $n$ に対して指数的に増加します。
 $n$ が十分小さい場合にのみ使用してください。
+{% raw %}
 ```cpp
-  qbpp::Params params;
-  params.set("all_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"all_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
     std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
@@ -353,6 +351,7 @@ $n$ が十分小さい場合にのみ使用してください。
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 以下に示すように、すべての $2^{20}$ 個の解がエネルギーの昇順で出力されます：
 {% raw %}
 ```

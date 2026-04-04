@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Min-Max Matching"
 nav_order: 17
+alt_lang: "Python version"
+alt_lang_url: "python/MINMAX_MATCHING"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Minimum Maximal Matching Problem
@@ -65,7 +68,6 @@ $$
 ## QUBO++ program
 The following QUBO++ program finds a minimum maximal matching of a fixed undirected graph with $N=16$ nodes and $M=27$ edges:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -214,7 +216,6 @@ $$
 ## QUBO++プログラム
 以下のQUBO++プログラムは、$N=16$ 頂点、$M=27$ 辺の固定された無向グラフの最小極大マッチングを求めます:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>

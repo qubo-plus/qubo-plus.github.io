@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Data Types"
 nav_order: 10
+alt_lang: "C++ version"
+alt_lang_url: "VAREXPR"
 ---
+
 <div class="lang-en" markdown="1">
 # Variable and Expression Classes
 
@@ -38,10 +41,32 @@ f = 1 -x +2*x*y +3*y
 > Python's dynamic typing automatically converts between types as needed, so you can simply write expressions naturally.
 
 ## Coefficient and Energy Types
-In PyQBPP, coefficients and energy values use **arbitrary-precision integers** by default.
-Unlike the C++ version, there is no need to specify `COEFF_TYPE` or `ENERGY_TYPE` macros.
+By default, `import pyqbpp` uses **arbitrary-precision integers** (`cpp_int`) for all coefficients and energy values.
+This ensures correctness for any problem size without worrying about overflow.
 
-For example, the following program creates an expression with very large coefficients:
+For better performance, you can choose a fixed-precision type variant by importing a submodule:
+
+```python
+import pyqbpp as qbpp              # Default: arbitrary precision (cpp_int)
+import pyqbpp.c32e64 as qbpp      # 32-bit coefficients, 64-bit energy (fastest for most problems)
+```
+
+The following type variants are available:
+
+| Import | Coefficient | Energy | Use case |
+|---|---|---|---|
+| `import pyqbpp` | unlimited | unlimited | Development and validation |
+| `import pyqbpp.c16e32` | 16-bit | 32-bit | Small problems |
+| `import pyqbpp.c32e64` | 32-bit | 64-bit | Most common choice |
+| `import pyqbpp.c64e64` | 64-bit | 64-bit | Large coefficients |
+| `import pyqbpp.c64e128` | 64-bit | 128-bit | Large energy range |
+| `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
+
+> **NOTE**
+> The type variant must be chosen at import time and cannot be changed afterward.
+> All variables, expressions, and solvers within a program use the same type.
+
+### Example with arbitrary precision (default)
 ```python
 import pyqbpp as qbpp
 
@@ -89,10 +114,32 @@ f = 1 -x +2*x*y +3*y
 > Pythonの動的型付けが必要に応じて自動的に型変換を行うため、自然に式を記述できます。
 
 ## 係数型とエネルギー型
-PyQBPPでは、係数とエネルギー値はデフォルトで**任意精度整数**を使用します。
-C++版とは異なり、`COEFF_TYPE`や`ENERGY_TYPE`マクロを指定する必要はありません。
+デフォルトの `import pyqbpp` では、全ての係数とエネルギー値に**任意精度整数**（`cpp_int`）を使用します。
+これにより、問題のサイズに関係なくオーバーフローの心配がありません。
 
-例えば、以下のプログラムは非常に大きな係数を持つ式を作成します:
+パフォーマンスを向上させるために、サブモジュールをインポートして固定精度の型バリアントを選択できます：
+
+```python
+import pyqbpp as qbpp              # デフォルト: 任意精度 (cpp_int)
+import pyqbpp.c32e64 as qbpp      # 32ビット係数、64ビットエネルギー（大半の問題に最適）
+```
+
+以下の型バリアントが利用可能です：
+
+| インポート | 係数 | エネルギー | 用途 |
+|---|---|---|---|
+| `import pyqbpp` | 無制限 | 無制限 | 開発・検証 |
+| `import pyqbpp.c16e32` | 16ビット | 32ビット | 小規模問題 |
+| `import pyqbpp.c32e64` | 32ビット | 64ビット | 最も一般的 |
+| `import pyqbpp.c64e64` | 64ビット | 64ビット | 大きな係数 |
+| `import pyqbpp.c64e128` | 64ビット | 128ビット | 大きなエネルギー範囲 |
+| `import pyqbpp.c128e128` | 128ビット | 128ビット | 非常に大規模な問題 |
+
+> **NOTE**
+> 型バリアントはインポート時に選択し、後から変更することはできません。
+> プログラム内の全ての変数、式、ソルバーが同じ型を使用します。
+
+### 任意精度の例（デフォルト）
 ```python
 import pyqbpp as qbpp
 

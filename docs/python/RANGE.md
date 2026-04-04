@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Range Constraints"
 nav_order: 9
+alt_lang: "C++ version"
+alt_lang_url: "RANGE"
 ---
+
 <div class="lang-en" markdown="1">
 # Range Constraints and Solving Integer Linear Programming
 
@@ -54,8 +57,7 @@ g = -f + 100 * (c1 + c2)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"x = {sol(x)}, y = {sol(y)}")
 print(f"f = {sol(f)}")
@@ -71,7 +73,7 @@ In this program,
 Since the goal is maximization, the objective is negated as `-f`.
 The constraints `c1` and `c2` are penalized with a weight of 100 to ensure they are satisfied with high priority.
 
-An Easy Solver instance is created for `g`, and a search is performed with a time limit of 1.0 seconds.
+An Easy Solver instance is created for `g`, and a search is performed with a time limit of 1.0 seconds passed as a parameter to `search()`.
 After obtaining the optimal solution `sol`, the program prints the values of `x`, `y`, `f`, `c1`, `c2`, and the constraint body expressions.
 
 The program outputs:
@@ -138,8 +140,7 @@ g = -f + 100 * (c1 + c2)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"x = {sol(x)}, y = {sol(y)}")
 print(f"f = {sol(f)}")
@@ -155,7 +156,7 @@ print(f"2x+3y = {sol(c1.body)}, 7x+5y = {sol(c2.body)}")
 目標が最大化であるため、目的関数は `-f` として符号を反転しています。
 制約 `c1` と `c2` は重み100のペナルティを付けて、高い優先度で満たされるようにしています。
 
-`g` に対してEasy Solverのインスタンスを作成し、制限時間1.0秒で探索を実行します。
+`g` に対してEasy Solverのインスタンスを作成し、制限時間1.0秒を `search()` のパラメータとして渡して探索を実行します。
 最適解 `sol` を得た後、プログラムは `x`、`y`、`f`、`c1`、`c2`、および制約本体の式の値を出力します。
 
 プログラムの出力は以下の通りです：

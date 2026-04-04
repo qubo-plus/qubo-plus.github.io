@@ -1,30 +1,32 @@
 ---
 layout: default
 nav_exclude: true
-title: "Vector Operations"
+title: "Array Operations"
 nav_order: 12
+alt_lang: "Python version"
+alt_lang_url: "python/OPVECTOR"
 ---
+
 
 <div class="lang-en" markdown="1">
 
-# Basic Operators and Functions for Vectors
-Basically, operators and functions for vectors operate element-wise.
+# Basic Operators and Functions for Arrays
+Basically, operators and functions for arrays operate element-wise.
 
 
-## Basic operators for vectors
-The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for vectors of variables and expressions.
+## Basic operators for arrays
+The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for arrays of variables and expressions.
 
 In QUBO++, these operators are applied element-wise.
 
-### Vector–Scalar Operations
-When you combine a vector and a scalar, the scalar is applied to each element of the vector.
-For example, if `x` is a vector of size 3, then:
+### Array-Scalar Operations
+When you combine an array and a scalar, the scalar is applied to each element of the array.
+For example, if `x` is an array of size 3, then:
 - `2 * x` produces `{2*x[0], 2*x[1], 2*x[2]}`
 - `x + 1` produces `{x[0] + 1, x[1] + 1, x[2] + 1}`
 
 The following program illustrates this behavior:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -37,7 +39,7 @@ int main() {
   }
 }
 ```
-This program creates a vector `x = {x[0], x[1], x[2]}` of binary variables.
+This program creates an array `x = {x[0], x[1], x[2]}` of binary variables.
 Then `2 * x` multiplies each element by `2`, and `+ 1` adds `1` to each element, so `f` becomes:
 `{1 + 2*x[0], 1 + 2*x[1], 1 + 2*x[2]}`.
 This program produces the following output:
@@ -48,12 +50,11 @@ f[1] = 1 +2*x[1]
 f[2] = 1 +2*x[2]
 ```
 
-### Vector–Vector Operations
-When you combine two vectors of the same size, the operation is performed element-wise at each index.
+### Array-Array Operations
+When you combine two arrays of the same size, the operation is performed element-wise at each index.
 
-The following example uses two vectors `x` and `y`, both of size 3:
+The following example uses two arrays `x` and `y`, both of size 3:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -81,12 +82,11 @@ f[0] = 1 +2*x[0] +3*y[0]
 f[1] = 1 +2*x[1] +3*y[1]
 f[2] = 1 +2*x[2] +3*y[2]
 ```
-Vector–vector operations require the same vector size.
+Array-array operations require the same array size.
 
-The next example demonstrates a more complex element-wise expression involving vector–scalar operations, vector–vector operations, unary minus, and parentheses:
+The next example demonstrates a more complex element-wise expression involving array-scalar operations, array-array operations, unary minus, and parentheses:
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -108,7 +108,7 @@ int main() {
 ```
 In this example, all operations are still applied element-wise.
 
-- First, `x + 1` and `y - 1` add/subtract the scalar to/from each element, producing two vectors
+- First, `x + 1` and `y - 1` add/subtract the scalar to/from each element, producing two arrays
 `{x[i]+1}` and `{y[i]−1}`.
 - The unary minus -(x + 1) also works element-wise, so it becomes `{−(x[i]+1)}`.
 - The multiplication `6 * -(x + 1) * (y - 1)` is then performed element-wise as well, so for each index `i`, `f[i]=6⋅(−(x[i]+1))⋅(y[i]−1)`.
@@ -126,11 +126,10 @@ g[1] = 2 -2*x[1]*y[1] +2*x[1] -2*y[1]
 g[2] = 2 -2*x[2]*y[2] +2*x[2] -2*y[2]
 ```
 
-## Compound opertors for vectors
-Similarly, the compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** work for vectors of variables and expressions.
-The following example demonstrates how these operators work for a vector of size 3:
+## Compound operators for arrays
+Similarly, the compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** work for arrays of variables and expressions.
+The following example demonstrates how these operators work for an array of size 3:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -156,10 +155,9 @@ f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[
 f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
 ```
 
-## Square functions for vectors
-Square functions also work for vectors, as demonstrated below:
+## Square functions for arrays
+Square functions also work for arrays, as demonstrated below:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -179,10 +177,9 @@ f = {1 +x[0],1 +x[1],1 +x[2]}
 f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
 ```
 
-## Simplfy functions for vectors
-Simplify functions also work for vectors, as demonstrated below:
+## Simplify functions for arrays
+Simplify functions also work for arrays, as demonstrated below:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -205,28 +202,28 @@ simplified_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
 > **NOTE**
 > These operators and functions also work for **multi-dimensional arrays**.
 
+
 </div>
 
 <div class="lang-ja" markdown="1">
 
-# ベクトルの基本演算子と関数
-基本的に、ベクトルに対する演算子と関数は要素ごとに適用されます。
+# 配列の基本演算子と関数
+基本的に、配列に対する演算子と関数は要素ごとに適用されます。
 
 
-## ベクトルの基本演算子
-基本演算子 **`+`**、**`-`**、**`*`**、**`/`** は変数や式のベクトルに対して使用できます。
+## 配列の基本演算子
+基本演算子 **`+`**、**`-`**、**`*`**、**`/`** は変数や式の配列に対して使用できます。
 
 QUBO++では、これらの演算子は要素ごとに適用されます。
 
-### ベクトルとスカラーの演算
-ベクトルとスカラーを組み合わせると、スカラーがベクトルの各要素に適用されます。
-例えば、`x` がサイズ3のベクトルの場合:
+### 配列とスカラーの演算
+配列とスカラーを組み合わせると、スカラーが配列の各要素に適用されます。
+例えば、`x` がサイズ3の配列の場合:
 - `2 * x` は `{2*x[0], 2*x[1], 2*x[2]}` を生成
 - `x + 1` は `{x[0] + 1, x[1] + 1, x[2] + 1}` を生成
 
 以下のプログラムはこの動作を示しています。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -239,7 +236,7 @@ int main() {
   }
 }
 ```
-このプログラムは2値変数のベクトル `x = {x[0], x[1], x[2]}` を作成します。
+このプログラムは2値変数の配列 `x = {x[0], x[1], x[2]}` を作成します。
 `2 * x` で各要素に `2` を掛け、`+ 1` で各要素に `1` を加えるため、`f` は `{1 + 2*x[0], 1 + 2*x[1], 1 + 2*x[2]}` になります。
 このプログラムは以下の出力を生成します。
 ```
@@ -249,12 +246,11 @@ f[1] = 1 +2*x[1]
 f[2] = 1 +2*x[2]
 ```
 
-### ベクトル同士の演算
-同じサイズの2つのベクトルを組み合わせると、各インデックスで要素ごとに演算が行われます。
+### 配列同士の演算
+同じサイズの2つの配列を組み合わせると、各インデックスで要素ごとに演算が行われます。
 
-以下の例では、どちらもサイズ3の2つのベクトル `x` と `y` を使用しています。
+以下の例では、どちらもサイズ3の2つの配列 `x` と `y` を使用しています。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -281,12 +277,11 @@ f[0] = 1 +2*x[0] +3*y[0]
 f[1] = 1 +2*x[1] +3*y[1]
 f[2] = 1 +2*x[2] +3*y[2]
 ```
-ベクトル同士の演算は同じベクトルサイズが必要です。
+配列同士の演算は同じ配列サイズが必要です。
 
-次の例は、ベクトルとスカラーの演算、ベクトル同士の演算、単項マイナス、括弧を含む、より複雑な要素ごとの式を示しています。
+次の例は、配列とスカラーの演算、配列同士の演算、単項マイナス、括弧を含む、より複雑な要素ごとの式を示しています。
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -308,7 +303,7 @@ int main() {
 ```
 この例でも、すべての演算は要素ごとに適用されます。
 
-- まず、`x + 1` と `y - 1` は各要素にスカラーを加減算し、2つのベクトル `{x[i]+1}` と `{y[i]-1}` を生成します。
+- まず、`x + 1` と `y - 1` は各要素にスカラーを加減算し、2つの配列 `{x[i]+1}` と `{y[i]-1}` を生成します。
 - 単項マイナス -(x + 1) も要素ごとに適用され、`{-(x[i]+1)}` になります。
 - 乗算 `6 * -(x + 1) * (y - 1)` も要素ごとに行われ、各インデックス `i` で `f[i]=6*(-(x[i]+1))*(y[i]-1)` となります。
 この式を展開すると `f[i]=6-6x[i]y[i]+6x[i]-6y[i]` となり、出力と一致します。
@@ -324,11 +319,10 @@ g[1] = 2 -2*x[1]*y[1] +2*x[1] -2*y[1]
 g[2] = 2 -2*x[2]*y[2] +2*x[2] -2*y[2]
 ```
 
-## ベクトルの複合演算子
-同様に、複合演算子 **`+=`**、**`-=`**、**`*=`**、**`/=`** も変数や式のベクトルに対して使用できます。
-以下の例は、サイズ3のベクトルに対するこれらの演算子の動作を示しています。
+## 配列の複合演算子
+同様に、複合演算子 **`+=`**、**`-=`**、**`*=`**、**`/=`** も変数や式の配列に対して使用できます。
+以下の例は、サイズ3の配列に対するこれらの演算子の動作を示しています。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -354,10 +348,9 @@ f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[
 f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
 ```
 
-## ベクトルの2乗関数
-2乗関数もベクトルに対して使用できます。以下に例を示します。
+## 配列の2乗関数
+2乗関数も配列に対して使用できます。以下に例を示します。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -377,10 +370,9 @@ f = {1 +x[0],1 +x[1],1 +x[2]}
 f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
 ```
 
-## ベクトルの簡約化関数
-簡約化関数もベクトルに対して使用できます。以下に例を示します。
+## 配列の簡約化関数
+簡約化関数も配列に対して使用できます。以下に例を示します。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -402,5 +394,6 @@ simplified_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
 
 > **NOTE**
 > これらの演算子と関数は **多次元配列** に対しても使用できます。
+
 
 </div>

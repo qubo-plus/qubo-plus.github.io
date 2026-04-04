@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "TSP"
 nav_order: 62
+alt_lang: "C++ version"
+alt_lang_url: "TSP"
 ---
+
 <div class="lang-en" markdown="1">
 # Traveling Salesman Problem
 The Traveling Salesman Problem (TSP) asks for the shortest tour that visits every node exactly once and returns to the start.
@@ -69,8 +72,7 @@ f = objective + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 # Extract tour from permutation matrix
 tour = []
@@ -104,8 +106,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -226,8 +227,7 @@ f = objective + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 # Extract tour from permutation matrix
 tour = []
@@ -261,8 +261,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Pythagorean Triples"
 nav_order: 40
+alt_lang: "C++ version"
+alt_lang_url: "PYTHAGOREAN"
 ---
+
 <div class="lang-en" markdown="1">
 # Pythagorean Triples
 
@@ -31,10 +34,10 @@ g = f + c
 g.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(g)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     key = (sol(x), sol(y), sol(z))
     if key not in seen:
         seen.add(key)
@@ -106,10 +109,10 @@ g = f + c
 g.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(g)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     key = (sol(x), sol(y), sol(z))
     if key not in seen:
         seen.add(key)

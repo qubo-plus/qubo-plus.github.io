@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Edge Coloring"
 nav_order: 60
+alt_lang: "C++ version"
+alt_lang_url: "EDGE_COLOR"
 ---
+
 <div class="lang-en" markdown="1">
 # Graph Edge Coloring Problem
 Given an undirected graph $G=(V,E)$, the **graph edge coloring problem** aims to assign a color to each edge so that no two edges of the same color share a common endpoint.
@@ -72,8 +75,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(f"colors = {m}")
 print(f"onehot = {sol(onehot)}")
@@ -189,8 +191,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(f"colors = {m}")
 print(f"onehot = {sol(onehot)}")

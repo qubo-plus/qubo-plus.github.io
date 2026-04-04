@@ -2,7 +2,10 @@
 layout: default
 title: "Installation"
 nav_order: 3
+alt_lang: "Python version"
+alt_lang_url: "python/INSTALL"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Installation
@@ -24,13 +27,17 @@ There are two ways to install QUBO++:
 
 ## Method 1: Install via apt (recommended)
 
-First, add the QUBO++ apt repository:
+### Step 1: Add the QUBO++ repository
+
+Download the signing key and add the repository:
 ```bash
-curl -fsSL https://nakanocs.github.io/qbpp-apt/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/qbpp.gpg
-echo "deb [signed-by=/usr/share/keyrings/qbpp.gpg] https://nakanocs.github.io/qbpp-apt stable main" | sudo tee /etc/apt/sources.list.d/qbpp.list
+curl -fsSL https://qubo-plus.github.io/qbpp-apt/qbpp.gpg \
+  | sudo tee /usr/share/keyrings/qbpp.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/qbpp.gpg] https://qubo-plus.github.io/qbpp-apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/qbpp.list > /dev/null
 ```
 
-Then install QUBO++:
+### Step 2: Install QUBO++
 ```bash
 sudo apt update
 sudo apt install qbpp
@@ -39,13 +46,13 @@ sudo apt install qbpp
 This automatically installs headers to `/usr/local/include/qbpp/`, shared libraries to `/usr/local/lib/`, and the `qbpp-license` command to `/usr/local/bin/`.
 No environment variable configuration is needed.
 
-To upgrade to a new version:
+### Upgrading
 ```bash
 sudo apt update
 sudo apt install --only-upgrade qbpp
 ```
 
-To uninstall:
+### Uninstalling
 ```bash
 sudo apt remove qbpp
 ```
@@ -106,13 +113,17 @@ QUBO++ のインストール方法は2つあります：
 
 ## 方法1: apt によるインストール（推奨）
 
-まず、QUBO++ の apt リポジトリを追加します：
+### ステップ1: QUBO++ リポジトリの追加
+
+署名鍵をダウンロードし、リポジトリを追加します：
 ```bash
-curl -fsSL https://nakanocs.github.io/qbpp-apt/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/qbpp.gpg
-echo "deb [signed-by=/usr/share/keyrings/qbpp.gpg] https://nakanocs.github.io/qbpp-apt stable main" | sudo tee /etc/apt/sources.list.d/qbpp.list
+curl -fsSL https://qubo-plus.github.io/qbpp-apt/qbpp.gpg \
+  | sudo tee /usr/share/keyrings/qbpp.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/qbpp.gpg] https://qubo-plus.github.io/qbpp-apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/qbpp.list > /dev/null
 ```
 
-次に QUBO++ をインストールします：
+### ステップ2: QUBO++ のインストール
 ```bash
 sudo apt update
 sudo apt install qbpp
@@ -121,13 +132,13 @@ sudo apt install qbpp
 これにより、ヘッダファイルが `/usr/local/include/qbpp/` に、共有ライブラリが `/usr/local/lib/` に、`qbpp-license` コマンドが `/usr/local/bin/` に自動的にインストールされます。
 環境変数の設定は不要です。
 
-新しいバージョンにアップグレードするには：
+### アップグレード
 ```bash
 sudo apt update
 sudo apt install --only-upgrade qbpp
 ```
 
-アンインストールするには：
+### アンインストール
 ```bash
 sudo apt remove qbpp
 ```

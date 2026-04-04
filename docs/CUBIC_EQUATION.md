@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Cubic Equation"
 nav_order: 7
+alt_lang: "Python version"
+alt_lang_url: "python/CUBIC_EQUATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Cubic Equation
 Cubic equations over the integers can be solved using QUBO++. For example, consider
@@ -18,11 +21,10 @@ This equation has three integer solutions: $x = -13, 2, 11$.
 
 ## QUBO++ program for solving the cubic equations
 In the following QUBO++ program, we define an integer variable x that takes values in $[-100, 100]$, and we enumerate all optimal solutions using the Exhaustive Solver:
+{% raw %}
 ```cpp
-#define COEFF_TYPE cpp_int
-#define ENERGY_TYPE cpp_int
+#define INTEGER_TYPE_CPP_INT
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -31,16 +33,15 @@ int main() {
   auto f = x * x * x - 147 * x + 286 == 0;
   f.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
 
   for (const auto& sol : sols) {
     std::cout << "x= " << x(sol) << " sol = " << sol << std::endl;
   }
 }
 ```
+{% endraw %}
 The expression `f` corresponds to the following objective function:
 
 $$
@@ -102,11 +103,10 @@ $$
 
 ## 3次方程式を解くQUBO++プログラム
 以下のQUBO++プログラムでは、$[-100, 100]$ の範囲の整数変数 x を定義し、Exhaustive Solverを用いてすべての最適解を列挙します:
+{% raw %}
 ```cpp
-#define COEFF_TYPE cpp_int
-#define ENERGY_TYPE cpp_int
+#define INTEGER_TYPE_CPP_INT
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -115,16 +115,15 @@ int main() {
   auto f = x * x * x - 147 * x + 286 == 0;
   f.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
 
   for (const auto& sol : sols) {
     std::cout << "x= " << x(sol) << " sol = " << sol << std::endl;
   }
 }
 ```
+{% endraw %}
 式 `f` は以下の目的関数に対応します:
 
 $$

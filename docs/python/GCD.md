@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Greatest Common Divisor"
 nav_order: 43
+alt_lang: "C++ version"
+alt_lang_url: "GCD"
 ---
+
 <div class="lang-en" markdown="1">
 # Greatest Common Divisor (GCD)
 Let $P$ and $Q$ be two positive integers.
@@ -40,8 +43,7 @@ f = -r + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"GCD = {sol(r)}")
 print(f"{sol(p)} * {sol(r)} = {P}")
@@ -97,8 +99,7 @@ f = -r + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"GCD = {sol(r)}")
 print(f"{sol(p)} * {sol(r)} = {P}")

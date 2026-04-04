@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Graph Bisection"
 nav_order: 11
+alt_lang: "Python version"
+alt_lang_url: "python/BISECTION"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Graph Bisection Problem
 
@@ -55,7 +58,6 @@ where $P$ must be large enough (e.g., $P = \lvert E\rvert + 1$) to ensure that t
 The following QUBO++ program solves the Minimum Graph Bisection problem for a 16-node graph:
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -175,7 +177,6 @@ $$
 以下の QUBO++ プログラムは、16 ノードのグラフに対する最小グラフ二分割問題を解きます：
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>

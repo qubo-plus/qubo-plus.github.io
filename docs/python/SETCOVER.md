@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Set Cover"
 nav_order: 57
+alt_lang: "C++ version"
+alt_lang_url: "SETCOVER"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Set Cover Problem
 Let $U$ be a universe set, and let ${\cal 𝐹}=\lbrace S_0, S_1, \ldots S_{m-1}\rbrace$ be a family of subsets of $U$.

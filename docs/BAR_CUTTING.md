@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Cutting Stock"
 nav_order: 33
+alt_lang: "Python version"
+alt_lang_url: "python/BAR_CUTTING"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Cutting Stock Problem
@@ -46,16 +49,16 @@ $M=6$ bars of length $L=60$ and the following $N=4$ orders:
 | Quantity $c_j$ | 10 | 4 | 8 | 6 |
 
 The QUBO++ program for this cutting stock problem is as follows:
+{% raw %}
 ```cpp
 
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
   const int L = 60;
-  const qbpp::Vector<int> l = {13, 23, 8, 11};
-  const qbpp::Vector<int> c = {10, 4, 8, 6};
+  const auto l = qbpp::int_array({13, 23, 8, 11});
+  const auto c = qbpp::int_array({10, 4, 8, 6});
   const size_t N = l.size();
   const size_t M = 6;
 
@@ -71,7 +74,7 @@ int main() {
 
   auto bar_length_used = qbpp::expr(M);
   for (size_t i = 0; i < M; i++) {
-    bar_length_used[i] = qbpp::sum(x[i] * l);
+    bar_length_used[i] = qbpp::sum(qbpp::row(x, i) * l);
   }
   auto bar_constraint = 0 <= bar_length_used <= L;
 
@@ -79,10 +82,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "10.0");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 10.0}, {"target_energy", 0}});
   for (size_t i = 0; i < M; i++) {
     std::cout << "Bar " << i << ":  ";
     for (size_t j = 0; j < N; j++) {
@@ -98,14 +98,15 @@ int main() {
   }
 }
 ```
+{% endraw %}
 The program creates an `M`$\times$`N` matrix `x` of integer variables, initialized to the constant value 0.
 The nested for loops assign to each entry `x[i][j]` a bounded integer variable, `0 <= qbpp::var_int(...) <= c[j]`, so that `x[i][j]` takes a non-negative integer value no greater than `c[j]`.
 
 The constraints are defined as follows:
-- `order_fulfilled_count`: a vector of $N$ expressions where `order_fulfilled_count[j]` represents the total number of pieces produced for order $j$.
-- `order_constraint`: a vector of $N$ constraint expressions enforcing `order_fulfilled_count[j] == c[j]` for all $j$.
-- `bar_length_used`: a vector of $M$ expressions where `bar_length_used[i]` represents the total length used in bar $i$.
-- `bar_constraint`: a vector of $M$ constraint expressions enforcing `0 <= bar_length_used[i] <= L` for all $i$.
+- `order_fulfilled_count`: an array of $N$ expressions where `order_fulfilled_count[j]` represents the total number of pieces produced for order $j$.
+- `order_constraint`: an array of $N$ constraint expressions enforcing `order_fulfilled_count[j] == c[j]` for all $j$.
+- `bar_length_used`: an array of $M$ expressions where `bar_length_used[i]` represents the total length used in bar $i$.
+- `bar_constraint`: an array of $M$ constraint expressions enforcing `0 <= bar_length_used[i] <= L` for all $i$.
 - `f`: the sum of all constraint expressions. After calling `f.simplify_as_binary()`, the Easy Solver searches for a solution with target energy 0 (i.e., all constraints satisfied).
 
 The following output is an example feasible solution:
@@ -178,16 +179,16 @@ $$
 | 数量 $c_j$ | 10 | 4 | 8 | 6 |
 
 この切出し問題のQUBO++プログラムは以下のとおりです：
+{% raw %}
 ```cpp
 
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
   const int L = 60;
-  const qbpp::Vector<int> l = {13, 23, 8, 11};
-  const qbpp::Vector<int> c = {10, 4, 8, 6};
+  const auto l = qbpp::int_array({13, 23, 8, 11});
+  const auto c = qbpp::int_array({10, 4, 8, 6});
   const size_t N = l.size();
   const size_t M = 6;
 
@@ -203,7 +204,7 @@ int main() {
 
   auto bar_length_used = qbpp::expr(M);
   for (size_t i = 0; i < M; i++) {
-    bar_length_used[i] = qbpp::sum(x[i] * l);
+    bar_length_used[i] = qbpp::sum(qbpp::row(x, i) * l);
   }
   auto bar_constraint = 0 <= bar_length_used <= L;
 
@@ -211,10 +212,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "10.0");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 10.0}, {"target_energy", 0}});
   for (size_t i = 0; i < M; i++) {
     std::cout << "Bar " << i << ":  ";
     for (size_t j = 0; j < N; j++) {
@@ -230,14 +228,15 @@ int main() {
   }
 }
 ```
+{% endraw %}
 このプログラムは整数変数の `M`$\times$`N` 行列 `x` を作成し、定数値0で初期化します。
 ネストされたforループにより、各エントリ `x[i][j]` に上限付き整数変数 `0 <= qbpp::var_int(...) <= c[j]` が割り当てられ、`x[i][j]` は `c[j]` 以下の非負整数値をとります。
 
 制約は以下のように定義されます：
-- `order_fulfilled_count`: $N$ 個の式のベクトルで、`order_fulfilled_count[j]` は注文 $j$ について生産されたピースの合計数を表します。
-- `order_constraint`: すべての $j$ に対して `order_fulfilled_count[j] == c[j]` を強制する $N$ 個の制約式のベクトルです。
-- `bar_length_used`: $M$ 個の式のベクトルで、`bar_length_used[i]` は棒 $i$ で使用された合計長を表します。
-- `bar_constraint`: すべての $i$ に対して `0 <= bar_length_used[i] <= L` を強制する $M$ 個の制約式のベクトルです。
+- `order_fulfilled_count`: $N$ 個の式の配列で、`order_fulfilled_count[j]` は注文 $j$ について生産されたピースの合計数を表します。
+- `order_constraint`: すべての $j$ に対して `order_fulfilled_count[j] == c[j]` を強制する $N$ 個の制約式の配列です。
+- `bar_length_used`: $M$ 個の式の配列で、`bar_length_used[i]` は棒 $i$ で使用された合計長を表します。
+- `bar_constraint`: すべての $i$ に対して `0 <= bar_length_used[i] <= L` を強制する $M$ 個の制約式の配列です。
 - `f`: すべての制約式の和です。`f.simplify_as_binary()` を呼び出した後、Easy Solverはターゲットエネルギー0（すなわちすべての制約が満たされた状態）の解を探索します。
 
 以下の出力は実行可能解の例です：

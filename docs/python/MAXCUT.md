@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Max-Cut"
 nav_order: 51
+alt_lang: "C++ version"
+alt_lang_url: "MAXCUT"
 ---
+
 <div class="lang-en" markdown="1">
 # Max-Cut Problem
 

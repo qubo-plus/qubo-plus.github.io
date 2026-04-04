@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Integer Variables"
 nav_order: 7
+alt_lang: "C++ version"
+alt_lang_url: "INTEGER"
 ---
+
 <div class="lang-en" markdown="1">
 # Integer Variables and Solving Simultaneous Equations
 
@@ -58,8 +61,7 @@ h = f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print("sol =", sol)
 print("x =", x, "=", sol(x))
@@ -74,7 +76,7 @@ An `Expr` object **`f`** is created to represent the constraint **`(x + y) == 10
 Internally, this is equivalent to the QUBO expression `sqr(x + y - 10)`.
 Similarly, **`g`** represents the constraint **`(2 * x + 4 * y) == 28`**.
 The combined expression **`h = f + g`** encodes both equations.
-An Easy Solver instance is created with `h`, and the target energy is set to `0`, since the optimal solution satisfies all constraints.
+An Easy Solver instance is created with `h`, and `{"target_energy": 0}` is passed to `search()`, since the optimal solution satisfies all constraints.
 Calling `search()` returns a `Sol` object `sol` that stores the optimal assignment of all binary variables.
 
 Here,
@@ -155,8 +157,7 @@ h = f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print("sol =", sol)
 print("x =", x, "=", sol(x))
@@ -171,7 +172,7 @@ print("2x + 4y =", sol(g.body))
 内部的には、これはQUBO式 `sqr(x + y - 10)` と等価です。
 同様に、**`g`** は制約 **`(2 * x + 4 * y) == 28`** を表します。
 結合式 **`h = f + g`** は両方の方程式をエンコードします。
-Easy Solver のインスタンスを `h` で作成し、最適解がすべての制約を満たすため、目標エネルギーを `0` に設定します。
+Easy Solver のインスタンスを `h` で作成し、最適解がすべての制約を満たすため、`search()` に `{"target_energy": 0}` を渡します。
 `search()` を呼び出すと、すべてのバイナリ変数の最適な割り当てを格納した `Sol` オブジェクト `sol` が返されます。
 
 ここで、

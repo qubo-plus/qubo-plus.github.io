@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Variables and Expressions"
 nav_order: 2
+alt_lang: "C++ version"
+alt_lang_url: "VARIABLE"
 ---
+
 <div class="lang-en" markdown="1">
 # Defining Variables and Creating Expressions
 

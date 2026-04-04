@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Replace Functions"
 nav_order: 17
+alt_lang: "C++ version"
+alt_lang_url: "REPLACE"
 ---
+
 <div class="lang-en" markdown="1">
 # Replace Functions
 
@@ -106,8 +109,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
@@ -249,8 +251,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")

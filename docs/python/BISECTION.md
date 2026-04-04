@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Graph Bisection"
 nav_order: 11
+alt_lang: "C++ version"
+alt_lang_url: "BISECTION"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Graph Bisection Problem
 
@@ -74,7 +77,7 @@ for i, j in edges:
     objective += x[i] * ~x[j] + ~x[i] * x[j]
 
 # Constraint: exactly N/2 nodes in each partition
-constraint = qsum(x) == N // 2
+constraint = qbpp.sum(x) == N // 2
 
 # Penalty weight: M + 1 ensures constraint is prioritized
 f = objective + (M + 1) * constraint
@@ -171,7 +174,7 @@ for i, j in edges:
     objective += x[i] * ~x[j] + ~x[i] * x[j]
 
 # 制約: 各パーティションに正確に N/2 ノード
-constraint = qsum(x) == N // 2
+constraint = qbpp.sum(x) == N // 2
 
 # ペナルティ重み: M + 1 で制約を優先
 f = objective + (M + 1) * constraint

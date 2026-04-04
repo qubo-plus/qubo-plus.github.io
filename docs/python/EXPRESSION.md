@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Expression Classes"
 nav_order: 15
+alt_lang: "C++ version"
+alt_lang_url: "EXPRESSION"
 ---
+
 <div class="lang-en" markdown="1">
 # Expression Classes
 

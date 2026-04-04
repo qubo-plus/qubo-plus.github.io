@@ -1,19 +1,22 @@
 ---
 layout: default
 nav_exclude: true
-title: "Vector Operations"
+title: "Array Operations"
 nav_order: 12
+alt_lang: "C++ version"
+alt_lang_url: "OPVECTOR"
 ---
-<div class="lang-en" markdown="1">
-# Basic Operators and Functions for Vectors
-Operators and functions for vectors operate element-wise.
 
-## Basic operators for vectors
-The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for vectors of variables and expressions.
+<div class="lang-en" markdown="1">
+# Basic Operators and Functions for Arrays
+Operators and functions for arrays operate element-wise.
+
+## Basic operators for arrays
+The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for arrays of variables and expressions.
 These operators are applied element-wise.
 
-### Vector–Scalar Operations
-When you combine a vector and a scalar, the scalar is applied to each element of the vector.
+### Array--Scalar Operations
+When you combine an array and a scalar, the scalar is applied to each element of the array.
 
 The following program illustrates this behavior:
 ```python
@@ -34,8 +37,8 @@ f[1] = 1 +2*x[1]
 f[2] = 1 +2*x[2]
 ```
 
-### Vector–Vector Operations
-When you combine two vectors of the same size, the operation is performed element-wise.
+### Array--Array Operations
+When you combine two arrays of the same size, the operation is performed element-wise.
 
 ```python
 import pyqbpp as qbpp
@@ -56,8 +59,8 @@ f[1] = 1 +2*x[1] +3*y[1]
 f[2] = 1 +2*x[2] +3*y[2]
 ```
 
-## Compound operators for vectors
-The compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** also work element-wise for vectors:
+## Compound operators for arrays
+The compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** also work element-wise for arrays:
 ```python
 import pyqbpp as qbpp
 
@@ -82,8 +85,8 @@ f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[
 f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
 ```
 
-## Square function for vectors
-The square function also works element-wise for vectors:
+## Square function for arrays
+The square function also works element-wise for arrays:
 ```python
 import pyqbpp as qbpp
 
@@ -97,8 +100,8 @@ This program produces the following output:
 f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
 ```
 
-## Simplify functions for vectors
-Simplify functions also work element-wise for vectors:
+## Simplify functions for arrays
+Simplify functions also work element-wise for arrays:
 ```python
 import pyqbpp as qbpp
 
@@ -119,18 +122,31 @@ simplify_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
 
 > **NOTE**
 > These operators and functions also work for **multi-dimensional arrays**.
+
+## Axis-wise Sum: **`sum(axis)`**
+The method **`sum(axis)`** sums elements along the specified axis, reducing the dimension by one.
+Calling **`sum()`** with no argument sums all elements to a scalar `Expr`:
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", 3, 4)
+col_sums = x.sum(0)          # shape (4,)
+e = col_sums.sum()           # scalar Expr (sum of all elements)
+print("e =", e)
+```
+
 </div>
 
 <div class="lang-ja" markdown="1">
-# ベクトルの基本演算子と関数
-ベクトルの演算子と関数は要素ごとに適用されます。
+# 配列の基本演算子と関数
+配列の演算子と関数は要素ごとに適用されます。
 
-## ベクトルの基本演算子
-基本演算子 **`+`**、**`-`**、**`*`**、**`/`** は変数や式のベクトルに対して使用できます。
+## 配列の基本演算子
+基本演算子 **`+`**、**`-`**、**`*`**、**`/`** は変数や式の配列に対して使用できます。
 これらの演算子は要素ごとに適用されます。
 
-### ベクトルとスカラーの演算
-ベクトルとスカラーを組み合わせると、スカラーがベクトルの各要素に適用されます。
+### 配列とスカラーの演算
+配列とスカラーを組み合わせると、スカラーが配列の各要素に適用されます。
 
 以下のプログラムはこの動作を示しています。
 ```python
@@ -151,8 +167,8 @@ f[1] = 1 +2*x[1]
 f[2] = 1 +2*x[2]
 ```
 
-### ベクトル同士の演算
-同じサイズの2つのベクトルを組み合わせると、演算は要素ごとに行われます。
+### 配列同士の演算
+同じサイズの2つの配列を組み合わせると、演算は要素ごとに行われます。
 
 ```python
 import pyqbpp as qbpp
@@ -173,8 +189,8 @@ f[1] = 1 +2*x[1] +3*y[1]
 f[2] = 1 +2*x[2] +3*y[2]
 ```
 
-## ベクトルの複合演算子
-複合演算子 **`+=`**、**`-=`**、**`*=`**、**`/=`** もベクトルに対して要素ごとに適用されます。
+## 配列の複合演算子
+複合演算子 **`+=`**、**`-=`**、**`*=`**、**`/=`** も配列に対して要素ごとに適用されます。
 ```python
 import pyqbpp as qbpp
 
@@ -199,8 +215,8 @@ f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[
 f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
 ```
 
-## ベクトルの二乗関数
-二乗関数もベクトルに対して要素ごとに適用されます。
+## 配列の二乗関数
+二乗関数も配列に対して要素ごとに適用されます。
 ```python
 import pyqbpp as qbpp
 
@@ -214,8 +230,8 @@ print("f =", f)
 f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
 ```
 
-## ベクトルの簡約化関数
-簡約化関数もベクトルに対して要素ごとに適用されます。
+## 配列の簡約化関数
+簡約化関数も配列に対して要素ごとに適用されます。
 ```python
 import pyqbpp as qbpp
 
@@ -236,4 +252,17 @@ simplify_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
 
 > **NOTE**
 > これらの演算子と関数は**多次元配列**に対しても使用できます。
+
+## 軸方向の合計: **`sum(axis)`**
+メソッド **`sum(axis)`** は指定した軸に沿って要素を合計し、次元を1つ減らします。
+引数なしの **`sum()`** はすべての要素をスカラー `Expr` に合計します：
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", 3, 4)
+col_sums = x.sum(0)          # shape (4,)
+e = col_sums.sum()           # スカラー Expr（全要素の合計）
+print("e =", e)
+```
+
 </div>

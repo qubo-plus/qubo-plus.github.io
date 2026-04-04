@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "CVRP"
 nav_order: 20
+alt_lang: "Python version"
+alt_lang_url: "python/CVRP"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Capacitated Vehicle Routing Problem (CVRP)
@@ -193,7 +196,7 @@ The vector `vehicle_capacity` stores the capacities of the $V=3$ vehicles.
 In this example, it is set to `{100, 200, 300}`, so vehicles 0, 1, and 2 have small, medium, and large capacities, respectively.
 
 ```cpp
-#define MAXDEG 2
+#include <cmath>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -541,7 +544,7 @@ $$
 この例では `{100, 200, 300}` に設定されているため、車両0、1、2はそれぞれ小、中、大の容量を持ちます。
 
 ```cpp
-#define MAXDEG 2
+#include <cmath>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>

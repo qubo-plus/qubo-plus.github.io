@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Graph Library"
 nav_order: 8
+alt_lang: "Python version"
+alt_lang_url: "python/GRAPH"
 ---
+
 <div class="lang-en" markdown="1">
 # QUBO++ Simple Graph Drawing Library and Solving the Maximum Independent Set (MIS) Problem
 
@@ -63,7 +66,6 @@ The penalty coefficient $2$ is sufficient to prioritize feasibility over increas
 ## QUBO++ Program for the MIS Problem
 Based on the QUBO formulation of the MIS problem described above, the following QUBO++ program solves an instance with 16 nodes. The edges are stored in `edges`, and the obtained solution is visualized using the QUBO++ graph drawing library:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -229,7 +231,6 @@ $$
 ## MIS 問題の QUBO++ プログラム
 上記の MIS 問題の QUBO 定式化に基づき、以下の QUBO++ プログラムは 16 ノードのインスタンスを解きます。辺は `edges` に格納され、得られた解は QUBO++ グラフ描画ライブラリを用いて可視化されます：
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>

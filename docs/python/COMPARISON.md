@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Comparison Operators"
 nav_order: 14
+alt_lang: "C++ version"
+alt_lang_url: "COMPARISON"
 ---
+
 <div class="lang-en" markdown="1">
 # Comparison Operators
 PyQBPP supports two types of operators for creating constraints:
@@ -36,8 +39,8 @@ print("f =", f)
 print("body =", f.body)
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for sol in sols:
+result = solver.search({"best_energy_sols": 0})
+for sol in result.sols():
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```
@@ -81,8 +84,8 @@ f = qbpp.between(4 * a + 9 * b + 15 * c, 5, 14)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for sol in sols:
+result = solver.search({"best_energy_sols": 0})
+for sol in result.sols():
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```
@@ -124,8 +127,8 @@ print("f =", f)
 print("body =", f.body)
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for sol in sols:
+result = solver.search({"best_energy_sols": 0})
+for sol in result.sols():
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```
@@ -169,8 +172,8 @@ f = qbpp.between(4 * a + 9 * b + 15 * c, 5, 14)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for sol in sols:
+result = solver.search({"best_energy_sols": 0})
+for sol in result.sols():
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```

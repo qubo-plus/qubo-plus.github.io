@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "LABS Problem"
 nav_order: 72
+alt_lang: "C++ version"
+alt_lang_url: "LABS"
 ---
+
 <div class="lang-en" markdown="1">
 # Low-Autocorrelation Binary Sequence (LABS) Problem
 
@@ -53,11 +56,9 @@ labs.spin_to_binary()
 labs.simplify_as_binary()
 
 solver = qbpp.EasySolver(labs)
-solver.set_param("time_limit", "10.0")
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
+sol = solver.search({"time_limit": 10.0, "enable_default_callback": 1})
 bits = "".join("+" if sol(s[j]) == 1 else "-" for j in range(n))
-print(f"{sol.energy()}: {bits}")
+print(f"{sol.energy}: {bits}")
 ```
 In this program, `s` stores a vector of `n` variables.
 The `Expr` object `labs` is constructed using a nested loop,
@@ -122,11 +123,9 @@ labs.spin_to_binary()
 labs.simplify_as_binary()
 
 solver = qbpp.EasySolver(labs)
-solver.set_param("time_limit", "10.0")
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
+sol = solver.search({"time_limit": 10.0, "enable_default_callback": 1})
 bits = "".join("+" if sol(s[j]) == 1 else "-" for j in range(n))
-print(f"{sol.energy()}: {bits}")
+print(f"{sol.energy}: {bits}")
 ```
 このプログラムでは、`s` に `n` 個の変数のベクトルを格納します。
 `Expr` オブジェクト `labs` はネストしたループを用いて構築され、LABS目的関数の数学的定義に直接対応しています。

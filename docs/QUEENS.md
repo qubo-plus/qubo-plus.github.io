@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "N-Queens"
 nav_order: 41
+alt_lang: "Python version"
+alt_lang_url: "python/QUEENS"
 ---
+
 <div class="lang-en" markdown="1">
 # N-Queens Problem
 The **8-Queens problem** aims to place 8 queens on a chessboard so that no two queens attack each other; that is, no two queens share the same row, the same column, or the same diagonal (in either direction).
@@ -53,8 +56,8 @@ $$
 
 ## QUBO++ program
 The following QUBO++ program constructs an expression representing the constraints above and then finds a feasible solution using the Easy Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -95,9 +98,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
       std::cout << (sol(x[i][j]) ? "Q" : ".");
@@ -106,6 +107,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 An `n`$\times$`n` matrix `x` of binary variables is introduced, where `x[i][j] = 1` indicates that a queen is placed at row `i` and column `j`.
 The column-wise sums are computed using `qbpp::vector_sum(x, 0)`, which returns a vector of `n` expressions (one per column).
 Applying the `==` operator element-wise produces a vector of penalty expressions; each expression evaluates to 0 if and only if the corresponding column sum equals 1.
@@ -179,8 +181,8 @@ $$
 
 ## QUBO++ プログラム
 以下の QUBO++ プログラムは、上記の制約を表す式を構築し、Easy Solver を用いて実行可能解を求めます：
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -221,9 +223,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
       std::cout << (sol(x[i][j]) ? "Q" : ".");
@@ -232,6 +232,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 `n`$\times$`n` のバイナリ変数行列 `x` を導入し、`x[i][j] = 1` は行 `i`、列 `j` にクイーンが配置されていることを示します。
 列方向の和は `qbpp::vector_sum(x, 0)` で計算され、`n` 個の式のベクトル（列ごとに1つ）を返します。
 `==` 演算子を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が 1 に等しい場合にのみ 0 になります。

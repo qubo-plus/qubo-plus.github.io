@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Graph Coloring"
 nav_order: 59
+alt_lang: "C++ version"
+alt_lang_url: "GRAPH_COLOR"
 ---
+
 <div class="lang-en" markdown="1">
 # Graph Coloring Problem
 Given an undirected graph $G=(V,E)$, the **graph coloring problem** aims to assign a color to each node so that adjacent nodes receive different colors.
@@ -64,8 +67,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(f"onehot = {sol(onehot)}")
 print(f"different = {sol(different)}")
@@ -78,7 +80,7 @@ for i in range(n):
             break
 ```
 In this program, we first define an $n\times m$ matrix `x` of binary variables, and then construct the expressions `onehot`, `different`, and `f`.
-We solve the resulting QUBO using the Easy Solver with target energy 0.
+We solve the resulting QUBO using the Easy Solver by passing `{"target_energy": 0}` to `search()`.
 
 ### Result for $m=4$
 This program produces the following output:
@@ -179,8 +181,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(f"onehot = {sol(onehot)}")
 print(f"different = {sol(different)}")
@@ -193,7 +194,7 @@ for i in range(n):
             break
 ```
 このプログラムでは、まず $n\times m$ のバイナリ変数の行列 `x` を定義し、次に式 `onehot`、`different`、`f` を構築します。
-得られた QUBO を、ターゲットエネルギー0で Easy Solver を用いて解きます。
+得られた QUBO を、`search()` に `{"target_energy": 0}` を渡して Easy Solver で解きます。
 
 ### $m=4$ の場合の結果
 このプログラムは以下の出力を生成します：

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "CVRP"
 nav_order: 61
+alt_lang: "C++ version"
+alt_lang_url: "CVRP"
 ---
+
 <div class="lang-en" markdown="1">
 # Capacitated Vehicle Routing Problem (CVRP)
 The **Capacitated Vehicle Routing Problem (CVRP)** aims to find a set of routes for $V$ **vehicles** that start and end at a single **depot** and collectively serve all **customers**.

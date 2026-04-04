@@ -2,7 +2,10 @@
 layout: default
 title: "Installation"
 nav_order: 3
+alt_lang: "C++ version"
+alt_lang_url: "INSTALL"
 ---
+
 <div class="lang-en" markdown="1">
 # Installation
 

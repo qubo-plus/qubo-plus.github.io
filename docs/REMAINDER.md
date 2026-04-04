@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Remainder Problem"
 nav_order: 2
+alt_lang: "Python version"
+alt_lang_url: "python/REMAINDER"
 ---
+
 <div class="lang-en" markdown="1">
 # Remainder Problem
 The following problem can be solved using QUBO++.
@@ -42,8 +45,8 @@ $$
 
 ## QUBO++ praogram
 The following program finds a solution $x$ for this remainder problem:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -59,9 +62,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "x = " << sol(x) << std::endl;
   std::cout << sol(x) << " - 3 * " << sol(d3) << " = " << sol(*c3) << std::endl;
@@ -69,6 +70,7 @@ int main() {
   std::cout << sol(x) << " - 7 * " << sol(d7) << " = " << sol(*c7) << std::endl;
 }
 ```
+{% endraw %}
 
 The three constraints are represented as `c3`, `c5`, and `c7`.
 Each of them is converted into a QUBO penalty term that becomes 0 when the corresponding equality holds.
@@ -131,8 +133,8 @@ $$
 
 ## QUBO++ プログラム
 以下のプログラムは、この剰余問題の解 $x$ を求めます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -148,9 +150,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "x = " << sol(x) << std::endl;
   std::cout << sol(x) << " - 3 * " << sol(d3) << " = " << sol(*c3) << std::endl;
@@ -158,6 +158,7 @@ int main() {
   std::cout << sol(x) << " - 7 * " << sol(d7) << " = " << sol(*c7) << std::endl;
 }
 ```
+{% endraw %}
 
 3つの制約は `c3`、`c5`、`c7` として表現されています。
 それぞれは、対応する等式が成り立つときに0になるQUBOペナルティ項に変換されます。

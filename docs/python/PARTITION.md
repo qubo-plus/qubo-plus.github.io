@@ -3,9 +3,12 @@ layout: default
 nav_exclude: true
 title: "Partitioning Problem"
 nav_order: 5
+alt_lang: "C++ version"
+alt_lang_url: "PARTITION"
 ---
+
 <div class="lang-en" markdown="1">
-# Solving Partitioning Problem Using Vector of variables
+# Solving Partitioning Problem Using Array of variables
 
 ## Partitioning problem
 Let $w=(w_0, w_1, \ldots, w_{n-1})$ be $n$ positive numbers.
@@ -79,7 +82,7 @@ print()
 ```
 
 In this program, **`w`** is a Python list with 8 numbers.
-A vector **`x`** of `len(w)=8` binary variables is defined.
+An array **`x`** of `len(w)=8` binary variables is defined.
 Two `Expr` objects **`p`** and **`q`** are defined, and the expressions for $P(x)$ and $Q(x)$
 are constructed in the for-loop.
 Here, **`~x[i]`** denotes the negated literal $\overline{x_i}$ of `x[i]`.
@@ -110,36 +113,36 @@ Q : 64 27 74 40
 > In contrast, **`sol(f)`** is natural from an **object-oriented programming perspective**, where the solution object evaluates an expression.
 > You may use either form according to your preference.
 
-## PyQBPP program using vector operations
-PyQBPP has rich vector operations that can simplify the code.
+## PyQBPP program using array operations
+PyQBPP has rich array operations that can simplify the code.
 
-In the following code, `w` is defined as a `Vector` object by wrapping the Python list with `qbpp.Vector()`.
-This converts the plain list into a `Vector`, which supports element-wise operations such as `+`, `-`, `*`, and `~`.
-Since the overloaded operator `*` for `Vector` performs element-wise multiplication,
+In the following code, `w` is a plain Python list of integers.
+When a Python list is multiplied by an `Array` (e.g., `w * x`), PyQBPP's `__rmul__` automatically performs element-wise multiplication.
+Since the overloaded operator `*` performs element-wise multiplication,
 **`qbpp.sum(w * x)`** returns the `Expr` object representing $P(L)$.
-The `~` operator applied to a `Vector` of variables returns a vector of their negated literals.
+The `~` operator applied to an `Array` of variables returns an array of their negated literals.
 Thus, **`qbpp.sum(w * ~x)`** returns an `Expr` object storing $Q(L)$.
 
 ```python
 import pyqbpp as qbpp
 
-w = qbpp.Vector([64, 27, 47, 74, 12, 83, 63, 40])
+w = [64, 27, 47, 74, 12, 83, 63, 40]
 x = qbpp.var("x", len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)
 f = qbpp.sqr(p - q)
 ```
 
-PyQBPP programs can be simplified by using these vector operations.
+PyQBPP programs can be simplified by using these array operations.
 
 > **NOTE**
-> The operators `+`, `-`, and `*` are overloaded both for two `Vector` objects and for a scalar and a `Vector` object.
-> For two `Vector` objects, the overloaded operators perform element-wise operations.
-> For a scalar and a `Vector` object, the overloaded operators apply the scalar operation to each element of the vector.
+> The operators `+`, `-`, and `*` are overloaded both for two `Array` objects and for a scalar and an `Array` object.
+> For two `Array` objects, the overloaded operators perform element-wise operations.
+> For a scalar and an `Array` object, the overloaded operators apply the scalar operation to each element of the array.
 </div>
 
 <div class="lang-ja" markdown="1">
-# 変数ベクトルを用いた分割問題の求解
+# 変数配列を用いた分割問題の求解
 
 ## 分割問題
 $w=(w_0, w_1, \ldots, w_{n-1})$ を $n$ 個の正の数とします。
@@ -213,7 +216,7 @@ print()
 ```
 
 このプログラムでは、**`w`** は8個の数を持つPythonリストです。
-`len(w)=8` 個のバイナリ変数のベクトル **`x`** を定義します。
+`len(w)=8` 個のバイナリ変数の配列 **`x`** を定義します。
 2つの `Expr` オブジェクト **`p`** と **`q`** を定義し、forループで $P(x)$ と $Q(x)$ の式を構築します。
 ここで **`~x[i]`** は `x[i]` の否定リテラル $\overline{x_i}$ を表します。
 `Expr` オブジェクト **`f`** に $f(x)$ の式を格納します。
@@ -243,30 +246,30 @@ Q : 64 27 74 40
 > 一方、**`sol(f)`** は解オブジェクトが式を評価するという、**オブジェクト指向プログラミングの観点**からは自然です。
 > 好みに応じてどちらの形式を使用しても構いません。
 
-## ベクトル演算を用いたPyQBPPプログラム
-PyQBPPにはコードを簡潔にするための豊富なベクトル演算があります。
+## 配列演算を用いたPyQBPPプログラム
+PyQBPPにはコードを簡潔にするための豊富な配列演算があります。
 
-以下のコードでは、`w` をPythonリストから `qbpp.Vector()` で `Vector` オブジェクトに変換して定義しています。
-これにより、要素ごとの演算（`+`, `-`, `*`, `~`）が使えるようになります。
-`Vector` に対するオーバーロード演算子 `*` は要素ごとの乗算を行うため、
+以下のコードでは、`w` は整数のPythonリストです。
+Pythonリストと `Array` の乗算（例: `w * x`）では、PyQBPPの `__rmul__` が自動的に要素ごとの乗算を行います。
+オーバーロード演算子 `*` は要素ごとの乗算を行うため、
 **`qbpp.sum(w * x)`** は $P(L)$ を表す `Expr` オブジェクトを返します。
-変数のベクトルに対する `~` 演算子は否定リテラルのベクトルを返します。
+変数の配列に対する `~` 演算子は否定リテラルの配列を返します。
 したがって、**`qbpp.sum(w * ~x)`** は $Q(L)$ を格納する `Expr` オブジェクトを返します。
 
 ```python
 import pyqbpp as qbpp
 
-w = qbpp.Vector([64, 27, 47, 74, 12, 83, 63, 40])
+w = [64, 27, 47, 74, 12, 83, 63, 40]
 x = qbpp.var("x", len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)
 f = qbpp.sqr(p - q)
 ```
 
-これらのベクトル演算を使用することで、PyQBPPプログラムを簡潔に記述できます。
+これらの配列演算を使用することで、PyQBPPプログラムを簡潔に記述できます。
 
 > **NOTE**
-> 演算子 `+`、`-`、`*` は、2つの `Vector` オブジェクト間、およびスカラーと `Vector` オブジェクト間の両方でオーバーロードされています。
-> 2つの `Vector` オブジェクトの場合、オーバーロード演算子は要素ごとの演算を行います。
-> スカラーと `Vector` オブジェクトの場合、オーバーロード演算子はベクトルの各要素にスカラー演算を適用します。
+> 演算子 `+`、`-`、`*` は、2つの `Array` オブジェクト間、およびスカラーと `Array` オブジェクト間の両方でオーバーロードされています。
+> 2つの `Array` オブジェクトの場合、オーバーロード演算子は要素ごとの演算を行います。
+> スカラーと `Array` オブジェクトの場合、オーバーロード演算子は配列の各要素にスカラー演算を適用します。
 </div>

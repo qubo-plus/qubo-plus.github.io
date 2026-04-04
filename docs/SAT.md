@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "SAT"
 nav_order: 44
+alt_lang: "Python version"
+alt_lang_url: "python/SAT"
 ---
+
 <div class="lang-en" markdown="1">
 # Boolean Satisfiability Problem (SAT)
 
@@ -49,6 +52,7 @@ Note that the constraint is naturally a **HUBO** (higher-order unconstrained bin
 
 The following QUBO++ program solves the 3-SAT instance described above:
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
@@ -97,9 +101,7 @@ int main() {
 
   constraint.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(constraint);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   // Print result
   std::cout << "Energy = " << sol.energy() << std::endl;
@@ -121,6 +123,7 @@ int main() {
   std::cout << "Violated clauses = " << sol(constraint) << std::endl;
 }
 ```
+{% endraw %}
 
 In this program, we define 5 binary variables and construct the penalty expression for each clause.
 For a positive literal $x_i$, we use `x[i]`, which equals 1 when the literal is False.
@@ -201,6 +204,7 @@ $$
 
 以下の QUBO++ プログラムは、上記の 3-SAT インスタンスを解きます：
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
@@ -249,9 +253,7 @@ int main() {
 
   constraint.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(constraint);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   // 結果の出力
   std::cout << "Energy = " << sol.energy() << std::endl;
@@ -273,6 +275,7 @@ int main() {
   std::cout << "Violated clauses = " << sol(constraint) << std::endl;
 }
 ```
+{% endraw %}
 
 このプログラムでは、5 つのバイナリ変数を定義し、各節のペナルティ式を構築します。
 正リテラル $x_i$ には `x[i]` を使用し、これはリテラルが偽のとき 1 になります。

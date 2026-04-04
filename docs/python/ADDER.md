@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Adder Simulation"
 nav_order: 90
+alt_lang: "C++ version"
+alt_lang_url: "ADDER"
 ---
+
 <div class="lang-en" markdown="1">
 # Adder Simulation
 
@@ -43,10 +46,10 @@ s = qbpp.var("s")
 fa = (a + b + i) - (2 * o + s) == 0
 fa.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(fa)
-sols = solver.search_optimal_solutions()
-for idx, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for idx, sol in enumerate(result.sols()):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
-    print(f"({idx}) {sol.energy()}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
+    print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
 In this program, the constraint $fa(a,b,i,c,s)$ is implemented using the equality operator `==`, which intuitively represents the constraint $a+b+i=2o+s$.
 The program produces the following output, confirming that the expression correctly models a full adder:
@@ -70,7 +73,7 @@ fa2.simplify_as_binary()
 solver2 = qbpp.ExhaustiveSolver(fa2)
 sols2 = solver2.search_optimal_solutions()
 for idx, sol in enumerate(sols2):
-    print(f"({idx}) {sol.energy()}: o={sol(o)}, s={sol(s)}")
+    print(f"({idx}) {sol.energy}: o={sol(o)}, s={sol(s)}")
 ```
 
 The program then produces the following output:
@@ -105,9 +108,9 @@ adder = fa0 + fa1 + fa2 + fa3
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-sols = solver.search_optimal_solutions()
-print(f"Number of valid solutions: {len(sols)}")
-for idx in [0, 1, len(sols)-2, len(sols)-1]:
+result = solver.search({"best_energy_sols": 0})
+print(f"Number of valid solutions: {len(result.sols())}")
+for idx in [0, 1, len(result.sols())-2, len(result.sols())-1]:
     sol = sols[idx]
     xv = "".join(str(sol(x[j])) for j in range(4))
     yv = "".join(str(sol(y[j])) for j in range(4))
@@ -147,8 +150,8 @@ adder = qbpp.replace(adder, [(c[0], 0), (c[4], 0)])
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-sols = solver.search_optimal_solutions()
-print(f"Number of valid solutions: {len(sols)}")
+result = solver.search({"best_energy_sols": 0})
+print(f"Number of valid solutions: {len(result.sols())}")
 ```
 This program produces 136 valid solutions (carry-in and carry-out are both fixed to 0, so only pairs with $x + y \leq 15$ are valid).
 </div>
@@ -191,10 +194,10 @@ s = qbpp.var("s")
 fa = (a + b + i) - (2 * o + s) == 0
 fa.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(fa)
-sols = solver.search_optimal_solutions()
-for idx, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for idx, sol in enumerate(result.sols()):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
-    print(f"({idx}) {sol.energy()}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
+    print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
 このプログラムでは、制約 $fa(a,b,i,c,s)$ は等価演算子 `==` を使って実装されており、直感的に制約 $a+b+i=2o+s$ を表現しています。
 プログラムは以下の出力を生成し、この式が全加算器を正しくモデル化していることを確認できます:
@@ -218,7 +221,7 @@ fa2.simplify_as_binary()
 solver2 = qbpp.ExhaustiveSolver(fa2)
 sols2 = solver2.search_optimal_solutions()
 for idx, sol in enumerate(sols2):
-    print(f"({idx}) {sol.energy()}: o={sol(o)}, s={sol(s)}")
+    print(f"({idx}) {sol.energy}: o={sol(o)}, s={sol(s)}")
 ```
 
 プログラムは以下の出力を生成します:
@@ -253,9 +256,9 @@ adder = fa0 + fa1 + fa2 + fa3
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-sols = solver.search_optimal_solutions()
-print(f"Number of valid solutions: {len(sols)}")
-for idx in [0, 1, len(sols)-2, len(sols)-1]:
+result = solver.search({"best_energy_sols": 0})
+print(f"Number of valid solutions: {len(result.sols())}")
+for idx in [0, 1, len(result.sols())-2, len(result.sols())-1]:
     sol = sols[idx]
     xv = "".join(str(sol(x[j])) for j in range(4))
     yv = "".join(str(sol(y[j])) for j in range(4))
@@ -295,8 +298,8 @@ adder = qbpp.replace(adder, [(c[0], 0), (c[4], 0)])
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-sols = solver.search_optimal_solutions()
-print(f"Number of valid solutions: {len(sols)}")
+result = solver.search({"best_energy_sols": 0})
+print(f"Number of valid solutions: {len(result.sols())}")
 ```
 このプログラムは136個の有効な解を生成します（キャリーインとキャリーアウトの両方が0に固定されているため、$x + y \leq 15$ を満たす組のみが有効です）。
 </div>

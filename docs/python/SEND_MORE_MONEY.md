@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "SEND+MORE=MONEY"
 nav_order: 82
+alt_lang: "C++ version"
+alt_lang_url: "SEND_MORE_MONEY"
 ---
+
 <div class="lang-en" markdown="1">
 # Math Puzzle: SEND MORE MONEY
 
@@ -126,8 +129,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -286,8 +288,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 

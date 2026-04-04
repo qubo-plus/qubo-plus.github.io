@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Exhaustive Solver"
 nav_order: 20
+alt_lang: "C++ version"
+alt_lang_url: "EXHAUSTIVE"
 ---
+
 <div class="lang-en" markdown="1">
 # Exhaustive Solver Usage
 The **Exhaustive Solver** is a complete-search solver for QUBO/HUBO expressions.
@@ -35,12 +38,11 @@ Sets a target energy value for early termination.
 When the solver finds a solution with energy less than or equal to the target, the search terminates immediately.
 
 ## Searching Solutions
-The Exhaustive Solver searches for solutions by calling one of the following
-methods of the solver object:
-- **`search()`**: Returns the best solution found. If a CUDA GPU is available, the search is automatically accelerated using the GPU alongside CPU threads.
-- **`search_optimal_solutions()`**: Returns a list of all optimal solutions (i.e., solutions with the minimum energy), sorted by energy.
-- **`search_topk_solutions(k)`**: Returns a list of the top-k solutions with the lowest energy, sorted in increasing order of energy.
-- **`search_all_solutions()`**: Returns a list of all solutions, sorted in increasing order of energy.
+The Exhaustive Solver searches for solutions by calling the **`search(params)`** method, where `params` is a dict of search parameters.
+Multiple solutions can be collected by setting the appropriate parameter:
+- **`{"best_energy_sols": 0}`**: Collect all optimal solutions (minimum energy). Use `sol.sols()` to retrieve them.
+- **`{"topk_sols": k}`**: Collect the top-k solutions with the lowest energy.
+- **`{"all_sols": 1}`**: Collect all $2^n$ solutions (use with care — memory intensive).
 
 # Program example
 The following program searches for a solution to the
@@ -60,10 +62,9 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"enable_default_callback": 1})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 The output of this program is as follows:
 {% raw %}
@@ -83,14 +84,13 @@ TTS = 0.014s Energy = 26
 26: -++---++-+---+-+++++
 ```
 {% endraw %}
-All optimal solutions can be obtained by calling the
-**`search_optimal_solutions()`** method as follows:
+All optimal solutions can be collected by passing `"best_energy_sols"` to `search()`:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-opts = solver.search_optimal_solutions()
-for s in opts:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"best_energy_sols": 0})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 The output is as follows:
 {% raw %}
@@ -105,14 +105,13 @@ The output is as follows:
 26: +++++-+---+-++---++-
 ```
 {% endraw %}
-The top-k solutions with the lowest energy can be obtained by calling the
-**`search_topk_solutions(k)`** method as follows:
+The top-k solutions with the lowest energy can be collected by passing `"topk_sols"`:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-topk = solver.search_topk_solutions(10)
-for s in topk:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"topk_sols": 10})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 The output is as follows:
 {% raw %}
@@ -129,17 +128,16 @@ The output is as follows:
 34: +-++-+-+++-+++-----+
 ```
 {% endraw %}
-Furthermore, all solutions, including non-optimal ones, can be obtained by calling
-the **`search_all_solutions()`** method.
-Note that this function stores all $2^n$ solutions in memory, where $n$ is the number of variables.
+Furthermore, all solutions, including non-optimal ones, can be collected by passing `"all_sols"`.
+Note that this stores all $2^n$ solutions in memory, where $n$ is the number of variables.
 For example, with $n = 20$, over one million solutions are stored, and memory usage grows exponentially with $n$.
-Use this function only when $n$ is small enough.
+Use this option only when $n$ is small enough.
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-all_sols = solver.search_all_solutions()
-for s in all_sols:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"all_sols": 1})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 This prints all $2^{20}$ solutions in increasing order of energy.
 </div>
@@ -173,11 +171,11 @@ Exhaustive Solverを使用するには、以下のように式（`Expr`）オブ
 ソルバーが目標以下のエネルギーを持つ解を見つけると、探索は直ちに終了します。
 
 ## 解の探索
-Exhaustive Solverは、ソルバーオブジェクトの以下のメソッドのいずれかを呼び出すことで解を探索します:
-- **`search()`**: 見つかった最良の解を返します。CUDA GPUが利用可能な場合、CPUスレッドと並行してGPUを使用して探索が自動的に加速されます。
-- **`search_optimal_solutions()`**: すべての最適解（最小エネルギーを持つ解）のリストをエネルギー順にソートして返します。
-- **`search_topk_solutions(k)`**: エネルギーが最も低いtop-k解のリストをエネルギーの昇順にソートして返します。
-- **`search_all_solutions()`**: すべての解のリストをエネルギーの昇順にソートして返します。
+Exhaustive Solverは、**`search(params)`** メソッドを呼び出すことで解を探索します。`params` は探索パラメータの辞書です。
+複数の解を収集するには、適切なパラメータを設定します:
+- **`{"best_energy_sols": 0}`**: すべての最適解（最小エネルギー）を収集。`sol.sols()` で取得。
+- **`{"topk_sols": k}`**: エネルギーが最も低い top-k 解を収集。
+- **`{"all_sols": 1}`**: すべての $2^n$ 個の解を収集（メモリ注意）。
 
 # プログラム例
 以下のプログラムは、Exhaustive Solverを使用して
@@ -196,10 +194,9 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"enable_default_callback": 1})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 このプログラムの出力は以下の通りです:
 {% raw %}
@@ -219,13 +216,13 @@ TTS = 0.014s Energy = 26
 26: -++---++-+---+-+++++
 ```
 {% endraw %}
-すべての最適解は、以下のように **`search_optimal_solutions()`** メソッドを呼び出すことで取得できます:
+すべての最適解は、`"best_energy_sols"` を `search()` に渡すことで取得できます:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-opts = solver.search_optimal_solutions()
-for s in opts:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"best_energy_sols": 0})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 出力は以下の通りです:
 {% raw %}
@@ -240,13 +237,13 @@ for s in opts:
 26: +++++-+---+-++---++-
 ```
 {% endraw %}
-エネルギーが最も低いtop-k解は、以下のように **`search_topk_solutions(k)`** メソッドを呼び出すことで取得できます:
+エネルギーが最も低い top-k 解は、`"topk_sols"` を渡すことで取得できます:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-topk = solver.search_topk_solutions(10)
-for s in topk:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"topk_sols": 10})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 出力は以下の通りです:
 {% raw %}
@@ -263,16 +260,16 @@ for s in topk:
 34: +-++-+-+++-+++-----+
 ```
 {% endraw %}
-さらに、最適でない解を含むすべての解は、**`search_all_solutions()`** メソッドを呼び出すことで取得できます。
-この関数はすべての $2^n$ 個の解をメモリに格納することに注意してください（$n$ は変数の数）。
+さらに、最適でない解を含むすべての解は、`"all_sols"` を渡すことで取得できます。
+すべての $2^n$ 個の解がメモリに格納されることに注意してください（$n$ は変数の数）。
 例えば、$n = 20$ の場合、100万以上の解が格納され、メモリ使用量は $n$ に対して指数的に増加します。
-$n$ が十分に小さい場合のみ、この関数を使用してください。
+$n$ が十分に小さい場合のみ使用してください。
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-all_sols = solver.search_all_solutions()
-for s in all_sols:
-    bits = "".join("-" if s(i) == 0 else "+" for i in range(size))
-    print(f"{s.energy()}: {bits}")
+sol = solver.search({"all_sols": 1})
+for s in sol.sols():
+    bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
+    print(f"{s.energy}: {bits}")
 ```
 これにより、すべての $2^{20}$ 個の解がエネルギーの昇順に表示されます。
 </div>

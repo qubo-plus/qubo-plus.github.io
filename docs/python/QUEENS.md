@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "N-Queens"
 nav_order: 81
+alt_lang: "C++ version"
+alt_lang_url: "QUEENS"
 ---
+
 <div class="lang-en" markdown="1">
 # N-Queens Problem
 The **8-Queens problem** aims to place 8 queens on a chessboard so that no two queens attack each other; that is, no two queens share the same row, the same column, or the same diagonal (in either direction).
@@ -84,8 +87,7 @@ f += qbpp.sum(qbpp.between(b, 0, 1))
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 for i in range(n):
     for j in range(n):
         print("Q" if sol(x[i][j]) == 1 else ".", end="")
@@ -102,7 +104,7 @@ Similarly, `b[i]` accumulates variables on an anti-diagonal with a fixed value o
 The range constraint `between(a, 0, 1)` (and similarly for `b`) is applied element-wise and produces penalties that become 0 if and only if each diagonal/anti-diagonal contains at most one queen.
 These penalties are added to `f`.
 
-After converting the expression into a binary QUBO form with `f.simplify_as_binary()`, the Easy Solver searches for a solution with target energy 0.
+After converting the expression into a binary QUBO form with `f.simplify_as_binary()`, the Easy Solver searches for a solution with target energy 0 by passing `{"target_energy": 0}` to `search()`.
 The resulting assignment `sol` is then printed as an 8-by-8 board, where `Q` denotes a queen and `.` denotes an empty square.
 For example, the program may produce the following output:
 ```
@@ -194,8 +196,7 @@ f += qbpp.sum(qbpp.between(b, 0, 1))
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 for i in range(n):
     for j in range(n):
         print("Q" if sol(x[i][j]) == 1 else ".", end="")
@@ -212,7 +213,7 @@ for i in range(n):
 範囲制約 `between(a, 0, 1)`（`b` も同様）は要素ごとに適用され、各対角線/反対角線に最大1つのクイーンが含まれる場合にのみ0となるペナルティを生成します。
 これらのペナルティは `f` に加算されます。
 
-`f.simplify_as_binary()` で式をバイナリ QUBO 形式に変換した後、Easy Solver がターゲットエネルギー0の解を探索します。
+`f.simplify_as_binary()` で式をバイナリ QUBO 形式に変換した後、`search()` に `{"target_energy": 0}` を渡して Easy Solver がターゲットエネルギー0の解を探索します。
 得られた割り当て `sol` は 8x8 の盤面として出力され、`Q` はクイーン、`.` は空のマスを表します。
 例えば、プログラムは以下のような出力を生成する場合があります：
 ```

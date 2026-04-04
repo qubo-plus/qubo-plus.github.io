@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Maximum Clique"
 nav_order: 53
+alt_lang: "C++ version"
+alt_lang_url: "MAX_CLIQUE"
 ---
+
 <div class="lang-en" markdown="1">
 # Maximum Clique Problem
 

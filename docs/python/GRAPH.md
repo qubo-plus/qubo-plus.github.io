@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "MIS Problem"
 nav_order: 50
+alt_lang: "C++ version"
+alt_lang_url: "GRAPH"
 ---
+
 <div class="lang-en" markdown="1">
 # Maximum Independent Set (MIS) Problem
 

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "QR: Variables"
 nav_order: 30
+alt_lang: "C++ version"
+alt_lang_url: "QR_VARIABLE"
 ---
+
 <div class="lang-en" markdown="1">
 # Quick Reference: Variables and Expressions
 ## Data types in PyQBPP
@@ -20,7 +23,7 @@ s = str(obj)
 ## Variable classes
 - **`pyqbpp.Var`**:
   A class that holds a unique 32-bit integer ID.
-  The variable name can be retrieved via the `name` property.
+  The variable name can be retrieved via `str(x)`.
 
 > **NOTE**
 > A `pyqbpp.Var` object represents a variable symbolically.
@@ -34,19 +37,19 @@ The following functions are provided to create variables:
   Creates a `pyqbpp.Var` object with the given name `"name"`.
 
 - **`pyqbpp.var("name", s1)`**:
-  Creates a one-dimensional array (vector) of `pyqbpp.Var` objects with the base name `"name"`.
+  Creates a one-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i]`.
-  The resulting type is `pyqbpp.Vector`.
+  The resulting type is `pyqbpp.Array`.
 
 - **`pyqbpp.var("name", s1, s2)`**:
   Creates a two-dimensional array (matrix) of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]`.
-  The resulting type is a nested `pyqbpp.Vector`.
+  The resulting type is a nested `pyqbpp.Array`.
 
 - **`pyqbpp.var("name", s1, s2, ...)`**:
   Creates a higher-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]...`.
-  The resulting type is a nested `pyqbpp.Vector`.
+  The resulting type is a nested `pyqbpp.Array`.
 
 > **NOTE**
 > If `"name"` is omitted, numbered names such as `"{0}"`, `"{1}"`, ... are automatically assigned in creation order.
@@ -56,22 +59,17 @@ The following functions are provided to create variables:
 import pyqbpp as qbpp
 
 x = qbpp.var("x")          # Single variable named "x"
-y = qbpp.var("y", 3)       # Vector: y[0], y[1], y[2]
+y = qbpp.var("y", 3)       # Array: y[0], y[1], y[2]
 z = qbpp.var("z", 2, 3)    # 2x3 matrix: z[0][0], ..., z[1][2]
 a = qbpp.var()             # Single unnamed variable
-b = qbpp.var(5)            # Vector of 5 unnamed variables
+b = qbpp.var(5)            # Array of 5 unnamed variables
 ```
 
 ## `pyqbpp.Var` properties and methods
 For a `pyqbpp.Var` instance `x`, the following are available:
 
-- **`x.name`** (property):
+- **`str(x)`**:
   Returns the name of `x` as a string.
-
-- **`x.index`** (property):
-  Returns the unique integer ID of `x`.
-
-Usually, there is no need to use these properties explicitly in PyQBPP programs.
 
 ## Integer variable class
 - **`pyqbpp.VarInt`**:
@@ -91,10 +89,10 @@ The following functions are provided to create integer variables:
   Internally, this also creates `pyqbpp.Var` objects used in the underlying expression.
 
 - **`pyqbpp.between(pyqbpp.var_int("name", s1), l, u)`**:
-  Creates a one-dimensional array (vector) of `pyqbpp.VarInt` objects with the base name `"name"`
+  Creates a one-dimensional array of `pyqbpp.VarInt` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  The resulting type is `pyqbpp.Vector`.
+  The resulting type is `pyqbpp.Array`.
   Higher-dimensional arrays of `pyqbpp.VarInt` objects can be created in the same way as `pyqbpp.Var` objects.
 
 ### Examples
@@ -102,7 +100,7 @@ The following functions are provided to create integer variables:
 import pyqbpp as qbpp
 
 x = qbpp.between(qbpp.var_int("x"), 0, 10)       # Integer variable x in [0, 10]
-y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Vector of 3 integer variables in [-5, 5]
+y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Array of 3 integer variables in [-5, 5]
 z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variables in [1, 8]
 ```
 
@@ -115,7 +113,7 @@ For a `pyqbpp.VarInt` instance `x`, the following are available:
 - **`x.max_val`** (property):
   Returns the maximum value `u` of `x`.
 
-- **`x.int_vars`** (property):
+- **`x.vars`** (property):
   Returns the list of `pyqbpp.Var` objects used to represent the integer variable.
 
 - **`x.coeffs`** (property):
@@ -123,7 +121,7 @@ For a `pyqbpp.VarInt` instance `x`, the following are available:
 
 The following expression is equivalent to the expression stored in `x`:
 ```python
-x.min_val + qbpp.sum(x.int_vars * x.coeffs)
+x.min_val + qbpp.sum(x.vars * x.coeffs)
 ```
 
 ### Comparison with C++ QUBO++
@@ -135,11 +133,11 @@ x.min_val + qbpp.sum(x.int_vars * x.coeffs)
 <tbody>
 <tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>between(var_int("name"), l, u)</code></td></tr>
 <tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>between(var_int("name", s1), l, u)</code></td></tr>
-<tr><td><code>x.name()</code></td><td><code>x.name</code> (property)</td></tr>
+<tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
 <tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
 <tr><td><code>x.min_val()</code></td><td><code>x.min_val</code> (property)</td></tr>
 <tr><td><code>x.max_val()</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars()</code></td><td><code>x.int_vars</code> (property)</td></tr>
+<tr><td><code>x.vars()</code></td><td><code>x.vars</code> (property)</td></tr>
 <tr><td><code>x.coeffs()</code></td><td><code>x.coeffs</code> (property)</td></tr>
 </tbody>
 </table>
@@ -162,7 +160,7 @@ s = str(obj)
 ## 変数クラス
 - **`pyqbpp.Var`**:
   一意な32ビット整数IDを保持するクラスです。
-  変数名は `name` プロパティで取得できます。
+  変数名は `str(x)` で取得できます。
 
 > **NOTE**
 > `pyqbpp.Var` オブジェクトは変数をシンボリックに表現します。
@@ -176,19 +174,19 @@ s = str(obj)
   指定された名前 `"name"` を持つ `pyqbpp.Var` オブジェクトを作成します。
 
 - **`pyqbpp.var("name", s1)`**:
-  基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの1次元配列（ベクトル）を作成します。
+  基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの1次元配列を作成します。
   各要素は `name[i]` として表されます。
-  結果の型は `pyqbpp.Vector` です。
+  結果の型は `pyqbpp.Array` です。
 
 - **`pyqbpp.var("name", s1, s2)`**:
   基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの2次元配列（行列）を作成します。
   各要素は `name[i][j]` として表されます。
-  結果の型はネストされた `pyqbpp.Vector` です。
+  結果の型はネストされた `pyqbpp.Array` です。
 
 - **`pyqbpp.var("name", s1, s2, ...)`**:
   基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの高次元配列を作成します。
   各要素は `name[i][j]...` として表されます。
-  結果の型はネストされた `pyqbpp.Vector` です。
+  結果の型はネストされた `pyqbpp.Array` です。
 
 > **NOTE**
 > `"name"` を省略すると、作成順に `"{0}"`、`"{1}"` などの番号付き名前が自動的に割り当てられます。
@@ -198,22 +196,17 @@ s = str(obj)
 import pyqbpp as qbpp
 
 x = qbpp.var("x")          # Single variable named "x"
-y = qbpp.var("y", 3)       # Vector: y[0], y[1], y[2]
+y = qbpp.var("y", 3)       # Array: y[0], y[1], y[2]
 z = qbpp.var("z", 2, 3)    # 2x3 matrix: z[0][0], ..., z[1][2]
 a = qbpp.var()             # Single unnamed variable
-b = qbpp.var(5)            # Vector of 5 unnamed variables
+b = qbpp.var(5)            # Array of 5 unnamed variables
 ```
 
 ## `pyqbpp.Var` のプロパティとメソッド
 `pyqbpp.Var` のインスタンス `x` に対して、以下が利用可能です。
 
-- **`x.name`** (プロパティ):
+- **`str(x)`**:
   `x` の名前を文字列として返します。
-
-- **`x.index`** (プロパティ):
-  `x` の一意な整数IDを返します。
-
-通常、PyQBPPプログラムでこれらのプロパティを明示的に使用する必要はありません。
 
 ## 整数変数クラス
 - **`pyqbpp.VarInt`**:
@@ -233,9 +226,9 @@ b = qbpp.var(5)            # Vector of 5 unnamed variables
   内部的に、基礎となる式で使用される `pyqbpp.Var` オブジェクトも作成します。
 
 - **`pyqbpp.between(pyqbpp.var_int("name", s1), l, u)`**:
-  基本名 `"name"` と同じ範囲 `[l, u]` を持つ `pyqbpp.VarInt` オブジェクトの1次元配列（ベクトル）を作成します。
+  基本名 `"name"` と同じ範囲 `[l, u]` を持つ `pyqbpp.VarInt` オブジェクトの1次元配列を作成します。
   各要素は `name[i]` として表されます。
-  結果の型は `pyqbpp.Vector` です。
+  結果の型は `pyqbpp.Array` です。
   `pyqbpp.VarInt` オブジェクトの高次元配列は、`pyqbpp.Var` オブジェクトと同じ方法で作成できます。
 
 ### 例
@@ -243,7 +236,7 @@ b = qbpp.var(5)            # Vector of 5 unnamed variables
 import pyqbpp as qbpp
 
 x = qbpp.between(qbpp.var_int("x"), 0, 10)       # Integer variable x in [0, 10]
-y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Vector of 3 integer variables in [-5, 5]
+y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Array of 3 integer variables in [-5, 5]
 z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variables in [1, 8]
 ```
 
@@ -256,7 +249,7 @@ z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variabl
 - **`x.max_val`** (プロパティ):
   `x` の最大値 `u` を返します。
 
-- **`x.int_vars`** (プロパティ):
+- **`x.vars`** (プロパティ):
   整数変数を表現するために使用される `pyqbpp.Var` オブジェクトのリストを返します。
 
 - **`x.coeffs`** (プロパティ):
@@ -264,7 +257,7 @@ z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variabl
 
 以下の式は `x` に格納されている式と等価です。
 ```python
-x.min_val + qbpp.sum(x.int_vars * x.coeffs)
+x.min_val + qbpp.sum(x.vars * x.coeffs)
 ```
 
 ### C++ QUBO++ との比較
@@ -276,11 +269,11 @@ x.min_val + qbpp.sum(x.int_vars * x.coeffs)
 <tbody>
 <tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>between(var_int("name"), l, u)</code></td></tr>
 <tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>between(var_int("name", s1), l, u)</code></td></tr>
-<tr><td><code>x.name()</code></td><td><code>x.name</code> (property)</td></tr>
+<tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
 <tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
 <tr><td><code>x.min_val()</code></td><td><code>x.min_val</code> (property)</td></tr>
 <tr><td><code>x.max_val()</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars()</code></td><td><code>x.int_vars</code> (property)</td></tr>
+<tr><td><code>x.vars()</code></td><td><code>x.vars</code> (property)</td></tr>
 <tr><td><code>x.coeffs()</code></td><td><code>x.coeffs</code> (property)</td></tr>
 </tbody>
 </table>

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Integer Linear Programming"
 nav_order: 34
+alt_lang: "Python version"
+alt_lang_url: "python/ILP"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Integer Linear Programming (ILP)
@@ -21,8 +24,8 @@ $$
 
 ## QUBO++ program
 The following QUBO++ program formulates this ILP as a QUBO expression and solves it using the Easy Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -36,9 +39,7 @@ int main() {
   auto f = -objective + 100 * (c1 + c2 + c3);
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x0 = " << sol(x[0]) << ", x1 = " << sol(x[1])
             << ", x2 = " << sol(x[2]) << std::endl;
   std::cout << "objective = " << sol(objective) << std::endl;
@@ -46,6 +47,7 @@ int main() {
             << ", *c3 = " << sol(*c3) << std::endl;
 }
 ```
+{% endraw %}
 In this program, `x` is a vector of three `qbpp::VarInt` objects, each taking an integer value in the range $[0, 5]$.
 The objective function and the three constraints are represented by `objective`, `c1`, `c2`, and `c3`, respectively.
 They are combined into a single QUBO expression `f`, where the penalty constant `100` is used to enforce the constraints.
@@ -78,8 +80,8 @@ $$
 
 ## QUBO++プログラム
 以下のQUBO++プログラムは、このILPをQUBO式として定式化し、Easy Solver を使って解きます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -93,9 +95,7 @@ int main() {
   auto f = -objective + 100 * (c1 + c2 + c3);
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x0 = " << sol(x[0]) << ", x1 = " << sol(x[1])
             << ", x2 = " << sol(x[2]) << std::endl;
   std::cout << "objective = " << sol(objective) << std::endl;
@@ -103,6 +103,7 @@ int main() {
             << ", *c3 = " << sol(*c3) << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、`x` は3つの `qbpp::VarInt` オブジェクトのベクトルであり、それぞれ $[0, 5]$ の範囲の整数値をとります。
 目的関数と3つの制約は、それぞれ `objective`、`c1`、`c2`、`c3` で表されます。
 これらはペナルティ定数 `100` を用いて制約を強制する1つのQUBO式 `f` にまとめられます。

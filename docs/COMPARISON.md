@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Comparison Operators"
 nav_order: 14
+alt_lang: "Python version"
+alt_lang_url: "python/COMPARISON"
 ---
+
 <div class="lang-en" markdown="1">
 # Comparison Operators
 QUBO++ supports two types of operators for creating constraints:
@@ -25,8 +28,8 @@ This expression attains the minimum value of 0 if and only if the equality $f=n$
 
 The following QUBO++ program searches for all solutions satisfying
 $a+2b+3c=3$ using the Exhaustive Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -39,16 +42,15 @@ int main() {
   std::cout << "f = " << f << std::endl;
   std::cout << "*f = " << *f << std::endl;
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol) << std::endl;
   }
 }
 ```
+{% endraw %}
 In this program, `f` internally holds two qbpp::Expr objects:
 - **`f`**: $(a+2b+3c−3)^2$, which attains the minimum value of 0 if the equality $a+2b+3c=3$ is satisfied.
 - **`*f`**: the left-hand side of the equality, $a+2b+3c$.
@@ -212,7 +214,6 @@ $[l,u]$, which is sufficient for enforcing the range constraint.
 ### QUBO++ program for the four cases
 The following program demonstrates how the four cases are implemented in QUBO++:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -247,8 +248,8 @@ $$
 
 ### QUBO++ program using the range operator
 The following program demonstrates the use of the range operator in QUBO++:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -258,10 +259,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 5 <= 4 * a + 9 * b + 15 * c <= 14;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -269,6 +268,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 For three binary variables $a$, $b$, and $c$,
 this program searches for solutions satisfying the constraint
 
@@ -325,8 +325,8 @@ when constructing the corresponding range constraints.
 In QUBO++, an infinite value is represented by **`qbpp::inf`**.
 
 The following program demonstrates **the lower-bound operator**:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -336,10 +336,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -347,6 +345,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 In this program, **`+qbpp::inf`** represents a positive infinite value,
 which is automatically replaced by 24.
 
@@ -361,6 +360,7 @@ a = 1, b = 1, c = 1, f = 0, *f = 24, sol = 0:{{a,1},{b,1},{c,1},{{0}[0],1},{{0}[
 {% endraw %}
 
 The following program demonstrates **the upper-bound operator**:
+{% raw %}
 ```cpp
 int main() {
   auto a = qbpp::var("a");
@@ -368,10 +368,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = -qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -379,6 +377,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 In this program, **`-qbpp::inf`** represents a negative infinite value,
 which is automatically replaced by 0.
 
@@ -413,8 +412,8 @@ $$
 この式は、等式 $f=n$ が満たされる場合に限り最小値0をとります。
 
 以下のQUBO++プログラムは、Exhaustive Solverを使用して $a+2b+3c=3$ を満たす全ての解を探索します:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -427,16 +426,15 @@ int main() {
   std::cout << "f = " << f << std::endl;
   std::cout << "*f = " << *f << std::endl;
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol) << std::endl;
   }
 }
 ```
+{% endraw %}
 このプログラムでは、`f` は内部的に2つの qbpp::Expr オブジェクトを保持しています:
 - **`f`**: $(a+2b+3c−3)^2$、等式 $a+2b+3c=3$ が満たされる場合に最小値0をとります。
 - **`*f`**: 等式の左辺、$a+2b+3c$。
@@ -590,7 +588,6 @@ $[l,u]$ 内の一部の値は $a$ で表現できませんが、表現できな�
 ### 4つの場合のQUBO++プログラム
 以下のプログラムは、QUBO++における4つの場合の実装を示しています:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -625,8 +622,8 @@ $$
 
 ### 範囲演算子を使用するQUBO++プログラム
 以下のプログラムは、QUBO++における範囲演算子の使用方法を示しています:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -636,10 +633,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 5 <= 4 * a + 9 * b + 15 * c <= 14;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -647,6 +642,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 3つのバイナリ変数 $a$, $b$, $c$ に対して、このプログラムは以下の制約を満たす解を探索します:
 
 $$
@@ -696,8 +692,8 @@ $f$ の取りうる最小値と最大値はそれぞれ0と24です。
 QUBO++では、無限大の値は **`qbpp::inf`** で表現されます。
 
 以下のプログラムは**下界演算子**を示しています:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -707,10 +703,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -718,6 +712,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 このプログラムでは、**`+qbpp::inf`** は正の無限大を表し、自動的に24に置き換えられます。
 
 このプログラムは以下の出力を生成します:
@@ -731,6 +726,7 @@ a = 1, b = 1, c = 1, f = 0, *f = 24, sol = 0:{{a,1},{b,1},{c,1},{{0}[0],1},{{0}[
 {% endraw %}
 
 以下のプログラムは**上界演算子**を示しています:
+{% raw %}
 ```cpp
 int main() {
   auto a = qbpp::var("a");
@@ -738,10 +734,8 @@ int main() {
   auto c = qbpp::var("c");
   auto f = -qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", *f = " << (*f)(sol)
@@ -749,6 +743,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 このプログラムでは、**`-qbpp::inf`** は負の無限大を表し、自動的に0に置き換えられます。
 
 このプログラムは以下の出力を生成します:

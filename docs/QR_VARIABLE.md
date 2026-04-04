@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Reference Variables"
 nav_order: 30
+alt_lang: "Python version"
+alt_lang_url: "python/QR_VARIABLE"
 ---
+
 
 <div class="lang-en" markdown="1">
 # Quick Reference: Variables and Expressions
@@ -29,23 +32,6 @@ The bit width of `energy_t` is guaranteed to be equal to or larger than that of 
 - **`vindex_t`**:
 Defined as `uint32_t` and used to store a unique integer ID for each `qbpp::Var` object.
 In most cases, it is not necessary to change this data type.
-
-## Degree of terms
-To specify the maximum degree of terms, define either `MAXDEG` or `BASEDEG`.
-- **`MAXDEG=N`** (N > 0)
-Variables in each term are stored in a fixed-size array.
-`MAXDEG` sets the size of this array, and an error occurs if a term contains more variables than the array can hold.
-If you are working with QUBO, set `MAXDEG` to 2.
-- **`BASEDEG=N`** (N > 0)
-Variables in each term are stored using a fixed-size array plus a variable-size array.
-`BASEDEG` sets the size of the fixed array.
-A term can store an unlimited number of variables; when the number of variables in a term exceeds `BASEDEG`, the variable-size array is used.
-- **`MAXDEG=0`** or **`BASEDEG=0`**:
-Equivalent to `BASEDEG=2`. The degree of terms is unlimited and no performance advisory message is displayed at program exit.
-
-If neither `MAXDEG` nor `BASEDEG` is defined, the behavior is the same as `BASEDEG=2`, but a performance advisory message is printed at program exit suggesting an appropriate value.
-
-You can define these macros via compiler options (e.g., `-DMAXDEG=2`) or in your source code (e.g., `#define MAXDEG 2`) before `#include <qbpp/qbpp.hpp>`.
 
 ## Available integer data types
 - **Standard integer types**:
@@ -94,19 +80,19 @@ The following functions are provided to create variables:
   Creates a `qbpp::Var` object with the given name `"name"`.
 
 - **`qbpp::var("name", s1)`**:
-  Creates a one-dimensional array (vector) of `qbpp::Var` objects with the base name `"name"`.
+  Creates a one-dimensional array of `qbpp::Var` objects with the base name `"name"`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Vector<qbpp::Var>`.
+  The resulting type is `qbpp::Array<1, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2)`**:
   Creates a two-dimensional array (matrix) of `qbpp::Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]`.
-  The resulting type is `qbpp::Vector<qbpp::Vector<qbpp::Var>>`.
+  The resulting type is `qbpp::Array<2, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2, ...)`**:
   Creates a higher-dimensional array of `qbpp::Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]...`.
-  The resulting type is a nested `qbpp::Vector`.
+  The resulting type is `qbpp::Array<N, qbpp::Var>` where `N` is the number of dimensions.
 
 > **NOTE**
 > If `"name"` is omitted, numbered names such as `"{0}"`, `"{1}"`, ... are automatically assigned in creation order.
@@ -143,8 +129,8 @@ The following functions are provided to create integer variables:
   Creates a one-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Vector<qbpp::VarInt>`.
-  Higher-dimensional arrays of `qbpp::VarInt` objects can be created in the same way as `qbpp::Var` objects.
+  The resulting type is `qbpp::Array<1, qbpp::VarInt>`.
+  Higher-dimensional arrays (e.g., `qbpp::Array<2, qbpp::VarInt>`) can be created in the same way as `qbpp::Var` objects.
 
 ### Integer variable member functions
 For a `qbpp::VarInt` instance `x`, the following member functions are available:
@@ -161,11 +147,11 @@ For a `qbpp::VarInt` instance `x`, the following member functions are available:
 - **`energy_t x.max_val()`**:
   Returns the maximum value `u` of `x`.
 
-- **`const qbpp::Vector<qbpp::Var>& x.vars()`**:
-  Returns the const reference of the `qbpp::Var` object vector used to represent the integer variable.
+- **`x.vars()`**:
+  Returns the `qbpp::Var` object array used to represent the integer variable.
 
-- **`qbpp::Vector<coeff_t> x.coeffs()`**:
-  Returns a copy of the integer coefficient vector.
+- **`x.coeffs()`**:
+  Returns the integer coefficient array.
 
 The following expression is equivalent to the expression stored in `x`:
 ```cpp
@@ -197,22 +183,7 @@ x.min_val() + qbpp::sum(x.coeffs() * x.vars())
 `uint32_t`として定義され、各`qbpp::Var`オブジェクトの一意な整数IDを格納するために使用されます。
 ほとんどの場合、このデータ型を変更する必要はありません。
 
-## 項の次数
-項の最大次数を指定するには、`MAXDEG`または`BASEDEG`のいずれかを定義します。
-- **`MAXDEG=N`** (N > 0)
-各項の変数は固定サイズの配列に格納されます。
-`MAXDEG`はこの配列のサイズを設定し、項に含まれる変数数が配列の容量を超えるとエラーが発生します。
-QUBOを扱う場合は、`MAXDEG`を2に設定してください。
-- **`BASEDEG=N`** (N > 0)
-各項の変数は固定サイズの配列と可変サイズの配列を組み合わせて格納されます。
-`BASEDEG`は固定配列のサイズを設定します。
-項に格納できる変数の数に制限はなく、項の変数数が`BASEDEG`を超えた場合は可変サイズの配列が使用されます。
-- **`MAXDEG=0`**または**`BASEDEG=0`**:
-`BASEDEG=2`と等価です。項の次数は無制限で、プログラム終了時にパフォーマンスに関するアドバイスメッセージは表示されません。
 
-`MAXDEG`も`BASEDEG`も定義されていない場合、動作は`BASEDEG=2`と同じですが、プログラム終了時に適切な値を提案するパフォーマンスアドバイスメッセージが出力されます。
-
-これらのマクロはコンパイラオプション（例: `-DMAXDEG=2`）またはソースコード内（例: `#define MAXDEG 2`）で`#include <qbpp/qbpp.hpp>`の前に定義できます。
 
 ## 使用可能な整数データ型
 - **標準整数型**:
@@ -259,19 +230,19 @@ std::cout << obj << std::endl;
   指定された名前`"name"`を持つ`qbpp::Var`オブジェクトを作成します。
 
 - **`qbpp::var("name", s1)`**:
-  ベース名`"name"`を持つ`qbpp::Var`オブジェクトの1次元配列（ベクトル）を作成します。
+  ベース名`"name"`を持つ`qbpp::Var`オブジェクトの1次元配列を作成します。
   各要素は`name[i]`として表現されます。
-  結果の型は`qbpp::Vector<qbpp::Var>`です。
+  結果の型は`qbpp::Array<1, qbpp::Var>`です。
 
 - **`qbpp::var("name", s1, s2)`**:
   ベース名`"name"`を持つ`qbpp::Var`オブジェクトの2次元配列（行列）を作成します。
   各要素は`name[i][j]`として表現されます。
-  結果の型は`qbpp::Vector<qbpp::Vector<qbpp::Var>>`です。
+  結果の型は`qbpp::Array<2, qbpp::Var>`です。
 
 - **`qbpp::var("name", s1, s2, ...)`**:
   ベース名`"name"`を持つ`qbpp::Var`オブジェクトの高次元配列を作成します。
   各要素は`name[i][j]...`として表現されます。
-  結果の型はネストされた`qbpp::Vector`です。
+  結果の型は`qbpp::Array<N, qbpp::Var>`です（`N`は次元数）。
 
 > **NOTE**
 > `"name"`が省略された場合、`"{0}"`、`"{1}"`、...のような番号付きの名前が作成順に自動的に割り当てられます。
@@ -305,9 +276,9 @@ std::cout << obj << std::endl;
   内部的には、基礎となる式で使用される`qbpp::Var`オブジェクトも作成されます。
 
 - **`l <= qbpp::var_int("name", s1) <= u`**:
-  ベース名`"name"`と同じ範囲`[l, u]`を持つ`qbpp::VarInt`オブジェクトの1次元配列（ベクトル）を作成します。
+  ベース名`"name"`と同じ範囲`[l, u]`を持つ`qbpp::VarInt`オブジェクトの1次元配列を作成します。
   各要素は`name[i]`として表現されます。
-  結果の型は`qbpp::Vector<qbpp::VarInt>`です。
+  結果の型は`qbpp::Array<1, qbpp::VarInt>`です。
   `qbpp::VarInt`オブジェクトの高次元配列は`qbpp::Var`オブジェクトと同じ方法で作成できます。
 
 ### 整数変数メンバ関数
@@ -325,11 +296,11 @@ std::cout << obj << std::endl;
 - **`energy_t x.max_val()`**:
   `x`の最大値`u`を返します。
 
-- **`const qbpp::Vector<qbpp::Var>& x.vars()`**:
-  整数変数を表現するために使用される`qbpp::Var`オブジェクトベクトルのconst参照を返します。
+- **`x.vars()`**:
+  整数変数を表現するために使用される`qbpp::Var`オブジェクト配列のconst参照を返します。
 
-- **`qbpp::Vector<coeff_t> x.coeffs()`**:
-  整数係数ベクトルのコピーを返します。
+- **`x.coeffs()`**:
+  整数係数配列を返します。
 
 以下の式は`x`に格納されている式と等価です:
 ```cpp

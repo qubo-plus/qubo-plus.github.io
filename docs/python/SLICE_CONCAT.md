@@ -3,16 +3,19 @@ layout: default
 nav_exclude: true
 title: "Slice and Concat"
 nav_order: 19
+alt_lang: "C++ version"
+alt_lang_url: "SLICE_CONCAT"
 ---
+
 <div class="lang-en" markdown="1">
 # Slice and Concat
 
-PyQBPP supports Python-style slicing and a `concat()` function for manipulating vectors.
+PyQBPP supports Python-style slicing and a `concat()` function for manipulating arrays.
 This page demonstrates these operations through **domain wall encoding** and the **Dual-Matrix Domain Wall** method.
 
 ## Slicing
 
-PyQBPP vectors support standard Python slice notation. Slicing returns a new `Vector`:
+PyQBPP arrays support standard Python slice notation. Slicing returns a new `Array`:
 
 ```python
 import pyqbpp as qbpp
@@ -23,7 +26,7 @@ print(x[-3:])    # last 3:   [x[5], x[6], x[7]]
 print(x[2:5])    # range:    [x[2], x[3], x[4]]
 ```
 
-For multi-dimensional vectors, use tuple indexing (similar to NumPy):
+For multi-dimensional arrays, use tuple indexing (similar to NumPy):
 
 ```python
 x = qbpp.var("x", 3, 5)
@@ -37,14 +40,14 @@ print(x[:, :, :2]) # first 2 elements along the 3rd dimension
 
 ## Concat
 
-The `concat()` function joins vectors or prepends/appends scalars:
+The `concat()` function joins arrays or prepends/appends scalars:
 
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", 4)
 
-# 1D: scalar + vector, vector + scalar
+# 1D: scalar + array, array + scalar
 y = qbpp.concat(1, qbpp.concat(x, 0))
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
@@ -56,19 +59,19 @@ zg1 = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)  # dim=1: guard cols -> 3 x 6
 
 ### Pythonic alternative using `*` (unpack operator)
 
-Python's unpack operator `*` can replace `concat()` by unpacking a `Vector` inside a `Vector()` constructor:
+Python's unpack operator `*` can replace `concat()` by unpacking an `Array` inside an `Array()` constructor:
 
 ```python
 # 1D: equivalent to concat(1, concat(x, 0))
-y = qbpp.Vector([1, *x, 0])
+y = qbpp.Array([1, *x, 0])
 
 # 2D dim=0: equivalent to concat(1, concat(z, 0, 0), 0)
-ones = qbpp.Vector([1] * 4)
-zeros = qbpp.Vector([0] * 4)
-zg0 = qbpp.Vector([ones, *z, zeros])
+ones = qbpp.Array([1] * 4)
+zeros = qbpp.Array([0] * 4)
+zg0 = qbpp.Array([ones, *z, zeros])
 
 # 2D dim=1: equivalent to concat(1, concat(z, 0, 1), 1)
-zg1 = qbpp.Vector([qbpp.Vector([1, *row, 0]) for row in z])
+zg1 = qbpp.Array([qbpp.Array([1, *row, 0]) for row in z])
 ```
 
 For the outermost dimension, the unpack style is often clearer.
@@ -98,9 +101,9 @@ f.simplify_as_binary()
 print("f =", f)
 
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search_optimal_solutions()
+sol = solver.search({"best_energy_sols": 0})
 
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 print("solutions =", len(sol.all_solutions()))
 for s in sol.all_solutions():
     bits = "".join(str(s(x[i])) for i in range(n))
@@ -156,10 +159,9 @@ f = x_dw + y_dw + match
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", str(2 * n))
-sol = solver.search()
+sol = solver.search({"target_energy": 2 * n})
 
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 print("permutation:")
 for i in range(n):
     print(" ", "".join(str(sol(x_oh[i][j])) for j in range(n)))
@@ -208,12 +210,12 @@ permutation:
 <div class="lang-ja" markdown="1">
 # スライスと連結
 
-PyQBPPはPythonスタイルのスライスと`concat()`関数によるベクトル操作をサポートしています。
+PyQBPPはPythonスタイルのスライスと`concat()`関数による配列操作をサポートしています。
 このページでは、**ドメインウォール符号化**と**Dual-Matrix Domain Wall**法を通じてこれらの操作を紹介します。
 
 ## スライス
 
-PyQBPPのベクトルはPython標準のスライス記法をサポートしています。スライスは新しい`Vector`を返します:
+PyQBPPの配列はPython標準のスライス記法をサポートしています。スライスは新しい`Array`を返します:
 
 ```python
 import pyqbpp as qbpp
@@ -224,7 +226,7 @@ print(x[-3:])    # 末尾3つ:  [x[5], x[6], x[7]]
 print(x[2:5])    # 範囲:     [x[2], x[3], x[4]]
 ```
 
-多次元ベクトルにはタプルインデックス（NumPyスタイル）を使います:
+多次元配列にはタプルインデックス（NumPyスタイル）を使います:
 
 ```python
 x = qbpp.var("x", 3, 5)
@@ -238,14 +240,14 @@ print(x[:, :, :2]) # 3次元目の先頭2要素
 
 ## 連結 (concat)
 
-`concat()` 関数はベクトルの連結やスカラーの追加を行います:
+`concat()` 関数は配列の連結やスカラーの追加を行います:
 
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", 4)
 
-# 1D: スカラー + ベクトル、ベクトル + スカラー
+# 1D: スカラー + 配列、配列 + スカラー
 y = qbpp.concat(1, qbpp.concat(x, 0))
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
@@ -257,19 +259,19 @@ zg1 = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)  # dim=1: ガードビット -> 3 
 
 ### `*`（アンパック演算子）によるPythonic な代替
 
-Pythonのアンパック演算子 `*` を使えば、`Vector()` コンストラクタ内で `concat()` を置き換えられます:
+Pythonのアンパック演算子 `*` を使えば、`Array()` コンストラクタ内で `concat()` を置き換えられます:
 
 ```python
 # 1D: concat(1, concat(x, 0)) と等価
-y = qbpp.Vector([1, *x, 0])
+y = qbpp.Array([1, *x, 0])
 
 # 2D dim=0: concat(1, concat(z, 0, 0), 0) と等価
-ones = qbpp.Vector([1] * 4)
-zeros = qbpp.Vector([0] * 4)
-zg0 = qbpp.Vector([ones, *z, zeros])
+ones = qbpp.Array([1] * 4)
+zeros = qbpp.Array([0] * 4)
+zg0 = qbpp.Array([ones, *z, zeros])
 
 # 2D dim=1: concat(1, concat(z, 0, 1), 1) と等価
-zg1 = qbpp.Vector([qbpp.Vector([1, *row, 0]) for row in z])
+zg1 = qbpp.Array([qbpp.Array([1, *row, 0]) for row in z])
 ```
 
 最外次元ではアンパックの方が明快です。
@@ -299,9 +301,9 @@ f.simplify_as_binary()
 print("f =", f)
 
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search_optimal_solutions()
+sol = solver.search({"best_energy_sols": 0})
 
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 print("solutions =", len(sol.all_solutions()))
 for s in sol.all_solutions():
     bits = "".join(str(s(x[i])) for i in range(n))
@@ -356,10 +358,9 @@ f = x_dw + y_dw + match
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", str(2 * n))
-sol = solver.search()
+sol = solver.search({"target_energy": 2 * n})
 
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 print("permutation:")
 for i in range(n):
     print(" ", "".join(str(sol(x_oh[i][j])) for j in range(n)))

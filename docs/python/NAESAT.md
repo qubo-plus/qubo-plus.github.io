@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "NAE-SAT"
 nav_order: 45
+alt_lang: "C++ version"
+alt_lang_url: "NAESAT"
 ---
+
 <div class="lang-en" markdown="1">
 # NAE-SAT (Not-All-Equal Satisfiability)
 
@@ -96,7 +99,7 @@ for clause in clauses:
     constraint += all_true + all_false
 
 # Objective: balance True/False count
-s = qsum(x)
+s = qbpp.sum(x)
 objective = (2 * s - n) * (2 * s - n)
 
 # HUBO expression with penalty weight
@@ -105,11 +108,10 @@ f = (objective + penalty_weight * constraint).simplify_as_binary()
 
 # Solve
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "1")  # n=5 is odd, so best balance gives (2*s-n)^2 = 1
-sol = solver.search()
+sol = solver.search({"target_energy": 1})  # n=5 is odd, so best balance gives (2*s-n)^2 = 1
 
 # Print results
-print(f"Energy = {sol.energy()}")
+print(f"Energy = {sol.energy}")
 print("Assignment:", " ".join(f"x[{i}]={sol(x[i])}" for i in range(n)))
 
 print(f"constraint = {sol(constraint)}")
@@ -118,7 +120,9 @@ print(f"objective  = {sol(objective)}")
 # Verify: check each clause
 all_satisfied = True
 for k, clause in enumerate(clauses):
-    sum_val = qbpp.sum(sol(x[idx]) for idx in clause)
+    sum_val = 0
+    for idx in clause:
+        sum_val += sol(x[idx])
     satisfied = 0 < sum_val < len(clause)
     print(f"Clause {k}: {'satisfied' if satisfied else 'VIOLATED'}")
     if not satisfied:
@@ -241,7 +245,7 @@ for clause in clauses:
     constraint += all_true + all_false
 
 # 目的関数: True/False の数のバランス
-s = qsum(x)
+s = qbpp.sum(x)
 objective = (2 * s - n) * (2 * s - n)
 
 # ペナルティ重み付き HUBO 式
@@ -250,11 +254,10 @@ f = (objective + penalty_weight * constraint).simplify_as_binary()
 
 # 求解
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "1")  # n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
-sol = solver.search()
+sol = solver.search({"target_energy": 1})  # n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
 
 # 結果の出力
-print(f"Energy = {sol.energy()}")
+print(f"Energy = {sol.energy}")
 print("Assignment:", " ".join(f"x[{i}]={sol(x[i])}" for i in range(n)))
 
 print(f"constraint = {sol(constraint)}")
@@ -263,7 +266,9 @@ print(f"objective  = {sol(objective)}")
 # 検証: 各節のチェック
 all_satisfied = True
 for k, clause in enumerate(clauses):
-    sum_val = qbpp.sum(sol(x[idx]) for idx in clause)
+    sum_val = 0
+    for idx in clause:
+        sum_val += sol(x[idx])
     satisfied = 0 < sum_val < len(clause)
     print(f"Clause {k}: {'satisfied' if satisfied else 'VIOLATED'}")
     if not satisfied:

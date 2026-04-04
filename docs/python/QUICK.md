@@ -2,7 +2,10 @@
 layout: default
 title: "Quick Start"
 nav_order: 4
+alt_lang: "C++ version"
+alt_lang_url: "QUICK"
 ---
+
 <div class="lang-en" markdown="1">
 # Quick Start
 

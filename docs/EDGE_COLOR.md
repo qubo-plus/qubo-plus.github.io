@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Edge Coloring"
 nav_order: 19
+alt_lang: "Python version"
+alt_lang_url: "python/EDGE_COLOR"
 ---
+
 <div class="lang-en" markdown="1">
 # Graph Edge Coloring Problem
 Given an undirected graph $G=(V,E)$, the **graph edge coloring problem** aims to assign a color to each edge so that no two edges of the same color share a common endpoint.
@@ -62,8 +65,8 @@ edge coloring of the graph exists.
 
 ## QUBO++ formulation
 It is known that the edge chromatic number of a simple graph is either $\Delta$ or $\Delta+1$, where $\Delta$ is the maximum degree of the graph. The following QUBO++ program attempts to find an edge coloring of a graph with $n$ nodes and $s$ edges using $m=\Delta$ colors:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -100,7 +103,7 @@ int main() {
     for (auto u : adj[i]) {
       for (auto v : adj[i]) {
         if (u < v) {
-          different += qbpp::sum(x[u] * x[v]);
+          different += qbpp::sum(qbpp::row(x, u) * qbpp::row(x, v));
         }
       }
     }
@@ -110,9 +113,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "colors = " << m << std::endl;
   std::cout << "onehot = " << sol(onehot) << std::endl;
@@ -134,6 +135,7 @@ int main() {
   graph.write("edge_color.svg");
 }
 ```
+{% endraw %}
 In this program, we first build the incidence list `adj`, where `adj[i]` stores the indices of edges incident to node `i`.
 We then compute the maximum degree $\Delta$ and set `m=`$\Delta$.
 Next, we define an `s`$\times$`m` matrix `x` of binary variables, where `x[i][j]=1` means that edge `i` is assigned color `j`.
@@ -214,8 +216,8 @@ $$
 
 ## QUBO++ による定式化
 単純グラフの辺彩色数は $\Delta$ または $\Delta+1$ であることが知られています。ここで $\Delta$ はグラフの最大次数です。以下の QUBO++ プログラムは、$n$ ノード、$s$ 辺のグラフに対して $m=\Delta$ 色での辺彩色を求めます：
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -252,7 +254,7 @@ int main() {
     for (auto u : adj[i]) {
       for (auto v : adj[i]) {
         if (u < v) {
-          different += qbpp::sum(x[u] * x[v]);
+          different += qbpp::sum(qbpp::row(x, u) * qbpp::row(x, v));
         }
       }
     }
@@ -262,9 +264,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "colors = " << m << std::endl;
   std::cout << "onehot = " << sol(onehot) << std::endl;
@@ -286,6 +286,7 @@ int main() {
   graph.write("edge_color.svg");
 }
 ```
+{% endraw %}
 このプログラムでは、まず接続リスト `adj` を構築します。`adj[i]` にはノード `i` に接続する辺のインデックスが格納されます。
 次に、最大次数 $\Delta$ を計算し、`m=`$\Delta$ と設定します。
 そして、`s`$\times$`m` のバイナリ変数行列 `x` を定義します。`x[i][j]=1` は辺 `i` に色 `j` が割り当てられることを意味します。

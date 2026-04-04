@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Operators and Functions"
 nav_order: 11
+alt_lang: "C++ version"
+alt_lang_url: "OPERATOR"
 ---
+
 <div class="lang-en" markdown="1">
 # Basic Operators and Functions
 

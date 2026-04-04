@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Evaluating Expressions"
 nav_order: 16
+alt_lang: "C++ version"
+alt_lang_url: "EVAL"
 ---
+
 <div class="lang-en" markdown="1">
 # Evaluating Expressions
 
@@ -55,7 +58,7 @@ print("f(0,1,1) =", sol(f))
 
 The method **`comp_energy()`** computes the energy value and caches it internally.
 A solution object returned by a solver already has its energy cached.
-To retrieve the cached energy, use the **`energy()`** method:
+To retrieve the cached energy, use the **`energy`** property:
 ```python
 import pyqbpp as qbpp
 
@@ -66,11 +69,10 @@ f = qbpp.sqr(x + 2 * y + 3 * z - 4)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(sol)
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 ```
 This program produces the following output:
 ```
@@ -83,7 +85,7 @@ You must explicitly recompute it by calling **`comp_energy()`**:
 ```python
 sol.flip(z)
 print("comp_energy =", sol.comp_energy())
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 ```
 </div>
 
@@ -137,7 +139,7 @@ print("f(0,1,1) =", sol(f))
 
 メソッド **`comp_energy()`** はエネルギー値を計算し、内部にキャッシュします。
 ソルバーから返された解オブジェクトは、既にエネルギーがキャッシュされています。
-キャッシュされたエネルギーを取得するには、**`energy()`** メソッドを使います：
+キャッシュされたエネルギーを取得するには、**`energy`** プロパティを使います：
 ```python
 import pyqbpp as qbpp
 
@@ -148,11 +150,10 @@ f = qbpp.sqr(x + 2 * y + 3 * z - 4)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print(sol)
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 ```
 このプログラムの出力は以下の通りです：
 ```
@@ -165,6 +166,6 @@ energy = 0
 ```python
 sol.flip(z)
 print("comp_energy =", sol.comp_energy())
-print("energy =", sol.energy())
+print("energy =", sol.energy)
 ```
 </div>

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Slice and Concat Functions"
 nav_order: 19
+alt_lang: "Python version"
+alt_lang_url: "python/SLICE_CONCAT"
 ---
+
 <div class="lang-en" markdown="1">
 # Slice and Concat Functions
 
@@ -25,7 +28,6 @@ whose minimum-energy solutions are exactly the domain wall patterns.
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -45,10 +47,8 @@ int main() {
 
   std::cout << "f = " << f << std::endl;
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "solutions = " << sol.all_solutions().size() << std::endl;
@@ -120,7 +120,6 @@ For details, see: [https://arxiv.org/abs/2308.01024](https://arxiv.org/abs/2308.
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -146,9 +145,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(static_cast<int64_t>(2 * n)));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(static_cast<int64_t>(2 * n))}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "x (" << n-1 << "x" << n << ")  x_oh (" << n << "x" << n << ")" << std::endl;
@@ -203,6 +200,51 @@ y (6x5)  y_oh (6x6)
 
 The optimal energy is $2n = 12$. `x_oh` and `y_oh` are identical, forming a valid $6 \times 6$ permutation matrix.
 
+## Axis-fixing Slice (`slice`, `row`, `col`)
+
+To extract a sub-array by fixing specific axes of a multi-dimensional array, use `slice`, `row`, and `col`.
+
+`row`, `col`, and axis-fixing `slice` are **global functions only** and return a new sub-array without modifying the original.
+
+### `row(i)` and `col(j)`
+
+`row(i)` fixes axis 0 at index `i`; `col(j)` fixes axis 1 at index `j`:
+
+```cpp
+auto x = qbpp::var("x", 3, 4);  // 3×4
+
+auto row0 = qbpp::row(x, 0);  // {x[0][0], x[0][1], x[0][2], x[0][3]}
+auto col2 = qbpp::col(x, 2);  // {x[0][2], x[1][2], x[2][2]}
+// row() and col() are global functions only (no member function version)
+```
+
+Example: element-wise product of two rows:
+
+```cpp
+auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // Array<1, Term> with 4 elements
+auto s = qbpp::sum(prod);                         // Expr
+```
+
+### `slice`
+
+`slice` can fix multiple axes simultaneously:
+
+{% raw %}
+```cpp
+auto z = qbpp::var("z", 2, 3, 4);  // 2×3×4
+
+auto s1 = qbpp::slice(z, {{0, 1}});          // fix axis 0 to 1 → 3×4
+auto s2 = qbpp::slice(z, {{0, 1}, {2, 3}});  // fix axis 0=1, axis 2=3 → 3 elements
+// Axis-fixing slice() is a global function only (no member function version)
+```
+{% endraw %}
+
+Out-of-range indices or duplicate axes result in a runtime error.
+
+> **NOTE**
+> `operator[]` is for accessing scalar elements by specifying all dimensions. It cannot be used to extract sub-arrays at intermediate dimensions.
+> Use `qbpp::row()`, `qbpp::col()`, or `qbpp::slice()` to obtain sub-arrays.
+
 </div>
 
 <div class="lang-ja" markdown="1">
@@ -226,7 +268,6 @@ $[0, n]$ の範囲の整数を表現できます。
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -246,10 +287,8 @@ int main() {
 
   std::cout << "f = " << f << std::endl;
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "solutions = " << sol.all_solutions().size() << std::endl;
@@ -319,7 +358,6 @@ solutions = 9
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -345,9 +383,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(static_cast<int64_t>(2 * n)));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(static_cast<int64_t>(2 * n))}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "x (" << n-1 << "x" << n << ")  x_oh (" << n << "x" << n << ")" << std::endl;
@@ -401,5 +437,52 @@ y (6x5)  y_oh (6x6)
 ```
 
 最適エネルギーは $2n = 12$ です。`x_oh` と `y_oh` は一致し、有効な $6 \times 6$ の置換行列を形成しています。
+
+## 軸固定スライス（`slice`, `row`, `col`）
+
+多次元配列から特定の軸を固定してサブ配列を取得するには、`slice`、`row`、`col` を使います。
+
+`row`、`col`、軸固定 `slice` はグローバル関数のみで、元の配列を**変更せず**新しいサブ配列を返します。
+
+### `row(i)` と `col(j)`
+
+`row(i)` は axis 0 を index `i` に固定、`col(j)` は axis 1 を index `j` に固定します:
+
+```cpp
+auto x = qbpp::var("x", 3, 4);  // 3×4
+
+auto row0 = qbpp::row(x, 0);  // {x[0][0], x[0][1], x[0][2], x[0][3]}
+auto col2 = qbpp::col(x, 2);  // {x[0][2], x[1][2], x[2][2]}
+// row(), col() はグローバル関数のみ（メンバ関数版はありません）
+```
+
+行同士の要素毎積を取る例:
+
+```cpp
+auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // Array<1, Term>(4要素)
+auto s = qbpp::sum(prod);                         // Expr
+```
+
+### `slice`
+
+`slice` は複数の軸を同時に固定できます:
+
+{% raw %}
+```cpp
+auto z = qbpp::var("z", 2, 3, 4);  // 2×3×4
+
+// グローバル（非破壊）
+auto s1 = qbpp::slice(z, {{0, 1}});          // axis 0 を 1 に固定 → 3×4
+auto s2 = qbpp::slice(z, {{0, 1}, {2, 3}});  // axis 0=1, axis 2=3 に固定 → 3要素
+
+// 軸固定 slice() はグローバル関数のみ（メンバ関数版はありません）
+```
+{% endraw %}
+
+範囲外のインデックスや重複する軸を指定した場合は実行時エラーになります。
+
+> **NOTE**
+> `operator[]` は全次元を指定してスカラー値を取得するためのもので、途中の次元で止めてサブ配列を取得することはできません。
+> サブ配列が必要な場合は `qbpp::row()`、`qbpp::col()`、`qbpp::slice()` を使用してください。
 
 </div>

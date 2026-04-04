@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Negated Literals"
 nav_order: 18
+alt_lang: "Python version"
+alt_lang_url: "python/NEGATIVE"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Negated Literals
@@ -31,7 +34,6 @@ so `~x` denotes the negated literal of `x`.
 The following program demonstrates how QUBO++ handles negated literals:
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -124,7 +126,6 @@ should be specified consistently.
 The following program first fixes `x` to 1, then fixes `~x` to 0:
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -154,7 +155,6 @@ If both are specified, their values must be consistent
 The following program evaluates the expression at $x=0, y=0, z=0$:
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -204,7 +204,6 @@ QUBO++では `~` 演算子で否定リテラルを表現します。
 以下のプログラムは、QUBO++が否定リテラルをどのように扱うかを示しています：
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -291,7 +290,6 @@ g = 1 -x[0] -x[1] -x[2] +x[0]*x[1] +x[0]*x[2] +x[1]*x[2] -x[0]*x[1]*x[2]
 以下のプログラムは、まず `x` を 1 に固定し、次に `~x` を 0 に固定します：
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -319,7 +317,6 @@ f = y*z
 以下のプログラムは、$x=0, y=0, z=0$ で式を評価します：
 {% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 
 int main() {

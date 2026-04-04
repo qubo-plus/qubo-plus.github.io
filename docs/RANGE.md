@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Range Constraints"
 nav_order: 8
+alt_lang: "Python version"
+alt_lang_url: "python/RANGE"
 ---
+
 <div class="lang-en" markdown="1">
 # Range Constraints and Solving Integer Linear Programming
 
@@ -49,8 +52,8 @@ $$
 The optimal solution of this problem is $x=4$, $y=5$, with the objective value $40$.
 
 The following QUBO++ program finds this optimal solution using the Easy Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -63,15 +66,14 @@ int main() {
   auto g = -f + 100 * (c1 + c2);
   g.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
   std::cout << "f = " << sol(f) << std::endl;
   std::cout << "c1 = " << sol(c1) << ", c2 = " << sol(c2) << std::endl;
   std::cout << "*c1 = " << sol(*c1) << ", *c2 = " << sol(*c2) << std::endl;
 }
 ```
+{% endraw %}
 
 In this QUBO++ program,
 - **`f`** represents the objective function,
@@ -142,8 +144,8 @@ $$
 この問題の最適解は $x=4$, $y=5$ であり、目的関数値は $40$ です。
 
 以下のQUBO++プログラムは、Easy Solverを使用してこの最適解を求めます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -156,15 +158,14 @@ int main() {
   auto g = -f + 100 * (c1 + c2);
   g.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
   std::cout << "f = " << sol(f) << std::endl;
   std::cout << "c1 = " << sol(c1) << ", c2 = " << sol(c2) << std::endl;
   std::cout << "*c1 = " << sol(*c1) << ", *c2 = " << sol(*c2) << std::endl;
 }
 ```
+{% endraw %}
 
 このQUBO++プログラムでは、
 - **`f`** は目的関数を表し、

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Negated Literals"
 nav_order: 18
+alt_lang: "C++ version"
+alt_lang_url: "NEGATIVE"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Negated Literals

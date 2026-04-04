@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Integer Linear Programming"
 nav_order: 74
+alt_lang: "C++ version"
+alt_lang_url: "ILP"
 ---
+
 <div class="lang-en" markdown="1">
 # Integer Linear Programming (ILP)
 **Integer Linear Programming (ILP)** can be converted into a QUBO expression using PyQBPP.
@@ -31,8 +34,7 @@ c3 = qbpp.between(x[1] + x[2], 0, 4)
 f = -objective + 100 * (c1 + c2 + c3)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 print(f"x0 = {sol(x[0])}, x1 = {sol(x[1])}, x2 = {sol(x[2])}")
 print(f"objective = {sol(objective)}")
 print(f"c1 = {sol(c1.body)}, c2 = {sol(c2.body)}, c3 = {sol(c3.body)}")
@@ -82,8 +84,7 @@ c3 = qbpp.between(x[1] + x[2], 0, 4)
 f = -objective + 100 * (c1 + c2 + c3)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 print(f"x0 = {sol(x[0])}, x1 = {sol(x[1])}, x2 = {sol(x[2])}")
 print(f"objective = {sol(objective)}")
 print(f"c1 = {sol(c1.body)}, c2 = {sol(c2.body)}, c3 = {sol(c3.body)}")

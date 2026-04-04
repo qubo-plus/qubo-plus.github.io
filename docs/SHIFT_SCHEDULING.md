@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Shift Scheduling"
 nav_order: 31
+alt_lang: "Python version"
+alt_lang_url: "python/SHIFT_SCHEDULING"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Shift Scheduling Problem
@@ -92,14 +95,14 @@ This objective function is minimized subject to the constraints described above.
 
 ## QUBO++ program for the shift scheduling
 The shift scheduling problem defined above can be formulated and solved using QUBO++ as follows:
+{% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
   const size_t days = 31;
-  const qbpp::Vector<int> worker_cost = {13, 13, 12, 12, 11, 10};
+  const auto worker_cost = qbpp::int_array({13, 13, 12, 12, 11, 10});
   const size_t workers = worker_cost.size();
 
   auto x = qbpp::var("x", workers, days + 2);
@@ -161,10 +164,7 @@ int main() {
   workers_working_days.replace(ml);
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 0}});
   for (size_t i = 0; i < workers; ++i) {
     std::cout << "Worker " << i << ": " << sol(workers_working_days[i])
               << " days worked: ";
@@ -185,11 +185,12 @@ int main() {
   std::cout << "Constraints violations: " << sol_f(constraints) << std::endl;
 }
 ```
+{% endraw %}
 In this program, the variables and expressions are defined as follows:
 - `x`: A $6\times 33$ matrix of binary variables,
-- `workers_each_day`: A vector containing the column-wise sums of `x`, representing the number of workers assigned to each day.
+- `workers_each_day`: An array containing the column-wise sums of `x`, representing the number of workers assigned to each day.
 - `each_day_4_workers`: A constraint expression that attains a minimum value of 0 if and only if exactly four workers are assigned to each day.
-- `workers_working_days`: A vector of row-wise sums of `x`, representing the total number of working days for each worker.
+- `workers_working_days`: An array of row-wise sums of `x`, representing the total number of working days for each worker.
 - `work_20_21_days`: A constraint expression that attains a minimum value of 0 if and only if each worker works for either 20 or 21 days.
 - `no_more_than_6_consecutive_working_days`:  A constraint expression that attains a minimum value of 0 if and only if no worker works for 7 or more consecutive days.
 - `no_less_than_3_consecutive_working_days`: A constraint expression that attains a minimum value of 0 if and only if every working period consists of at least 3 consecutive working days.
@@ -308,14 +309,14 @@ $$
 
 ## シフトスケジューリングのQUBO++プログラム
 上で定義したシフトスケジューリング問題は、QUBO++を用いて以下のように定式化・求解できます：
+{% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
   const size_t days = 31;
-  const qbpp::Vector<int> worker_cost = {13, 13, 12, 12, 11, 10};
+  const auto worker_cost = qbpp::int_array({13, 13, 12, 12, 11, 10});
   const size_t workers = worker_cost.size();
 
   auto x = qbpp::var("x", workers, days + 2);
@@ -377,10 +378,7 @@ int main() {
   workers_working_days.replace(ml);
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 0}});
   for (size_t i = 0; i < workers; ++i) {
     std::cout << "Worker " << i << ": " << sol(workers_working_days[i])
               << " days worked: ";
@@ -401,11 +399,12 @@ int main() {
   std::cout << "Constraints violations: " << sol_f(constraints) << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、変数と式は以下のように定義されています：
 - `x`: $6\times 33$ のバイナリ変数行列。
-- `workers_each_day`: `x` の列方向の和を含むベクトルで、各日に配置された労働者数を表します。
+- `workers_each_day`: `x` の列方向の和を含む配列で、各日に配置された労働者数を表します。
 - `each_day_4_workers`: 各日にちょうど4人の労働者が配置されているときかつそのときに限り最小値0をとる制約式。
-- `workers_working_days`: `x` の行方向の和のベクトルで、各労働者の総勤務日数を表します。
+- `workers_working_days`: `x` の行方向の和の配列で、各労働者の総勤務日数を表します。
 - `work_20_21_days`: 各労働者が20日間または21日間勤務しているときかつそのときに限り最小値0をとる制約式。
 - `no_more_than_6_consecutive_working_days`: どの労働者も7日以上連続で勤務していないときかつそのときに限り最小値0をとる制約式。
 - `no_less_than_3_consecutive_working_days`: すべての勤務期間が少なくとも3日連続の勤務日で構成されているときかつそのときに限り最小値0をとる制約式。

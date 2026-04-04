@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Interval Subset Sum"
 nav_order: 35
+alt_lang: "Python version"
+alt_lang_url: "python/ISSP"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Interval Subset Sum Problem (ISSP)
@@ -89,15 +92,16 @@ where $P$ is a sufficiently large constant to prioritize feasibility.
 
 ## QUBO++ program of the HUBO formulation
 The following QUBO++ program solves an ISSP instance with 8 intervals.
-The lower and upper bounds $[l_i,u_i]$ are stored in the vectors `lower` and `upper`, and $T=100$.
+The lower and upper bounds $[l_i,u_i]$ are stored in the arrays `lower` and `upper`, and $T=100$.
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  qbpp::Vector<int> lower = {18, 17, 21, 18, 20, 14, 14, 23};
-  qbpp::Vector<int> upper = {19, 17, 22, 19, 20, 16, 15, 25};
+  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto v = lower <= qbpp::var_int("v", lower.size()) <= upper;
@@ -109,9 +113,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-T));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << sol(v[i]) << std::endl;
@@ -120,9 +122,10 @@ int main() {
   std::cout << "sum = " << sol(sum) << std::endl;
 }
 ```
-First, we define a vector `v` of integer variables where each `v[i]` takes an integer value in
+{% endraw %}
+First, we define an array `v` of integer variables where each `v[i]` takes an integer value in
 `[lower[i], upper[i]]`.
-We also define a vector `s` of binary variables, where `s[i] = 1` means
+We also define an array `s` of binary variables, where `s[i] = 1` means
 interval `i` is selected.
 The expression `sum` represents $\sum_i v_i s_i$.
 
@@ -164,15 +167,15 @@ $$
 \end{aligned}
 $$
 
-To ensure that $x_i$ becomes 0 when $s_i=0$, we add the following penalty term:
+To ensure that $v_i$ becomes 0 when $s_i=0$, we add the following penalty term using the negated literal $\overline{s_i}$:
 
 $$
 \begin{aligned}
-  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j (1-s_i)a_i
+  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j \overline{s_i}\,a_i
 \end{aligned}
 $$
 
-Since $a_i \ge 0$ and $1-s_i \ge 0$, we have $\text{constraint1}\ge 0$.
+Since $a_i \ge 0$ and $\overline{s_i} \ge 0$, we have $\text{constraint1}\ge 0$.
 Moreover, $\text{constraint1}=0$ holds if and only if $a_i=0$ whenever $s_i=0$.
 Therefore, the selected value $v_i$ satisfies
 
@@ -222,14 +225,14 @@ where $P$ is a sufficiently large constant to prioritize feasibility.
 
 ## QUBO++ program of the QUBO formulation
 The following QUBO++ program solves the same ISSP instance using the QUBO formulation:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  qbpp::Vector<int> lower = {18, 17, 21, 18, 20, 14, 14, 23};
-  qbpp::Vector<int> upper = {19, 17, 22, 19, 20, 16, 15, 25};
+  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto a = 0 <= qbpp::var_int("a", lower.size()) <= (upper - lower);
@@ -237,15 +240,13 @@ int main() {
   auto v = s * lower + a;
 
   auto sum = qbpp::sum(v);
-  auto constraint1 = qbpp::sum((1 - s) * a);
+  auto constraint1 = qbpp::sum(~s * a);
   auto constraint2 = 0 <= sum <= T;
   auto f = -sum + 1000 * (constraint1 + constraint2);
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-T));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << (sol(v[i])) << std::endl;
@@ -254,18 +255,19 @@ int main() {
   std::cout << "sum = " << sol(sum) << std::endl;
 }
 ```
-First, we define a vector `a` of integer variables, where each `a[i]` takes an integer value in
+{% endraw %}
+First, we define an array `a` of integer variables, where each `a[i]` takes an integer value in
 `[0, upper[i] - lower[i]]`.
-We also define a vector `s` of binary variables.
+We also define an array `s` of binary variables.
 Using `a` and `s`, we construct `x = s * lower + a`, which corresponds to
 $v_i = s_i * l_i+a_i$.
-The expression `constraint1 = sum((1 - s) * a)` penalizes any solution with `a[i] > 0` when `s[i] = 0`,
+The expression `constraint1 = sum(~s * a)` penalizes any solution with `a[i] > 0` when `s[i] = 0`,
 thereby enforcing `v[i] = 0` for unselected intervals.
 The inequality constraint `constraint2 = 0 <= sum <= T`
 ensures that the total selected sum does not exceed `T`.
 
 Finally, we minimize `f = -sum + P * (constraint1 + constraint2)` with a sufficiently large penalty constant `P`.
-As in the previous example, setting `"target_energy"` to `std::to_string(-T)` via `qbpp::Params` allows the solver to stop early if it finds a feasible solution achieving `sum = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
+As in the previous example, passing {% raw %}`{{"target_energy", std::to_string(-T)}}`{% endraw %} to `search()` allows the solver to stop early if it finds a feasible solution achieving `sum = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
 
 </div>
 
@@ -354,15 +356,16 @@ $$
 
 ## HUBO定式化のQUBO++プログラム
 以下のQUBO++プログラムは、8個の区間を持つISSPインスタンスを解きます。
-下限と上限 $[l_i,u_i]$ はベクトル `lower` と `upper` に格納され、$T=100$ です。
+下限と上限 $[l_i,u_i]$ は配列 `lower` と `upper` に格納され、$T=100$ です。
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  qbpp::Vector<int> lower = {18, 17, 21, 18, 20, 14, 14, 23};
-  qbpp::Vector<int> upper = {19, 17, 22, 19, 20, 16, 15, 25};
+  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto v = lower <= qbpp::var_int("v", lower.size()) <= upper;
@@ -374,9 +377,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-T));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << sol(v[i]) << std::endl;
@@ -385,8 +386,9 @@ int main() {
   std::cout << "sum = " << sol(sum) << std::endl;
 }
 ```
-まず、各 `v[i]` が `[lower[i], upper[i]]` の整数値をとる整数変数のベクトル `v` を定義します。
-また、`s[i] = 1` が区間 `i` が選択されることを意味するバイナリ変数のベクトル `s` を定義します。
+{% endraw %}
+まず、各 `v[i]` が `[lower[i], upper[i]]` の整数値をとる整数変数の配列 `v` を定義します。
+また、`s[i] = 1` が区間 `i` が選択されることを意味するバイナリ変数の配列 `s` を定義します。
 式 `sum` は $\sum_i v_i s_i$ を表します。
 
 不等式制約 `0 <= sum <= T` は `constraint` に格納されます。QUBO++では、このような制約は内部的に非負のペナルティ項に変換され、制約が満たされると0になります。
@@ -422,15 +424,15 @@ $$
 \end{aligned}
 $$
 
-$s_i=0$ のときに $x_i$ が0になることを保証するため、次のペナルティ項を追加します：
+$s_i=0$ のときに $v_i$ が0になることを保証するため、否定リテラル $\overline{s_i}$ を用いた次のペナルティ項を追加します：
 
 $$
 \begin{aligned}
-  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j (1-s_i)a_i
+  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j \overline{s_i}\,a_i
 \end{aligned}
 $$
 
-$a_i \ge 0$ かつ $1-s_i \ge 0$ であるため、$\text{constraint1}\ge 0$ が成り立ちます。
+$a_i \ge 0$ かつ $\overline{s_i} \ge 0$ であるため、$\text{constraint1}\ge 0$ が成り立ちます。
 さらに、$s_i=0$ のときに $a_i=0$ であるときかつそのときに限り $\text{constraint1}=0$ が成り立ちます。
 したがって、選択された値 $v_i$ は次を満たします：
 
@@ -480,14 +482,14 @@ $$
 
 ## QUBO定式化のQUBO++プログラム
 以下のQUBO++プログラムは、QUBO定式化を用いて同じISSPインスタンスを解きます：
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  qbpp::Vector<int> lower = {18, 17, 21, 18, 20, 14, 14, 23};
-  qbpp::Vector<int> upper = {19, 17, 22, 19, 20, 16, 15, 25};
+  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto a = 0 <= qbpp::var_int("a", lower.size()) <= (upper - lower);
@@ -495,15 +497,13 @@ int main() {
   auto v = s * lower + a;
 
   auto sum = qbpp::sum(v);
-  auto constraint1 = qbpp::sum((1 - s) * a);
+  auto constraint1 = qbpp::sum(~s * a);
   auto constraint2 = 0 <= sum <= T;
   auto f = -sum + 1000 * (constraint1 + constraint2);
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-T));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << (sol(v[i])) << std::endl;
@@ -512,13 +512,14 @@ int main() {
   std::cout << "sum = " << sol(sum) << std::endl;
 }
 ```
-まず、各 `a[i]` が `[0, upper[i] - lower[i]]` の整数値をとる整数変数のベクトル `a` を定義します。
-また、バイナリ変数のベクトル `s` を定義します。
+{% endraw %}
+まず、各 `a[i]` が `[0, upper[i] - lower[i]]` の整数値をとる整数変数の配列 `a` を定義します。
+また、バイナリ変数の配列 `s` を定義します。
 `a` と `s` を用いて `x = s * lower + a` を構築し、これは $v_i = s_i * l_i+a_i$ に対応します。
-式 `constraint1 = sum((1 - s) * a)` は、`s[i] = 0` のときに `a[i] > 0` となる解にペナルティを課し、選択されていない区間に対して `v[i] = 0` を強制します。
+式 `constraint1 = sum(~s * a)` は、`s[i] = 0` のときに `a[i] > 0` となる解にペナルティを課し、選択されていない区間に対して `v[i] = 0` を強制します。
 不等式制約 `constraint2 = 0 <= sum <= T` は、選択された合計が `T` を超えないことを保証します。
 
 最後に、十分大きなペナルティ定数 `P` で `f = -sum + P * (constraint1 + constraint2)` を最小化します。
-前の例と同様に、`qbpp::Params` で `"target_energy"` を `std::to_string(-T)` に設定することで、`sum = T` を達成する実行可能解が見つかった場合にソルバーを早期停止させることができます（この場合、ペナルティ項は0になり目的関数項は `-T` になります）。
+前の例と同様に、`search()` に {% raw %}`{{"target_energy", std::to_string(-T)}}`{% endraw %} を渡すことで、`sum = T` を達成する実行可能解が見つかった場合にソルバーを早期停止させることができます（この場合、ペナルティ項は0になり目的関数項は `-T` になります）。
 
 </div>

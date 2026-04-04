@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Greatest Common Divisor"
 nav_order: 4
+alt_lang: "Python version"
+alt_lang_url: "python/GCD"
 ---
+
 <div class="lang-en" markdown="1">
 # Greatest Common Divisor (GCD)
 Let $P$ and $Q$ be two positive integers.
@@ -25,8 +28,8 @@ To find such an $r$, we use $-r$ as the objective function in the HUBO formulati
 ## QUBO++ program
 Based on the idea above, the following QUBO++ program computes the GCD of two integers,
 `P = 858` and `Q = 693`:
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -43,15 +46,14 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "GCD = " << sol(r) << std::endl;
   std::cout << sol(p) << " * " << sol(r) << " = " << P << std::endl;
   std::cout << sol(q) << " * " << sol(r) << " = " << Q << std::endl;
 }
 ```
+{% endraw %}
 In this program, `p`, `q`, and `r` are defined as integer variables in the range $[1,1000]$.
 The expression constraint is constructed so that it evaluates to zero when both constraints are satisfied.
 
@@ -87,8 +89,8 @@ $$
 
 ## QUBO++ プログラム
 上記のアイデアに基づき、以下のQUBO++プログラムは2つの整数 `P = 858` と `Q = 693` の最大公約数を計算します:
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -105,15 +107,14 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "GCD = " << sol(r) << std::endl;
   std::cout << sol(p) << " * " << sol(r) << " = " << P << std::endl;
   std::cout << sol(q) << " * " << sol(r) << " = " << Q << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、`p`、`q`、`r` は $[1,1000]$ の範囲の整数変数として定義されています。
 式 constraint は、両方の制約が満たされたときにゼロに評価されるように構成されています。
 

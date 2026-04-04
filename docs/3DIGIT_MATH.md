@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "3-Digit Math"
 nav_order: 6
+alt_lang: "Python version"
+alt_lang_url: "python/3DIGIT_MATH"
 ---
+
 <div class="lang-en" markdown="1">
 # 3-Digit Math Problem
 
@@ -38,10 +41,10 @@ $$
 
 ## QUBO++ program
 The following QUBO++ program finds all solutions:
+{% raw %}
 ```cpp
 #include <set>
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -55,10 +58,8 @@ int main() {
   auto f = x * y * z == 252;
 
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   std::set<int> s;
   for (const auto& sol : sols) {
     s.insert(static_cast<int>(sol(v)));
@@ -69,6 +70,7 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 In this program, **`x`**, **`y`**, and **`t`** are defined as integer variables with the ranges above.
 Then **`z`**, **`v`**, and **`f`** are defined as expressions.
 We create an Exhaustive Solver instance for `f` and store all optimal solutions in `sols`.
@@ -117,10 +119,10 @@ $$
 
 ## QUBO++プログラム
 以下のQUBO++プログラムはすべての解を求めます:
+{% raw %}
 ```cpp
 #include <set>
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -134,10 +136,8 @@ int main() {
   auto f = x * y * z == 252;
 
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
   std::set<int> s;
   for (const auto& sol : sols) {
     s.insert(static_cast<int>(sol(v)));
@@ -148,6 +148,7 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、**`x`**、**`y`**、**`t`** が上記の範囲を持つ整数変数として定義されています。
 次に **`z`**、**`v`**、**`f`** が式として定義されます。
 `f` に対するExhaustive Solverインスタンスを作成し、すべての最適解を `sols` に格納します。

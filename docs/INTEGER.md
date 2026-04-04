@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Integer Variables"
 nav_order: 6
+alt_lang: "Python version"
+alt_lang_url: "python/INTEGER"
 ---
+
 <div class="lang-en" markdown="1">
 # Integer Variables and Solving Simultaneous Equations
 
@@ -38,7 +41,6 @@ $$
 
 The following QUBO++ program demonstrates how integer variables are defined:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -106,8 +108,8 @@ achieves its minimum value 0 precisely when both equations are satisfied simulta
 ## QUBO++ program
 The following QUBO++ program constructs the QUBO expression $h(x,y)$, solves it, and decodes the resulting values of
 $x$ and $y$:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -121,9 +123,7 @@ int main() {
   h.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(h);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
   std::cout << "x = " << x << " = " << sol(x) << std::endl;
@@ -134,6 +134,7 @@ int main() {
   std::cout << "*g = " << *g << " = " << sol(*g) << std::endl;
 }
 ```
+{% endraw %}
 First, `qbpp::VarInt` objects **`x`** and **`y`** are defined with the range $[0,10]$.
 A `qbpp::Expr` object **`f`** is created to represent the constraint **`x + y == 10`**.
 Internally, this is equivalent to the QUBO expression `qbpp::sqr(x + y -10)`.
@@ -204,7 +205,6 @@ $$
 
 以下のQUBO++プログラムは整数変数の定義方法を示しています:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -271,8 +271,8 @@ $$
 
 ## QUBO++プログラム
 以下のQUBO++プログラムはQUBO式$h(x,y)$を構築し、それを解き、結果の$x$と$y$の値をデコードします:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -286,9 +286,7 @@ int main() {
   h.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(h);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
   std::cout << "x = " << x << " = " << sol(x) << std::endl;
@@ -299,6 +297,7 @@ int main() {
   std::cout << "*g = " << *g << " = " << sol(*g) << std::endl;
 }
 ```
+{% endraw %}
 まず、`qbpp::VarInt`オブジェクト**`x`**と**`y`**が範囲$[0,10]$で定義されます。
 `qbpp::Expr`オブジェクト**`f`**は制約**`x + y == 10`**を表すために作成されます。
 内部的には、これはQUBO式`qbpp::sqr(x + y -10)`と等価です。

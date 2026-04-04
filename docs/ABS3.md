@@ -3,18 +3,20 @@ layout: default
 nav_exclude: true
 title: "ABS3 Solver"
 nav_order: 21
+alt_lang: "Python version"
+alt_lang_url: "python/ABS3"
 ---
+
 <div class="lang-en" markdown="1">
 # ABS3 Solver Usage
 Solving an expression `f` using the ABS3 Solver involves the following three steps:
-1. Create an ABS3 Solver (or **`qbpp::abs3::ABS3Solver`**) object for the expression `f`.
-2. Create a parameter object (or **`qbpp::abs3::Params`**) and set the options for solution search.
-3. Call the **`search()`** member function of the ABS3 Solver object, which returns the obtained solution.
+1. Create an ABS3 Solver (or **`qbpp::abs3_solver::ABS3Solver`**) object for the expression `f`.
+2. Call the **`search()`** member function, passing parameters as an initializer list. It returns the obtained solution.
 
 ## Solving LABS problem using the ABS3 Solver
 The following QUBO++ program solves the **Low Autocorrelation Binary Sequence (LABS)** problem using the ABS3 Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
@@ -31,12 +33,9 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3::ABS3Solver(f);
-  auto params = qbpp::abs3::Params();
-  params.set("time_limit", "10.0");
-  params.set("enable_default_callback", "1");
+  auto solver = qbpp::abs3_solver::ABS3Solver(f);
 
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 10.0}, {"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -44,10 +43,10 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 In this program, an ABS3 Solver object **`solver`** is first created for the expression `f`.
-Next, a parameter object **`params`** is created, and the options `time_limit` and `enable_callback` are set.
+The **`search()`** member function is then called with parameters passed as an initializer list.
 The `time_limit` option specifies the maximum search time in seconds, while `enable_default_callback` enables a built-in callback function that prints the energy and TTS of newly found best solutions during the search.
-The **`search()`** member function of the `solver` is then invoked with `params` as its argument.
 This function returns the best solution found within the given time limit, which is stored in `sol`.
 
 The program prints the energy of the solution and the corresponding binary sequence, where "+" represents 1 and "-" represents 0.
@@ -65,24 +64,22 @@ TTS = 4.364s Energy = 834
 ```
 
 ## ABS3 Solver object
-An ABS3 Solver (or `qbpp::abs3::ABS3Solver`) object is created for a given expression.
+An ABS3 Solver (or `qbpp::abs3_solver::ABS3Solver`) object is created for a given expression.
 When the solver object is constructed, the expression is converted into an internal data format and loaded into GPU memory.
 An optional second argument `gpu` controls GPU usage:
-- **`qbpp::abs3::ABS3Solver(expression)`**: Automatically uses all available GPUs. If no GPU is available, falls back to CPU-only mode.
-- **`qbpp::abs3::ABS3Solver(expression, 0)`**: Forces CPU-only mode (no GPU is used).
-- **`qbpp::abs3::ABS3Solver(expression, n)`**: Uses `n` GPUs.
+- **`qbpp::abs3_solver::ABS3Solver(expression)`**: Automatically uses all available GPUs. If no GPU is available, falls back to CPU-only mode.
+- **`qbpp::abs3_solver::ABS3Solver(expression, 0)`**: Forces CPU-only mode (no GPU is used).
+- **`qbpp::abs3_solver::ABS3Solver(expression, n)`**: Uses `n` GPUs.
 
-A parameter object (or `qbpp::abs3::Params`) stores the options used by the ABS3 Solver during solution search.
-Each option is specified as a key–value pair of strings using **`params.set(key, value)`**.
+Search parameters are passed directly to `search()` as an initializer list of key-value pairs.
 In the example above:
-- **`params.set("time_limit", "10.0")`**: Sets the time limit to 10.0 seconds.
-- **`params.set("enable_default_callback", "1")`**: Enables the built-in callback function, which prints the energy of newly obtained solutions.
+- **`"time_limit", 10.0`**: Sets the time limit to 10.0 seconds.
+- **`"enable_default_callback", 1`**: Enables the built-in callback function, which prints the energy of newly obtained solutions.
 
 ## ABS3 Parameters
-A parameter (or `qbpp::abs3::Params`) object stores parameter options used when the ABS3 Solver searches a solution.
-Options consist of the key and the value as strings, set via **`params.set(key, value)`**.
-In the program above, `params.set("time_limit", "10.0")` sets the time limit to 10.0 seconds
-and `params.set("enable_default_callback", "1")` enables the built-in callback function, which prints the energy of newly obtained solutions.
+Parameters are passed directly to the `search()` method as an initializer list.
+In the program above, `"time_limit", 10.0` sets the time limit to 10.0 seconds
+and `"enable_default_callback", 1` enables the built-in callback function, which prints the energy of newly obtained solutions.
 
 ### Basic Options
 
@@ -112,23 +109,29 @@ Two modes are available:
 
 The `topk_sols` parameter collects the top-K solutions sorted by energy in ascending order.
 
+{% raw %}
 ```cpp
-params.set("topk_sols", "10");  // collect up to 10 best solutions
+auto result = solver.search({{"topk_sols", 10}});  // collect up to 10 best solutions
 ```
+{% endraw %}
 
 ### Best Energy Solutions (`best_energy_sols`)
 
 The `best_energy_sols` parameter collects all solutions that share the best energy found.
 Whenever a better energy is discovered, the pool is cleared and only solutions with the new best energy are kept.
 
+{% raw %}
 ```cpp
-params.set("best_energy_sols", "0");  // collect all best-energy solutions (unlimited)
+auto result = solver.search({{"best_energy_sols", 0}});  // collect all best-energy solutions (unlimited)
 ```
+{% endraw %}
 
 Alternatively, `best_energy_sols` can be set with a maximum count:
+{% raw %}
 ```cpp
-params.set("best_energy_sols", "100");  // collect up to 100
+auto result = solver.search({{"best_energy_sols", 100}});  // collect up to 100
 ```
+{% endraw %}
 
 Note that `topk_sols` and `best_energy_sols` share the same internal pool.
 If both are specified, the last one takes effect.
@@ -143,14 +146,14 @@ auto result = solver.search(params);
 std::cout << "Best energy: " << result.energy() << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
-for (const auto& sol : result.best_sols()) {
+for (const auto& sol : result.sols()) {
   std::cout << "Energy = " << sol.energy() << " TTS = " << sol.tts() << "s" << std::endl;
 }
 ```
 
 The `ABS3Sols` object supports:
 - **`size()`** — number of collected solutions
-- **`best_sols()`** / **`sols()`** — access the solution vector
+- **`sols()`** / **`sols()`** — access the solution vector
 - **`operator[](i)`** — access the i-th solution
 - Range-based for loop iteration
 
@@ -184,20 +187,20 @@ Typically, `timer()` is called once during the `Start` callback to establish the
 It can also be called during `BestUpdated` or `Timer` callbacks to adjust or disable the timer dynamically.
 
 ### Example: Custom Callback
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
-class MySolver : public qbpp::abs3::ABS3Solver {
+class MySolver : public qbpp::abs3_solver::ABS3Solver {
  public:
   using ABS3Solver::ABS3Solver;
 
   void callback() const override {
-    if (event() == qbpp::abs3::CallbackEvent::Start) {
+    if (event() == qbpp::abs3_solver::CallbackEvent::Start) {
       timer(1.0);  // enable timer callback every 1 second
     }
-    if (event() == qbpp::abs3::CallbackEvent::BestUpdated) {
+    if (event() == qbpp::abs3_solver::CallbackEvent::BestUpdated) {
       std::cout << "New best: energy=" << best_sol().energy()
                 << " TTS=" << best_sol().tts() << "s" << std::endl;
     }
@@ -210,13 +213,11 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = MySolver(f);
-  auto params = qbpp::abs3::Params();
-  params.set("time_limit", "5");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
   std::cout << "energy=" << sol.energy() << std::endl;
 }
 ```
+{% endraw %}
 
 ## Solution Hint
 
@@ -229,7 +230,7 @@ auto result = solver.search(params);
 ```
 The solution is written directly to the solver's internal data structure before the search begins.
 
-For advanced use cases such as running an external solver (e.g., Gurobi) concurrently, you can also call **`hint(sol)`** during a callback to feed solutions dynamically.
+For advanced use cases such as running an external solver concurrently, you can also call **`hint(sol)`** during a callback to feed solutions dynamically.
 In this scenario, setting up a periodic timer (e.g., `timer(1.0)`) is recommended so that the callback is invoked regularly to check for new external solutions.
 
 ### Example: Providing a Hint Solution
@@ -238,8 +239,8 @@ The following example solves a factorization problem twice.
 The first run finds the optimal solution normally.
 The second run provides the first solution as a hint via `params.hint(sol)`, causing the solver to converge much faster.
 
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
@@ -249,22 +250,15 @@ int main() {
   auto f = p * q == 899 * 997;
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3::ABS3Solver(f);
+  auto solver = qbpp::abs3_solver::ABS3Solver(f);
 
   // Run 1: normal search
-  auto params1 = qbpp::abs3::Params();
-  params1.set("target_energy", "0");
-  params1.set("time_limit", "10");
-  params1.set("enable_default_callback", "1");
-  const auto sol1 = solver.search(params1);
+  const auto sol1 = solver.search({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   std::cout << "Run 1: p=" << sol1(p) << " q=" << sol1(q)
             << " energy=" << sol1.energy() << std::endl;
 
   // Run 2: provide previous solution as a hint
-  auto params2 = qbpp::abs3::Params();
-  params2.set("target_energy", "0");
-  params2.set("time_limit", "10");
-  params2.set("enable_default_callback", "1");
+  qbpp::abs3_solver::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   params2.hint(sol1);
   const auto sol2 = solver.search(params2);
   std::cout << "Run 2: p=" << sol2(p) << " q=" << sol2(q)
@@ -272,6 +266,7 @@ int main() {
             << " TTS=" << sol2.tts() << "s" << std::endl;
 }
 ```
+{% endraw %}
 
 The hint solution is written directly to the solver's internal data structure before the search begins.
 The solver evaluates its energy and uses it as the initial state, then continues searching for better solutions.
@@ -280,14 +275,13 @@ The solver evaluates its energy and uses it as the initial state, then continues
 <div class="lang-ja" markdown="1">
 # ABS3 Solverの使い方
 ABS3 Solverを使用して式 `f` を解くには、以下の3つのステップで行います：
-1. 式 `f` に対してABS3 Solver（**`qbpp::abs3::ABS3Solver`**）オブジェクトを作成します。
-2. パラメータオブジェクト（**`qbpp::abs3::Params`**）を作成し、解探索のオプションを設定します。
-3. ABS3 Solverオブジェクトの**`search()`**メンバ関数を呼び出します。得られた解が返されます。
+1. 式 `f` に対してABS3 Solver（**`qbpp::abs3_solver::ABS3Solver`**）オブジェクトを作成します。
+2. **`search()`**メンバ関数を呼び出します。パラメータは初期化子リストとして渡します。得られた解が返されます。
 
 ## ABS3 SolverによるLABS問題の求解
 以下のQUBO++プログラムは、ABS3 Solverを使用して**Low Autocorrelation Binary Sequence (LABS)**問題を解きます：
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
@@ -304,12 +298,9 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3::ABS3Solver(f);
-  auto params = qbpp::abs3::Params();
-  params.set("time_limit", "10.0");
-  params.set("enable_default_callback", "1");
+  auto solver = qbpp::abs3_solver::ABS3Solver(f);
 
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 10.0}, {"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -317,10 +308,10 @@ int main() {
   std::cout << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、まず式 `f` に対してABS3 Solverオブジェクト**`solver`**を作成します。
-次に、パラメータオブジェクト**`params`**を作成し、`time_limit` と `enable_callback` のオプションを設定します。
+次に、**`search()`**メンバ関数にパラメータを初期化子リストとして渡して呼び出します。
 `time_limit` オプションは最大探索時間を秒単位で指定し、`enable_default_callback` は探索中に新たに見つかった最良解のエネルギーとTTSを出力する組み込みコールバック関数を有効にします。
-`solver` の**`search()`**メンバ関数が `params` を引数として呼び出されます。
 この関数は指定された制限時間内に見つかった最良解を返し、`sol` に格納されます。
 
 プログラムは解のエネルギーと対応するバイナリ列を出力します。"+"は1を、"-"は0を表します。
@@ -338,23 +329,21 @@ TTS = 4.364s Energy = 834
 ```
 
 ## ABS3 Solverオブジェクト
-ABS3 Solver（`qbpp::abs3::ABS3Solver`）オブジェクトは与えられた式に対して作成されます。
+ABS3 Solver（`qbpp::abs3_solver::ABS3Solver`）オブジェクトは与えられた式に対して作成されます。
 ソルバーオブジェクトが構築されると、式は内部データフォーマットに変換され、GPUメモリにロードされます。
 オプションの第2引数 `gpu` でGPUの使用を制御します：
-- **`qbpp::abs3::ABS3Solver(expression)`**: 利用可能なすべてのGPUを自動的に使用します。GPUが利用できない場合はCPUのみモードにフォールバックします。
-- **`qbpp::abs3::ABS3Solver(expression, 0)`**: CPUのみモードを強制します（GPUは使用されません）。
-- **`qbpp::abs3::ABS3Solver(expression, n)`**: `n` 個のGPUを使用します。
+- **`qbpp::abs3_solver::ABS3Solver(expression)`**: 利用可能なすべてのGPUを自動的に使用します。GPUが利用できない場合はCPUのみモードにフォールバックします。
+- **`qbpp::abs3_solver::ABS3Solver(expression, 0)`**: CPUのみモードを強制します（GPUは使用されません）。
+- **`qbpp::abs3_solver::ABS3Solver(expression, n)`**: `n` 個のGPUを使用します。
 
-パラメータオブジェクト（`qbpp::abs3::Params`）は、ABS3 Solverが解探索中に使用するオプションを格納します。
-各オプションは**`params.set(key, value)`**で文字列のキー・バリューペアとして指定されます。
+探索パラメータは `search()` に初期化子リストとして直接渡します。
 上記の例では：
-- **`params.set("time_limit", "10.0")`**: 制限時間を10.0秒に設定します。
-- **`params.set("enable_default_callback", "1")`**: 新たに得られた解のエネルギーを出力する組み込みコールバック関数を有効にします。
+- **`"time_limit", 10.0`**: 制限時間を10.0秒に設定します。
+- **`"enable_default_callback", 1`**: 新たに得られた解のエネルギーを出力する組み込みコールバック関数を有効にします。
 
 ## ABS3パラメータ
-パラメータ（`qbpp::abs3::Params`）オブジェクトは、ABS3 Solverが解を探索する際に使用するパラメータオプションを格納します。
-オプションは**`params.set(key, value)`**で文字列のキーとバリューとして指定します。
-上記のプログラムでは、`params.set("time_limit", "10.0")` で制限時間を10.0秒に設定し、`params.set("enable_default_callback", "1")` で新たに得られた解のエネルギーを出力する組み込みコールバック関数を有効にしています。
+パラメータは `search()` メソッドに初期化子リストとして直接渡します。
+上記のプログラムでは、`"time_limit", 10.0` で制限時間を10.0秒に設定し、`"enable_default_callback", 1` で新たに得られた解のエネルギーを出力する組み込みコールバック関数を有効にしています。
 
 ### 基本オプション
 
@@ -384,23 +373,29 @@ ABS3 Solverは探索中に複数の解を収集できます。
 
 `topk_sols` パラメータはエネルギーの昇順にソートされたtop-K解を収集します。
 
+{% raw %}
 ```cpp
-params.set("topk_sols", "10");  // 最大10個の最良解を収集
+auto result = solver.search({{"topk_sols", 10}});  // 最大10個の最良解を収集
 ```
+{% endraw %}
 
 ### 最良エネルギー解 (`best_energy_sols`)
 
 `best_energy_sols` パラメータは見つかった最良エネルギーを共有するすべての解を収集します。
 より良いエネルギーが発見されると、プールがクリアされ、新しい最良エネルギーの解のみが保持されます。
 
+{% raw %}
 ```cpp
-params.set("best_energy_sols", "0");  // すべての最良エネルギー解を収集（無制限）
+auto result = solver.search({{"best_energy_sols", 0}});  // すべての最良エネルギー解を収集（無制限）
 ```
+{% endraw %}
 
 または、`best_energy_sols` を最大数付きで設定することもできます：
+{% raw %}
 ```cpp
-params.set("best_energy_sols", "100");  // 最大100個を収集
+auto result = solver.search({{"best_energy_sols", 100}});  // 最大100個を収集
 ```
+{% endraw %}
 
 `topk_sols` と `best_energy_sols` は同じ内部プールを共有することに注意してください。
 両方が指定された場合、最後に指定されたものが有効になります。
@@ -415,14 +410,14 @@ auto result = solver.search(params);
 std::cout << "Best energy: " << result.energy() << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
-for (const auto& sol : result.best_sols()) {
+for (const auto& sol : result.sols()) {
   std::cout << "Energy = " << sol.energy() << " TTS = " << sol.tts() << "s" << std::endl;
 }
 ```
 
 `ABS3Sols` オブジェクトは以下をサポートします：
 - **`size()`** — 収集された解の数
-- **`best_sols()`** / **`sols()`** — 解ベクトルへのアクセス
+- **`sols()`** / **`sols()`** — 解ベクトルへのアクセス
 - **`operator[](i)`** — i番目の解へのアクセス
 - 範囲ベースforループによるイテレーション
 
@@ -456,20 +451,20 @@ for (const auto& sol : result.best_sols()) {
 `BestUpdated` や `Timer` コールバック中にも呼び出して、タイマーを動的に調整または無効にすることができます。
 
 ### 例: カスタムコールバック
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
-class MySolver : public qbpp::abs3::ABS3Solver {
+class MySolver : public qbpp::abs3_solver::ABS3Solver {
  public:
   using ABS3Solver::ABS3Solver;
 
   void callback() const override {
-    if (event() == qbpp::abs3::CallbackEvent::Start) {
+    if (event() == qbpp::abs3_solver::CallbackEvent::Start) {
       timer(1.0);  // 1秒ごとのタイマーコールバックを有効化
     }
-    if (event() == qbpp::abs3::CallbackEvent::BestUpdated) {
+    if (event() == qbpp::abs3_solver::CallbackEvent::BestUpdated) {
       std::cout << "New best: energy=" << best_sol().energy()
                 << " TTS=" << best_sol().tts() << "s" << std::endl;
     }
@@ -482,13 +477,11 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = MySolver(f);
-  auto params = qbpp::abs3::Params();
-  params.set("time_limit", "5");
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
   std::cout << "energy=" << sol.energy() << std::endl;
 }
 ```
+{% endraw %}
 
 ## Solution Hint
 
@@ -501,7 +494,7 @@ auto result = solver.search(params);
 ```
 解は探索開始前にソルバーの内部データ構造に直接書き込まれます。
 
-外部ソルバー（例：Gurobi）を並行して実行するような高度なユースケースでは、コールバック中に**`hint(sol)`**を呼び出して動的に解を供給することもできます。
+外部ソルバーを並行して実行するような高度なユースケースでは、コールバック中に**`hint(sol)`**を呼び出して動的に解を供給することもできます。
 このシナリオでは、コールバックが定期的に呼び出されて新しい外部解をチェックできるように、定期的なタイマー（例：`timer(1.0)`）を設定することを推奨します。
 
 ### 例: ヒント解の提供
@@ -510,8 +503,8 @@ auto result = solver.search(params);
 1回目の実行では通常通り最適解を見つけます。
 2回目の実行では `params.hint(sol)` を介して最初の解をヒントとして提供し、ソルバーの収束を大幅に高速化します。
 
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
@@ -521,22 +514,15 @@ int main() {
   auto f = p * q == 899 * 997;
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3::ABS3Solver(f);
+  auto solver = qbpp::abs3_solver::ABS3Solver(f);
 
   // 実行1: 通常の探索
-  auto params1 = qbpp::abs3::Params();
-  params1.set("target_energy", "0");
-  params1.set("time_limit", "10");
-  params1.set("enable_default_callback", "1");
-  const auto sol1 = solver.search(params1);
+  const auto sol1 = solver.search({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   std::cout << "Run 1: p=" << sol1(p) << " q=" << sol1(q)
             << " energy=" << sol1.energy() << std::endl;
 
   // 実行2: 前回の解をヒントとして提供
-  auto params2 = qbpp::abs3::Params();
-  params2.set("target_energy", "0");
-  params2.set("time_limit", "10");
-  params2.set("enable_default_callback", "1");
+  qbpp::abs3_solver::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   params2.hint(sol1);
   const auto sol2 = solver.search(params2);
   std::cout << "Run 2: p=" << sol2(p) << " q=" << sol2(q)
@@ -544,6 +530,7 @@ int main() {
             << " TTS=" << sol2.tts() << "s" << std::endl;
 }
 ```
+{% endraw %}
 
 ヒント解は探索開始前にソルバーの内部データ構造に直接書き込まれます。
 ソルバーはそのエネルギーを評価し、初期状態として使用した上で、より良い解の探索を続けます。

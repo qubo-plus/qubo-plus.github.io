@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "3-Digit Math"
 nav_order: 45
+alt_lang: "C++ version"
+alt_lang_url: "3DIGIT_MATH"
 ---
+
 <div class="lang-en" markdown="1">
 # 3-Digit Math Problem
 
@@ -51,9 +54,9 @@ f = x * y * z == 252
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 results = set()
-for sol in sols:
+for sol in result.sols():
     results.add(sol(v))
 for val in sorted(results):
     print(val, end=" ")
@@ -120,9 +123,9 @@ f = x * y * z == 252
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 results = set()
-for sol in sols:
+for sol in result.sols():
     results.add(sol(v))
 for val in sorted(results):
     print(val, end=" ")

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Permutation Matrix"
 nav_order: 6
+alt_lang: "C++ version"
+alt_lang_url: "PERMUTATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Permutation matrix generation
 
@@ -49,26 +52,26 @@ for j in range(4):
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for k, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for k, sol in enumerate(result.sols()):
     row = [sol.get_vector(x[i]) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
-In this program, **`var("x", 4, 4)`** returns a nested `Vector` of size $4\times 4$ named **`x`**.
+In this program, **`var("x", 4, 4)`** returns a nested `Array` of size $4\times 4$ named **`x`**.
 For an `Expr` object **`f`**, two double for-loops build the formula for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.
 All solutions in `sols` are displayed one-by-one using `sol.get_vector()`.
 This program outputs all 24 permutations.
 
-## QUBO formulation using vector functions and operations
+## QUBO formulation using array functions and operations
 Using **`vector_sum()`**, we can compute the row-wise and column-wise sums of a matrix `x` of binary variables:
-- **`vector_sum(x, 1)`**: Computes the sum of each row of `x` and returns a vector of size `n` containing these sums.
-- **`vector_sum(x, 0)`**: Computes the sum of each column of `x` and returns a vector of size `n` containing these sums.
+- **`vector_sum(x, 1)`**: Computes the sum of each row of `x` and returns an array of size `n` containing these sums.
+- **`vector_sum(x, 0)`**: Computes the sum of each column of `x` and returns an array of size `n` containing these sums.
 
-For these two vectors of size `n`, `sqr()` squares each element, and `sum()` computes the sum of all elements.
+For these two arrays of size `n`, `sqr()` squares each element, and `sum()` computes the sum of all elements.
 
-The following program implements a QUBO formulation using these vector functions and operations:
+The following program implements a QUBO formulation using these array functions and operations:
 ```python
 import pyqbpp as qbpp
 
@@ -77,8 +80,8 @@ f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + qbpp.sum(qbpp.sqr(qbpp.vecto
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for k, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for k, sol in enumerate(result.sols()):
     perm = []
     for i in range(4):
         for j in range(4):
@@ -118,14 +121,14 @@ $$
 Here, $P$ is a sufficiently large positive constant that prioritizes the permutation constraints.
 
 ## PyQBPP program for the assignment problem
-In this program, the cost matrix `c` is defined as a 2D `Vector` using `qbpp.Vector()` with a nested Python list.
-`qbpp.Vector()` automatically converts nested lists into nested `Vector` objects, so multi-dimensional arrays can be created concisely.
+In this program, the cost matrix `c` is defined as a 2D `Array` using `qbpp.Array()` with a nested Python list.
+`qbpp.Array()` automatically converts nested lists into nested `Array` objects, so multi-dimensional arrays can be created concisely.
 The element-wise product `c * x` then computes $c_{i,j} \cdot x_{i,j}$ for all entries.
 
 ```python
 import pyqbpp as qbpp
 
-c = qbpp.Vector([[58, 73, 91, 44],
+c = qbpp.Array([[58, 73, 91, 44],
                  [62, 15, 87, 39],
                  [78, 56, 23, 94],
                  [11, 85, 68, 72]])
@@ -136,8 +139,7 @@ h = 1000 * f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 print("sol =", sol)
 
 result = []
@@ -151,7 +153,7 @@ for i in range(len(result)):
 ```
 
 We use the Easy Solver to find a solution of `h`.
-The time limit for searching is set to 1.0 seconds by calling the `time_limit()` method.
+The time limit for searching is set to 1.0 seconds by passing a parameter dictionary to `search()`.
 The output of this program is as follows:
 ```
 Result : [3, 1, 2, 0]
@@ -209,26 +211,26 @@ for j in range(4):
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for k, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for k, sol in enumerate(result.sols()):
     row = [sol.get_vector(x[i]) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
-このプログラムでは、**`var("x", 4, 4)`** が **`x`** という名前の $4\times 4$ サイズのネストされた `Vector` を返します。
+このプログラムでは、**`var("x", 4, 4)`** が **`x`** という名前の $4\times 4$ サイズのネストされた `Array` を返します。
 `Expr` オブジェクト **`f`** に対して、2つの二重forループが $f(X)$ の式を構築します。
 Exhaustive Solverを使用して、すべての最適解が計算され **`sols`** に格納されます。
 `sols` 内のすべての解は `sol.get_vector()` を使用して1つずつ表示されます。
 このプログラムは24個すべての置換を出力します。
 
-## ベクトル関数と演算を使用したQUBO定式化
+## 配列関数と演算を使用したQUBO定式化
 **`vector_sum()`** を使用して、バイナリ変数の行列 `x` の行方向および列方向の合計を計算できます:
-- **`vector_sum(x, 1)`**: `x` の各行の合計を計算し、これらの合計を含むサイズ `n` のベクトルを返します。
-- **`vector_sum(x, 0)`**: `x` の各列の合計を計算し、これらの合計を含むサイズ `n` のベクトルを返します。
+- **`vector_sum(x, 1)`**: `x` の各行の合計を計算し、これらの合計を含むサイズ `n` の配列を返します。
+- **`vector_sum(x, 0)`**: `x` の各列の合計を計算し、これらの合計を含むサイズ `n` の配列を返します。
 
-これら2つのサイズ `n` のベクトルに対して、`sqr()` は各要素を二乗し、`sum()` はすべての要素の合計を計算します。
+これら2つのサイズ `n` の配列に対して、`sqr()` は各要素を二乗し、`sum()` はすべての要素の合計を計算します。
 
-以下のプログラムは、これらのベクトル関数と演算を使用してQUBO定式化を実装しています:
+以下のプログラムは、これらの配列関数と演算を使用してQUBO定式化を実装しています:
 ```python
 import pyqbpp as qbpp
 
@@ -237,8 +239,8 @@ f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + qbpp.sum(qbpp.sqr(qbpp.vecto
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for k, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for k, sol in enumerate(result.sols()):
     perm = []
     for i in range(4):
         for j in range(4):
@@ -278,14 +280,14 @@ $$
 ここで、$P$ は置換制約を優先するための十分に大きな正の定数です。
 
 ## 割当問題のPyQBPPプログラム
-このプログラムでは、コスト行列 `c` をネストされたPythonリストから `qbpp.Vector()` で2次元の `Vector` として定義しています。
-`qbpp.Vector()` はネストされたリストを自動的にネストされた `Vector` オブジェクトに変換するため、多次元配列を簡潔に作成できます。
+このプログラムでは、コスト行列 `c` をネストされたPythonリストから `qbpp.Array()` で2次元の `Array` として定義しています。
+`qbpp.Array()` はネストされたリストを自動的にネストされた `Array` オブジェクトに変換するため、多次元配列を簡潔に作成できます。
 要素ごとの積 `c * x` は全要素について $c_{i,j} \cdot x_{i,j}$ を計算します。
 
 ```python
 import pyqbpp as qbpp
 
-c = qbpp.Vector([[58, 73, 91, 44],
+c = qbpp.Array([[58, 73, 91, 44],
                  [62, 15, 87, 39],
                  [78, 56, 23, 94],
                  [11, 85, 68, 72]])
@@ -296,8 +298,7 @@ h = 1000 * f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 print("sol =", sol)
 
 result = []
@@ -311,7 +312,7 @@ for i in range(len(result)):
 ```
 
 Easy Solverを使用して `h` の解を求めます。
-`time_limit()` メソッドを呼び出すことで、探索の制限時間を1.0秒に設定しています。
+`search()` にパラメータ辞書を渡すことで、探索の制限時間を1.0秒に設定しています。
 このプログラムの出力は以下の通りです:
 ```
 Result : [3, 1, 2, 0]

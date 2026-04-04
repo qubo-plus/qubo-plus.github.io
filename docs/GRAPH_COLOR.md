@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Graph Coloring"
 nav_order: 18
+alt_lang: "Python version"
+alt_lang_url: "python/GRAPH_COLOR"
 ---
+
 <div class="lang-en" markdown="1">
 # Graph Coloring Problem
 Given an undirected graph $G=(V,E)$, the **graph coloring problem** aims to assign a color to each node so that adjacent nodes receive different colors.
@@ -46,8 +49,8 @@ $m$-coloring of the graph exists.
 
 ## QUBO++ formulation
 Since any planar graph can be colored with at most four colors, we use a planar graph with 16 nodes and $m=4$ colors as an example. The following QUBO++ program solves this instance:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -67,16 +70,14 @@ int main() {
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
   auto different = qbpp::Expr(0);
   for (const auto& e : edges) {
-    different += qbpp::sum(x[e.first] * x[e.second]);
+    different += qbpp::sum(qbpp::row(x, e.first) * qbpp::row(x, e.second));
   }
 
   auto f = onehot + different;
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "onehot = " << sol(onehot) << std::endl;
   std::cout << "different = " << sol(different) << std::endl;
@@ -94,6 +95,7 @@ int main() {
   graph.write("graph_color.svg");
 }
 ```
+{% endraw %}
 In this program, we first define an $n\times m$ matrix `x` of binary variables, and then construct the expressions `onehot`, `different`, and `f` according to the formulation described above. We solve the resulting QUBO using the Easy Solver with target energy 0, and store the solution in `sol`.
 
 Next, we print the values of `onehot` and `different` evaluated at `sol`. We also compute `node_color`, which stores the color assigned to each node, by applying `qbpp::onehot_to_int()` to `sol(x)`.
@@ -170,8 +172,8 @@ $$
 
 ## QUBO++ による定式化
 任意の平面グラフは最大4色で彩色できるため、16 ノードの平面グラフと $m=4$ 色を例として使用します。以下の QUBO++ プログラムがこのインスタンスを解きます：
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -191,16 +193,14 @@ int main() {
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
   auto different = qbpp::Expr(0);
   for (const auto& e : edges) {
-    different += qbpp::sum(x[e.first] * x[e.second]);
+    different += qbpp::sum(qbpp::row(x, e.first) * qbpp::row(x, e.second));
   }
 
   auto f = onehot + different;
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "onehot = " << sol(onehot) << std::endl;
   std::cout << "different = " << sol(different) << std::endl;
@@ -218,6 +218,7 @@ int main() {
   graph.write("graph_color.svg");
 }
 ```
+{% endraw %}
 このプログラムでは、まず $n\times m$ のバイナリ変数行列 `x` を定義し、上記の定式化に従って式 `onehot`、`different`、`f` を構築します。得られた QUBO を目標エネルギー 0 で Easy Solver を用いて解き、解を `sol` に格納します。
 
 次に、`sol` における `onehot` と `different` の値を出力します。また、`sol(x)` に `qbpp::onehot_to_int()` を適用して、各ノードに割り当てられた色を格納する `node_color` を計算します。

@@ -2,7 +2,10 @@
 layout: default
 title: "Case Studies"
 nav_order: 6
+alt_lang: "Python version"
+alt_lang_url: "python/CASE_STUDIES"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Case Studies

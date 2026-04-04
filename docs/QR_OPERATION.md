@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "QR: Operations"
 nav_order: 31
+alt_lang: "Python version"
+alt_lang_url: "python/QR_OPERATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Quick Reference: Operators and Functions for Expressions
 
@@ -12,7 +15,6 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Operators/Functions           | Operator Symbols/Function Names                      | Function Type | Return Type    | Argument Type          |
 |-------------------------------|------------------------------------------------------|---------------|----------------|------------------------|
 | Type Conversion               | `toExpr()`                                             | Global        | `qbpp::Expr`     | `ExprType`               |
-| Type Conversion               | `toInt()`                                              | Global        | `Int`            | `qbpp::Expr`                   |
 | Assignment                    | `=`                                                  | Member        | `qbpp::Expr`     | `ExprType`               |
 | Binary Operators              | `+`, `-`, `*`                                        | Global        | `qbpp::Expr`     | `ExprType`-`ExprType`      |
 | Compound Assignment Operators | `+=`, `-=`, `*=`                                     | Member        | `qbpp::Expr`     | `ExprType`               |
@@ -29,16 +31,14 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Eval                          | `operator()`                                           | Member        | `Int`            | `ExprType`-`qbpp::MapList`       |
 | Replace                       | `replace()`                                            | Global        | `qbpp::Expr`     | `ExprType`-`qbpp::MapList`       |
 | Replace                       | `replace()`                                            | Member        | `qbpp::Expr`     | `qbpp::MapList`                |
-| Reduce                        | `reduce()`                                             | Global        | `qbpp::Expr`     | `ExprType`               |
-| Reduce                        | `reduce()`                                             | Member        | `qbpp::Expr`     | `qbpp::MapList`                |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Global        | `qbpp::Expr`     | `ExprType`               |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Member        | `qbpp::Expr`     | -                      |
-| Slice                         | `slice()`, `head()`, `tail()`                            | Global        | `Vector<T>`      | `Vector<T>`              |
-| Slice                         | `slice()`, `head()`, `tail()`                            | Member        | `Vector<T>&`     | -                      |
-| Concatenation                 | `concat()`                                               | Global        | `Vector<T>`      | `Vector<T>`-`Vector<T>`   |
-| Concatenation (with scalar)   | `concat()`                                               | Global        | `Vector<Expr>`   | `Expr`-`Vector<T>`        |
+| Range Slice                   | `slice()`, `head()`, `tail()`                            | Global        | `Array`          | `Array`                  |
+| Axis-fixing Slice             | `row()`, `col()`, `slice()`                              | Global        | `Array`          | `Array`                  |
+| Concatenation                 | `concat()`                                               | Global        | `Array`          | `Array`-`Array`     |
+| Concatenation (with scalar)   | `concat()`                                               | Global        | `Array`          | `Expr`-`Array`         |
 
-## Type Conversion: **`qbpp::toExpr()`** and **`qbpp::toInt()`**
+## Type Conversion: **`qbpp::toExpr()`**
 The global function **`qbpp::toExpr()`** converts its argument into a `qbpp::Expr` instance and returns it.
 The argument may be:
 - an integer
@@ -47,9 +47,6 @@ The argument may be:
 - an expression (`qbpp::Expr`) — in this case, no conversion is performed
 
 We refer to these argument types collectively as `ExprType`.
-
-The global function **`qbpp::toInt()`** extracts and returns the integer constant term of a `qbpp::Expr` object.
-If the expression contains any product terms (`qbpp::Term` objects), an error is thrown.
 
 
 ## Expression-related type: **`ExprType`**
@@ -205,15 +202,6 @@ Returns a new `qbpp::Expr` object obtained by replacing variables in `f` accordi
 - **`f.replace(ml)`**:
 Replaces variables in `f` according to the mappings in `ml` in place and returns the resulting `qbpp::Expr` object.
 
-## Reduce Functions: `reduce()`
-The **`reduce()`** function converts a `qbpp::Expr` object containing higher-degree terms into an equivalent `qbpp::Expr` object consisting only of linear and quadratic terms, resulting in a QUBO expression.
-
-For a `qbpp::Expr` object `f`:
-- **`qbpp::reduce(f)`**:
-Returns a new `qbpp::Expr` object with linear and quadratic terms that is equivalent to `f`.
-- **`f.reduce()`**:
-Replaces `f` with the result of `qbpp::reduce(f)` and returns the updated expression.
-
 ## Binary/Spin Conversion functions: `spin_to_binary()`, `binary_to_spin()`
 Let `x` be a binary variable and s be a spin variable.
 We assume that `x = 1` if and only if `s = 1`.
@@ -243,39 +231,36 @@ $2^d$ where $d$ is the maximum degree of all terms, so that all coefficients bec
 
 As with `spin_to_binary()`, both global and member function variants of `binary_to_spin()` are provided.
 
-## Slice Functions: `slice()`, `head()`, `tail()`
-The slice functions extract a contiguous sub-range from a `qbpp::Vector<T>`.
+## Slice Functions: `slice()`, `head()`, `tail()`, `row()`, `col()`
+The slice functions extract sub-arrays from a `qbpp::Array`.
 
-### Member Functions (Destructive)
-Member functions modify the vector in place and return a reference to the modified vector.
+### Range Slice: `slice()`, `head()`, `tail()`
 
-- **`v.slice(from, to)`**: Keeps elements in the range `[from, to)` along the outermost dimension.
-- **`v.slice(from, to, dim)`**: Keeps elements in the range `[from, to)` along the specified dimension. `dim=0` is the outermost dimension.
-- **`v.head(n)`**: Keeps the first `n` elements. Equivalent to `v.slice(0, n)`.
-- **`v.tail(n)`**: Keeps the last `n` elements. Equivalent to `v.slice(v.size() - n, v.size())`.
+Extract a contiguous sub-range along a dimension.
 
-### Global Functions (Non-destructive)
-Global functions return a new vector without modifying the original.
+**Member functions** (in-place, modify the array):
+- **`v.slice(dim, from, to)`**: Keeps elements in the range `[from, to)` along dimension `dim`.
+- **`v.head(n)`**: Keeps the first `n` elements.
+- **`v.tail(n)`**: Keeps the last `n` elements.
 
-- **`qbpp::slice(v, from, to)`**: Returns a copy of `v` containing elements in `[from, to)`.
-- **`qbpp::slice(v, from, to, dim)`**: Returns a copy sliced along the specified dimension.
-- **`qbpp::head(v, n)`**: Returns a copy of the first `n` elements.
-- **`qbpp::tail(v, n)`**: Returns a copy of the last `n` elements.
+**Global functions** (non-destructive, return a new array):
+- **`qbpp::slice(v, dim, from, to)`**
+- **`qbpp::head(v, n)`**, **`qbpp::head(v, n, dim)`**
+- **`qbpp::tail(v, n)`**, **`qbpp::tail(v, n, dim)`**
 
-### Multi-dimensional Slicing
-For multi-dimensional vectors (e.g., `Vector<Vector<T>>`), the `dim` parameter specifies which dimension to slice:
-- `dim=0`: outermost dimension (rows)
-- `dim=1`: next inner dimension (columns)
-- and so on for higher dimensions.
+### Axis-fixing Slice: `row()`, `col()`, `slice()`
 
-### Chaining
-Since member functions return a reference to the modified vector, they can be chained.
-Using a global function for the first call preserves the original vector:
-```cpp
-auto x = qbpp::var("x", 3, 4, 5);   // 3×4×5
-// Non-destructive chain: x is unchanged
-auto y = qbpp::slice(x, 1, 3, 0).slice(0, 2, 1).slice(1, 4, 2);  // 2×2×3
-```
+Extract a sub-array by fixing specific axes at given indices.
+
+**Member functions** (in-place):
+- **`v.row(i)`**: Fix axis 0 at index `i`.
+- **`v.col(j)`**: Fix axis 1 at index `j`.
+- **`v.slice({% raw %}{{axis, index}, ...}{% endraw %})`**: Fix multiple axes simultaneously.
+
+**Global functions** (non-destructive):
+- **`qbpp::row(v, i)`**
+- **`qbpp::col(v, j)`**
+- **`qbpp::slice(v, {% raw %}{{axis, index}, ...}{% endraw %})`**
 
 ### Example: Adjacent Difference
 ```cpp
@@ -284,20 +269,29 @@ auto diff = qbpp::head(x, 4) - qbpp::tail(x, 4);
 // diff = {x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-x[4]}
 ```
 
+### Example: Row Operations
+```cpp
+auto x = qbpp::var("x", 3, 4);
+auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // element-wise product of rows
+auto s = qbpp::sum(prod);
+```
+
+For more details and examples, see **[Slice and Concat Functions](SLICE_CONCAT)**.
+
 ## Concat Functions: `concat()`
-The concat functions join vectors or append/prepend scalars.
+The concat functions join arrays or append/prepend scalars.
 
-### Vector + Vector
-- **`qbpp::concat(a, b)`**: Concatenates two vectors of the same type along the outermost dimension.
+### Array + Array
+- **`qbpp::concat(a, b)`**: Concatenates two arrays of the same type along the outermost dimension.
 
-### Scalar + Vector / Vector + Scalar
-- **`qbpp::concat(scalar, v)`**: Prepends a scalar to a vector. Returns `Vector<Expr>`.
-- **`qbpp::concat(v, scalar)`**: Appends a scalar to a vector. Returns `Vector<Expr>`.
+### Scalar + Array / Array + Scalar
+- **`qbpp::concat(scalar, v)`**: Prepends a scalar to an array. Returns `Array`.
+- **`qbpp::concat(v, scalar)`**: Appends a scalar to an array. Returns `Array`.
 
 The scalar is implicitly converted to `qbpp::Expr`.
 
 ### 2D Concat with Dimension
-- **`qbpp::concat(a, b, dim)`**: Concatenates two 2D vectors along the specified dimension.
+- **`qbpp::concat(a, b, dim)`**: Concatenates two 2D arrays along the specified dimension.
   - `dim=0`: row concatenation (appends rows)
   - `dim=1`: column concatenation (appends columns; both must have the same number of rows)
 
@@ -317,7 +311,6 @@ auto diff = qbpp::concat(1, x) - qbpp::concat(x, 0);
 | 演算子/関数                    | 演算子記号/関数名                                      | 関数タイプ     | 戻り値の型       | 引数の型                 |
 |-------------------------------|------------------------------------------------------|---------------|----------------|------------------------|
 | 型変換                         | `toExpr()`                                             | グローバル     | `qbpp::Expr`     | `ExprType`               |
-| 型変換                         | `toInt()`                                              | グローバル     | `Int`            | `qbpp::Expr`                   |
 | 代入                          | `=`                                                  | メンバ         | `qbpp::Expr`     | `ExprType`               |
 | 二項演算子                     | `+`, `-`, `*`                                        | グローバル     | `qbpp::Expr`     | `ExprType`-`ExprType`      |
 | 複合代入演算子                  | `+=`, `-=`, `*=`                                     | メンバ         | `qbpp::Expr`     | `ExprType`               |
@@ -334,16 +327,14 @@ auto diff = qbpp::concat(1, x) - qbpp::concat(x, 0);
 | 評価                          | `operator()`                                           | メンバ         | `Int`            | `ExprType`-`qbpp::MapList`       |
 | 置換                          | `replace()`                                            | グローバル     | `qbpp::Expr`     | `ExprType`-`qbpp::MapList`       |
 | 置換                          | `replace()`                                            | メンバ         | `qbpp::Expr`     | `qbpp::MapList`                |
-| 次数削減                       | `reduce()`                                             | グローバル     | `qbpp::Expr`     | `ExprType`               |
-| 次数削減                       | `reduce()`                                             | メンバ         | `qbpp::Expr`     | `qbpp::MapList`                |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | メンバ         | `qbpp::Expr`     | -                      |
-| スライス                        | `slice()`, `head()`, `tail()`                            | グローバル     | `Vector<T>`      | `Vector<T>`              |
-| スライス                        | `slice()`, `head()`, `tail()`                            | メンバ         | `Vector<T>&`     | -                      |
-| 連結                            | `concat()`                                               | グローバル     | `Vector<T>`      | `Vector<T>`-`Vector<T>`   |
-| 連結（スカラー付き）              | `concat()`                                               | グローバル     | `Vector<Expr>`   | `Expr`-`Vector<T>`        |
+| 範囲スライス                     | `slice()`, `head()`, `tail()`                            | グローバル     | `Array`          | `Array`                  |
+| 軸固定スライス                   | `row()`, `col()`, `slice()`                              | グローバル     | `Array`          | `Array`                  |
+| 連結                            | `concat()`                                               | グローバル     | `Array`          | `Array`-`Array`     |
+| 連結（スカラー付き）              | `concat()`                                               | グローバル     | `Array`          | `Expr`-`Array`         |
 
-## 型変換: **`qbpp::toExpr()`**と**`qbpp::toInt()`**
+## 型変換: **`qbpp::toExpr()`**
 グローバル関数**`qbpp::toExpr()`**は引数を`qbpp::Expr`インスタンスに変換して返します。
 引数は以下のいずれかです:
 - 整数
@@ -352,9 +343,6 @@ auto diff = qbpp::concat(1, x) - qbpp::concat(x, 0);
 - 式（`qbpp::Expr`）-- この場合、変換は行われません
 
 これらの引数の型を総称して`ExprType`と呼びます。
-
-グローバル関数**`qbpp::toInt()`**は`qbpp::Expr`オブジェクトの整数定数項を抽出して返します。
-式に積項（`qbpp::Term`オブジェクト）が含まれている場合、エラーがスローされます。
 
 
 ## 式関連の型: **`ExprType`**
@@ -508,15 +496,6 @@ qbpp::Exprオブジェクト`f`に対して:
 - **`f.replace(ml)`**:
 `ml`のマッピングに従って`f`内の変数をその場で置換し、結果の`qbpp::Expr`オブジェクトを返します。
 
-## 次数削減関数: `reduce()`
-**`reduce()`**関数は、高次の項を含む`qbpp::Expr`オブジェクトを、線形項と二次項のみで構成される等価な`qbpp::Expr`オブジェクトに変換し、QUBO式を生成します。
-
-`qbpp::Expr`オブジェクト`f`に対して:
-- **`qbpp::reduce(f)`**:
-`f`と等価な線形項と二次項のみの新しい`qbpp::Expr`オブジェクトを返します。
-- **`f.reduce()`**:
-`f`を`qbpp::reduce(f)`の結果で置き換え、更新された式を返します。
-
 ## バイナリ/スピン変換関数: `spin_to_binary()`, `binary_to_spin()`
 `x`をバイナリ変数、sをスピン変数とします。
 `x = 1`であるとき、かつそのときに限り`s = 1`であると仮定します。
@@ -545,39 +524,36 @@ $f(s)$をスピン変数$s$の関数とします。
 
 `spin_to_binary()`と同様に、`binary_to_spin()`にもグローバル関数とメンバ関数の両方のバリアントが提供されています。
 
-## スライス関数: `slice()`, `head()`, `tail()`
-スライス関数は`qbpp::Vector<T>`から連続する部分範囲を取り出します。
+## スライス関数: `slice()`, `head()`, `tail()`, `row()`, `col()`
+スライス関数は `qbpp::Array` からサブ配列を取り出します。
 
-### メンバ関数（破壊的）
-メンバ関数はベクトルをその場で変更し、変更されたベクトルへの参照を返します。
+### 範囲スライス: `slice()`, `head()`, `tail()`
 
-- **`v.slice(from, to)`**: 最外次元の`[from, to)`の範囲の要素を残します。
-- **`v.slice(from, to, dim)`**: 指定した次元の`[from, to)`の範囲の要素を残します。`dim=0`が最外次元です。
-- **`v.head(n)`**: 先頭の`n`個の要素を残します。`v.slice(0, n)`と等価です。
-- **`v.tail(n)`**: 末尾の`n`個の要素を残します。`v.slice(v.size() - n, v.size())`と等価です。
+次元に沿った連続する部分範囲を取り出します。
 
-### グローバル関数（非破壊的）
-グローバル関数は元のベクトルを変更せず、新しいベクトルを返します。
+**メンバ関数**（in-place、配列を更新）:
+- **`v.slice(dim, from, to)`**: 次元 `dim` の `[from, to)` の範囲の要素を残します。
+- **`v.head(n)`**: 先頭の `n` 個の要素を残します。
+- **`v.tail(n)`**: 末尾の `n` 個の要素を残します。
 
-- **`qbpp::slice(v, from, to)`**: `[from, to)`の要素を含む`v`のコピーを返します。
-- **`qbpp::slice(v, from, to, dim)`**: 指定した次元でスライスしたコピーを返します。
-- **`qbpp::head(v, n)`**: 先頭`n`個の要素のコピーを返します。
-- **`qbpp::tail(v, n)`**: 末尾`n`個の要素のコピーを返します。
+**グローバル関数**（非破壊、新しい配列を返す）:
+- **`qbpp::slice(v, dim, from, to)`**
+- **`qbpp::head(v, n)`**、**`qbpp::head(v, n, dim)`**
+- **`qbpp::tail(v, n)`**、**`qbpp::tail(v, n, dim)`**
 
-### 多次元スライス
-多次元ベクトル（例: `Vector<Vector<T>>`）の場合、`dim`パラメータでスライスする次元を指定します:
-- `dim=0`: 最外次元（行）
-- `dim=1`: 次の内側の次元（列）
-- 以降、より高い次元についても同様です。
+### 軸固定スライス: `row()`, `col()`, `slice()`
 
-### チェーン
-メンバ関数は変更されたベクトルへの参照を返すため、チェーンが可能です。
-最初の呼び出しにグローバル関数を使用すると、元のベクトルが保持されます:
-```cpp
-auto x = qbpp::var("x", 3, 4, 5);   // 3×4×5
-// 非破壊的チェーン: xは変更されない
-auto y = qbpp::slice(x, 1, 3, 0).slice(0, 2, 1).slice(1, 4, 2);  // 2×2×3
-```
+特定の軸をインデックスで固定してサブ配列を取り出します。
+
+**メンバ関数**（in-place）:
+- **`v.row(i)`**: axis 0 をインデックス `i` に固定。
+- **`v.col(j)`**: axis 1 をインデックス `j` に固定。
+- **`v.slice({% raw %}{{axis, index}, ...}{% endraw %})`**: 複数の軸を同時に固定。
+
+**グローバル関数**（非破壊）:
+- **`qbpp::row(v, i)`**
+- **`qbpp::col(v, j)`**
+- **`qbpp::slice(v, {% raw %}{{axis, index}, ...}{% endraw %})`**
 
 ### 例: 隣接差分
 ```cpp
@@ -586,20 +562,29 @@ auto diff = qbpp::head(x, 4) - qbpp::tail(x, 4);
 // diff = {x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-x[4]}
 ```
 
+### 例: 行演算
+```cpp
+auto x = qbpp::var("x", 3, 4);
+auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // 行同士の要素毎積
+auto s = qbpp::sum(prod);
+```
+
+詳細と例については **[スライス関数と連結関数](SLICE_CONCAT)** を参照してください。
+
 ## 連結関数: `concat()`
-連結関数はベクトルの結合やスカラーの追加・先頭追加を行います。
+連結関数は配列の結合やスカラーの追加・先頭追加を行います。
 
-### ベクトル + ベクトル
-- **`qbpp::concat(a, b)`**: 同じ型の2つのベクトルを最外次元に沿って連結します。
+### 配列 + 配列
+- **`qbpp::concat(a, b)`**: 同じ型の2つの配列を最外次元に沿って連結します。
 
-### スカラー + ベクトル / ベクトル + スカラー
-- **`qbpp::concat(scalar, v)`**: ベクトルの先頭にスカラーを追加します。`Vector<Expr>`を返します。
-- **`qbpp::concat(v, scalar)`**: ベクトルの末尾にスカラーを追加します。`Vector<Expr>`を返します。
+### スカラー + 配列 / 配列 + スカラー
+- **`qbpp::concat(scalar, v)`**: 配列の先頭にスカラーを追加します。
+- **`qbpp::concat(v, scalar)`**: 配列の末尾にスカラーを追加します。
 
 スカラーは`qbpp::Expr`に暗黙的に変換されます。
 
 ### 2次元の次元指定付き連結
-- **`qbpp::concat(a, b, dim)`**: 2つの2次元ベクトルを指定した次元に沿って連結します。
+- **`qbpp::concat(a, b, dim)`**: 2つの2次元配列を指定した次元に沿って連結します。
   - `dim=0`: 行方向の連結（行を追加）
   - `dim=1`: 列方向の連結（列を追加。両方の行数が同じである必要があります）
 

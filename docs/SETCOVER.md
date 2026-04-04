@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Set Cover"
 nav_order: 16
+alt_lang: "Python version"
+alt_lang_url: "python/SETCOVER"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Minimum Set Cover Problem
@@ -70,27 +73,23 @@ The following QUBO++ program constructs a HUBO expression for a weighted minimum
 ```cpp
 #include <set>
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
 int main() {
   const size_t n = 10;
-  qbpp::Vector<qbpp::Vector<size_t>> cover = {
+  std::vector<std::vector<size_t>> cover = {
       {0, 1, 2}, {2, 3, 4},       {4, 5, 6},    {6, 7, 8},
       {9, 0, 1}, {1, 3, 5, 7, 9}, {0, 3, 6, 9}, {1, 4, 7, 8}};
-  qbpp::Vector cost = {3, 4, 3, 2, 3, 4, 3, 3};
+  auto cost = qbpp::int_array({3, 4, 3, 2, 3, 4, 3, 3});
   auto m = cover.size();
 
   auto x = qbpp::var("x", m);
 
-  auto c = qbpp::expr(n);
-  for (size_t j = 0; j < n; ++j) {
-    c[j] = 1;
-  }
+  auto c = qbpp::expr(n) + 1;  // initialize all elements to 1
   for (size_t i = 0; i < m; ++i) {
     for (size_t j : cover[i]) {
-      c[j] *= ~x[i];
+      c.at(j) *= ~x[i];
     }
   }
 
@@ -110,13 +109,15 @@ int main() {
 
   for (size_t i = 0; i < m; ++i) {
     if (sol(x[i]) == 1) {
-      std::cout << "Set " << i << ": " << cover[i] << " cost = " << cost[i]
-                << std::endl;
+      std::cout << "Set " << i << ": {";
+      for (size_t k = 0; k < cover[i].size(); ++k)
+        std::cout << (k ? "," : "") << cover[i][k];
+      std::cout << "} cost = " << cost[i] << std::endl;
     }
   }
 }
 ```
-This program defines a vector **`x`** of $m=8$ **binary variables** and constructs a vector **`c`** of $n=10$ **expressions**.
+This program defines an array **`x`** of $m=8$ **binary variables** and constructs an array **`c`** of $n=10$ **expressions**.
 Each expression `c[j]` corresponds to an element $j\in U$ and is initialized to 1.
 For every subset $S_i$, and for every element $j\in S_i$, we multiply `c[j]` by
 `~x[i]`.
@@ -256,27 +257,23 @@ $$
 ```cpp
 #include <set>
 
-#define MAXDEG 6
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
 int main() {
   const size_t n = 10;
-  qbpp::Vector<qbpp::Vector<size_t>> cover = {
+  std::vector<std::vector<size_t>> cover = {
       {0, 1, 2}, {2, 3, 4},       {4, 5, 6},    {6, 7, 8},
       {9, 0, 1}, {1, 3, 5, 7, 9}, {0, 3, 6, 9}, {1, 4, 7, 8}};
-  qbpp::Vector cost = {3, 4, 3, 2, 3, 4, 3, 3};
+  auto cost = qbpp::int_array({3, 4, 3, 2, 3, 4, 3, 3});
   auto m = cover.size();
 
   auto x = qbpp::var("x", m);
 
-  auto c = qbpp::expr(n);
-  for (size_t j = 0; j < n; ++j) {
-    c[j] = 1;
-  }
+  auto c = qbpp::expr(n) + 1;  // initialize all elements to 1
   for (size_t i = 0; i < m; ++i) {
     for (size_t j : cover[i]) {
-      c[j] *= ~x[i];
+      c.at(j) *= ~x[i];
     }
   }
 
@@ -296,13 +293,15 @@ int main() {
 
   for (size_t i = 0; i < m; ++i) {
     if (sol(x[i]) == 1) {
-      std::cout << "Set " << i << ": " << cover[i] << " cost = " << cost[i]
-                << std::endl;
+      std::cout << "Set " << i << ": {";
+      for (size_t k = 0; k < cover[i].size(); ++k)
+        std::cout << (k ? "," : "") << cover[i][k];
+      std::cout << "} cost = " << cost[i] << std::endl;
     }
   }
 }
 ```
-このプログラムは $m=8$ 個の**バイナリ変数**のベクトル **`x`** と、$n=10$ 個の**式**のベクトル **`c`** を定義しています。
+このプログラムは $m=8$ 個の**バイナリ変数**の配列 **`x`** と、$n=10$ 個の**式**の配列 **`c`** を定義しています。
 各式 `c[j]` は要素 $j\in U$ に対応し、1で初期化されます。
 各部分集合 $S_i$ と各要素 $j\in S_i$ に対して、`c[j]` に `~x[i]` を乗じます。
 その結果、少なくとも1つの選択された部分集合が要素 `j` を被覆する場合 `c[j]` は0になり、そうでない場合は1のままです。

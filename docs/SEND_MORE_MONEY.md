@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "SEND+MORE=MONEY"
 nav_order: 42
+alt_lang: "Python version"
+alt_lang_url: "python/SEND_MORE_MONEY"
 ---
+
 <div class="lang-en" markdown="1">
 # Math Puzzle: SEND MORE MONEY
 
@@ -101,12 +104,10 @@ $$
 The following QUBO++ program implements the QUBO formulation above and finds a solution using EasySolver:
 {% raw %}
 ```cpp
-#define COEFF_TYPE qbpp::int128_t
-#define ENERGY_TYPE qbpp::int128_t
+#define INTEGER_TYPE_C128E128
 
 #include <string_view>
 
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -120,7 +121,7 @@ constexpr size_t I(char c) {
   return L;
 }
 
-const qbpp::Vector<int> K = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+const auto K = qbpp::int_array({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 int main() {
   auto x = qbpp::var("x", L, 10);
@@ -131,7 +132,7 @@ int main() {
   auto different = qbpp::toExpr(0);
   for (size_t i = 0; i < L - 1; ++i) {
     for (size_t j = i + 1; j < L; ++j) {
-      different += qbpp::sum(x[i] * x[j]);
+      different += qbpp::sum(qbpp::row(x, i) * qbpp::row(x, j));
     }
   }
 
@@ -152,9 +153,7 @@ int main() {
 
   g.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 
@@ -289,12 +288,10 @@ $$
 以下のQUBO++プログラムは、上記のQUBO定式化を実装し、EasySolverを使って解を求めます:
 {% raw %}
 ```cpp
-#define COEFF_TYPE qbpp::int128_t
-#define ENERGY_TYPE qbpp::int128_t
+#define INTEGER_TYPE_C128E128
 
 #include <string_view>
 
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -308,7 +305,7 @@ constexpr size_t I(char c) {
   return L;
 }
 
-const qbpp::Vector<int> K = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+const auto K = qbpp::int_array({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 int main() {
   auto x = qbpp::var("x", L, 10);
@@ -319,7 +316,7 @@ int main() {
   auto different = qbpp::toExpr(0);
   for (size_t i = 0; i < L - 1; ++i) {
     for (size_t j = i + 1; j < L; ++j) {
-      different += qbpp::sum(x[i] * x[j]);
+      different += qbpp::sum(qbpp::row(x, i) * qbpp::row(x, j));
     }
   }
 
@@ -340,9 +337,7 @@ int main() {
 
   g.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 

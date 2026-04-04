@@ -3,13 +3,15 @@ layout: default
 nav_exclude: true
 title: "ABS3 Solver"
 nav_order: 21
+alt_lang: "C++ version"
+alt_lang_url: "ABS3"
 ---
+
 <div class="lang-en" markdown="1">
 # ABS3 Solver Usage
-Solving an expression `f` using the ABS3 Solver involves the following three steps:
+Solving an expression `f` using the ABS3 Solver involves the following two steps:
 1. Create an **`ABS3Solver`** object for the expression `f`.
-2. Set search options by calling methods of the solver object.
-3. Call the **`search()`** method, which returns the obtained solution.
+2. Call the **`search()`** method with a parameter dict, which returns the obtained solution.
 
 ## Solving LABS problem using the ABS3 Solver
 The following program solves the **Low Autocorrelation Binary Sequence (LABS)** problem using the ABS3 Solver:
@@ -27,14 +29,13 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
-solver.set_param("time_limit", "10.0")
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"time_limit": 10.0})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 In this program, an `ABS3Solver` object is created for the expression `f`.
-The `time_limit()` method sets the maximum search time, and the `callback()` sets a function that prints the energy and TTS of newly found best solutions.
+The `callback()` sets a function that prints the energy and TTS of newly found best solutions, and search parameters such as `time_limit` are passed as a dict to `search()`.
 
 This program produces output similar to the following:
 {% raw %}
@@ -57,32 +58,72 @@ An optional second argument `gpu` controls GPU usage:
 - **`ABS3Solver(f, 0)`**: Forces CPU-only mode (no GPU is used).
 - **`ABS3Solver(f, n)`**: Uses `n` GPUs.
 
-## Setting ABS3 Solver Options
-- **`time_limit(time)`**: Sets the time limit in seconds.
-- **`target_energy(energy)`**: Sets the target energy for early termination.
-- **`callback(func)`**: Sets a callback function called when a new best solution is found. The callback receives three arguments: `energy` (int), `tts` (float), and `event` (string).
-- **`set_param(key, val)`**: Sets an advanced parameter as a key-value pair of strings.
+## Search Parameters
+The **`search(params)`** method runs the search. The `params` dict can contain the following keys:
 
-### Advanced Parameters
-
-| Key | Value | Description |
+| Key | Type | Description |
 |----|----|----|
-| **`cpu_enable`** | "0" or "1" | Enables/disables the CPU solver alongside the GPU (default: "1") |
-| **`cpu_thread_count`** | number | Number of CPU solver threads (default: auto) |
-| **`block_count`** | number | Number of CUDA blocks per GPU |
-| **`thread_count`** | number | Number of threads per CUDA block |
-| **`topk_sols`** | number | Returns the top-K solutions with the best energies |
+| **`time_limit`** | float | Time limit in seconds |
+| **`target_energy`** | int | Target energy for early termination |
+| **`enable_default_callback`** | int (0 or 1) | Print energy and TTS when a new best solution is found |
+| **`cpu_enable`** | int (0 or 1) | Enables/disables the CPU solver alongside the GPU (default: 1) |
+| **`cpu_thread_count`** | int | Number of CPU solver threads (default: auto) |
+| **`block_count`** | int | Number of CUDA blocks per GPU |
+| **`thread_count`** | int | Number of threads per CUDA block |
+| **`topk_sols`** | int | Collect the top-K solutions with the best energies |
+| **`best_energy_sols`** | int | Collect all optimal solutions (`0` for unlimited) |
 
 ## Multiple Solutions
-When **`set_param("topk_sols", n)`** is set, the solver collects up to `n` solutions with the best energies encountered during the search.
-These can be retrieved by calling **`sol.best_sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
+When **`topk_sols`** or **`best_energy_sols`** is set, the solver collects multiple solutions.
+These can be retrieved by calling **`sol.sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
 
 ```python
 solver = qbpp.ABS3Solver(f)
-solver.set_param("topk_sols", "5")
-sol = solver.search()
-for s in sol.best_sols():
-    print(f"{s.energy()}: {s.bits}")
+sol = solver.search({"topk_sols": 5})
+for s in sol.sols():
+    print(f"energy = {s.energy}")
+```
+
+## Custom Callback
+The built-in callback (enabled by `enable_default_callback`) simply prints the energy and TTS whenever a new best solution is found.
+For more control, use the **`callback(func)`** method to set a custom callback function.
+
+### Simple callback with `callback(func)`
+The function receives three arguments: `energy` (int), `tts` (float), and `event` (string).
+The `event` argument is one of:
+
+| Event | Description |
+|-------|-------------|
+| `"start"` | Called once at the beginning of `search()` |
+| `"best_updated"` | Called whenever a new best solution is found |
+| `"timer"` | Called periodically at a configurable interval |
+
+```python
+solver = qbpp.ABS3Solver(f)
+solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
+sol = solver.search({"time_limit": 10.0})
+```
+
+### Advanced callback with subclass
+For access to `timer()` and `hint()`, subclass `ABS3Solver` and override the `callback()` method (no arguments).
+Inside `callback()`, the following are available:
+
+- **`self.event`** — the event that triggered this callback (int: 0=Start, 1=BestUpdated, 2=Timer)
+- **`self.best_sol`** — current best `Sol` object (energy, tts, get(var))
+- **`self.timer(seconds)`** — set the timer interval for periodic `Timer` callbacks. `0` disables the timer.
+- **`self.hint(sol)`** — feed a hint solution to the solver
+
+```python
+class MyCallback(qbpp.ABS3Solver):
+    def callback(self):
+        if self.event == 0:       # Start
+            self.timer(1.0)       # enable 1-second timer
+        if self.event == 1:       # BestUpdated
+            sol = self.best_sol
+            print(f"TTS = {sol.tts:.3f}s Energy = {sol.energy}")
+
+solver = MyCallback(f)
+sol = solver.search({"time_limit": 10.0})
 ```
 
 ## Properties
@@ -92,19 +133,16 @@ for s in sol.best_sols():
 To use the ABS3 Solver without a GPU, pass `0` as the second argument:
 ```python
 solver = qbpp.ABS3Solver(f, 0)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 print(sol)
 ```
 </div>
 
 <div class="lang-ja" markdown="1">
 # ABS3 Solverの使い方
-ABS3 Solverを使用して式 `f` を解くには、以下の3つのステップで行います:
+ABS3 Solverを使用して式 `f` を解くには、以下の2つのステップで行います:
 1. 式 `f` に対して **`ABS3Solver`** オブジェクトを作成する。
-2. ソルバーオブジェクトのメソッドを呼び出して探索オプションを設定する。
-3. **`search()`** メソッドを呼び出し、得られた解を取得する。
+2. パラメータのdictを指定して **`search()`** メソッドを呼び出し、得られた解を取得する。
 
 ## ABS3 Solverを使用したLABS問題の求解
 以下のプログラムは、ABS3 Solverを使用して **Low Autocorrelation Binary Sequence (LABS)** 問題を解きます:
@@ -122,14 +160,13 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
-solver.set_param("time_limit", "10.0")
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"time_limit": 10.0})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 このプログラムでは、式 `f` に対して `ABS3Solver` オブジェクトを作成しています。
-`time_limit()` メソッドで最大探索時間を設定し、`callback()` で新しい最良解が見つかったときにエネルギーとTTSを表示する関数を設定しています。
+`callback()` で新しい最良解が見つかったときにエネルギーとTTSを表示する関数を設定し、`time_limit` などの探索パラメータは `search()` にdictとして渡しています。
 
 このプログラムは以下のような出力を生成します:
 {% raw %}
@@ -152,32 +189,72 @@ TTS = 4.364s Energy = 834
 - **`ABS3Solver(f, 0)`**: CPUのみのモードを強制します（GPUは使用されません）。
 - **`ABS3Solver(f, n)`**: `n` 個のGPUを使用します。
 
-## ABS3 Solverオプションの設定
-- **`time_limit(time)`**: 制限時間を秒単位で設定します。
-- **`target_energy(energy)`**: 早期終了のための目標エネルギーを設定します。
-- **`callback(func)`**: 新しい最良解が見つかったときに呼び出されるコールバック関数を設定します。コールバックは3つの引数を受け取ります: `energy`（int）、`tts`（float）、`event`（string）。
-- **`set_param(key, val)`**: 文字列のキーと値のペアとして詳細パラメータを設定します。
+## 探索パラメータ
+**`search(params)`** メソッドで探索を実行します。`params` dict には以下のキーを指定できます:
 
-### 詳細パラメータ
-
-| キー | 値 | 説明 |
+| キー | 型 | 説明 |
 |----|----|----|
-| **`cpu_enable`** | "0" または "1" | GPUと並行してCPUソルバーを有効/無効にする（デフォルト: "1"） |
-| **`cpu_thread_count`** | 数値 | CPUソルバーのスレッド数（デフォルト: 自動） |
-| **`block_count`** | 数値 | GPU当たりのCUDAブロック数 |
-| **`thread_count`** | 数値 | CUDAブロック当たりのスレッド数 |
-| **`topk_sols`** | 数値 | エネルギーが最良のtop-K解を返す |
+| **`time_limit`** | float | 制限時間（秒） |
+| **`target_energy`** | int | 早期終了のための目標エネルギー |
+| **`enable_default_callback`** | int（0 または 1） | 新しい最良解が見つかったときにエネルギーとTTSを表示 |
+| **`cpu_enable`** | int（0 または 1） | GPUと並行してCPUソルバーを有効/無効にする（デフォルト: 1） |
+| **`cpu_thread_count`** | int | CPUソルバーのスレッド数（デフォルト: 自動） |
+| **`block_count`** | int | GPU当たりのCUDAブロック数 |
+| **`thread_count`** | int | CUDAブロック当たりのスレッド数 |
+| **`topk_sols`** | int | エネルギーが最良の top-K 解を収集 |
+| **`best_energy_sols`** | int | すべての最適解を収集（`0` で無制限） |
 
 ## 複数解の取得
-**`set_param("topk_sols", n)`** を設定した場合、ソルバーは探索中に見つかったエネルギーが最良の解を最大 `n` 個収集します。
-返された `Sol` に対して **`sol.best_sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
+**`topk_sols`** または **`best_energy_sols`** を設定すると、複数の解が収集されます。
+返された `Sol` に対して **`sol.sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
 
 ```python
 solver = qbpp.ABS3Solver(f)
-solver.set_param("topk_sols", "5")
-sol = solver.search()
-for s in sol.best_sols():
-    print(f"{s.energy()}: {s.bits}")
+sol = solver.search({"topk_sols": 5})
+for s in sol.sols():
+    print(f"energy = {s.energy}")
+```
+
+## カスタムコールバック
+組み込みコールバック（`enable_default_callback` で有効化）は、新しい最良解が見つかるたびにエネルギーとTTSを表示するだけです。
+より細かい制御が必要な場合は、**`callback(func)`** メソッドでカスタムコールバック関数を設定します。
+
+### `callback(func)` によるシンプルなコールバック
+関数は3つの引数を受け取ります: `energy`（int）、`tts`（float）、`event`（string）。
+`event` は以下のいずれかです:
+
+| イベント | 説明 |
+|---------|------|
+| `"start"` | `search()` の開始時に1回呼び出される |
+| `"best_updated"` | 新しい最良解が見つかるたびに呼び出される |
+| `"timer"` | 設定可能な間隔で定期的に呼び出される |
+
+```python
+solver = qbpp.ABS3Solver(f)
+solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
+sol = solver.search({"time_limit": 10.0})
+```
+
+### サブクラスによる高度なコールバック
+`timer()` や `hint()` にアクセスするには、`ABS3Solver` をサブクラス化して `callback()` メソッド（引数なし）をオーバーライドします。
+`callback()` 内では以下が利用可能です:
+
+- **`self.event`** — コールバックを発火したイベント（int: 0=Start, 1=BestUpdated, 2=Timer）
+- **`self.best_sol`** — 現在の最良 `Sol` オブジェクト（energy, tts, get(var) が利用可能）
+- **`self.timer(seconds)`** — 定期的な `Timer` コールバックの間隔を設定。`0` でタイマーを無効化。
+- **`self.hint(sol)`** — ソルバーにヒント解を注入
+
+```python
+class MyCallback(qbpp.ABS3Solver):
+    def callback(self):
+        if self.event == 0:       # Start
+            self.timer(1.0)       # 1秒ごとのタイマーを有効化
+        if self.event == 1:       # BestUpdated
+            sol = self.best_sol
+            print(f"TTS = {sol.tts:.3f}s Energy = {sol.energy}")
+
+solver = MyCallback(f)
+sol = solver.search({"time_limit": 10.0})
 ```
 
 ## プロパティ
@@ -187,9 +264,7 @@ for s in sol.best_sols():
 GPUなしでABS3 Solverを使用するには、第2引数に `0` を渡します:
 ```python
 solver = qbpp.ABS3Solver(f, 0)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 print(sol)
 ```
 </div>

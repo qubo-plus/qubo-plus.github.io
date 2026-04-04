@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Cubic Equation"
 nav_order: 46
+alt_lang: "C++ version"
+alt_lang_url: "CUBIC_EQUATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Cubic Equation
 Cubic equations over the integers can be solved using PyQBPP. For example, consider
@@ -26,10 +29,10 @@ f = x * x * x - 147 * x + 286 == 0
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     xv = sol(x)
     if xv not in seen:
         seen.add(xv)
@@ -45,7 +48,7 @@ $$
 
 Since the integer variable `x` is implemented as a linear expression of binary variables, `f` becomes a polynomial of degree 6.
 
-Since Python integers have unlimited precision, there is no need to specify special integer types (unlike the C++ version which requires `COEFF_TYPE=cpp_int`).
+Since Python integers have unlimited precision, there is no need to specify special integer types (unlike the C++ version which requires `INTEGER_TYPE_CPP_INT`).
 
 Because the coefficient of the highest-order binary variable is not a power of two,
 the same integer value can be represented by multiple different assignments of the binary variables.
@@ -81,10 +84,10 @@ f = x * x * x - 147 * x + 286 == 0
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     xv = sol(x)
     if xv not in seen:
         seen.add(xv)
@@ -100,7 +103,7 @@ $$
 
 整数変数 `x` はバイナリ変数の線形式として実装されるため、`f` は6次の多項式になります。
 
-Python の整数は任意精度であるため、特別な整数型を指定する必要はありません（C++版では `COEFF_TYPE=cpp_int` が必要です）。
+Python の整数は任意精度であるため、特別な整数型を指定する必要はありません（C++版では `INTEGER_TYPE_CPP_INT` が必要です）。
 
 最上位のバイナリ変数の係数が2の冪ではないため、同じ整数値が複数の異なるバイナリ変数の割り当てで表現される可能性があります。
 そのため、`set` を使って `x` の重複する値を除去しています。

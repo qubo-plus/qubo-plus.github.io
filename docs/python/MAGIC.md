@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Magic Square"
 nav_order: 80
+alt_lang: "C++ version"
+alt_lang_url: "MAGIC"
 ---
+
 <div class="lang-en" markdown="1">
 # Magic Square
 A 3-by-3 magic square is a 3-by-3 matrix that contains each integer from 1 to 9 exactly once, such that the sum of every row, every column, and the two diagonals is 15.
@@ -101,8 +104,7 @@ f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 for i in range(3):
     for j in range(3):
         val = next(k for k in range(9) if sol(x[i][j][k]) == 1)
@@ -113,7 +115,7 @@ In this program, we define a $3\times 3\times9$ array of binary variables `x`.
 We then build four constraint expressions `c1`, `c2`, `c3`, and `c4`, and combine them into `f`.
 The expression `f` achieves the minimum energy 0 when all constraints are satisfied.
 
-We create an Easy Solver object `solver` for `f` and set the target energy to 0, so the search terminates as soon as a feasible (optimal) solution is found.
+We create an Easy Solver object `solver` for `f` and pass `{"target_energy": 0}` to `search()`, so the search terminates as soon as a feasible (optimal) solution is found.
 The resulting one-hot encoding is decoded by finding the index `k` for which `sol(x[i][j][k]) == 1`.
 
 This program produces the following output:
@@ -189,8 +191,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 full_sol = qbpp.Sol(f).set([sol, ml])
 
 for i in range(3):
@@ -312,8 +313,7 @@ f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 for i in range(3):
     for j in range(3):
         val = next(k for k in range(9) if sol(x[i][j][k]) == 1)
@@ -324,7 +324,7 @@ for i in range(3):
 次に、4つの制約式 `c1`、`c2`、`c3`、`c4` を構築し、それらを `f` にまとめます。
 式 `f` はすべての制約が満たされたとき最小エネルギー0を達成します。
 
-`f` に対するEasy Solverオブジェクト `solver` を作成し、target energyを0に設定します。これにより、実行可能（最適）解が見つかり次第、探索が終了します。
+`f` に対するEasy Solverオブジェクト `solver` を作成し、`search()` に `{"target_energy": 0}` を渡します。これにより、実行可能（最適）解が見つかり次第、探索が終了します。
 得られたone-hotエンコーディングは、`sol(x[i][j][k]) == 1` となるインデックス `k` を見つけることでデコードされます。
 
 このプログラムの出力は以下の通りです：
@@ -399,8 +399,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 full_sol = qbpp.Sol(f).set([sol, ml])
 
 for i in range(3):

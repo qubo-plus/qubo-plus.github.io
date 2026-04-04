@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Square Root"
 nav_order: 3
+alt_lang: "Python version"
+alt_lang_url: "python/SQRT"
 ---
+
 <div class="lang-en" markdown="1">
 # Square Root
 
@@ -44,11 +47,10 @@ Since $x$ is internally represented as a linear expression of binary variables, 
 
 ## QUBO++ parogram
 The following QUBO++ program constructs a HUBO expression based on the above idea and solves it using the Easy Solver:
+{% raw %}
 ```cpp
-#define COEFF_TYPE qbpp::cpp_int
-#define ENERGY_TYPE qbpp::cpp_int
+#define INTEGER_TYPE_CPP_INT
 
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -59,16 +61,15 @@ int main() {
   auto f = x * x == c * s * s;
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "Energy = " << sol.energy() << std::endl;
   std::cout << "x = " << x << "\n = " << sol(x) << std::endl;
 }
 ```
+{% endraw %}
 
-Since very large coefficients are used, we define the two macros `COEFF_TYPE` and `ENERGY_TYPE` as `qbpp::cpp_int`,
-which can represent arbitrarily large integers.
+Since very large coefficients are used, we define `INTEGER_TYPE_CPP_INT` before including the header,
+which sets both `coeff_t` and `energy_t` to `cpp_int` (arbitrarily large integers).
 The constant `s`, the integer variable `x`, and the HUBO expression `f` are defined according to the formulation described above.
 The Easy Solver is executed with a time limit of 1.0 second.
 
@@ -128,11 +129,10 @@ $x$ は内部的にバイナリ変数の線形式として表現されるため�
 
 ## QUBO++ プログラム
 以下のQUBO++プログラムは、上記のアイデアに基づいてHUBO式を構築し、Easy Solverを用いて解きます:
+{% raw %}
 ```cpp
-#define COEFF_TYPE qbpp::cpp_int
-#define ENERGY_TYPE qbpp::cpp_int
+#define INTEGER_TYPE_CPP_INT
 
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -143,15 +143,14 @@ int main() {
   auto f = x * x == c * s * s;
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "Energy = " << sol.energy() << std::endl;
   std::cout << "x = " << x << "\n = " << sol(x) << std::endl;
 }
 ```
+{% endraw %}
 
-非常に大きな係数を使用するため、2つのマクロ `COEFF_TYPE` と `ENERGY_TYPE` を `qbpp::cpp_int` として定義しています。これにより任意精度の整数を表現できます。
+非常に大きな係数を使用するため、ヘッダのインクルード前に `INTEGER_TYPE_CPP_INT` を定義し、`coeff_t` と `energy_t` を任意精度整数 `cpp_int` に設定しています。
 定数 `s`、整数変数 `x`、HUBO式 `f` は上述の定式化に従って定義されています。
 Easy Solverは制限時間1.0秒で実行されます。
 

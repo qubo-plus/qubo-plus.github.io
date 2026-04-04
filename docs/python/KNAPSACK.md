@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Knapsack"
 nav_order: 70
+alt_lang: "C++ version"
+alt_lang_url: "KNAPSACK"
 ---
+
 <div class="lang-en" markdown="1">
 # Knapsack Problem
 Given a set of items, each with a weight and a value, and a knapsack with a limited weight capacity, **the knapsack problem** aims to select a subset of items that maximizes the total value while keeping the total weight within the capacity.
@@ -36,8 +39,8 @@ $$
 ```python
 import pyqbpp as qbpp
 
-w = qbpp.Vector([10, 20, 30, 5, 8, 15, 12, 7, 17, 18])
-v = qbpp.Vector([60, 100, 120, 60, 80, 150, 110, 70, 150, 160])
+w = [10, 20, 30, 5, 8, 15, 12, 7, 17, 18]
+v = [60, 100, 120, 60, 80, 150, 110, 70, 150, 160]
 capacity = 50
 
 x = qbpp.var("x", len(w))
@@ -49,10 +52,10 @@ f = -objective + 1000 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for idx, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for idx, sol in enumerate(result.sols()):
     print(f"[Solution {idx}]")
-    print(f"Energy = {sol.energy()}")
+    print(f"Energy = {sol.energy}")
     print(f"Constraint = {sol(constraint.body)}")
     print(f"Objective = {sol(objective)}")
     for j in range(len(w)):
@@ -123,8 +126,8 @@ $$
 ```python
 import pyqbpp as qbpp
 
-w = qbpp.Vector([10, 20, 30, 5, 8, 15, 12, 7, 17, 18])
-v = qbpp.Vector([60, 100, 120, 60, 80, 150, 110, 70, 150, 160])
+w = [10, 20, 30, 5, 8, 15, 12, 7, 17, 18]
+v = [60, 100, 120, 60, 80, 150, 110, 70, 150, 160]
 capacity = 50
 
 x = qbpp.var("x", len(w))
@@ -136,10 +139,10 @@ f = -objective + 1000 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
-for idx, sol in enumerate(sols):
+result = solver.search({"best_energy_sols": 0})
+for idx, sol in enumerate(result.sols()):
     print(f"[Solution {idx}]")
-    print(f"Energy = {sol.energy()}")
+    print(f"Energy = {sol.energy}")
     print(f"Constraint = {sol(constraint.body)}")
     print(f"Objective = {sol(objective)}")
     for j in range(len(w)):

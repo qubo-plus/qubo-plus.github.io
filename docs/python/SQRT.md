@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Square Root"
 nav_order: 42
+alt_lang: "C++ version"
+alt_lang_url: "SQRT"
 ---
+
 <div class="lang-en" markdown="1">
 # Square Root
 
@@ -53,15 +56,14 @@ x = qbpp.between(qbpp.var_int("x"), s, c * s)
 f = x * x == c * s * s
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
-print(f"Energy = {sol.energy()}")
+sol = solver.search({"time_limit": 1.0})
+print(f"Energy = {sol.energy}")
 print(f"x = {sol(x)}")
 ```
 
-Since Python integers have unlimited precision, there is no need to specify special integer types (unlike the C++ version which requires `COEFF_TYPE=cpp_int`).
+Since Python integers have unlimited precision, there is no need to specify special integer types (unlike the C++ version which requires `INTEGER_TYPE_CPP_INT`).
 The constant `s`, the integer variable `x`, and the HUBO expression `f` are defined according to the formulation described above.
-The Easy Solver is executed with a time limit of 1.0 second.
+The Easy Solver is executed with a time limit of 1.0 second, passed as a parameter to `search()`.
 
 This program produces the following output:
 ```
@@ -127,15 +129,14 @@ x = qbpp.between(qbpp.var_int("x"), s, c * s)
 f = x * x == c * s * s
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
-print(f"Energy = {sol.energy()}")
+sol = solver.search({"time_limit": 1.0})
+print(f"Energy = {sol.energy}")
 print(f"x = {sol(x)}")
 ```
 
-Python の整数は任意精度であるため、特別な整数型を指定する必要はありません（C++版では `COEFF_TYPE=cpp_int` が必要です）。
+Python の整数は任意精度であるため、特別な整数型を指定する必要はありません（C++版では `INTEGER_TYPE_CPP_INT` が必要です）。
 定数 `s`、整数変数 `x`、HUBO 式 `f` は上述の定式化に従って定義されています。
-Easy Solver は制限時間1.0秒で実行されます。
+Easy Solver は制限時間1.0秒で実行されます。パラメータは `search()` の引数として渡します。
 
 このプログラムは以下の出力を生成します:
 ```

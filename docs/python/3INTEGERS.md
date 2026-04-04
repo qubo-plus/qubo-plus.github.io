@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Find Three Integers"
 nav_order: 44
+alt_lang: "C++ version"
+alt_lang_url: "3INTEGERS"
 ---
+
 <div class="lang-en" markdown="1">
 # Math Problem: Find Three Integers
 
@@ -55,10 +58,10 @@ c3 = qbpp.between(z - y, 1, 9)
 f = c1 + c2 + c3
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     key = (sol(x), sol(y), sol(z))
     if key not in seen:
         seen.add(key)
@@ -131,10 +134,10 @@ c3 = qbpp.between(z - y, 1, 9)
 f = c1 + c2 + c3
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-sols = solver.search_optimal_solutions()
+result = solver.search({"best_energy_sols": 0})
 
 seen = set()
-for sol in sols:
+for sol in result.sols():
     key = (sol(x), sol(y), sol(z))
     if key not in seen:
         seen.add(key)

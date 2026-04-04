@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Variables and Expressions"
 nav_order: 1
+alt_lang: "Python version"
+alt_lang_url: "python/VARIABLE"
 ---
+
 
 <div class="lang-en" markdown="1">
 
@@ -11,14 +14,6 @@ nav_order: 1
 
 ## Header file and namespace
 To use QUBO++, you need to include the header file **`qbpp/qbpp.hpp`** and use the **`qbpp`** namespace.
-
-## Maximum degree of terms (`MAXDEG`)
-Before including `qbpp/qbpp.hpp`, define the macro **`MAXDEG`** to the maximum degree of terms that the program handles.
-Since QUBO expressions are quadratic (degree 2), set `#define MAXDEG 2` for QUBO problems.
-For higher-order expressions (HUBO), use a larger value such as `#define MAXDEG 4`.
-If the maximum degree is unknown, `#define MAXDEG 0` allows unlimited degree, but this is less efficient.
-
-For more details, see **[Reference: Variables](QR_VARIABLE)**.
 
 ## Defining variables and expressions
 You can define a variable using **`qbpp::var("name")`** with auto type deduction.
@@ -28,7 +23,6 @@ Expressions are constructed using standard arithmetic operators such as **`+`**,
 
 The following sample program defines three variables `a`, `b`, and `c`, and an expression `f`, which is printed using `std::cout`:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -45,7 +39,7 @@ In this QUBO++ program, the variables `a`, `b`, and `c` are objects of class **`
 
 Assuming the header and library paths are properly set up, this program (saved as **`test.cpp`**) can be compiled with `g++` as follows:
 ```bash
-g++ test.cpp -o test -std=c++17 -lqbpp -ltbb
+g++ test.cpp -o test -std=c++17 -lqbpp -ldl
 ```
 Running the executable prints the expanded expression:
 ```bash
@@ -113,7 +107,6 @@ QUBO++ natively supports **negated literals** using the `~` operator.
 For a binary variable `x`, the expression `~x` represents $1 - x$.
 
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -150,14 +143,6 @@ All solvers bundled with QUBO++ (EasySolver, ExhaustiveSolver, ABS3 GPU Solver) 
 ## ヘッダファイルと名前空間
 QUBO++を使用するには、ヘッダファイル **`qbpp/qbpp.hpp`** をインクルードし、**`qbpp`** 名前空間を使用します。
 
-## 項の最大次数（`MAXDEG`）
-`qbpp/qbpp.hpp` をインクルードする前に、マクロ **`MAXDEG`** をプログラムが扱う項の最大次数に設定します。
-QUBO式は2次なので、QUBO問題の場合は `#define MAXDEG 2` と設定します。
-高次の式（HUBO）の場合は `#define MAXDEG 4` のようにより大きな値を使用します。
-最大次数が不明な場合は `#define MAXDEG 0` とすれば次数は無制限になりますが、効率は低下します。
-
-詳細については**[リファレンス: 変数](QR_VARIABLE)**を参照してください。
-
 ## 変数と式の定義
 変数は **`qbpp::var("name")`** を `auto` 型推論とともに使用して定義できます。
 指定した `name` は、変数を `std::cout` で出力する際に使用されます。
@@ -166,7 +151,6 @@ QUBO式は2次なので、QUBO問題の場合は `#define MAXDEG 2` と設定し
 
 以下のサンプルプログラムでは、3つの変数 `a`、`b`、`c` と式 `f` を定義し、`std::cout` を使って出力しています。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -183,7 +167,7 @@ int main() {
 
 ヘッダとライブラリのパスが適切に設定されていれば、このプログラム（**`test.cpp`** として保存）は `g++` で以下のようにコンパイルできます。
 ```bash
-g++ test.cpp -o test -std=c++17 -lqbpp -ltbb
+g++ test.cpp -o test -std=c++17 -lqbpp -ldl
 ```
 実行すると、展開された式が出力されます。
 ```bash
@@ -247,7 +231,6 @@ QUBO++は `~` 演算子を使った **否定リテラル** をネイティブに
 2値変数 `x` に対して、式 `~x` は $1 - x$ を表します。
 
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 
 int main() {

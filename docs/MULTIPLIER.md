@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Multiplier Simulation"
 nav_order: 51
+alt_lang: "Python version"
+alt_lang_url: "python/MULTIPLIER"
 ---
+
 <div class="lang-en" markdown="1">
 # Multiplier Simulation and Factorization
 Multiplication of two integers can be performed using additions.
@@ -45,70 +48,72 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
 The function `fa` returns an expression that enforces consistency between the input and output bits of a full adder.
 
 ### Adder
-Assume that vectors `a`, `b`, and `s` of `qbpp::Expr` objects represent integers.
+Assume that arrays `a`, `b`, and `s` of `qbpp::Expr` objects represent integers.
 We assume that `a` and `b` each have `N` elements representing `N`-bit integers, while `s` has `N + 1` elements representing an `(N + 1)`-bit integer.
 The following function adder returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds:
 {% raw %}
 ```cpp
-qbpp::Expr adder(const qbpp::Vector<qbpp::Expr>& a,
-                 const qbpp::Vector<qbpp::Expr>& b,
-                 const qbpp::Vector<qbpp::Expr>& s) {
+qbpp::Expr adder(const qbpp::ArrayBase& a,
+                 const qbpp::ArrayBase& b,
+                 const qbpp::ArrayBase& s) {
   auto N = a.size();
-  auto c = qbpp::var(N + 1);
+  auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
-    f += fa(a[j], b[j], c[j], c[j + 1], s[j]);
+    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
-  f.replace({{c[0], 0}, {c[N], s[N]}});
+  f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
   return f;
 }
 ```
 {% endraw %}
-In this function, `c` is a vector of `N + 1` variables used to connect the carry-out and carry-in signals of the `fa` blocks, forming an `N`-bit ripple-carry adder.
+In this function, `c` is an array of `N + 1` variables used to connect the carry-out and carry-in signals of the `fa` blocks, forming an `N`-bit ripple-carry adder.
 
 ### Multiplier
-Assume that vectors `x`, `y`, and `z` of `qbpp::Expr` represent integers.
+Assume that arrays `x`, `y`, and `z` of `qbpp::Expr` represent integers.
 We assume that `x` and `y` each have `N` elements and that `z` has `2 * N` elements.
 The following function multiplier returns a QUBO expression whose minimum value is 0 if and only if `x * y == z` holds.
 ```cpp
-qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
-                      const qbpp::Vector<qbpp::Expr>& y,
-                      const qbpp::Vector<qbpp::Expr>& z) {
+qbpp::Expr multiplier(const qbpp::ArrayBase& x,
+                      const qbpp::ArrayBase& y,
+                      const qbpp::ArrayBase& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
   auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
-    qbpp::Vector<qbpp::Expr> a, b, s;
+    auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.push_back(x[i + 1] * y[j]);
+      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
+    auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.push_back(x[0] * y[j + 1]);
+        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.push_back(0);
+      a.at(N - 1) = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.push_back(c[i - 1][j + 1]);
+        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
+    auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.push_back(c[i][j]);
+      s.at(j) = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += z[0] - x[0] * y[0] == 0;
+  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({c[i][0], z[i + 1]});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({c[N - 2][i], z[N + i - 1]});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -121,10 +126,9 @@ Using the function `multiplier`, we can factor a composite integer into two fact
 The following program constructs a 4-bit multiplier with
 - `x`: 4 binary variables,
 - `y`: 4 binary variables,
-- `z`: a vector of constants `{1, 1, 1, 1, 0, 0, 0, 1}`, representing the 8-bit integer `10001111` `(143)`, and stores the resulting expression in `f`:
+- `z`: an array of constants `{1, 1, 1, 1, 0, 0, 0, 1}`, representing the 8-bit integer `10001111` `(143)`, and stores the resulting expression in `f`:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -133,56 +137,58 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
   return (a + b + i) - (2 * o + s) == 0;
 }
 
-qbpp::Expr adder(const qbpp::Vector<qbpp::Expr>& a,
-                 const qbpp::Vector<qbpp::Expr>& b,
-                 const qbpp::Vector<qbpp::Expr>& s) {
+qbpp::Expr adder(const qbpp::ArrayBase& a,
+                 const qbpp::ArrayBase& b,
+                 const qbpp::ArrayBase& s) {
   auto N = a.size();
-  auto c = qbpp::var(N + 1);
+  auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
-    f += fa(a[j], b[j], c[j], c[j + 1], s[j]);
+    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
-  return f.replace({{c[0], 0}, {c[N], s[N]}});
+  return f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
 }
 
-qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
-                      const qbpp::Vector<qbpp::Expr>& y,
-                      const qbpp::Vector<qbpp::Expr>& z) {
+qbpp::Expr multiplier(const qbpp::ArrayBase& x,
+                      const qbpp::ArrayBase& y,
+                      const qbpp::ArrayBase& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
   auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
-    qbpp::Vector<qbpp::Expr> a, b, s;
+    auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.push_back(x[i + 1] * y[j]);
+      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
+    auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.push_back(x[0] * y[j + 1]);
+        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.push_back(0);
+      a.at(N - 1) = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.push_back(c[i - 1][j + 1]);
+        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
+    auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.push_back(c[i][j]);
+      s.at(j) = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += z[0] - x[0] * y[0] == 0;
+  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({c[i][0], z[i + 1]});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({c[N - 2][i], z[N + i - 1]});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -190,24 +196,22 @@ qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
 int main() {
   auto x = qbpp::var("x", 4);
   auto y = qbpp::var("y", 4);
-  qbpp::Vector<int> z = {1, 1, 1, 1, 0, 0, 0, 1};
+  auto z = qbpp::int_array({1, 1, 1, 1, 0, 0, 0, 1});
   auto f = multiplier(x, y, z).simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
-  for (auto it = x.rbegin(); it != x.rend(); ++it) {
-    std::cout << sol(*it);
+  for (size_t i = x.size(); i > 0; --i) {
+    std::cout << sol(x[i - 1]);
   }
   std::cout << " * ";
-  for (auto it = y.rbegin(); it != y.rend(); ++it) {
-    std::cout << sol(*it);
+  for (size_t i = y.size(); i > 0; --i) {
+    std::cout << sol(y[i - 1]);
   }
   std::cout << " = ";
-  for (auto it = z.rbegin(); it != z.rend(); ++it) {
-    std::cout << *it;
+  for (size_t i = z.size(); i > 0; --i) {
+    std::cout << z[i - 1];
   }
   std::cout << std::endl;
 }
@@ -260,70 +264,72 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
 関数 `fa` は、全加算器の入力ビットと出力ビットの間の整合性を強制する式を返します。
 
 ### 加算器
-`qbpp::Expr` オブジェクトのベクトル `a`、`b`、`s` が整数を表すとします。
+`qbpp::Expr` オブジェクトの配列 `a`、`b`、`s` が整数を表すとします。
 `a` と `b` はそれぞれ `N` 個の要素を持ち `N` ビット整数を表し、`s` は `N + 1` 個の要素を持ち `(N + 1)` ビット整数を表すと仮定します。
 以下の関数 adder は、`a + b == s` が成り立つとき、かつそのときに限り最小値0となるQUBO式を返します:
 {% raw %}
 ```cpp
-qbpp::Expr adder(const qbpp::Vector<qbpp::Expr>& a,
-                 const qbpp::Vector<qbpp::Expr>& b,
-                 const qbpp::Vector<qbpp::Expr>& s) {
+qbpp::Expr adder(const qbpp::ArrayBase& a,
+                 const qbpp::ArrayBase& b,
+                 const qbpp::ArrayBase& s) {
   auto N = a.size();
-  auto c = qbpp::var(N + 1);
+  auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
-    f += fa(a[j], b[j], c[j], c[j + 1], s[j]);
+    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
-  f.replace({{c[0], 0}, {c[N], s[N]}});
+  f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
   return f;
 }
 ```
 {% endraw %}
-この関数では、`c` は `N + 1` 個の変数のベクトルであり、`fa` ブロックのキャリー出力信号とキャリー入力信号を接続して `N` ビットのリプルキャリー加算器を構成するために使用されます。
+この関数では、`c` は `N + 1` 個の変数の配列であり、`fa` ブロックのキャリー出力信号とキャリー入力信号を接続して `N` ビットのリプルキャリー加算器を構成するために使用されます。
 
 ### 乗算器
-`qbpp::Expr` のベクトル `x`、`y`、`z` が整数を表すとします。
+`qbpp::Expr` の配列 `x`、`y`、`z` が整数を表すとします。
 `x` と `y` はそれぞれ `N` 個の要素を持ち、`z` は `2 * N` 個の要素を持つと仮定します。
 以下の関数 multiplier は、`x * y == z` が成り立つとき、かつそのときに限り最小値0となるQUBO式を返します。
 ```cpp
-qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
-                      const qbpp::Vector<qbpp::Expr>& y,
-                      const qbpp::Vector<qbpp::Expr>& z) {
+qbpp::Expr multiplier(const qbpp::ArrayBase& x,
+                      const qbpp::ArrayBase& y,
+                      const qbpp::ArrayBase& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
   auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
-    qbpp::Vector<qbpp::Expr> a, b, s;
+    auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.push_back(x[i + 1] * y[j]);
+      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
+    auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.push_back(x[0] * y[j + 1]);
+        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.push_back(0);
+      a.at(N - 1) = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.push_back(c[i - 1][j + 1]);
+        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
+    auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.push_back(c[i][j]);
+      s.at(j) = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += z[0] - x[0] * y[0] == 0;
+  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({c[i][0], z[i + 1]});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({c[N - 2][i], z[N + i - 1]});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -336,10 +342,9 @@ qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
 以下のプログラムは4ビット乗算器を構築します:
 - `x`: 4個のバイナリ変数、
 - `y`: 4個のバイナリ変数、
-- `z`: 定数ベクトル `{1, 1, 1, 1, 0, 0, 0, 1}`（8ビット整数 `10001111` すなわち `143` を表す）。結果の式を `f` に格納します:
+- `z`: 定数配列 `{1, 1, 1, 1, 0, 0, 0, 1}`（8ビット整数 `10001111` すなわち `143` を表す）。結果の式を `f` に格納します:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -348,56 +353,58 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
   return (a + b + i) - (2 * o + s) == 0;
 }
 
-qbpp::Expr adder(const qbpp::Vector<qbpp::Expr>& a,
-                 const qbpp::Vector<qbpp::Expr>& b,
-                 const qbpp::Vector<qbpp::Expr>& s) {
+qbpp::Expr adder(const qbpp::ArrayBase& a,
+                 const qbpp::ArrayBase& b,
+                 const qbpp::ArrayBase& s) {
   auto N = a.size();
-  auto c = qbpp::var(N + 1);
+  auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
-    f += fa(a[j], b[j], c[j], c[j + 1], s[j]);
+    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
-  return f.replace({{c[0], 0}, {c[N], s[N]}});
+  return f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
 }
 
-qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
-                      const qbpp::Vector<qbpp::Expr>& y,
-                      const qbpp::Vector<qbpp::Expr>& z) {
+qbpp::Expr multiplier(const qbpp::ArrayBase& x,
+                      const qbpp::ArrayBase& y,
+                      const qbpp::ArrayBase& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
   auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
-    qbpp::Vector<qbpp::Expr> a, b, s;
+    auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.push_back(x[i + 1] * y[j]);
+      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
+    auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.push_back(x[0] * y[j + 1]);
+        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.push_back(0);
+      a.at(N - 1) = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.push_back(c[i - 1][j + 1]);
+        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
+    auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.push_back(c[i][j]);
+      s.at(j) = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += z[0] - x[0] * y[0] == 0;
+  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({c[i][0], z[i + 1]});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({c[N - 2][i], z[N + i - 1]});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -405,24 +412,22 @@ qbpp::Expr multiplier(const qbpp::Vector<qbpp::Expr>& x,
 int main() {
   auto x = qbpp::var("x", 4);
   auto y = qbpp::var("y", 4);
-  qbpp::Vector<int> z = {1, 1, 1, 1, 0, 0, 0, 1};
+  auto z = qbpp::int_array({1, 1, 1, 1, 0, 0, 0, 1});
   auto f = multiplier(x, y, z).simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
-  for (auto it = x.rbegin(); it != x.rend(); ++it) {
-    std::cout << sol(*it);
+  for (size_t i = x.size(); i > 0; --i) {
+    std::cout << sol(x[i - 1]);
   }
   std::cout << " * ";
-  for (auto it = y.rbegin(); it != y.rend(); ++it) {
-    std::cout << sol(*it);
+  for (size_t i = y.size(); i > 0; --i) {
+    std::cout << sol(y[i - 1]);
   }
   std::cout << " = ";
-  for (auto it = z.rbegin(); it != z.rend(); ++it) {
-    std::cout << *it;
+  for (size_t i = z.size(); i > 0; --i) {
+    std::cout << z[i - 1];
   }
   std::cout << std::endl;
 }

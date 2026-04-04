@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Multiplier Simulation"
 nav_order: 91
+alt_lang: "C++ version"
+alt_lang_url: "MULTIPLIER"
 ---
+
 <div class="lang-en" markdown="1">
 # Multiplier Simulation and Factorization
 Multiplication of two integers can be performed using additions.
@@ -144,8 +147,7 @@ f = multiplier(x, y, z)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 x_bits = "".join(str(sol(x[j])) for j in reversed(range(4)))
 y_bits = "".join(str(sol(y[j])) for j in reversed(range(4)))
@@ -297,8 +299,7 @@ f = multiplier(x, y, z)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 x_bits = "".join(str(sol(x[j])) for j in reversed(range(4)))
 y_bits = "".join(str(sol(y[j])) for j in reversed(range(4)))

@@ -2,7 +2,10 @@
 layout: default
 title: "Case Studies"
 nav_order: 6
+alt_lang: "C++ version"
+alt_lang_url: "CASE_STUDIES"
 ---
+
 <div class="lang-en" markdown="1">
 # Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.

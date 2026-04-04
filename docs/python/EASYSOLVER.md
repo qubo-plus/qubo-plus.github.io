@@ -3,15 +3,17 @@ layout: default
 nav_exclude: true
 title: "Easy Solver"
 nav_order: 19
+alt_lang: "C++ version"
+alt_lang_url: "EASYSOLVER"
 ---
+
 <div class="lang-en" markdown="1">
 # Easy Solver Usage
 The **Easy Solver** is a heuristic solver for QUBO/HUBO expressions.
 
-Solving a problem with the Easy Solver consists of the following three steps:
+Solving a problem with the Easy Solver consists of the following two steps:
 1. Create an **`EasySolver`** object.
-2. Set search parameters using convenience methods or **`set_param()`**.
-3. Search for solutions by calling the **`search()`** method, which returns a **`Sol`** object.
+2. Call the **`search()`** method with a parameter dict, which returns a **`Sol`** object.
 
 ## Creating Easy Solver object
 To use the Easy Solver, an `EasySolver` object is constructed with an expression as follows:
@@ -20,33 +22,31 @@ To use the Easy Solver, an `EasySolver` object is constructed with an expression
 Here, `f` is the expression to be solved.
 It must be simplified as a binary expression in advance by calling `simplify_as_binary()`.
 
-## Setting Search Parameters
-Parameters can be set using convenience methods or the generic **`set_param(key, value)`** method:
+## Search Parameters
+Parameters are passed as a dict to the **`search()`** method.
 
-| Method / Parameter | Description | Default |
+| Parameter | Description | Default |
 |---|---|---|
-| `time_limit(time)` / `"time_limit"` | Time limit in seconds. Set to 0 for no time limit. | 10.0 |
-| `target_energy(energy)` / `"target_energy"` | Target energy. The solver terminates when a solution with energy ≤ this value is found. | (none) |
-| `callback(func)` | Callback function called when a new best solution is found. Receives `energy` (int) and `tts` (float). | (none) |
-| `set_param("topk_sols", n)` | Number of top-k solutions to keep. | (disabled) |
-| `set_param("best_energy_sols", n)` | Keep solutions with the best energy. `"0"` for unlimited. | (disabled) |
-| `set_param("enable_default_callback", "1")` | Print newly obtained best solutions. | (disabled) |
+| `"time_limit"` | Time limit in seconds (float). Set to 0 for no time limit. | 10.0 |
+| `"target_energy"` | Target energy (int). The solver terminates when a solution with energy ≤ this value is found. | (none) |
+| `"topk_sols"` | Number of top-k solutions to keep (int). | (disabled) |
+| `"best_energy_sols"` | Keep solutions with the best energy (int). `0` for unlimited. | (disabled) |
+| `"enable_default_callback"` | Print newly obtained best solutions (int, `1` to enable). | (disabled) |
 
 Unknown parameter keys will cause a runtime error.
 
 ## Searching Solutions
-The Easy Solver searches for solutions by calling the **`search()`** method, which returns a **`Sol`** object.
+The Easy Solver searches for solutions by calling **`search(params)`**, where `params` is a dict of search parameters. It returns a **`Sol`** object.
 
 ### Multiple Solutions
-When **`set_param("topk_sols", n)`** is set, the solver collects up to `n` solutions with the best energies encountered during the search.
-These can be retrieved by calling **`sol.best_sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
+When `"topk_sols"` is set in the parameter dict, the solver collects up to `n` solutions with the best energies encountered during the search.
+These can be retrieved by calling **`sol.sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
 
 ```python
 solver = qbpp.EasySolver(f)
-solver.set_param("topk_sols", "5")
-sol = solver.search()
-for s in sol.best_sols():
-    print(f"{s.energy()}: {s.bits}")
+sol = solver.search({"topk_sols": 5})
+for s in sol.sols():
+    print(f"energy = {s.energy}")
 ```
 
 ## Program Example
@@ -66,17 +66,14 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "900")
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"time_limit": 5.0, "target_energy": 900, "enable_default_callback": 1})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 In this example, the following options are set:
 - a 5.0-second time limit,
 - a target energy of 900, and
-- a callback that prints the energy and TTS whenever a new best solution is found.
+- a default callback that prints the energy and TTS whenever a new best solution is found.
 
 Therefore, the solver terminates either when the elapsed time reaches 5.0 seconds
 or when a solution with energy 900 or less is found.
@@ -97,10 +94,9 @@ TTS = 2.691s Energy = 898
 # Easy Solverの使い方
 **Easy Solver**は、QUBO/HUBO式に対するヒューリスティックソルバーです。
 
-Easy Solverで問題を解くには、以下の3つのステップで行います:
+Easy Solverで問題を解くには、以下の2つのステップで行います:
 1. **`EasySolver`** オブジェクトを作成する。
-2. 便利メソッドまたは **`set_param()`** で探索パラメータを設定する。
-3. **`search()`** メソッドを呼び出して解を探索する。このメソッドは **`Sol`** オブジェクトを返す。
+2. パラメータ辞書を渡して **`search()`** メソッドを呼び出し、解を探索する。このメソッドは **`Sol`** オブジェクトを返す。
 
 ## Easy Solverオブジェクトの作成
 Easy Solverを使用するには、以下のように式を引数として `EasySolver` オブジェクトを作成します:
@@ -109,33 +105,33 @@ Easy Solverを使用するには、以下のように式を引数として `Easy
 ここで、`f` は解くべき式です。
 事前に `simplify_as_binary()` を呼び出してバイナリ式として簡約化しておく必要があります。
 
-## 探索パラメータの設定
-パラメータは便利メソッドまたは汎用の **`set_param(key, value)`** メソッドで設定できます：
+## 探索パラメータ
+パラメータは **`search()`** メソッドに辞書として渡します。**`callback()`** メソッドのみ、`search()` の前にソルバーオブジェクトに対して別途呼び出します。
 
-| メソッド / パラメータ | 説明 | デフォルト |
+| パラメータ | 説明 | デフォルト |
 |---|---|---|
-| `time_limit(time)` / `"time_limit"` | 制限時間（秒）。0で時間制限なし。 | 10.0 |
-| `target_energy(energy)` / `"target_energy"` | 目標エネルギー。この値以下の解が見つかると探索を終了。 | （なし） |
-| `callback(func)` | 新しい最良解が見つかったときに呼び出されるコールバック。`energy`（int）と `tts`（float）を受け取る。 | （なし） |
-| `set_param("topk_sols", n)` | 保持するtop-k解の数。 | （無効） |
-| `set_param("best_energy_sols", n)` | 最良エネルギーの解を保持。`"0"` で無制限。 | （無効） |
-| `set_param("enable_default_callback", "1")` | 新たに得られた最良解を出力。 | （無効） |
+| `"time_limit"` | 制限時間（秒、float）。0で時間制限なし。 | 10.0 |
+| `"target_energy"` | 目標エネルギー（int）。この値以下の解が見つかると探索を終了。 | （なし） |
+| `"topk_sols"` | 保持するtop-k解の数（int）。 | （無効） |
+| `"best_energy_sols"` | 最良エネルギーの解を保持（int）。`0` で無制限。 | （無効） |
+| `"enable_default_callback"` | 新たに得られた最良解を出力（int、`1` で有効）。 | （無効） |
+
+**`callback(func)`** メソッドは、新しい最良解が見つかったときに呼び出されるコールバック関数を設定します。`energy`（int）と `tts`（float）を受け取ります。
 
 未知のパラメータキーを設定するとランタイムエラーが発生します。
 
 ## 解の探索
-Easy Solverは **`search()`** メソッドを呼び出すことで解を探索します。このメソッドは **`Sol`** オブジェクトを返します。
+Easy Solverは **`search(params)`** を呼び出すことで解を探索します。`params` は探索パラメータの辞書です。このメソッドは **`Sol`** オブジェクトを返します。
 
 ### 複数解の取得
-**`set_param("topk_sols", n)`** を設定した場合、ソルバーは探索中に見つかったエネルギーが最良の解を最大 `n` 個収集します。
-返された `Sol` に対して **`sol.best_sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
+パラメータ辞書に `"topk_sols"` を設定した場合、ソルバーは探索中に見つかったエネルギーが最良の解を最大 `n` 個収集します。
+返された `Sol` に対して **`sol.sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
 
 ```python
 solver = qbpp.EasySolver(f)
-solver.set_param("topk_sols", "5")
-sol = solver.search()
-for s in sol.best_sols():
-    print(f"{s.energy()}: {s.bits}")
+sol = solver.search({"topk_sols": 5})
+for s in sol.sols():
+    print(f"energy = {s.energy}")
 ```
 
 ## プログラム例
@@ -155,12 +151,9 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "900")
-solver.callback(lambda energy, tts: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
-bits = "".join("-" if sol(i) == 0 else "+" for i in range(size))
-print(f"{sol.energy()}: {bits}")
+sol = solver.search({"time_limit": 5.0, "target_energy": 900, "enable_default_callback": 1})
+bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
+print(f"{sol.energy}: {bits}")
 ```
 この例では、以下のオプションが設定されています:
 - 制限時間5.0秒、

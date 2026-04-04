@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Sum Functions"
 nav_order: 18
+alt_lang: "C++ version"
+alt_lang_url: "SUM"
 ---
+
 <div class="lang-en" markdown="1">
 # Sum Functions for Multi-dimensional Arrays
 PyQBPP provides two sum functions for multi-dimensional arrays of variables or expressions:

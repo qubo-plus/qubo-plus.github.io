@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Maximum Matching"
 nav_order: 11
+alt_lang: "Python version"
+alt_lang_url: "python/MAX_MATCHING"
 ---
+
 <div class="lang-en" markdown="1">
 # Maximum Matching Problem
 
@@ -46,7 +49,6 @@ An assignment minimizing $f$ therefore corresponds to a maximum matching of $G$.
 Based on the formulation above, the following QUBO++ program constructs the QUBO expression $f$ for a 16-node graph and solves it using the **Exhaustive Solver**
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -151,7 +153,6 @@ $f$ を最小化する割り当ては、$G$ の最大マッチングに対応し
 上記の定式化に基づき、以下の QUBO++ プログラムは 16 ノードのグラフに対する QUBO 式 $f$ を構築し、**Exhaustive Solver** を用いて解きます。
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>

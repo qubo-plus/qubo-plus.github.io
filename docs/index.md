@@ -20,8 +20,6 @@ as polynomials of binary variables (QUBO/HUBO).
 - **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
 - **Run anywhere** — From a laptop to GPU servers and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
 
-Copyright: © 2026 Koji Nakano. All rights reserved.
-
 # QUBO++ Solvers: Easy Solver, Exhaustive Solver, ABS3 Solver
 ## Easy Solver
 * **Heuristic solver optimized for QUBO/HUBO**: Searches for solutions to QUBO/HUBO models on multicore CPUs.
@@ -95,10 +93,6 @@ For details on license activation, license types, and terms, see **[License Mana
   - Copyright © Yann Collet.
   - See <https://opensource.org/license/bsd-2-clause/> for details.
 
-- **Gurobi Optimizer**
-  - QUBO++ supporting APIs for integration with the Gurobi Optimizer.
-  - To use these APIs, you must obtain a valid license for the Gurobi Optimizer from Gurobi Optimization, LLC.
-  - The Gurobi Optimizer is not included with QUBO++, and its use is subject to the terms and conditions of its own license agreement.
 
 </div>
 
@@ -117,8 +111,6 @@ For details on license activation, license types, and terms, see **[License Mana
 - **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。16ビットから数千桁まで、オーバーフローの心配なく計算可能。
 - **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
 - **どこでも実行** — ノートPCからGPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
-
-Copyright: © 2026 Koji Nakano. All rights reserved.
 
 # QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver
 ## Easy Solver
@@ -188,9 +180,5 @@ QUBO++ はライセンスキーなしで使用できます。
   - Copyright © Yann Collet.
   - 詳細は <https://opensource.org/license/bsd-2-clause/> をご覧ください。
 
-- **Gurobi Optimizer**
-  - QUBO++ は Gurobi Optimizer と統合するための API を提供しています。
-  - これらの API を使用するには、Gurobi Optimization, LLC から有効なライセンスを取得する必要があります。
-  - Gurobi Optimizer は QUBO++ に含まれておらず、その使用は独自のライセンス契約の条件に従います。
 
 </div>

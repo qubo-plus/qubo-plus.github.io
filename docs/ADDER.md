@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Adder Simulation"
 nav_order: 50
+alt_lang: "Python version"
+alt_lang_url: "python/ADDER"
 ---
+
 <div class="lang-en" markdown="1">
 # Adder Simulation
 
@@ -32,8 +35,8 @@ $$
 
 This expression attains its minimum value of 0 if and only if the five variables take values consistent with a valid full-adder operation.
 The following QUBO++ program verifies this formulation using the exhaustive solver:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -45,13 +48,12 @@ int main() {
   auto s = qbpp::var("s");
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(fa);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
+{% endraw %}
 In this QUBO program, the constraint $fa(a,b,i,c,s)$ is implemented using the equality operator `==`, which intuitively represents the constraint $a+b+i=2o+s$.
 The program produces the following output, confirming that the expression correctly models a full adder:
 {% raw %}
@@ -105,7 +107,6 @@ Using the QUBO expression for a full adder, we can construct a QUBO expression t
 The following QUBO++ program creates a QUBO expression for simulating a 4-bit adder by combining four full adders:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -129,10 +130,8 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
@@ -155,8 +154,8 @@ This program produces 512 valid solutions, corresponding to all possible input c
 ```
 {% endraw %}
 Alternatively, we can define a C++ function `fa` to construct full-adder constraints in a more concise and readable manner:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -175,13 +174,12 @@ int main() {
   auto fa3 = fa(x[3], y[3], c[3], c[4], z[3]);
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
+{% endraw %}
 This program produces the same 512 optimal solutions as the previous implementation.
 
 If some of the binary variables are fixed, the valid values of the remaining variables can be derived using the Exhaustive Solver.
@@ -229,8 +227,8 @@ $$
 
 この式は、5つの変数が有効な全加算器の動作と整合する値を取るとき、かつそのときに限り、最小値0を達成します。
 以下のQUBO++プログラムは、Exhaustive Solverを使ってこの定式化を検証します:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -242,13 +240,12 @@ int main() {
   auto s = qbpp::var("s");
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(fa);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
+{% endraw %}
 このQUBOプログラムでは、制約 $fa(a,b,i,c,s)$ は等号演算子 `==` を使って実装されており、直感的に制約 $a+b+i=2o+s$ を表しています。
 プログラムは以下の出力を生成し、式が全加算器を正しくモデル化していることを確認します:
 {% raw %}
@@ -302,7 +299,6 @@ int main() {
 以下のQUBO++プログラムは、4つの全加算器を組み合わせて4ビット加算器をシミュレートするQUBO式を作成します:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -326,10 +322,8 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
 
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
@@ -352,8 +346,8 @@ int main() {
 ```
 {% endraw %}
 あるいは、C++関数 `fa` を定義して、全加算器の制約をより簡潔で読みやすい形式で構築することもできます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -372,13 +366,12 @@ int main() {
   auto fa3 = fa(x[3], y[3], c[3], c[4], z[3]);
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
 ```
+{% endraw %}
 このプログラムは前の実装と同じ512個の最適解を生成します。
 
 一部のバイナリ変数を固定すると、残りの変数の有効な値をExhaustive Solverで導出できます。

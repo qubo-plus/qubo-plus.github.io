@@ -20,8 +20,8 @@ After completing this tutorial, you should be able to use QUBO++ for most typica
 
 1. [Defining Variables and Creating Expressions](VARIABLE)
 2. [Solving Expressions](SOLVE)
-3. [Vector of Variables and Vector Functions](VECTOR)
-4. [Solving Partitioning Problem Using Vector of Variables](PARTITION)
+3. [Array of Variables and Array Functions](VECTOR)
+4. [Solving Partitioning Problem Using Array of Variables](PARTITION)
 5. [Permutation Matrix and Solving Assignment Problem](PERMUTATION)
 6. [Integer Variables and Solving Simultaneous Equations](INTEGER)
 7. [Factorization Through HUBO Expression](FACTORIZATION)
@@ -36,8 +36,8 @@ sections by providing a deeper understanding of QUBO++.
 
 1. [Data Types of Variables and Expressions](VAREXPR)
 2. [Basic Operators and Functions](OPERATOR)
-3. [Basic Operators and Functions for Vectors](OPVECTOR)
-4. [Multi-dimensional Variables and Expressions](MULTIDIM)
+3. [Basic Operators and Functions for Arrays](OPVECTOR)
+4. [Multi-dimensional Integers, Variables, and Expressions](MULTIDIM)
 5. [Comparison Operators](COMPARISON)
 6. [Expression Classes](EXPRESSION)
 7. [Evaluating Expressions](EVAL)
@@ -45,10 +45,11 @@ sections by providing a deeper understanding of QUBO++.
 9. [Negated Literals](NEGATIVE)
 10. [Sum Functions for Multi-dimensional Arrays](SUM)
 11. [Slice and Concat Functions](SLICE_CONCAT)
-12. [Easy Solver Usage](EASYSOLVER)
-13. [Exhaustive Solver Usage](EXHAUSTIVE)
-14. [ABS3 Solver Usage](ABS3)
-15. [Gurobi Solver Usage](GUROBI)
+12. [One-Hot to Integer Conversion](ONEHOT)
+13. [Easy Solver Usage](EASYSOLVER)
+14. [Exhaustive Solver Usage](EXHAUSTIVE)
+15. [ABS3 Solver Usage](ABS3)
+16. [Search Parameters](PARAMS)
 
 
 
@@ -59,6 +60,7 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 ## Quick References
 1. [Variables and Expressions](QR_VARIABLE)
 2. [Operators and Functions for Expressions](QR_OPERATION)
+3. [Solutions](QR_SOLUTION)
 
 </div>
 
@@ -79,8 +81,8 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 
 1. [変数の定義と式の作成](VARIABLE)
 2. [式の求解](SOLVE)
-3. [変数ベクトルとベクトル関数](VECTOR)
-4. [変数ベクトルを用いた分割問題の求解](PARTITION)
+3. [変数配列と配列関数](VECTOR)
+4. [変数配列を用いた分割問題の求解](PARTITION)
 5. [置換行列と割当問題の求解](PERMUTATION)
 6. [整数変数と連立方程式の求解](INTEGER)
 7. [HUBO 式による因数分解](FACTORIZATION)
@@ -96,7 +98,7 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 1. [変数と式のデータ型](VAREXPR)
 2. [基本的な演算子と関数](OPERATOR)
 3. [ベクトル用の基本的な演算子と関数](OPVECTOR)
-4. [多次元変数と式](MULTIDIM)
+4. [多次元の整数、変数および式](MULTIDIM)
 5. [比較演算子](COMPARISON)
 6. [式クラス](EXPRESSION)
 7. [式の評価](EVAL)
@@ -104,10 +106,11 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 9. [否定リテラル](NEGATIVE)
 10. [多次元配列用の Sum 関数](SUM)
 11. [スライス関数と連結関数](SLICE_CONCAT)
-12. [Easy Solver の使い方](EASYSOLVER)
-13. [Exhaustive Solver の使い方](EXHAUSTIVE)
-14. [ABS3 Solver の使い方](ABS3)
-15. [Gurobi Solver の使い方](GUROBI)
+12. [ワンホットから整数への変換](ONEHOT)
+13. [Easy Solver の使い方](EASYSOLVER)
+14. [Exhaustive Solver の使い方](EXHAUSTIVE)
+15. [ABS3 Solver の使い方](ABS3)
+16. [探索パラメータ](PARAMS)
 
 
 
@@ -118,5 +121,6 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 ## クイックリファレンス
 1. [変数と式](QR_VARIABLE)
 2. [式の演算子と関数](QR_OPERATION)
+3. [解](QR_SOLUTION)
 
 </div>

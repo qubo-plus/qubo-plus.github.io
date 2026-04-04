@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Subgraph Isomorphism"
 nav_order: 15
+alt_lang: "Python version"
+alt_lang_url: "python/SUBGRAPH_ISOMORPHISM"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Subgraph Isomorphism Problem
@@ -105,8 +108,8 @@ The best possible value of $f$ is attained when the constraint term is zero and 
 
 ## QUBO++ program of the subgraph isomorphic problem
 Based on the QUBO formulation above, the following QUBO++ program solves the subgraph isomorphism problem for a guest graph with $M=6$ nodes and a host graph with $N=10$ nodes:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -142,9 +145,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-static_cast<int>(guest.size())));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-static_cast<int>(guest.size()))}});
 
   std::cout << "sol(x) = " << sol(x) << std::endl;
 
@@ -199,6 +200,7 @@ int main() {
   graph.write("subgraph_isomorphism.svg");
 }
 ```
+{% endraw %}
 
 The guest and host graphs are given as the edge lists guest and host, respectively.
 We define an $M\times N$ binary matrix `x`, and then construct the expressions `constraint`, `objective`, and `f` according to the formulation above.
@@ -325,8 +327,8 @@ $f$ の最良値は、制約項が0で目的関数がゲスト辺の数に等し
 
 ## 部分グラフ同型問題のQUBO++プログラム
 上記のQUBO定式化に基づき、以下のQUBO++プログラムは $M=6$ 頂点のゲストグラフと $N=10$ 頂点のホストグラフに対する部分グラフ同型問題を解きます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -362,9 +364,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", std::to_string(-static_cast<int>(guest.size())));
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", std::to_string(-static_cast<int>(guest.size()))}});
 
   std::cout << "sol(x) = " << sol(x) << std::endl;
 
@@ -419,6 +419,7 @@ int main() {
   graph.write("subgraph_isomorphism.svg");
 }
 ```
+{% endraw %}
 
 ゲストグラフとホストグラフは、それぞれ辺リスト `guest` と `host` として与えられます。
 $M\times N$ のバイナリ行列 `x` を定義し、上記の定式化に従って `constraint`、`objective`、`f` を構成します。

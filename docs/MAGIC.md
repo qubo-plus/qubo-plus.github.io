@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Magic Square"
 nav_order: 40
+alt_lang: "Python version"
+alt_lang_url: "python/MAGIC"
 ---
+
 <div class="lang-en" markdown="1">
 # Magic Square
 A 3-by-3 magic square is a 3-by-3 matrix that contains each integer from 1 to 9 exactly once, such that the sum of every row, every column, and the two diagonals is 15.
@@ -66,8 +69,8 @@ When all constraints are satisfied, the assignment $X=(x_{i,j,k})$ represents a 
 
 ## QUBO++ prgram for the magic square
 The following QUBO++ program implements these constraints and finds a magic square:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -106,9 +109,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
   auto result = qbpp::onehot_to_int(sol(x));
   for (size_t i = 0; i < 3; ++i) {
     for (size_t j = 0; j < 3; ++j) {
@@ -118,6 +119,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 In this program, we define a $3\times 3\times9$ array of binary variables `x`.
 We then build four constraint expressions `c1`, `c2`, `c3`, and `c4`, and combine them into `f`.
 The expression `f` achieves the minimum energy 0 when all constraints are satisfied.
@@ -159,6 +161,7 @@ These fixed assignments reduce the number of remaining binary variables, which i
 
 ## QUBO++ program for the magic square with fixing variable partially
 We modify the program above as follows:
+{% raw %}
 ```cpp
   qbpp::MapList ml;
   for (size_t k = 0; k < 9; ++k) {
@@ -179,9 +182,7 @@ We modify the program above as follows:
   g.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
   auto result = qbpp::onehot_to_int(full_sol(x));
@@ -192,6 +193,7 @@ We modify the program above as follows:
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 
 In this code, we create a `qbpp::MapList` object `ml` and add fixed assignments using `push_back()`.
 We then call `qbpp::replace(f, ml)` to substitute the fixed values, producing a new expression `g` without modifying the original `f`.
@@ -271,8 +273,8 @@ $$
 
 ## 魔方陣のためのQUBO++プログラム
 以下のQUBO++プログラムは、これらの制約を実装し、魔方陣を求めます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -311,9 +313,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
   auto result = qbpp::onehot_to_int(sol(x));
   for (size_t i = 0; i < 3; ++i) {
     for (size_t j = 0; j < 3; ++j) {
@@ -323,6 +323,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 このプログラムでは、$3\times 3\times9$ のバイナリ変数配列 `x` を定義しています。
 次に、4つの制約式 `c1`、`c2`、`c3`、`c4` を構築し、それらを `f` にまとめます。
 式 `f` は、すべての制約が満たされたときに最小エネルギー0を達成します。
@@ -362,6 +363,7 @@ $$
 
 ## 変数の部分固定を用いた魔方陣のQUBO++プログラム
 上記のプログラムを以下のように修正します:
+{% raw %}
 ```cpp
   qbpp::MapList ml;
   for (size_t k = 0; k < 9; ++k) {
@@ -382,9 +384,7 @@ $$
   g.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
   auto result = qbpp::onehot_to_int(full_sol(x));
@@ -395,6 +395,7 @@ $$
     std::cout << std::endl;
   }
 ```
+{% endraw %}
 
 このコードでは、`qbpp::MapList` オブジェクト `ml` を作成し、`push_back()` を使用して固定割り当てを追加しています。
 次に、`qbpp::replace(f, ml)` を呼び出して固定値を代入し、元の `f` を変更せずに新しい式 `g` を生成します。

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Find Three Integers"
 nav_order: 5
+alt_lang: "Python version"
+alt_lang_url: "python/3INTEGERS"
 ---
+
 <div class="lang-en" markdown="1">
 # Math Problem: Find Three Intgers
 
@@ -41,8 +44,9 @@ $$
 
 The following QUBO++ program formulates these constraints as a HUBO expression and solves it using the Exhaustive Solver:
 
+{% raw %}
 ```cpp
-#define MAXDEG 6
+#include <set>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -57,10 +61,8 @@ int main() {
 
   auto f = c1 + c2 + c3;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
 
   std::set<std::tuple<qbpp::energy_t, qbpp::energy_t, qbpp::energy_t>> seen;
   for (const auto& sol : sols) {
@@ -73,6 +75,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 The three constraints are encoded as `c1`, `c2`, and `c3`, and combined into a single objective `f`.
 The Exhaustive Solver searches for optimal solutions of f and prints the resulting
 $(x,y,z)$ tuples.
@@ -125,8 +128,9 @@ $$
 
 以下のQUBO++プログラムは、これらの制約をHUBO式として定式化し、Exhaustive Solverを使って解きます:
 
+{% raw %}
 ```cpp
-#define MAXDEG 6
+#include <set>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -141,10 +145,8 @@ int main() {
 
   auto f = c1 + c2 + c3;
   f.simplify_as_binary();
-  qbpp::Params params;
-  params.set("best_energy_sols", "1");
   auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"best_energy_sols", 1}});
 
   std::set<std::tuple<qbpp::energy_t, qbpp::energy_t, qbpp::energy_t>> seen;
   for (const auto& sol : sols) {
@@ -157,6 +159,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 3つの制約は `c1`、`c2`、`c3` として符号化され、単一の目的関数 `f` にまとめられます。
 Exhaustive Solverが `f` の最適解を探索し、得られた $(x,y,z)$ の組を出力します。
 

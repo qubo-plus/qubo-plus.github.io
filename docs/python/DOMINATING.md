@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Dominating Set"
 nav_order: 55
+alt_lang: "C++ version"
+alt_lang_url: "DOMINATING"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Dominating Set Problem
 A dominating set of an undirected graph $G=(V,E)$ is a subset $S\subseteq V$ such that every node
@@ -83,8 +86,7 @@ f = objective + (N + 1) * constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")
@@ -232,8 +234,7 @@ f = objective + (N + 1) * constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")

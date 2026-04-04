@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Factorization"
 nav_order: 8
+alt_lang: "C++ version"
+alt_lang_url: "FACTORIZATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Factorization Through HUBO Expression
 
@@ -45,8 +48,7 @@ f = (p * q) == 35
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print("sol =", sol)
 print("p =", sol(p))
@@ -109,8 +111,7 @@ f = (p * q) == 35
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 print("sol =", sol)
 print("p =", sol(p))

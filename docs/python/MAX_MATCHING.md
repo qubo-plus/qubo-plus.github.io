@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Maximum Matching"
 nav_order: 52
+alt_lang: "C++ version"
+alt_lang_url: "MAX_MATCHING"
 ---
+
 <div class="lang-en" markdown="1">
 # Maximum Matching Problem
 

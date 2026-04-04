@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Subgraph Isomorphism"
 nav_order: 56
+alt_lang: "C++ version"
+alt_lang_url: "SUBGRAPH_ISOMORPHISM"
 ---
+
 <div class="lang-en" markdown="1">
 # Subgraph Isomorphism Problem
 Given two undirected graphs $G_H=(V_H,E_H)$ (the host graph) and
@@ -79,8 +82,7 @@ f = -objective + constraint * (M * N)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", str(-len(guest)))
-sol = solver.search()
+sol = solver.search({"target_energy": -len(guest)})
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")
@@ -95,8 +97,7 @@ for i in range(M):
 The guest and host graphs are given as edge lists.
 We define an $M\times N$ binary matrix `x`, and then construct the expressions `constraint`, `objective`, and `f` according to the formulation above.
 
-An Easy Solver instance is created for `f`, and the target energy is set to
-$−|E_G|$ (the negative number of guest edges), which is the best possible value of `-objective` when all guest edges are mapped to host edges.
+An Easy Solver instance is created for `f`, and a search is performed with the target energy $−|E_G|$ (the negative number of guest edges), which is the best possible value of `-objective` when all guest edges are mapped to host edges.
 
 This program produces the following output:
 {% raw %}
@@ -237,8 +238,7 @@ f = -objective + constraint * (M * N)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", str(-len(guest)))
-sol = solver.search()
+sol = solver.search({"target_energy": -len(guest)})
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")
@@ -253,7 +253,7 @@ for i in range(M):
 ゲストグラフとホストグラフは辺リストとして与えられます。
 $M\times N$ のバイナリ行列 `x` を定義し、上記の定式化に従って `constraint`、`objective`、`f` の式を構築します。
 
-Easy Solverのインスタンスを `f` に対して作成し、ターゲットエネルギーを $−|E_G|$（ゲストグラフの辺数の負値）に設定します。これは、すべてのゲストグラフの辺がホストグラフの辺に写像されたときの `-objective` の最良値です。
+Easy Solverのインスタンスを `f` に対して作成し、ターゲットエネルギー $−|E_G|$（ゲストグラフの辺数の負値）を `search()` のパラメータとして渡して探索を実行します。これは、すべてのゲストグラフの辺がホストグラフの辺に写像されたときの `-objective` の最良値です。
 
 このプログラムの出力は以下のとおりです：
 {% raw %}

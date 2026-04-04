@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Vertex Cover"
 nav_order: 54
+alt_lang: "C++ version"
+alt_lang_url: "VERTEX_COVER"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Vertex Cover Problem
 A **vertex cover** of an undirected graph $G=(V,E)$ is a subset

@@ -21,8 +21,8 @@ After completing this tutorial, you should be able to use PyQBPP for most typica
 
 1. [Defining Variables and Creating Expressions](VARIABLE)
 2. [Solving Expressions](SOLVE)
-3. [Vector of Variables and Vector Functions](VECTOR)
-4. [Solving Partitioning Problem Using Vector of Variables](PARTITION)
+3. [Array of Variables and Array Functions](VECTOR)
+4. [Solving Partitioning Problem Using Array of Variables](PARTITION)
 5. [Permutation Matrix and Solving Assignment Problem](PERMUTATION)
 6. [Integer Variables and Solving Simultaneous Equations](INTEGER)
 7. [Factorization Through HUBO Expression](FACTORIZATION)
@@ -35,7 +35,7 @@ usage patterns, and, where appropriate, internal implementations.
 
 1. [Data Types of Variables and Expressions](VAREXPR)
 2. [Basic Operators and Functions](OPERATOR)
-3. [Basic Operators and Functions for Vectors](OPVECTOR)
+3. [Basic Operators and Functions for Arrays](OPVECTOR)
 4. [Multi-dimensional Variables and Expressions](MULTIDIM)
 5. [Comparison Operators](COMPARISON)
 6. [Expression Classes](EXPRESSION)
@@ -44,13 +44,11 @@ usage patterns, and, where appropriate, internal implementations.
 9. [Negated Literals](NEGATIVE)
 10. [Sum Functions for Multi-dimensional Arrays](SUM)
 11. [Slice and Concat](SLICE_CONCAT)
-12. [Easy Solver Usage](EASYSOLVER)
-13. [Exhaustive Solver Usage](EXHAUSTIVE)
-14. [ABS3 Solver Usage](ABS3)
-
-> **NOTE**
-> The Gurobi Solver is not available in the Python binding.
-> For Gurobi usage, please refer to the [QUBO++ (C++) documentation](../GUROBI).
+12. [One-Hot to Integer Conversion](ONEHOT)
+13. [Easy Solver Usage](EASYSOLVER)
+14. [Exhaustive Solver Usage](EXHAUSTIVE)
+15. [ABS3 Solver Usage](ABS3)
+16. [Search Parameters](PARAMS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.
@@ -59,6 +57,7 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 ## Quick References
 1. [Variables and Expressions](QR_VARIABLE)
 2. [Operators and Functions](QR_OPERATION)
+3. [Solutions](QR_SOLUTION)
 </div>
 
 <div class="lang-ja" markdown="1">
@@ -79,8 +78,8 @@ PyQBPPを使った求解方法を学ぶことができます。
 
 1. [変数の定義と式の作成](VARIABLE)
 2. [式の求解](SOLVE)
-3. [変数のベクトルとベクトル関数](VECTOR)
-4. [変数ベクトルを用いた分割問題の求解](PARTITION)
+3. [変数の配列と配列関数](VECTOR)
+4. [変数配列を用いた分割問題の求解](PARTITION)
 5. [順列行列と割当問題の求解](PERMUTATION)
 6. [整数変数と連立方程式の求解](INTEGER)
 7. [HUBO式による因数分解](FACTORIZATION)
@@ -93,7 +92,7 @@ PyQBPPを使った求解方法を学ぶことができます。
 
 1. [変数と式のデータ型](VAREXPR)
 2. [基本演算子と関数](OPERATOR)
-3. [ベクトル用の基本演算子と関数](OPVECTOR)
+3. [配列用の基本演算子と関数](OPVECTOR)
 4. [多次元変数と式](MULTIDIM)
 5. [比較演算子](COMPARISON)
 6. [式のクラス](EXPRESSION)
@@ -102,13 +101,11 @@ PyQBPPを使った求解方法を学ぶことができます。
 9. [否定リテラル](NEGATIVE)
 10. [多次元配列の和関数](SUM)
 11. [スライスと連結](SLICE_CONCAT)
-12. [Easy Solverの使い方](EASYSOLVER)
-13. [Exhaustive Solverの使い方](EXHAUSTIVE)
-14. [ABS3 Solverの使い方](ABS3)
-
-> **NOTE**
-> Gurobi SolverはPythonバインディングでは利用できません。
-> Gurobiの使い方については、[QUBO++ (C++) ドキュメント](../GUROBI)を参照してください。
+12. [ワンホットから整数への変換](ONEHOT)
+13. [Easy Solverの使い方](EASYSOLVER)
+14. [Exhaustive Solverの使い方](EXHAUSTIVE)
+15. [ABS3 Solverの使い方](ABS3)
+16. [探索パラメータ](PARAMS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。
@@ -117,4 +114,5 @@ PyQBPPを使った求解方法を学ぶことができます。
 ## クイックリファレンス
 1. [変数と式](QR_VARIABLE)
 2. [演算子と関数](QR_OPERATION)
+3. [解](QR_SOLUTION)
 </div>

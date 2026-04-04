@@ -3,15 +3,17 @@ layout: default
 nav_exclude: true
 title: "Easy Solver"
 nav_order: 19
+alt_lang: "Python version"
+alt_lang_url: "python/EASYSOLVER"
 ---
+
 <div class="lang-en" markdown="1">
 # Easy Solver Usage
 The **Easy Solver** is a heuristic solver for QUBO/HUBO expressions.
 
 Solving a problem with the Easy Solver consists of the following three steps:
 1. Create an Easy Solver (or `qbpp::easy_solver::EasySolver`) object.
-2. Create a `qbpp::Params` object and set search parameters.
-3. Search for solutions by calling the `search(params)` member function, which returns a `qbpp::easy_solver::Sols` object.
+2. Search for solutions by calling the `search()` member function, passing parameters as an initializer list. It returns a `qbpp::easy_solver::Sols` object.
 
 ## Creating Easy Solver object
 To use the Easy Solver, an Easy Solver object (or `qbpp::easy_solver::EasySolver`) is constructed with an expression (or `qbpp::Expr`) object as follows:
@@ -22,34 +24,33 @@ It must be simplified as a binary expression in advance by calling the `simplify
 This function converts the given expression `f` into an internal format that is used during the solution search.
 
 ## Setting Search Parameters
-Search parameters are specified using a `qbpp::Params` object.
+Search parameters are passed directly to the `search()` member function as an initializer list of key-value pairs.
 The following parameters are available:
 
 | Parameter | Description | Default |
 |---|---|---|
-| `time_limit` | Time limit in seconds. Set to `"0"` for no time limit. | `"10.0"` |
+| `time_limit` | Time limit in seconds. Set to `0` for no time limit. | `10.0` |
 | `target_energy` | Target energy. The solver terminates when a solution with energy ≤ this value is found. | (none) |
-| `enable_default_callback` | Set to `"1"` to print newly obtained best solutions. | `"0"` |
+| `enable_default_callback` | Set to `1` to print newly obtained best solutions. | `0` |
 | `topk_sols` | Number of top-k solutions to keep. | (disabled) |
-| `best_energy_sols` | Keep solutions with the best energy. `"0"` for unlimited count. | (disabled) |
+| `best_energy_sols` | Keep solutions with the best energy. `0` for unlimited count. | (disabled) |
 
-Parameters are set using the `set()` method:
+Parameters are passed as an initializer list to `search()`:
+{% raw %}
 ```cpp
-qbpp::Params params;
-params.set("time_limit", "5.0");
-params.set("target_energy", "900");
-params.set("enable_default_callback", "1");
+auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
 ```
+{% endraw %}
 
 Unknown parameter keys will cause a runtime error.
 
 ## Searching Solutions
-The Easy Solver searches for solutions by calling the **`search(params)`** member function with a `qbpp::Params` object.
+The Easy Solver searches for solutions by calling the **`search()`** member function, optionally passing parameters as an initializer list.
 
 ## Program Example
 The following program searches for a solution to the Low Autocorrelation Binary Sequences (LABS) problem using the Easy Solver:
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -68,11 +69,7 @@ int main() {
 
   auto solver = qbpp::easy_solver::EasySolver(f);
 
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("target_energy", "900");
-  params.set("enable_default_callback", "1");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -80,7 +77,8 @@ int main() {
   std::cout << std::endl;
 }
 ```
-In this example, the following parameters are set:
+{% endraw %}
+In this example, the following parameters are passed to `search()`:
 - a 5.0-second time limit,
 - a target energy of 900, and
 - the default callback is enabled.
@@ -162,10 +160,10 @@ For the returned object sols, you can access the stored solutions using either i
 - **`begin()`**, **`end()`**, **`cbegin()`**, **`cend()`**: Iterators that allow you to access each solution in turn using a range-based for loop.
 
 The following program solves the Low Autocorrelation Binary Sequence (LABS) problem using the Easy Solver.
-Since `topk_sols` is set to `"20"`, the solver keeps **up to 20 top-k solutions**.
+Since `topk_sols` is set to `20`, the solver keeps **up to 20 top-k solutions**.
 The program prints each stored solution using a range-based for loop.
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -184,10 +182,7 @@ int main() {
 
   auto solver = qbpp::easy_solver::EasySolver(f);
 
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("topk_sols", "20");
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"time_limit", 5.0}, {"topk_sols", 20}});
   for (const auto& sol : sols) {
     std::cout << sol.energy() << ": ";
     for (auto val : sol(x)) {
@@ -197,6 +192,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 This program displays the following output:
 ```
 26: -----+-+++-+--+++--+
@@ -224,14 +220,16 @@ This program displays the following output:
 ### Keeping multiple best-energy solutions
 The Easy Solver can store multiple solutions that share the best (minimum) energy found during the search.
 To enable this feature, set the `best_energy_sols` parameter.
-The value specifies the maximum number of solutions to keep. Set to `"0"` for unlimited.
+The value specifies the maximum number of solutions to keep. Set to `0` for unlimited.
 
 The usage is the same as that of `topk_sols`.
 Therefore, to enable this feature in a QUBO++ program above, you can replace
 `topk_sols` with `best_energy_sols` as follows:
+{% raw %}
 ```cpp
-  params.set("best_energy_sols", "0");  // unlimited
+  auto sols = solver.search({{"time_limit", 5.0}, {"best_energy_sols", 0}});  // unlimited
 ```
+{% endraw %}
 With this parameter set, the solver stores only the solutions whose energy is equal to the best energy found.
 The resulting program produces the following solutions, all of which have the best energy value of 26:
 ```
@@ -250,8 +248,7 @@ The resulting program produces the following solutions, all of which have the be
 
 Easy Solverを使って問題を解くには、以下の3つのステップで行います：
 1. Easy Solver（`qbpp::easy_solver::EasySolver`）オブジェクトを作成します。
-2. `qbpp::Params` オブジェクトを作成し、探索パラメータを設定します。
-3. `search(params)` メンバ関数を呼び出して解を探索します。`qbpp::easy_solver::Sols` オブジェクトが返されます。
+2. `search()` メンバ関数を呼び出して解を探索します。パラメータは初期化子リストとして渡します。`qbpp::easy_solver::Sols` オブジェクトが返されます。
 
 ## Easy Solverオブジェクトの作成
 Easy Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引数としてEasy Solverオブジェクト（`qbpp::easy_solver::EasySolver`）を以下のように構築します：
@@ -262,34 +259,33 @@ Easy Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引
 この関数は与えられた式 `f` を解探索中に使用される内部フォーマットに変換します。
 
 ## 探索パラメータの設定
-探索パラメータは `qbpp::Params` オブジェクトを使用して設定します。
+探索パラメータは `search()` メンバ関数に初期化子リストとして直接渡します。
 以下のパラメータが利用可能です：
 
 | パラメータ | 説明 | デフォルト |
 |---|---|---|
-| `time_limit` | 制限時間（秒）。`"0"` で時間制限なし。 | `"10.0"` |
+| `time_limit` | 制限時間（秒）。`0` で時間制限なし。 | `10.0` |
 | `target_energy` | ターゲットエネルギー。この値以下の解が見つかると探索を終了。 | （なし） |
-| `enable_default_callback` | `"1"` で新たに得られた最良解を出力。 | `"0"` |
+| `enable_default_callback` | `1` で新たに得られた最良解を出力。 | `0` |
 | `topk_sols` | 保持するtop-k解の数。 | （無効） |
-| `best_energy_sols` | 最良エネルギーの解を保持。`"0"` で無制限。 | （無効） |
+| `best_energy_sols` | 最良エネルギーの解を保持。`0` で無制限。 | （無効） |
 
-パラメータは `set()` メソッドで設定します：
+パラメータは `search()` に初期化子リストとして渡します：
+{% raw %}
 ```cpp
-qbpp::Params params;
-params.set("time_limit", "5.0");
-params.set("target_energy", "900");
-params.set("enable_default_callback", "1");
+auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
 ```
+{% endraw %}
 
-未知のパラメータキーを設定するとランタイムエラーが発生します。
+未知のパラメータキーを指定するとランタイムエラーが発生します。
 
 ## 解の探索
-Easy Solverは、`qbpp::Params` オブジェクトを引数として **`search(params)`** メンバ関数を呼び出すことで解を探索します。
+Easy Solverは、**`search()`** メンバ関数を呼び出すことで解を探索します。パラメータは初期化子リストとして渡すことができます。
 
 ## プログラム例
 以下のプログラムは、Easy Solverを使用してLow Autocorrelation Binary Sequences (LABS)問題の解を探索します：
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -308,11 +304,7 @@ int main() {
 
   auto solver = qbpp::easy_solver::EasySolver(f);
 
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("target_energy", "900");
-  params.set("enable_default_callback", "1");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
@@ -320,7 +312,8 @@ int main() {
   std::cout << std::endl;
 }
 ```
-この例では、以下のパラメータが設定されています：
+{% endraw %}
+この例では、以下のパラメータが `search()` に渡されています：
 - 制限時間5.0秒、
 - ターゲットエネルギー900、
 - デフォルトコールバックが有効。
@@ -401,10 +394,10 @@ Easy Solverは探索中に見つかった**複数のtop-k解**を保持できま
 - **`begin()`**, **`end()`**, **`cbegin()`**, **`cend()`**: 範囲ベースforループを使用して各解に順にアクセスできるイテレータです。
 
 以下のプログラムは、Easy Solverを使用してLow Autocorrelation Binary Sequence (LABS)問題を解きます。
-`topk_sols` を `"20"` に設定しているため、ソルバーは**最大20個のtop-k解**を保持します。
+`topk_sols` を `20` に設定しているため、ソルバーは**最大20個のtop-k解**を保持します。
 プログラムは範囲ベースforループを使用して各保持解を出力します。
+{% raw %}
 ```cpp
-#define MAXDEG 4
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -423,10 +416,7 @@ int main() {
 
   auto solver = qbpp::easy_solver::EasySolver(f);
 
-  qbpp::Params params;
-  params.set("time_limit", "5.0");
-  params.set("topk_sols", "20");
-  auto sols = solver.search(params);
+  auto sols = solver.search({{"time_limit", 5.0}, {"topk_sols", 20}});
   for (const auto& sol : sols) {
     std::cout << sol.energy() << ": ";
     for (auto val : sol(x)) {
@@ -436,6 +426,7 @@ int main() {
   }
 }
 ```
+{% endraw %}
 このプログラムは以下の出力を表示します：
 ```
 26: -----+-+++-+--+++--+
@@ -463,13 +454,15 @@ int main() {
 ### 複数の最良エネルギー解の保持
 Easy Solverは探索中に見つかった最良（最小）エネルギーを共有する複数の解を保持できます。
 この機能を有効にするには、`best_energy_sols` パラメータを設定します。
-値は保持する最大解数を指定します。`"0"` で無制限です。
+値は保持する最大解数を指定します。`0` で無制限です。
 
 使い方は `topk_sols` と同じです。
 したがって、上記のQUBO++プログラムでこの機能を有効にするには、`topk_sols` を `best_energy_sols` に置き換えます：
+{% raw %}
 ```cpp
-  params.set("best_energy_sols", "0");  // 無制限
+  auto sols = solver.search({{"time_limit", 5.0}, {"best_energy_sols", 0}});  // 無制限
 ```
+{% endraw %}
 このパラメータが設定された場合、ソルバーは見つかった最良エネルギーと等しいエネルギーの解のみを保持します。
 結果として得られるプログラムは、すべて最良エネルギー値26を持つ以下の解を生成します：
 ```

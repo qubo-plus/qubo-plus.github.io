@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Expression Classes"
 nav_order: 15
+alt_lang: "Python version"
+alt_lang_url: "python/EXPRESSION"
 ---
+
 
 <div class="lang-en" markdown="1">
 

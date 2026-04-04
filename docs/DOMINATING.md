@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Dominating Set"
 nav_order: 14
+alt_lang: "Python version"
+alt_lang_url: "python/DOMINATING"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Minimum Dominating Set Problem
@@ -65,8 +68,8 @@ The penalty coefficient $n+1$ is a safe choice to prioritize satisfying the domi
 
 ## QUBO++ program for the HUBO formulation
 The following QUBO++ program finds a solution for a graph with $N=16$ nodes:
+{% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -102,9 +105,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "objective = " << objective(sol) << std::endl;
   std::cout << "constraint = " << constraint(sol) << std::endl;
@@ -119,6 +120,7 @@ int main() {
   graph.write("dominatingset.svg");
 }
 ```
+{% endraw %}
 This program first builds the adjacency list `adj` from the edge list `edges`, where each `adj[i]` stores the neighbors of vertex `i`.
 It then constructs `constraint`, `objective`, and `f` according to the HUBO formulation.
 The Easy Solver is applied to `f` to obtain a solution `sol`.
@@ -244,8 +246,8 @@ $$
 
 ## HUBO定式化のQUBO++プログラム
 以下のQUBO++プログラムは、$N=16$ 頂点のグラフに対する解を求めます:
+{% raw %}
 ```cpp
-#define MAXDEG 0
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -281,9 +283,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "objective = " << objective(sol) << std::endl;
   std::cout << "constraint = " << constraint(sol) << std::endl;
@@ -298,6 +298,7 @@ int main() {
   graph.write("dominatingset.svg");
 }
 ```
+{% endraw %}
 このプログラムは、まず辺リスト `edges` から隣接リスト `adj` を構築します。各 `adj[i]` には頂点 `i` の隣接頂点が格納されます。
 次に、HUBO定式化に従って `constraint`、`objective`、`f` を構成します。
 Easy Solver を `f` に適用して解 `sol` を求めます。

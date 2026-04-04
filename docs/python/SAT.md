@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "SAT"
 nav_order: 44
+alt_lang: "C++ version"
+alt_lang_url: "SAT"
 ---
+
 <div class="lang-en" markdown="1">
 # Boolean Satisfiability Problem (SAT)
 
@@ -95,11 +98,10 @@ constraint = c0 + c1 + c2 + c3 + c4 + c5
 
 constraint.simplify_as_binary()
 solver = qbpp.EasySolver(constraint)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 # Print result
-print(f"Energy = {sol.energy()}")
+print(f"Energy = {sol.energy}")
 print("Assignment (True=0, False=1):")
 for i in range(5):
     val = sol(x[i])
@@ -237,11 +239,10 @@ constraint = c0 + c1 + c2 + c3 + c4 + c5
 
 constraint.simplify_as_binary()
 solver = qbpp.EasySolver(constraint)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 
 # 結果の出力
-print(f"Energy = {sol.energy()}")
+print(f"Energy = {sol.energy}")
 print("Assignment (True=0, False=1):")
 for i in range(5):
     val = sol(x[i])

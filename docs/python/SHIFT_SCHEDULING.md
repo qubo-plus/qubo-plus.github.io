@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Shift Scheduling"
 nav_order: 71
+alt_lang: "C++ version"
+alt_lang_url: "SHIFT_SCHEDULING"
 ---
+
 <div class="lang-en" markdown="1">
 # Shift Scheduling Problem
 Consider the following **shift scheduling problem**, which aims to find a schedule that minimizes the total worker cost.
@@ -71,9 +74,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([ml, sol])
 
@@ -168,9 +169,7 @@ g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 
 full_sol = qbpp.Sol(f).set([ml, sol])
 

@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Vertex Cover"
 nav_order: 13
+alt_lang: "Python version"
+alt_lang_url: "python/VERTEX_COVER"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Minimum Vertex Cover Problem
@@ -59,7 +62,6 @@ The following QUBO++ program solves the minimum vertex cover problem for a graph
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -170,7 +172,6 @@ $$
 
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 #include <qbpp/graph.hpp>

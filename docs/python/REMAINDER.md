@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Remainder Problem"
 nav_order: 41
+alt_lang: "C++ version"
+alt_lang_url: "REMAINDER"
 ---
+
 <div class="lang-en" markdown="1">
 # Remainder Problem
 The following problem can be solved using PyQBPP.
@@ -56,8 +59,7 @@ f = x + 1000 * (c3 + c5 + c7)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"x = {sol(x)}")
 print(f"{sol(x)} - 3 * {sol(d3)} = {sol(c3.body)}")
@@ -70,7 +72,7 @@ Each of them is converted into a QUBO penalty term that becomes 0 when the corre
 
 We then minimize `x` with a large penalty weight (1000) so that satisfying the constraints is prioritized over reducing `x`.
 
-Finally, the Easy Solver searches for a low-energy solution of f within the time limit (1.0 second), and the obtained values are printed as follows:
+Finally, the Easy Solver searches for a low-energy solution of f within the time limit (1.0 second) specified in the parameter dictionary, and the obtained values are printed as follows:
 ```
 x = 68
 68 - 3 * 22 = 2
@@ -140,8 +142,7 @@ f = x + 1000 * (c3 + c5 + c7)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "1.0")
-sol = solver.search()
+sol = solver.search({"time_limit": 1.0})
 
 print(f"x = {sol(x)}")
 print(f"{sol(x)} - 3 * {sol(d3)} = {sol(c3.body)}")
@@ -154,7 +155,7 @@ print(f"{sol(x)} - 7 * {sol(d7)} = {sol(c7.body)}")
 
 大きなペナルティ重み（1000）を使って `x` を最小化することで、`x` の削減よりも制約の充足が優先されます。
 
-最後に、Easy Solver が制限時間（1.0秒）内で f の低エネルギー解を探索し、得られた値は以下のように出力されます:
+最後に、Easy Solver がパラメータ辞書で指定された制限時間（1.0秒）内で f の低エネルギー解を探索し、得られた値は以下のように出力されます:
 ```
 x = 68
 68 - 3 * 22 = 2

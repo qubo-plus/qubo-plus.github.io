@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "NAE-SAT"
 nav_order: 45
+alt_lang: "Python version"
+alt_lang_url: "python/NAESAT"
 ---
+
 <div class="lang-en" markdown="1">
 # NAE-SAT (Not-All-Equal Satisfiability)
 
@@ -69,6 +72,7 @@ where $P$ must be large enough (e.g., $P = n^2 + 1$) to ensure that constraint s
 QUBO++ handles negated literals $$\overline{x}_i$$ (written as `~x[i]`) natively, which makes the NAE-SAT formulation natural and efficient.
 The following program defines a simple NAE-SAT instance with 5 variables and 4 clauses of size 3, solves it using EasySolver, and verifies the result.
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
@@ -109,9 +113,7 @@ int main() {
 
   // Solve
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "1");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 1}});
 
   // Print results
   std::cout << "Energy = " << sol.energy() << std::endl;
@@ -141,6 +143,7 @@ int main() {
             << (all_satisfied ? "Yes" : "No") << std::endl;
 }
 ```
+{% endraw %}
 
 ### Example output
 ```
@@ -230,6 +233,7 @@ $$
 QUBO++ は否定リテラル $$\overline{x}_i$$（`~x[i]` と記述）をネイティブに扱えるため、NAE-SAT の定式化が自然かつ効率的に行えます。
 以下のプログラムは、5 変数・4 節（各節サイズ 3）の簡単な NAE-SAT インスタンスを定義し、EasySolver で解き、結果を検証します。
 
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
@@ -270,9 +274,8 @@ int main() {
 
   // 求解
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "1");  // n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
-  auto sol = solver.search(params);
+  // n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
+  auto sol = solver.search({{"target_energy", 1}});
 
   // 結果の出力
   std::cout << "Energy = " << sol.energy() << std::endl;
@@ -302,6 +305,7 @@ int main() {
             << (all_satisfied ? "Yes" : "No") << std::endl;
 }
 ```
+{% endraw %}
 
 ### 実行結果の例
 ```

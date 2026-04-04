@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Evaluating Expressions"
 nav_order: 16
+alt_lang: "Python version"
+alt_lang_url: "python/EVAL"
 ---
+
 <div class="lang-en" markdown="1">
 # Evaluating Expressions
 
@@ -13,7 +16,6 @@ as a list of pairs of a variable and its value.
 A list can be defined as a **`qbpp::MapList`** object.
 For example, the following program computes the function $f(x,y,z)$ for $(x,y,z)=(0,1,1)$.
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -47,7 +49,6 @@ f(0,1,1) = 4
 Alternratively, we can provide an assignemt directly as follows:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -73,7 +74,6 @@ Furthermore, the **`comp_energy()`** member function computes and returns the sa
 
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -95,8 +95,8 @@ int main() {
 Note that the member function **`comp_energy()`** of a solution object `sol` computes the energy value and caches it internally.
 In addition, a solution object returned by a solver already has its energy value computed and cached.
 To retrieve the energy without recomputing it, you can use the member function **`energy()`**, as shown below:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -108,9 +108,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
   std::cout << "energy = " << sol.energy() << std::endl;
@@ -120,6 +118,7 @@ int main() {
   std::cout << "flipped energy = " << sol.energy() << std::endl;
 }
 ```
+{% endraw %}
 In this program, `sol.energy()` correctly returns 0.
 However, after flipping the variable `z`, the cached energy value becomes invalid.
 Calling `sol.energy()` without recomputing the energy therefore results in **a runtime error**, as shown below:
@@ -160,7 +159,6 @@ flipped energy = 9
 リストは **`qbpp::MapList`** オブジェクトとして定義できます。
 例えば、以下のプログラムは $(x,y,z)=(0,1,1)$ に対して関数 $f(x,y,z)$ を計算します。
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -193,7 +191,6 @@ f(0,1,1) = 4
 あるいは、以下のように割り当てを直接指定することもできます:
 {% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -219,7 +216,6 @@ int main() {
 
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 
 int main() {
@@ -241,8 +237,8 @@ int main() {
 解オブジェクト `sol` のメンバ関数 **`comp_energy()`** はエネルギー値を計算し、内部にキャッシュすることに注意してください。
 また、ソルバーが返す解オブジェクトは、既にエネルギー値が計算されキャッシュされています。
 再計算せずにエネルギーを取得するには、以下に示すようにメンバ関数 **`energy()`** を使用できます:
+{% raw %}
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -254,9 +250,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("target_energy", "0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
   std::cout << "energy = " << sol.energy() << std::endl;
@@ -266,6 +260,7 @@ int main() {
   std::cout << "flipped energy = " << sol.energy() << std::endl;
 }
 ```
+{% endraw %}
 このプログラムでは、`sol.energy()` は正しく0を返します。
 しかし、変数 `z` をフリップした後、キャッシュされたエネルギー値は無効になります。
 エネルギーを再計算せずに `sol.energy()` を呼び出すと、以下のように**ランタイムエラー**が発生します:

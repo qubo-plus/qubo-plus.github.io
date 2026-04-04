@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Min-Max Matching"
 nav_order: 58
+alt_lang: "C++ version"
+alt_lang_url: "MINMAX_MATCHING"
 ---
+
 <div class="lang-en" markdown="1">
 # Minimum Maximal Matching Problem
 

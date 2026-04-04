@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "TSP"
 nav_order: 21
+alt_lang: "Python version"
+alt_lang_url: "python/TSP"
 ---
+
 <div class="lang-en" markdown="1">
 
 # Traveling Salesman Problem
@@ -54,7 +57,7 @@ $j$ is visited next (at position $(k+1)\bmod n$), so it equals the total length 
 Using the permutation-matrix formulation above, we can write a QUBO++ program for the TSP as follows:
 {% raw %}
 ```cpp
-#define MAXDEG 2
+#include <cmath>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -104,9 +107,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   auto tour = qbpp::onehot_to_int(sol(x));
 
   std::cout << "Tour: " << tour << "\n";
@@ -158,6 +159,7 @@ As a result, the effective problem size is reduced, which generally makes the QU
 
 ## QUBO++ program for fixing the first node
 In QUBO++, fixed variable assignments can be applied using the `qbpp::replace()` function:
+{% raw %}
 ```cpp
   qbpp::MapList ml;
   ml.push_back({x[0][0], 1});
@@ -170,14 +172,13 @@ In QUBO++, fixed variable assignments can be applied using the `qbpp::replace()`
   g.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
   auto tour = qbpp::onehot_to_int(full_sol(x));
   std::cout << "Tour: " << tour << "\n";
 ```
+{% endraw %}
 First, we create a `qbpp::MapList` object `ml`, which stores fixed assignments of variables.
 Each assignment is added using the `push_back()` member function.
 
@@ -246,7 +247,7 @@ $$
 上記の置換行列による定式化を用いて、TSPのQUBO++プログラムを以下のように記述できます:
 {% raw %}
 ```cpp
-#define MAXDEG 2
+#include <cmath>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 #include <qbpp/graph.hpp>
@@ -296,9 +297,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(f);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
   auto tour = qbpp::onehot_to_int(sol(x));
 
   std::cout << "Tour: " << tour << "\n";
@@ -350,6 +349,7 @@ $$
 
 ## 最初の頂点を固定するQUBO++プログラム
 QUBO++では、固定された変数の割り当てを `qbpp::replace()` 関数を使って適用できます:
+{% raw %}
 ```cpp
   qbpp::MapList ml;
   ml.push_back({x[0][0], 1});
@@ -362,14 +362,13 @@ QUBO++では、固定された変数の割り当てを `qbpp::replace()` 関数�
   g.simplify_as_binary();
 
   auto solver = qbpp::easy_solver::EasySolver(g);
-  qbpp::Params params;
-  params.set("time_limit", "1.0");
-  auto sol = solver.search(params);
+  auto sol = solver.search({{"time_limit", 1.0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
   auto tour = qbpp::onehot_to_int(full_sol(x));
   std::cout << "Tour: " << tour << "\n";
 ```
+{% endraw %}
 まず、変数の固定割り当てを格納する `qbpp::MapList` オブジェクト `ml` を作成します。
 各割り当ては `push_back()` メンバ関数で追加されます。
 

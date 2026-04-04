@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Cutting Stock"
 nav_order: 73
+alt_lang: "C++ version"
+alt_lang_url: "BAR_CUTTING"
 ---
+
 <div class="lang-en" markdown="1">
 # Cutting Stock Problem
 Suppose that we are given $M$ identical bars of fixed length $L$, and a set of $N$ orders specified by pairs $(l_j,c_j)$
@@ -71,9 +74,7 @@ f = order_constraint + bar_constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "10.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 10.0, "target_energy": 0})
 
 for i in range(M):
     pieces = "  ".join(str(sol(x[i][j])) for j in range(N))
@@ -166,9 +167,7 @@ f = order_constraint + bar_constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-solver.set_param("time_limit", "10.0")
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"time_limit": 10.0, "target_energy": 0})
 
 for i in range(M):
     pieces = "  ".join(str(sol(x[i][j])) for j in range(N))

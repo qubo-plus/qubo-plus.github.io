@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "Solving Expressions"
 nav_order: 3
+alt_lang: "C++ version"
+alt_lang_url: "SOLVE"
 ---
+
 <div class="lang-en" markdown="1">
 # Solving Expressions
 
@@ -46,8 +49,8 @@ In the following program, expression `f` is created using symbolic computation.
 The function **`sqr()`** returns the square of the argument.
 We then construct an `EasySolver` instance by passing `f` to its constructor.
 Before doing so, `f` must be simplified for binary variables by calling **`simplify_as_binary()`**.
-Since we know that the optimal value is $f=0$, we set the target energy to $0$ by calling the **`target_energy()`** method.
-Calling the **`search()`** method on `solver` returns a solution instance **`sol`** of class **`Sol`**.
+Since we know that the optimal value is $f=0$, we pass `target_energy` as a parameter to the **`search()`** method.
+Calling **`search()`** on `solver` returns a solution instance **`sol`** of class **`Sol`**.
 
 ```python
 import pyqbpp as qbpp
@@ -60,8 +63,7 @@ f = qbpp.sqr(a + 2 * b + 3 * c + 4 * d - 5)
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 print(sol)
 ```
 
@@ -97,11 +99,11 @@ The output of this program is as follows:
 ```
 Sol(energy=0, a=0, b=1, c=1, d=0)
 ```
-All optimal solutions can be obtained by the **`search_optimal_solutions()`** method as follows:
+All optimal solutions can be obtained by passing `"best_energy_sols"` to `search()`:
 ```python
-sols = solver.search_optimal_solutions()
-for i, sol in enumerate(sols):
-    print(f"({i}) {sol}")
+sol = solver.search({"best_energy_sols": 0})
+for i, s in enumerate(sol.sols()):
+    print(f"({i}) {s}")
 ```
 The output is as follows:
 ```
@@ -115,10 +117,9 @@ The Exhaustive Solver is very useful for analyzing small expressions and for deb
 The **ABS3 Solver** is a high-performance solver that uses CUDA GPUs and multicore CPUs.
 If no GPU is available, it automatically falls back to CPU-only mode.
 
-Usage involves three steps:
+Usage involves two steps:
 1. Create an **`ABS3Solver`** object for the expression.
-2. Set search options using methods of the solver object.
-3. Call the **`search()`** method, which returns the obtained solution.
+2. Call the **`search()`** method with a parameter dict, which returns the obtained solution.
 
 ```python
 import pyqbpp as qbpp
@@ -131,10 +132,8 @@ f = qbpp.sqr(a + 2 * b + 3 * c + 4 * d - 5)
 f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 print(sol)
 ```
 The output of this program is as follows:
@@ -187,8 +186,8 @@ $$
 関数 **`sqr()`** は引数の二乗を返します。
 次に、`f` をコンストラクタに渡して `EasySolver` のインスタンスを構築します。
 その前に、**`simplify_as_binary()`** を呼び出してバイナリ変数用に `f` を簡約化する必要があります。
-最適値が $f=0$ であることがわかっているため、**`target_energy()`** メソッドを呼び出してターゲットエネルギーを $0$ に設定します。
-`solver` の **`search()`** メソッドを呼び出すと、**`Sol`** クラスの解インスタンス **`sol`** が返されます。
+最適値が $f=0$ であることがわかっているため、**`search()`** メソッドに `target_energy` をパラメータとして渡します。
+**`search()`** を呼び出すと、**`Sol`** クラスの解インスタンス **`sol`** が返されます。
 
 ```python
 import pyqbpp as qbpp
@@ -201,8 +200,7 @@ f = qbpp.sqr(a + 2 * b + 3 * c + 4 * d - 5)
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-solver.set_param("target_energy", "0")
-sol = solver.search()
+sol = solver.search({"target_energy": 0})
 print(sol)
 ```
 
@@ -236,11 +234,11 @@ print(sol)
 ```
 Sol(energy=0, a=0, b=1, c=1, d=0)
 ```
-**`search_optimal_solutions()`** メソッドを使うと、すべての最適解を取得できます：
+`"best_energy_sols"` を `search()` に渡すと、すべての最適解を取得できます：
 ```python
-sols = solver.search_optimal_solutions()
-for i, sol in enumerate(sols):
-    print(f"({i}) {sol}")
+sol = solver.search({"best_energy_sols": 0})
+for i, s in enumerate(sol.sols()):
+    print(f"({i}) {s}")
 ```
 出力は以下の通りです：
 ```
@@ -254,10 +252,9 @@ Exhaustive Solverは、小さな式の解析やデバッグに非常に有用で
 **ABS3 Solver**は、CUDA GPUとマルチコアCPUを活用する高性能ソルバーです。
 GPUが利用できない場合は、自動的にCPUのみモードにフォールバックします。
 
-使用方法は以下の3ステップです：
+使用方法は以下の2ステップです：
 1. 式に対して**`ABS3Solver`**オブジェクトを作成します。
-2. ソルバーオブジェクトのメソッドを使って探索オプションを設定します。
-3. **`search()`**メソッドを呼び出します。得られた解が返されます。
+2. パラメータ辞書を渡して**`search()`**メソッドを呼び出します。得られた解が返されます。
 
 ```python
 import pyqbpp as qbpp
@@ -270,10 +267,8 @@ f = qbpp.sqr(a + 2 * b + 3 * c + 4 * d - 5)
 f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
-solver.set_param("time_limit", "5.0")
-solver.set_param("target_energy", "0")
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search()
+sol = solver.search({"time_limit": 5.0, "target_energy": 0})
 print(sol)
 ```
 このプログラムの出力は以下の通りです：

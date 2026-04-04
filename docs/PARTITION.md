@@ -3,10 +3,13 @@ layout: default
 nav_exclude: true
 title: "Partitioning Problem"
 nav_order: 4
+alt_lang: "Python version"
+alt_lang_url: "python/PARTITION"
 ---
+
 <div class="lang-en" markdown="1">
 
-# Solving Partitioning Problem Using Vector of variables
+# Solving Partitioning Problem Using Array of variables
 
 ## Partitioning problem
 Let $w=(w_0, w_1, \ldots, w_{n-1})$ be $n$ positive numbers.
@@ -45,7 +48,6 @@ The function $f(x)$ is a quadratic expression of $x$, and an optimal solution th
 The following QUBO++ program creates the QUBO formulation of the partitioning problem for a fixed set of 8 numbers and finds a solution using the Exhaustive Solver.
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -72,7 +74,7 @@ int main() {
 
   std::cout << "P :";
   for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 1) {
+    if (sol(x[i]) == 1) {
       std::cout << " " << w[i];
     }
   }
@@ -80,7 +82,7 @@ int main() {
 
   std::cout << "Q :";
   for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 0) {
+    if (sol(x[i]) == 0) {
       std::cout << " " << w[i];
     }
   }
@@ -89,7 +91,7 @@ int main() {
 ```
 
 In this program, **`w`** is defined as a `std::vector` object with 8 numbers.
-A vector **`x`** of `w.size()=8` binary variables is defined.
+An array **`x`** of `w.size()=8` binary variables is defined.
 Two `qbpp::Expr` objects **`p`** and **`q`** are defined, and the expressions for $P(x)$ and $Q(x)$
 are constructed in the for-loop.
 Here, **`~x[i]`** denotes the negated literal $\overline{x_i}$ of `x[i]`.
@@ -100,7 +102,7 @@ and the solution **`sol`** (a `qbpp::Sol` object) is obtained by calling its `se
 
 The values of $f(x)$, $P(x)$, and $Q(x)$ are evaluated by calling **`f(sol)`**, **`p(sol)`** and **`q(sol)`**, respectively.
 The numbers in the sets $L$ and $\overline{L}$ are displayed using the for loops.
-In these loops, **`x[i](sol)`** returns the value of `x[i]` in `sol`.
+In these loops, **`sol(x[i])`** returns the value of `x[i]` in `sol`.
 
 This program outputs:
 {% raw %}
@@ -121,37 +123,35 @@ Q : 64 27 74 40
 > In contrast, **`sol(f)`** is natural from an **object-oriented programming perspective**, where the solution object evaluates an expression.
 > You may use either form according to your preference.
 
-## QUBO++ program using vector operations
-QUBO++ has rich vector operations that can simplify the code.
-For this purpose, **`qbpp::Vector`** class, which is similar to `std::vector` class shoud be used.
-In the following code, **`w`** is defined as an object of **`qbpp::Vector<uint32_t>`** class.
-Also, **`x`** is defined as an object of **`qbpp::Vector<qbpp::Var>`** class.
-Since the overloaded operator `*` for `qbpp::Vector` class returns the element-wise product of two
-`qbpp::Vector` objects, **`qbpp::sum(w * x)`** returns the `qbpp::Expr` object representing $P(L)$.
-The `~` operator applied to a `qbpp::Vector` of variables returns a vector of their negated literals.
+## QUBO++ program using array operations
+QUBO++ has rich array operations that can simplify the code.
+In the following code, **`w`** is defined using **`qbpp::int_array()`**, and **`x`** is an array of binary variables created by `qbpp::var()`.
+Since the overloaded operator `*` for `qbpp::Array` returns the element-wise product,
+**`qbpp::sum(w * x)`** returns the `qbpp::Expr` object representing $P(L)$.
+The `~` operator applied to an array of variables returns an array of their negated literals.
 Thus, **`qbpp::sum(w * ~x)`** returns a `qbpp::Expr` object storing $Q(L)$.
 
 ```cpp
-  qbpp::Vector<uint32_t> w = {64, 27, 47, 74, 12, 83, 63, 40};
+  auto w = qbpp::int_array({64, 27, 47, 74, 12, 83, 63, 40});
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::sum(w * x);
   auto q = qbpp::sum(w * ~x);
   auto f = qbpp::sqr(p - q);
 ```
 
-QUBO++ programs can be simplified by using these vector operations.
-In addition, since vector operations for large vectors are parallelized by multithreading, they can accelerate the process of creating QUBO models.
+QUBO++ programs can be simplified by using these array operations.
+In addition, since array operations for large arrays are parallelized by multithreading, they can accelerate the process of creating QUBO models.
 
 > **NOTE**
-> The operators `+`, `-`, and `*` are overloaded both for two `qbpp::Vector` objects and for a scalar and a `qbpp::Vector` object.
-> For two `qbpp::Vector` objects, the overloaded operators perform element-wise operations.
-> For a scalar and a `qbpp::Vector` object, the overloaded operators apply the scalar operation to each element of the vector.
+> The operators `+`, `-`, and `*` are overloaded both for two `qbpp::Array` objects and for a scalar and a `qbpp::Array` object.
+> For two `qbpp::Array` objects, the overloaded operators perform element-wise operations.
+> For a scalar and a `qbpp::Array` object, the overloaded operators apply the scalar operation to each element of the array.
 
 </div>
 
 <div class="lang-ja" markdown="1">
 
-# 変数ベクトルを用いた分割問題の解法
+# 変数配列を用いた分割問題の解法
 
 ## 分割問題
 $w=(w_0, w_1, \ldots, w_{n-1})$ を $n$ 個の正の数とします。
@@ -189,7 +189,6 @@ $$
 以下のQUBO++プログラムは、固定された8個の数の分割問題のQUBO定式化を作成し、Exhaustive Solverを用いて解を求めます。
 
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
@@ -216,7 +215,7 @@ int main() {
 
   std::cout << "P :";
   for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 1) {
+    if (sol(x[i]) == 1) {
       std::cout << " " << w[i];
     }
   }
@@ -224,7 +223,7 @@ int main() {
 
   std::cout << "Q :";
   for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 0) {
+    if (sol(x[i]) == 0) {
       std::cout << " " << w[i];
     }
   }
@@ -233,7 +232,7 @@ int main() {
 ```
 
 このプログラムでは、**`w`** は8個の数を持つ `std::vector` オブジェクトとして定義されています。
-`w.size()=8` 個のバイナリ変数のベクトル **`x`** が定義されます。
+`w.size()=8` 個のバイナリ変数の配列 **`x`** が定義されます。
 2つの `qbpp::Expr` オブジェクト **`p`** と **`q`** が定義され、$P(x)$ と $Q(x)$ の式がforループ内で構築されます。
 ここで **`~x[i]`** は `x[i]` の否定リテラル $\overline{x_i}$ を表します。
 `qbpp::Expr` オブジェクト **`f`** は $f(x)$ の式を格納します。
@@ -242,7 +241,7 @@ int main() {
 
 $f(x)$、$P(x)$、$Q(x)$ の値はそれぞれ **`f(sol)`**、**`p(sol)`**、**`q(sol)`** の呼び出しにより評価されます。
 集合 $L$ と $\overline{L}$ の数はforループを使って表示されます。
-これらのループでは、**`x[i](sol)`** が `sol` における `x[i]` の値を返します。
+これらのループでは、**`sol(x[i])`** が `sol` における `x[i]` の値を返します。
 
 このプログラムの出力は以下のとおりです：
 {% raw %}
@@ -263,29 +262,27 @@ Q : 64 27 74 40
 > 一方、**`sol(f)`** は解オブジェクトが式を評価するという、**オブジェクト指向プログラミングの観点**からは自然です。
 > 好みに応じてどちらの形式を使用しても構いません。
 
-## ベクトル演算を用いたQUBO++プログラム
-QUBO++にはコードを簡潔にするための豊富なベクトル演算があります。
-このために、`std::vector` クラスに似た **`qbpp::Vector`** クラスを使用します。
-以下のコードでは、**`w`** は **`qbpp::Vector<uint32_t>`** クラスのオブジェクトとして定義されています。
-また、**`x`** は **`qbpp::Vector<qbpp::Var>`** クラスのオブジェクトとして定義されています。
-`qbpp::Vector` クラスのオーバーロードされた演算子 `*` は2つの `qbpp::Vector` オブジェクトの要素ごとの積を返すため、**`qbpp::sum(w * x)`** は $P(L)$ を表す `qbpp::Expr` オブジェクトを返します。
-変数のベクトルに対する `~` 演算子は否定リテラルのベクトルを返します。
+## 配列演算を用いたQUBO++プログラム
+QUBO++にはコードを簡潔にするための豊富な配列演算があります。
+以下のコードでは、**`w`** は **`qbpp::int_array()`** で定義し、**`x`** は `qbpp::var()` でバイナリ変数の配列として定義しています。
+`qbpp::Array` のオーバーロードされた演算子 `*` は要素ごとの積を返すため、**`qbpp::sum(w * x)`** は $P(L)$ を表す `qbpp::Expr` オブジェクトを返します。
+変数の配列に対する `~` 演算子は否定リテラルの配列を返します。
 したがって、**`qbpp::sum(w * ~x)`** は $Q(L)$ を格納する `qbpp::Expr` オブジェクトを返します。
 
 ```cpp
-  qbpp::Vector<uint32_t> w = {64, 27, 47, 74, 12, 83, 63, 40};
+  auto w = qbpp::int_array({64, 27, 47, 74, 12, 83, 63, 40});
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::sum(w * x);
   auto q = qbpp::sum(w * ~x);
   auto f = qbpp::sqr(p - q);
 ```
 
-これらのベクトル演算を使用することで、QUBO++プログラムを簡潔にできます。
-さらに、大きなベクトルに対するベクトル演算はマルチスレッドにより並列化されるため、QUBOモデルの作成プロセスを高速化できます。
+これらの配列演算を使用することで、QUBO++プログラムを簡潔にできます。
+さらに、大きな配列に対する配列演算はマルチスレッドにより並列化されるため、QUBOモデルの作成プロセスを高速化できます。
 
 > **注記**
-> 演算子 `+`、`-`、`*` は、2つの `qbpp::Vector` オブジェクト間、およびスカラーと `qbpp::Vector` オブジェクト間の両方でオーバーロードされています。
-> 2つの `qbpp::Vector` オブジェクトの場合、オーバーロードされた演算子は要素ごとの演算を行います。
-> スカラーと `qbpp::Vector` オブジェクトの場合、オーバーロードされた演算子はベクトルの各要素にスカラー演算を適用します。
+> 演算子 `+`、`-`、`*` は、2つの `qbpp::Array` オブジェクト間、およびスカラーと `qbpp::Array` オブジェクト間の両方でオーバーロードされています。
+> 2つの `qbpp::Array` オブジェクトの場合、オーバーロードされた演算子は要素ごとの演算を行います。
+> スカラーと `qbpp::Array` オブジェクトの場合、オーバーロードされた演算子は配列の各要素にスカラー演算を適用します。
 
 </div>

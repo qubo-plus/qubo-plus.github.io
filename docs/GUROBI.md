@@ -42,7 +42,6 @@ The member function **`bound()`** returns the best bound obtained during optimiz
 ## Sample program
 The following program searches for a solution to the partitioning problem using the Gurobi Optimizer:
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/grb.hpp>
 
@@ -138,7 +137,6 @@ Gurobi Optimizerは、Gurobiモデルオブジェクトの**`optimize()`**メン
 ## サンプルプログラム
 以下のプログラムは、Gurobi Optimizerを使用して分割問題の解を探索します：
 ```cpp
-#define MAXDEG 2
 #include <qbpp/qbpp.hpp>
 #include <qbpp/grb.hpp>
 

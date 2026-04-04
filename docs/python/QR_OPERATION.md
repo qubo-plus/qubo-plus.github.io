@@ -3,7 +3,10 @@ layout: default
 nav_exclude: true
 title: "QR: Operations"
 nav_order: 31
+alt_lang: "C++ version"
+alt_lang_url: "QR_OPERATION"
 ---
+
 <div class="lang-en" markdown="1">
 # Quick Reference: Operators and Functions for Expressions
 The table below summarizes the operators and functions available for `pyqbpp.Expr` objects.
@@ -18,19 +21,16 @@ The table below summarizes the operators and functions available for `pyqbpp.Exp
 | Comparison (Equality)         | `f == n`                                              | Global          | `ExprExpr`        | `ExprType`-`int`         |
 | Comparison (Range)            | `qbpp.between(f, l, u)`                                    | Global          | `ExprExpr`        | `ExprType`-`int`-`int`   |
 | Square                        | `qbpp.sqr(f)`                                              | Global          | `Expr`            | `ExprType`               |
-| Type Conversion               | `int(f)`, `qbpp.toInt(v)`                                  | Global          | `int` or `list`   | `Expr` (constant)        |
 | GCD                           | `qbpp.gcd(f)`                                              | Global          | `int`             | `ExprType`               |
 | Simplify                      | `qbpp.simplify_as_binary(f)`, etc.                         | Global          | `Expr`            | `ExprType`               |
 | Simplify                      | `f.simplify_as_binary()`, etc.                        | In-place        | `Expr`            | —                        |
 | Eval                          | `f(ml)`                                               | Global          | `int`             | `Expr`-`list`            |
 | Replace                       | `qbpp.replace(f, ml)`                                      | Global          | `Expr`            | `ExprType`-`list`        |
 | Replace                       | `f.replace(ml)`                                       | In-place        | `Expr`            | `list`                   |
-| Reduce                        | `qbpp.reduce(f)`                                           | Global          | `Expr`            | `ExprType`               |
-| Reduce                        | `f.reduce()`                                          | In-place        | `Expr`            | —                        |
 | Binary/Spin Conversion        | `qbpp.spin_to_binary(f)`, `qbpp.binary_to_spin(f)`              | Global          | `Expr`            | `ExprType`               |
 | Binary/Spin Conversion        | `f.spin_to_binary()`, `f.binary_to_spin()`            | In-place        | `Expr`            | —                        |
-| Slice                         | `v[from:to]`, `v[:, from:to]`                         | Global          | `Vector`          | `Vector`                 |
-| Concatenation                 | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`           | Global          | `Vector`          | `Vector`/`int`           |
+| Slice                         | `v[from:to]`, `v[:, from:to]`                         | Global          | `Array`          | `Array`                 |
+| Concatenation                 | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`           | Global          | `Array`          | `Array`/`int`           |
 
 ## Expression-related type: **`ExprType`**
 The term **`ExprType`** denotes a category of types that can be converted to a `pyqbpp.Expr` object.
@@ -44,24 +44,6 @@ In PyQBPP, this includes:
 Many operations are provided in two forms:
 - **Global**: Takes arguments and returns a new object without modifying the inputs. Example: `qbpp.simplify_as_binary(f)` returns a simplified copy; `f` is unchanged.
 - **In-place**: A method that updates the object itself and returns it. Example: `f.simplify_as_binary()` modifies `f` in place.
-
-## Type Conversion: **`int()`** and **`toInt()`**
-Python's built-in **`int()`** can be used to convert a single constant `Expr` (containing no variables) to a Python `int`.
-If the expression contains variables, a `ValueError` is raised.
-
-The **`toInt()`** function extends this to `Vector` objects: it recursively converts a `Vector` of constant `Expr` objects into a nested Python list of `int` values.
-
-```python
-import pyqbpp as qbpp
-
-n = int(qbpp.Expr(42))   # 42
-v = qbpp.Vector([qbpp.Expr(10), qbpp.Expr(20), qbpp.Expr(30)])
-print(qbpp.toInt(v))     # [10, 20, 30]
-```
-
-> **NOTE**
-> In PyQBPP, explicit type conversion from integers or variables to `Expr` is never needed.
-> Python's dynamic typing handles conversions automatically (e.g., `f = 1; f += x` automatically produces an `Expr`).
 
 ## Assignment
 In Python, the `=` operator rebinds the variable name to a new object.
@@ -161,8 +143,8 @@ For a `pyqbpp.Expr` object `f`:
 - **`pyqbpp.sqr(f)`** (global function): Returns the expression `f * f`.
 The argument `f` may be any `ExprType` object.
 
-For a `pyqbpp.Vector` object `v`:
-- **`pyqbpp.sqr(v)`**: Returns a new `pyqbpp.Vector` with each element squared.
+For a `pyqbpp.Array` object `v`:
+- **`pyqbpp.sqr(v)`**: Returns a new `pyqbpp.Array` with each element squared.
 
 ### Example
 ```python
@@ -282,27 +264,6 @@ f.replace(ml)         # f is modified in place
 | `qbpp::replace(f, ml)`       | `qbpp.replace(f, ml)`                  |
 | `f.replace(ml)`              | `f.replace(ml)`                   |
 
-## Reduce function: `reduce()`
-The **`reduce()`** function converts a `pyqbpp.Expr` object containing higher-degree terms into an equivalent `pyqbpp.Expr` object consisting only of linear and quadratic terms, resulting in a QUBO expression.
-
-For a `pyqbpp.Expr` object `f`:
-- **`pyqbpp.reduce(f)`** (global function):
-Returns a new `pyqbpp.Expr` object with linear and quadratic terms that is equivalent to `f`.
-- **`f.reduce()`** (member function):
-Replaces `f` with the reduced expression in place and returns the updated expression.
-
-### Example
-```python
-import pyqbpp as qbpp
-
-x = qbpp.var("x")
-y = qbpp.var("y")
-z = qbpp.var("z")
-f = qbpp.Expr(x * y * z)
-f.simplify_as_binary()
-g = qbpp.reduce(f)   # Reduced to linear and quadratic terms
-```
-
 ## Binary/Spin Conversion functions: `spin_to_binary()`, `binary_to_spin()`
 Let `x` be a binary variable and `s` be a spin variable.
 We assume that `x = 1` if and only if `s = 1`.
@@ -353,13 +314,13 @@ k = qbpp.binary_to_spin(h)   # 2 + 2*b  (replaced b with (b+1)/2, multiplied by 
 
 ## Slice functions: `v[from:to]`
 
-Python slice notation extracts a sub-range from a `Vector`. Slicing returns a new `Vector`.
+Python slice notation extracts a sub-range from an `Array`. Slicing returns a new `Array`.
 
 - **`v[from:to]`**: Elements in `[from, to)` along the outermost dimension.
 - **`v[:n]`**: First `n` elements. Equivalent to C++ `head(v, n)`.
 - **`v[-n:]`**: Last `n` elements. Equivalent to C++ `tail(v, n)`.
 
-For multi-dimensional vectors, use tuple indexing to slice along inner dimensions:
+For multi-dimensional arrays, use tuple indexing to slice along inner dimensions:
 
 - **`v[:, from:to]`**: Slice each row (dim=1). Equivalent to C++ `slice(v, from, to, 1)`.
 - **`v[:, :, from:to]`**: Slice along dim=2. Works for any depth.
@@ -375,9 +336,9 @@ print(x[1:3, 2:4])  # rows 1-2, columns 2-3
 
 ## Concat function: `concat()`
 
-The `concat()` function joins vectors or prepends/appends scalars.
+The `concat()` function joins arrays or prepends/appends scalars.
 
-- **`qbpp.concat(a, b)`**: Concatenates two vectors along the outermost dimension.
+- **`qbpp.concat(a, b)`**: Concatenates two arrays along the outermost dimension.
 - **`concat(scalar, v)`**: Prepends a scalar (converted to `Expr`).
 - **`concat(v, scalar)`**: Appends a scalar.
 - **`concat(scalar, v, dim)`**: `dim=0` prepends a row filled with scalar; `dim=1` prepends scalar to each row.
@@ -430,19 +391,16 @@ zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
 | 比較（等価）                    | `f == n`                                              | Global          | `ExprExpr`        | `ExprType`-`int`         |
 | 比較（範囲）                    | `qbpp.between(f, l, u)`                                    | Global          | `ExprExpr`        | `ExprType`-`int`-`int`   |
 | 二乗                          | `qbpp.sqr(f)`                                              | Global          | `Expr`            | `ExprType`               |
-| 型変換                         | `int(f)`, `qbpp.toInt(v)`                                  | Global          | `int` または `list` | `Expr`（定数）           |
 | 最大公約数                      | `qbpp.gcd(f)`                                              | Global          | `int`             | `ExprType`               |
 | 簡約化                         | `qbpp.simplify_as_binary(f)` 等                             | Global          | `Expr`            | `ExprType`               |
 | 簡約化                         | `f.simplify_as_binary()` 等                            | In-place        | `Expr`            | —                        |
 | 評価                           | `f(ml)`                                               | Global          | `int`             | `Expr`-`list`            |
 | 置換                           | `qbpp.replace(f, ml)`                                      | Global          | `Expr`            | `ExprType`-`list`        |
 | 置換                           | `f.replace(ml)`                                       | In-place        | `Expr`            | `list`                   |
-| 次数削減                        | `qbpp.reduce(f)`                                           | Global          | `Expr`            | `ExprType`               |
-| 次数削減                        | `f.reduce()`                                          | In-place        | `Expr`            | —                        |
 | バイナリ/スピン変換              | `qbpp.spin_to_binary(f)`, `qbpp.binary_to_spin(f)`              | Global          | `Expr`            | `ExprType`               |
 | バイナリ/スピン変換              | `f.spin_to_binary()`, `f.binary_to_spin()`            | In-place        | `Expr`            | —                        |
-| スライス                        | `v[from:to]`, `v[:, from:to]`                         | Global          | `Vector`          | `Vector`                 |
-| 連結                            | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`                   | Global          | `Vector`          | `Vector`/`int`           |
+| スライス                        | `v[from:to]`, `v[:, from:to]`                         | Global          | `Array`          | `Array`                 |
+| 連結                            | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`                   | Global          | `Array`          | `Array`/`int`           |
 
 ## 式関連の型: **`ExprType`**
 **`ExprType`** とは、`pyqbpp.Expr` オブジェクトに変換可能な型の総称です。
@@ -456,24 +414,6 @@ PyQBPPでは以下が含まれます。
 多くの操作は2つの形式で提供されています:
 - **グローバル**: 引数を取り、入力を変更せずに新しいオブジェクトを返します。例: `qbpp.simplify_as_binary(f)` は簡約化されたコピーを返し、`f` は変更されません。
 - **In-place**: オブジェクト自体を更新して返すメソッドです。例: `f.simplify_as_binary()` は `f` をその場で変更します。
-
-## 型変換: **`int()`** と **`toInt()`**
-Pythonの組み込み関数 **`int()`** は、変数を含まない定数 `Expr` をPythonの `int` に変換できます。
-式に変数が含まれている場合は `ValueError` が発生します。
-
-**`toInt()`** 関数はこれを `Vector` に拡張し、定数 `Expr` の `Vector` をPythonの `int` のネストされたリストに再帰的に変換します。
-
-```python
-import pyqbpp as qbpp
-
-n = int(qbpp.Expr(42))   # 42
-v = qbpp.Vector([qbpp.Expr(10), qbpp.Expr(20), qbpp.Expr(30)])
-print(qbpp.toInt(v))     # [10, 20, 30]
-```
-
-> **NOTE**
-> PyQBPPでは、整数や変数から `Expr` への明示的な型変換は不要です。
-> Pythonの動的型付けが自動的に変換を処理します（例: `f = 1; f += x` で自動的に `Expr` が生成されます）。
 
 ## 代入
 Pythonでは、`=` 演算子は変数名を新しいオブジェクトに再バインドします。
@@ -573,8 +513,8 @@ g = qbpp.between(f, l, u)
 - **`pyqbpp.sqr(f)`** (グローバル関数): 式 `f * f` を返します。
 引数 `f` は任意の `ExprType` オブジェクトです。
 
-`pyqbpp.Vector` オブジェクト `v` に対して:
-- **`pyqbpp.sqr(v)`**: 各要素を二乗した新しい `pyqbpp.Vector` を返します。
+`pyqbpp.Array` オブジェクト `v` に対して:
+- **`pyqbpp.sqr(v)`**: 各要素を二乗した新しい `pyqbpp.Array` を返します。
 
 ### 例
 ```python
@@ -692,27 +632,6 @@ f.replace(ml)         # f is modified in place
 | `qbpp::replace(f, ml)`       | `qbpp.replace(f, ml)`                  |
 | `f.replace(ml)`              | `f.replace(ml)`                   |
 
-## 次数削減関数: `reduce()`
-**`reduce()`** 関数は、高次の項を含む `pyqbpp.Expr` オブジェクトを、線形項と二次項のみからなる等価な `pyqbpp.Expr` オブジェクトに変換し、QUBO式を生成します。
-
-`pyqbpp.Expr` オブジェクト `f` に対して:
-- **`pyqbpp.reduce(f)`** (グローバル関数):
-`f` と等価な線形項と二次項からなる新しい `pyqbpp.Expr` オブジェクトを返します。
-- **`f.reduce()`** (メンバー関数):
-`f` を削減された式でその場で置き換え、更新された式を返します。
-
-### 例
-```python
-import pyqbpp as qbpp
-
-x = qbpp.var("x")
-y = qbpp.var("y")
-z = qbpp.var("z")
-f = qbpp.Expr(x * y * z)
-f.simplify_as_binary()
-g = qbpp.reduce(f)   # Reduced to linear and quadratic terms
-```
-
 ## バイナリ/スピン変換関数: `spin_to_binary()`, `binary_to_spin()`
 `x` をバイナリ変数、`s` をスピン変数とします。
 `x = 1` と `s = 1` が同値であると仮定します。
@@ -761,13 +680,13 @@ k = qbpp.binary_to_spin(h)   # 2 + 2*b  (replaced b with (b+1)/2, multiplied by 
 
 ## スライス関数: `v[from:to]`
 
-Pythonのスライス記法で `Vector` から部分範囲を抽出します。スライスは新しい `Vector` を返します。
+Pythonのスライス記法で `Array` から部分範囲を抽出します。スライスは新しい `Array` を返します。
 
 - **`v[from:to]`**: 最外次元の `[from, to)` の要素。
 - **`v[:n]`**: 先頭 `n` 個。C++ の `head(v, n)` に相当。
 - **`v[-n:]`**: 末尾 `n` 個。C++ の `tail(v, n)` に相当。
 
-多次元ベクトルにはタプルインデックスで内側の次元をスライス:
+多次元配列にはタプルインデックスで内側の次元をスライス:
 
 - **`v[:, from:to]`**: 各行をスライス（dim=1）。C++ の `slice(v, from, to, 1)` に相当。
 - **`v[:, :, from:to]`**: dim=2 でスライス。任意の深さで動作。
@@ -783,9 +702,9 @@ print(x[1:3, 2:4])  # 1-2行, 2-3列
 
 ## 連結関数: `concat()`
 
-`concat()` 関数はベクトルの連結やスカラーの追加を行います。
+`concat()` 関数は配列の連結やスカラーの追加を行います。
 
-- **`qbpp.concat(a, b)`**: 最外次元に沿って2つのベクトルを連結。
+- **`qbpp.concat(a, b)`**: 最外次元に沿って2つの配列を連結。
 - **`concat(scalar, v)`**: 先頭にスカラーを追加（`Expr` に変換）。
 - **`concat(v, scalar)`**: 末尾にスカラーを追加。
 - **`concat(scalar, v, dim)`**: `dim=0` でスカラーで埋めた行を追加、`dim=1` で各行の先頭にスカラーを追加。
