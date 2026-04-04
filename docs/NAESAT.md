@@ -105,7 +105,7 @@ int main() {
 
   // Objective: balance True/False count
   auto s = qbpp::sum(x);
-  auto objective = (2 * s - n) * (2 * s - n);
+  auto objective = qbpp::sqr(2 * s - n);
 
   // HUBO expression with penalty weight
   int penalty_weight = n * n + 1;
@@ -266,7 +266,7 @@ int main() {
 
   // 目的関数: True/False の数のバランス
   auto s = qbpp::sum(x);
-  auto objective = (2 * s - n) * (2 * s - n);
+  auto objective = qbpp::sqr(2 * s - n);
 
   // ペナルティ重み付き HUBO 式
   int penalty_weight = n * n + 1;

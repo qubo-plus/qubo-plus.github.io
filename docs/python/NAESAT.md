@@ -100,7 +100,7 @@ for clause in clauses:
 
 # Objective: balance True/False count
 s = qbpp.sum(x)
-objective = (2 * s - n) * (2 * s - n)
+objective = qbpp.sqr(2 * s - n)
 
 # HUBO expression with penalty weight
 penalty_weight = n * n + 1
@@ -246,7 +246,7 @@ for clause in clauses:
 
 # 目的関数: True/False の数のバランス
 s = qbpp.sum(x)
-objective = (2 * s - n) * (2 * s - n)
+objective = qbpp.sqr(2 * s - n)
 
 # ペナルティ重み付き HUBO 式
 penalty_weight = n * n + 1
