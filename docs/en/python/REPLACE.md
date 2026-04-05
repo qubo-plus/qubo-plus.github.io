@@ -141,6 +141,14 @@ g.simplify_as_binary()
 > - **`f.replace(ml)`** updates the expression `f` in place.
 > - **`replace(f, ml)`** returns a new expression without modifying the original.
 
+> **NOTE: Using `replace()` with Terms**
+> Both `replace(t, ml)` and `t.replace(ml)` work with `Term` objects.
+> The `Term` is promoted to an `Expr`, and a new `Expr` is returned:
+> ```python
+> t = ~a * b * ~c * ~d  # Term
+> e = t.replace([(~a, 1 - a), (~c, 1 - c), (d, 1 - d)])  # returns Expr
+> ```
+
 > **NOTE: Negated literals and `replace()`**
 > The `replace()` function treats `x` and `~x` as independent keys.
 > Specifying `(x, 0)` in the list does **not** automatically replace `~x` with `1`.

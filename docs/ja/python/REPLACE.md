@@ -140,6 +140,14 @@ g.simplify_as_binary()
 > - **`f.replace(ml)`** は式 `f` をその場で更新します。
 > - **`replace(f, ml)`** は元の式を変更せずに新しい式を返します。
 
+> **注意: Termに対する `replace()`**
+> `replace(t, ml)` と `t.replace(ml)` の両方が `Term` オブジェクトに対して動作します。
+> `Term` は `Expr` に昇格され、新しい `Expr` が返されます:
+> ```python
+> t = ~a * b * ~c * ~d  # Term
+> e = t.replace([(~a, 1 - a), (~c, 1 - c), (d, 1 - d)])  # Exprを返す
+> ```
+
 > **注意: 否定リテラルと `replace()`**
 > `replace()` 関数は `x` と `~x` を独立したキーとして扱います。
 > リストに `(x, 0)` を指定しても、`~x` が自動的に `1` に置換されるわけではありません。

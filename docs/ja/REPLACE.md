@@ -246,6 +246,15 @@ p= 5, q= 7, r= 35
 > - **`qbpp::replace(f, ml)`** は置換が適用された新しい式を返し、元の式 `f` は変更しません。
 > 既存の式を恒久的に変更したい場合は `f.replace(ml)` を、元の式を変更せずに保持したい場合は `qbpp::replace(f, ml)` を使用してください。
 
+> **NOTE: Termに対する `replace()`**
+> フリー関数 `qbpp::replace()` は `Term` 引数も受け付けます。
+> `Term` は暗黙的に `Expr` に変換され、置換が適用されます:
+> ```cpp
+> auto t = ~a * b * ~c * ~d;  // Term
+> auto e = qbpp::replace(t, {% raw %}{{~a, 1 - a}, {~c, 1 - c}, {d, 1 - d}}{% endraw %});  // Exprを返す
+> ```
+> なお、`Term` にはメンバ関数版の `replace()` はありません（ヘッダ内で `Term` は `Expr` より先に定義されるため）。
+
 > **NOTE: 否定リテラルと `replace()`**
 > `replace()` 関数は `x` と `~x` を独立したキーとして扱います。
 > `MapList` に `{x, 0}` を指定しても、`~x` が自動的に `1` に置換されるわけではありません。

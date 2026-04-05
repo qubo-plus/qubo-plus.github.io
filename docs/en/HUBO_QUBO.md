@@ -31,11 +31,27 @@ In contrast, HUBO and QUBO problems consist only of an objective function and ha
 This simple problem structure enables solvers to efficiently explore solutions by leveraging highly accelerated SIMD-style parallelism.
 Furthermore, because constraints can be encoded into the objective function using penalty terms, many constrained optimization problems can be reformulated as equivalent HUBO or QUBO problems.
 
+## HUBO with negated literals
+HUBO with negated literals can have terms containing negated literals.
+For example, it can have a term such as
 
-**QUBO++** is a **model-and-solve framework** implemented in C++.
-Using QUBO++, you write a program that transforms a combinatorial optimization problem into a HUBO/QUBO formulation.
-Compiling and running the program yields a HUBO/QUBO solution, which you then map back to a solution of the original problem.
-QUBO++ includes three built-in solvers.
+$$
+\overline{a}b\overline{c}\overline{d}
+$$
 
-**PyQBPP** is a Python wrapper for the QUBO++ library, providing the same modeling and solving capabilities from Python.
-With PyQBPP, no compilation is needed.
+In conventional HUBO, it must be converted to terms with no negated literals using the relation $\overline{x}=1-x$ for every variable $x$:
+
+$$
+\begin{aligned}
+\overline{a}b\overline{c}\overline{d} &= (1-a)b(1-c)(1-d) \\
+&=1 +b -ab -bc -bd +abc +abd +bcd -abcd
+\end{aligned}
+$$
+
+This expansion increases the number of terms significantly.
+In general, if a term contains $n$ negated literals,
+the expansion produces $2^n$ terms including a constant term.
+
+QUBO++ can create HUBO expressions involving negated literals.
+All three solvers bundled with QUBO++ handle them natively without expanding into positive literals.
+This decreases the expression evaluation cost significantly and can enhance search performance.

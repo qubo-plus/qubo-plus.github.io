@@ -248,6 +248,15 @@ This confirms that the division result $q=r/p=7$ is correctly obtained.
 > - **`qbpp::replace(f, ml)`** returns a new expression in which the replacements have been applied, without modifying the original expression `f`.
 >  Use `f.replace(ml)` when you want to permanently modify an existing expression, and use `qbpp::replace(f, ml)` when you want to keep the original expression unchanged.
 
+> **NOTE: Using `replace()` with Terms**
+> The free function `qbpp::replace()` also accepts a `Term` argument.
+> The `Term` is implicitly converted to an `Expr`, and the replacements are applied:
+> ```cpp
+> auto t = ~a * b * ~c * ~d;  // Term
+> auto e = qbpp::replace(t, {% raw %}{{~a, 1 - a}, {~c, 1 - c}, {d, 1 - d}}{% endraw %});  // returns Expr
+> ```
+> Note that `Term` does not have a member function version of `replace()` because `Term` is defined before `Expr` in the header.
+
 > **NOTE: Negated literals and `replace()`**
 > The `replace()` function treats `x` and `~x` as independent keys.
 > Specifying `{x, 0}` in a `MapList` does **not** automatically replace `~x` with `1`.
