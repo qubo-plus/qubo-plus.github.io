@@ -193,6 +193,11 @@
     }
     var bEn = mkBtn('EN'), bJa = mkBtn('JA');
     div.appendChild(bEn); div.appendChild(bJa);
+    var logo = document.createElement('img');
+    logo.src = '/icon.svg';
+    logo.alt = 'QUBO++';
+    logo.style.cssText = 'width:1.6rem;height:1.6rem;margin-left:0.3rem;';
+    div.appendChild(logo);
     header.appendChild(div);
 
     collectNavLinks();
