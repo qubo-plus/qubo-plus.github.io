@@ -14,7 +14,7 @@ PyQBPP provides three solvers for QUBO/HUBO expressions:
 
 - **Easy Solver**
   - Runs a heuristic algorithm based on simulated annealing.
-  - Runs in parallel on multicore CPUs using **Intel Threading Building Blocks (oneTBB)**.
+  - Runs in parallel on multicore CPUs.
   - Does not guarantee optimality.
 
 - **Exhaustive Solver**
