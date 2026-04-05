@@ -20,6 +20,7 @@ plugins:
   - jekyll-include-cache
 
 # just-the-docs configuration
+logo: "/icon.svg"
 color_scheme: light
 search_enabled: true
 search.button: true
