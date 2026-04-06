@@ -19,6 +19,20 @@
     var ul = navEls[0].querySelector('ul.nav-list');
     if (!ul || !ul.children.length) return false;
 
+    /* Disable theme's nth-child activation CSS (breaks when items are hidden) */
+    var actStyle = document.getElementById('jtd-nav-activation');
+    if (actStyle) actStyle.disabled = true;
+
+    /* Set active state by matching current URL */
+    var curHref = window.location.pathname.replace(/\.html$/, '').replace(/\/$/, '');
+    var allLinks = document.querySelectorAll('.site-nav a.nav-list-link');
+    for (var j = 0; j < allLinks.length; j++) {
+      var linkHref = (allLinks[j].getAttribute('href') || '').replace(/\.html$/, '').replace(/\/$/, '');
+      if (linkHref === curHref) {
+        allLinks[j].style.fontWeight = '600';
+      }
+    }
+
     var cppItems = [], pythonItems = [], releaseLinks = [];
     var shared = ['Home', 'HUBO and QUBO', 'License Management', 'Terms and Conditions', 'Demos', 'Latest Release'];
 
