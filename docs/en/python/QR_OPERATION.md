@@ -374,3 +374,65 @@ zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
 <tr><td><code>qbpp::concat(1, v, 1)</code></td><td><code>qbpp.concat(1, v, 1)</code></td></tr>
 </tbody>
 </table>
+
+## Term Member Functions
+
+The following member functions of `pyqbpp.Term` provide read-only access to the internal structure of a term.
+
+| Expression | Return Type | Description |
+|------------|-------------|-------------|
+| `t.coeff()` | `int` | Return the coefficient |
+| `t.degree()` | `int` | Return the degree (number of variables) |
+| `t.var(i)` | `Var` | Return the `i`-th variable |
+| `t.has(v)` | `bool` | Return `True` if `Var` `v` appears in the term |
+
+### Example
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+z = qbpp.var("z")
+t = 3 * x * y
+
+t.coeff()    # 3
+t.degree()   # 2
+t.var(0)     # x
+t.var(1)     # y
+t.has(x)     # True
+t.has(z)     # False
+```
+
+## Expr Member Functions
+
+The following member functions of `pyqbpp.Expr` provide read-only access to the internal structure of an expression.
+
+| Expression | Return Type | Description |
+|------------|-------------|-------------|
+| `f.constant()` | `int` | Return the constant term |
+| `f.term_count()` | `int` | Return the number of terms (excluding the constant) |
+| `f.term_count(d)` | `int` | Return the number of terms of degree `d` |
+| `f.term(i)` | `Term` | Return a copy of the `i`-th term |
+| `f.max_degree()` | `int` | Return the maximum degree of all terms |
+| `f.has(v)` | `bool` | Return `True` if `Var` `v` appears in the expression |
+
+### Example
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = qbpp.simplify(3 * x + 2 * x * y + 5)
+# f = 5 + 3*x + 2*x*y
+
+f.constant()          # 5
+f.term_count()        # 2
+f.term(0)             # 3*x
+f.term(1)             # 2*x*y
+f.term(1).coeff()     # 2
+f.term(1).var(0)      # x
+f.term(1).var(1)      # y
+f.max_degree()        # 2
+f.has(x)              # True
+f.has(y)              # True
+```

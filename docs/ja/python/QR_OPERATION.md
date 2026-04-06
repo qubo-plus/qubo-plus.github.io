@@ -370,3 +370,65 @@ zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
 <tr><td><code>qbpp::concat(1, v, 1)</code></td><td><code>qbpp.concat(1, v, 1)</code></td></tr>
 </tbody>
 </table>
+
+## Term メンバ関数
+
+以下の `pyqbpp.Term` のメンバ関数は、項の内部構造への読み取り専用アクセスを提供します。
+
+| 式 | 戻り値の型 | 説明 |
+|------------|-------------|-------------|
+| `t.coeff()` | `int` | 係数を返す |
+| `t.degree()` | `int` | 次数（変数の数）を返す |
+| `t.var(i)` | `Var` | `i` 番目の変数を返す |
+| `t.has(v)` | `bool` | `Var` `v` が項に含まれていれば `True` を返す |
+
+### 例
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+z = qbpp.var("z")
+t = 3 * x * y
+
+t.coeff()    # 3
+t.degree()   # 2
+t.var(0)     # x
+t.var(1)     # y
+t.has(x)     # True
+t.has(z)     # False
+```
+
+## Expr メンバ関数
+
+以下の `pyqbpp.Expr` のメンバ関数は、式の内部構造への読み取り専用アクセスを提供します。
+
+| 式 | 戻り値の型 | 説明 |
+|------------|-------------|-------------|
+| `f.constant()` | `int` | 定数項を返す |
+| `f.term_count()` | `int` | 項の数を返す（定数項を除く） |
+| `f.term_count(d)` | `int` | 次数 `d` の項の数を返す |
+| `f.term(i)` | `Term` | `i` 番目の項のコピーを返す |
+| `f.max_degree()` | `int` | すべての項の最大次数を返す |
+| `f.has(v)` | `bool` | `Var` `v` が式に含まれていれば `True` を返す |
+
+### 例
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = qbpp.simplify(3 * x + 2 * x * y + 5)
+# f = 5 + 3*x + 2*x*y
+
+f.constant()          # 5
+f.term_count()        # 2
+f.term(0)             # 3*x
+f.term(1)             # 2*x*y
+f.term(1).coeff()     # 2
+f.term(1).var(0)      # x
+f.term(1).var(1)      # y
+f.max_degree()        # 2
+f.has(x)              # True
+f.has(y)              # True
+```
