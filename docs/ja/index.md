@@ -19,7 +19,7 @@ hreflang_lang: "en"
 - **CPU並列加速** — すべてのソルバーがマルチコアCPU上でマルチスレッド並列実行されます。
 - **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。16ビットから数千桁まで、オーバーフローの心配なく計算可能。
 - **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
-- **どこでも実行** — ノートPCからGPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
+- **どこでも実行** — Raspberry PiからノートPC、GPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
 
 # QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver
 ## Easy Solver

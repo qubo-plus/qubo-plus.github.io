@@ -20,7 +20,7 @@ as polynomials of binary variables (QUBO/HUBO).
 - **CPU parallel acceleration** — All solvers run multithreaded on multicore CPUs.
 - **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 16-bit to thousands of digits.
 - **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
-- **Run anywhere** — From a laptop to GPU servers and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
+- **Run anywhere** — From a Raspberry Pi to a laptop, GPU servers, and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
 
 # QUBO++ Solvers: Easy Solver, Exhaustive Solver, ABS3 Solver
 ## Easy Solver
