@@ -41,34 +41,35 @@ f = 1 -x +2*x*y +3*y
 > Python's dynamic typing automatically converts between types as needed, so you can simply write expressions naturally.
 
 ## Coefficient and Energy Types
-By default, `import pyqbpp` uses **arbitrary-precision integers** (`cpp_int`) for all coefficients and energy values.
-This ensures correctness for any problem size without worrying about overflow.
+By default, `import pyqbpp` uses **32-bit coefficients and 64-bit energy** (`c32e64`),
+which is the fastest type variant suitable for most problems.
 
-For better performance, you can choose a fixed-precision type variant by importing a submodule:
+For larger problems or arbitrary precision, you can choose a different type variant by importing a submodule:
 
 ```python
-import pyqbpp as qbpp              # Default: arbitrary precision (cpp_int)
-import pyqbpp.c32e64 as qbpp      # 32-bit coefficients, 64-bit energy (fastest for most problems)
+import pyqbpp as qbpp              # Default: c32e64 (32-bit coeff, 64-bit energy)
+import pyqbpp.cppint as qbpp       # Arbitrary precision (cpp_int) for very large coefficients
 ```
 
 The following type variants are available:
 
 | Import | Coefficient | Energy | Use case |
 |---|---|---|---|
-| `import pyqbpp` | unlimited | unlimited | Development and validation |
+| `import pyqbpp` | 32-bit | 64-bit | Default; most common choice |
 | `import pyqbpp.c16e32` | 16-bit | 32-bit | Small problems |
-| `import pyqbpp.c32e64` | 32-bit | 64-bit | Most common choice |
+| `import pyqbpp.c32e64` | 32-bit | 64-bit | Same as default |
 | `import pyqbpp.c64e64` | 64-bit | 64-bit | Large coefficients |
 | `import pyqbpp.c64e128` | 64-bit | 128-bit | Large energy range |
 | `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
+| `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision |
 
 > **NOTE**
 > The type variant must be chosen at import time and cannot be changed afterward.
 > All variables, expressions, and solvers within a program use the same type.
 
-### Example with arbitrary precision (default)
+### Example with arbitrary precision
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x")
 f = 123456789012345678901234567890 * x + 987654321098765432109876543210

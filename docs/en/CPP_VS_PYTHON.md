@@ -34,19 +34,19 @@ To use arbitrary-precision integers, define `INTEGER_TYPE_CPP_INT` before includ
 
 Alternatively, you can pass `-DINTEGER_TYPE_CPP_INT` as a compiler option.
 
-In Python, **arbitrary-precision integers are used by default** (`import pyqbpp`).
-For better performance, you can choose a fixed-precision type by importing a submodule:
+In Python, **32-bit coefficients and 64-bit energy (`c32e64`) are used by default** (`import pyqbpp`).
+For arbitrary precision, you can import the cppint submodule:
 
 ```python
-import pyqbpp as qbpp              # Default: arbitrary precision (cpp_int)
-import pyqbpp.c32e64 as qbpp      # 32-bit coefficients, 64-bit energy (fastest)
+import pyqbpp as qbpp              # Default: c32e64 (32-bit coeff, 64-bit energy)
+import pyqbpp.cppint as qbpp       # Arbitrary precision (cpp_int)
 ```
 
 | | C++ | Python |
 |---|---|---|
-| **Default coefficient** | `int32_t` (32-bit) | Arbitrary precision (unlimited) |
-| **Default energy** | `int64_t` (64-bit) | Arbitrary precision (unlimited) |
-| **Changing precision** | `#define INTEGER_TYPE_CPP_INT` etc. | `import pyqbpp.c32e64` at import time |
+| **Default coefficient** | `int32_t` (32-bit) | `int32_t` (32-bit) |
+| **Default energy** | `int64_t` (64-bit) | `int64_t` (64-bit) |
+| **Changing precision** | `#define INTEGER_TYPE_CPP_INT` etc. | `import pyqbpp.cppint` at import time |
 | **Details** | [C++ Data Types](VAREXPR) | [Python Data Types](python/VAREXPR) |
 
 ### Large Integer Constants
@@ -68,11 +68,11 @@ int main() {
 }
 ```
 
-**Python**: Large integers work naturally with no special handling, since Python has built-in
-arbitrary-precision integers and `import pyqbpp` uses `cpp_int` by default:
+**Python**: For large integer constants beyond `int64_t`, import the `cppint` submodule
+which uses `cpp_int` (arbitrary-precision integers):
 
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x")
 f = x * 123456789012345678901234567890
@@ -175,7 +175,7 @@ Both output: `x = 6, y = 4`
 ### Python (PyQBPP) — Strengths
 
 - **No compilation**: Write and run immediately. Ideal for interactive exploration with Jupyter notebooks and the Python REPL.
-- **No overflow worries by default**: Arbitrary-precision integers are used by default. For performance, fixed-precision types are also available via `import pyqbpp.c32e64`.
+- **Fixed-precision by default**: 32-bit coefficients and 64-bit energy (`c32e64`) are used by default for speed. For arbitrary precision, use `import pyqbpp.cppint`.
 - **Simpler syntax**: Less boilerplate — no `#include`, `#define`, `main()`, `auto`, or namespace qualifiers.
 - **Easy installation**: `pip install pyqbpp` in a virtual environment, no `sudo` required.
 - **Data science ecosystem**: Seamless integration with NumPy, pandas, matplotlib, and other Python libraries for data preparation and result analysis.
@@ -186,7 +186,7 @@ Both output: `x = 6, y = 4`
 |---|---|---|
 | **Expression building speed** | Fast (native) | Slower (ctypes overhead) |
 | **Solver speed** | Same | Same |
-| **Type control** | Fine-grained (int16 ~ cpp_int) | Same (default: cpp_int) |
+| **Type control** | Fine-grained (int16 ~ cpp_int) | Same (default: c32e64) |
 | **Ease of use** | Moderate | Easy |
 | **Interactive use** | No | Yes (Jupyter, REPL) |
 

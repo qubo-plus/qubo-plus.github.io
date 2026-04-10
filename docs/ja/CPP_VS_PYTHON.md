@@ -34,19 +34,19 @@ C++ では、係数型（`coeff_t`）とエネルギー型（`energy_t`）はコ
 
 コンパイラオプション `-DINTEGER_TYPE_CPP_INT` で指定することもできます。
 
-Python では、デフォルトで**多倍長整数が使用されます**（`import pyqbpp`）。
-パフォーマンスを向上させるために、サブモジュールで固定精度型を選択できます：
+Python では、デフォルトで **32ビット係数・64ビットエネルギー**（`c32e64`）が使用されます（`import pyqbpp`）。
+任意精度が必要な場合は cppint サブモジュールをインポートしてください：
 
 ```python
-import pyqbpp as qbpp              # デフォルト: 任意精度 (cpp_int)
-import pyqbpp.c32e64 as qbpp      # 32ビット係数、64ビットエネルギー（高速）
+import pyqbpp as qbpp              # デフォルト: c32e64 (32ビット係数、64ビットエネルギー)
+import pyqbpp.cppint as qbpp       # 任意精度 (cpp_int)
 ```
 
 | | C++ | Python |
 |---|---|---|
-| **デフォルト係数型** | `int32_t`（32ビット） | 多倍長整数（制限なし） |
-| **デフォルトエネルギー型** | `int64_t`（64ビット） | 多倍長整数（制限なし） |
-| **精度の変更** | `#define INTEGER_TYPE_CPP_INT` 等 | インポート時に `import pyqbpp.c32e64` |
+| **デフォルト係数型** | `int32_t`（32ビット） | `int32_t`（32ビット） |
+| **デフォルトエネルギー型** | `int64_t`（64ビット） | `int64_t`（64ビット） |
+| **精度の変更** | `#define INTEGER_TYPE_CPP_INT` 等 | インポート時に `import pyqbpp.cppint` |
 | **詳細** | [C++ データ型](VAREXPR) | [Python データ型](python/VAREXPR) |
 
 ### 巨大整数定数の扱い
@@ -67,11 +67,11 @@ int main() {
 }
 ```
 
-**Python**: 特別な処理は不要です。Python は組み込みの多倍長整数を持っており、
-`import pyqbpp` はデフォルトで `cpp_int` を使用するため、巨大整数をそのまま書けます：
+**Python**: `int64_t` を超える巨大整数定数を使う場合は、`cppint` サブモジュールをインポートします
+（`cpp_int` による任意精度）：
 
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x")
 f = x * 123456789012345678901234567890
@@ -173,7 +173,7 @@ print(f"x = {sol(x)}, y = {sol(y)}")
 ### Python（PyQBPP）の長所
 
 - **コンパイル不要**: すぐに書いて実行できます。Jupyter ノートブックや Python REPL での対話的な探索に最適です。
-- **デフォルトでオーバーフローの心配なし**: デフォルトで多倍長整数が使用されます。パフォーマンス重視の場合は `import pyqbpp.c32e64` で固定精度型も選択可能です。
+- **デフォルトで高速な固定精度**: 32ビット係数・64ビットエネルギー（`c32e64`）がデフォルトです。任意精度が必要な場合は `import pyqbpp.cppint` を使用できます。
 - **シンプルな構文**: `#include`、`#define`、`main()`、`auto`、名前空間修飾子などの定型コードが不要です。
 - **簡単なインストール**: 仮想環境内で `pip install pyqbpp` するだけで、`sudo` は不要です。
 - **データサイエンスエコシステム**: NumPy、pandas、matplotlib などの Python ライブラリとシームレスに連携し、データの前処理や結果の分析が容易です。
@@ -184,7 +184,7 @@ print(f"x = {sol(x)}, y = {sol(y)}")
 |---|---|---|
 | **式の構築速度** | 高速（ネイティブ） | やや遅い（ctypes オーバーヘッド） |
 | **ソルバー速度** | 同じ | 同じ |
-| **型制御** | きめ細かい（int16 〜 cpp_int） | 同じ（デフォルト: cpp_int） |
+| **型制御** | きめ細かい（int16 〜 cpp_int） | 同じ（デフォルト: c32e64） |
 | **使いやすさ** | 普通 | 簡単 |
 | **対話的利用** | 不可 | 可能（Jupyter、REPL） |
 
