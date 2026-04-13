@@ -18,12 +18,12 @@ such that, for every edge $(u,v)\in E_G$, the pair $(\sigma(u),\sigma(v))$ is al
 
 For example, consider the following host and guest graphs:
 <p align="center">
-  <img src="images/host_graph.svg" alt="Host Graph" width="50%"><br>
+  <img src="../images/host_graph.svg" alt="Host Graph" width="50%"><br>
   An example of the host graph $G_H=(V_H,E_H)$ with 10 nodes
 </p>
 
 <p align="center">
-  <img src="images/guest_graph.svg" alt="Guest Graph" width="30%"><br>
+  <img src="../images/guest_graph.svg" alt="Guest Graph" width="30%"><br>
   An example of the guest graph $G_G=(V_G,E_G)$ with 6 nodes
 </p>
 
@@ -37,7 +37,7 @@ One solution $\sigma$ is:
 This solution is visualized as follows:
 
 <p align="center">
-  <img src="images/subgraph_isomorphism.svg" alt="The solution of the subgraph isomorphism problem" width="50%"><br>
+  <img src="../images/subgraph_isomorphism.svg" alt="The solution of the subgraph isomorphism problem" width="50%"><br>
   A solution to the subgraph isomorphism problem
 </p>
 

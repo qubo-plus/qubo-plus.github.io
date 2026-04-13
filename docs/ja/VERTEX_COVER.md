@@ -111,5 +111,5 @@ constraint = 0
 選択された頂点がハイライトされた結果の画像を以下に示します:
 
 <p align="center">
-  <img src="images/vertexcover.svg" alt="最小頂点被覆問題の解" width="80%">
+  <img src="../images/vertexcover.svg" alt="最小頂点被覆問題の解" width="80%">
 </p>

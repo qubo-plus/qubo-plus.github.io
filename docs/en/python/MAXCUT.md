@@ -19,7 +19,7 @@ Then, the number of edges crossing the cut $(S,\overline{S})$ is given by
 
 $$
 \begin{aligned}
-\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i(1-x_j) + (1-x_i)x_j\Bigr).
+\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i\overline{x_j} + \overline{x_i}x_j\Bigr).
 \end{aligned}
 $$
 

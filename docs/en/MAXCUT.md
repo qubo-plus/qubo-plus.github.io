@@ -92,5 +92,5 @@ objective = 22
 The resulting graph is rendered and stored in the file `maxcut.svg`:
 
 <p align="center">
-  <img src="images/maxcut.svg" alt="The solution of the Max Cut problem." width="80%">
+  <img src="../images/maxcut.svg" alt="The solution of the Max Cut problem." width="80%">
 </p>

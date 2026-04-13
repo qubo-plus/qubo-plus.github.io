@@ -353,5 +353,5 @@ Finally, the program visualizes the obtained solution as a graph and writes it t
 
 
 <p align="center">
-  <img src="images/cvrp.svg" alt="A solution of the CVRP instance." width="80%">
+  <img src="../images/cvrp.svg" alt="A solution of the CVRP instance." width="80%">
 </p>

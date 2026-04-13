@@ -111,7 +111,7 @@ different = 0
 ```
 したがって、有効な 4-彩色が見つかりました：
 <p align="center">
-  <img src="images/graph_color.svg" alt="グラフ彩色問題の解" width="80%">
+  <img src="../images/graph_color.svg" alt="グラフ彩色問題の解" width="80%">
 </p>
 
 ### $m=3$ の結果
@@ -123,5 +123,5 @@ different = 0
 この出力は、ソルバーがちょうど1つのノードに色を割り当てられなかったことを示しています（つまり、1つの行がワンホットではありません）。結果のグラフでは、ノード 7 が未彩色のままです：
 
 <p align="center">
-  <img src="images/graph_color_m3.svg" alt="$m=3$色でのグラフ彩色問題の解" width="80%">
+  <img src="../images/graph_color_m3.svg" alt="$m=3$色でのグラフ彩色問題の解" width="80%">
 </p>

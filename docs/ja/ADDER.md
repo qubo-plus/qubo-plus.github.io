@@ -17,7 +17,7 @@ $o$（キャリー出力）および $s$（和）を持ちます。
 
 リプルキャリー加算器は、以下に示すように複数の全加算器をカスケード接続することで、2つの多ビット整数の和を計算します:
 <p align="center">
- <img src="images/adder.svg" alt="4-bit ripple carry adder" width="50%">
+ <img src="../images/adder.svg" alt="4-bit ripple carry adder" width="50%">
 </p>
 
 このリプルキャリー加算器は、4つの全加算器を使って2つの4ビット整数 $x_3x_2x_1x_0$ と $y_3y_2y_1y_0$ の和を計算し、4ビットの和 $z_3z_2z_1z_0$ を出力します。

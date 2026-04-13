@@ -56,7 +56,8 @@ sol[z] = 1
 print("f(0,1,1) =", sol(f))
 ```
 
-The method **`comp_energy()`** computes the energy value and caches it internally.
+The method **`comp_energy()`** returns the energy value, recomputing it only if needed.
+If the energy is already valid (cached), it returns the cached value without recomputation.
 A solution object returned by a solver already has its energy cached.
 To retrieve the cached energy, use the **`energy`** property:
 ```python

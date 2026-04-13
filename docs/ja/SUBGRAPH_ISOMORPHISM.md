@@ -15,12 +15,12 @@ hreflang_lang: "en"
 
 例として、以下のホストグラフとゲストグラフを考えます:
 <p align="center">
-  <img src="images/host_graph.svg" alt="ホストグラフ" width="50%"><br>
+  <img src="../images/host_graph.svg" alt="ホストグラフ" width="50%"><br>
   10頂点のホストグラフ $G_H=(V_H,E_H)$ の例
 </p>
 
 <p align="center">
-  <img src="images/guest_graph.svg" alt="ゲストグラフ" width="30%"><br>
+  <img src="../images/guest_graph.svg" alt="ゲストグラフ" width="30%"><br>
   6頂点のゲストグラフ $G_G=(V_G,E_G)$ の例
 </p>
 
@@ -34,7 +34,7 @@ hreflang_lang: "en"
 この解は次のように可視化されます:
 
 <p align="center">
-  <img src="images/subgraph_isomorphism.svg" alt="部分グラフ同型問題の解" width="50%"><br>
+  <img src="../images/subgraph_isomorphism.svg" alt="部分グラフ同型問題の解" width="50%"><br>
   部分グラフ同型問題の解
 </p>
 

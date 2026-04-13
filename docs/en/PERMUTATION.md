@@ -18,7 +18,7 @@ Let $X=(x_{i,j})$ ($0\leq i,j\leq n-1$) is a matrix of $n\times n$ binary values
 The matrix $X$ is called a **permutation matrix** if and only if every row and every column has exactly one entry equal to 1, as shown below.
 
 <p align="center">
-  <img src="images/matrix.svg" alt="Permutation matrix" width="50%">
+  <img src="../images/matrix.svg" alt="Permutation matrix" width="50%">
 </p>
 
 A **permutation matrix** represents a permutation of $n$ numbers $(0,1,\ldots,n-1)$, where $x_{i,j} = 1$ if and only if the $i$-th element is $j$.

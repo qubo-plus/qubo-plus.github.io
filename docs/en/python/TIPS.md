@@ -19,7 +19,7 @@ can significantly impact performance.
 When accumulating terms in a loop, always use the compound assignment operator `+=`:
 
 ```python
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 f = qbpp.Expr()
 
 # ❌ Slow: O(N²) — clones the entire expression on every iteration
@@ -61,7 +61,7 @@ memory needed, avoiding all intermediate reallocations.
 ## Tip 3: Use `sum()` instead of accumulating with `+=`
 
 ```python
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 
 # ❌ Slower: builds the expression incrementally, crossing the Python/C boundary each time
 f = qbpp.Expr()
@@ -83,14 +83,14 @@ PyQBPP supports Array-to-Array and Array-to-scalar operations.
 Use these instead of writing explicit `for` loops over elements:
 
 ```python
-x = qbpp.var("x", n)
-y = qbpp.var("y", n)
+x = qbpp.var("x", shape=n)
+y = qbpp.var("y", shape=n)
 
 # ❌ Slow: element-wise loop, one .so call per iteration
-diff = qbpp.expr(n)
+diff = qbpp.expr(shape=n)
 for i in range(n):
     diff[i] = x[i] - y[i]
-penalty = qbpp.expr(n)
+penalty = qbpp.expr(shape=n)
 for i in range(n):
     penalty[i] = qbpp.sqr(diff[i])
 
@@ -107,7 +107,7 @@ parallel processing, providing significant speedup over sequential loops.
 ## Tip 5: Pass all mappings to `replace()` at once
 
 ```python
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 f = ...  # some expression using x
 
 # ❌ Slow: O(N × M) — scans all terms N times, and the expression may grow after each replacement

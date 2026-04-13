@@ -120,5 +120,5 @@ constraint = 0
 結果は以下のように `maxclique.svg` で可視化されます：
 
 <p align="center">
-  <img src="images/maxclique.svg" alt="最大クリーク問題の解" width="80%">
+  <img src="../images/maxclique.svg" alt="最大クリーク問題の解" width="80%">
 </p>

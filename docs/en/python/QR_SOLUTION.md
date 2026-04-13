@@ -53,14 +53,15 @@ sol[vi] = 5
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
 | `sol.energy` | `int` | Return the stored energy value |
-| `sol.comp_energy()` | `int` | Recompute energy from current variable values and store it |
+| `sol.comp_energy()` | `int` | Return energy (recompute only if invalid) |
 | `sol.tts` | `float` | Time-to-solution (seconds) |
 
 `sol.energy` is a property that returns the energy value stored when the solver found the solution.
 It does **not** recompute the energy.
 After modifying variable values (e.g., `sol[x] = val`), the stored energy becomes **invalid**.
 Accessing `sol.energy` in this state raises an error.
-Call `sol.comp_energy()` to recompute and update the energy before accessing it.
+Call `sol.comp_energy()` to recompute and cache the energy.
+If the energy is already valid, `comp_energy()` returns the cached value without recomputation.
 
 ## Extracting Integers from Solutions
 

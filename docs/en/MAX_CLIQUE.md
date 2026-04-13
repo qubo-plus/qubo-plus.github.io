@@ -123,5 +123,5 @@ From this output, we obtain a maximum clique of 4 nodes without violating the co
 The result is visualized in `maxclique.svg` as follows:
 
 <p align="center">
-  <img src="images/maxclique.svg" alt="The solution of the Maximum clique problem." width="80%">
+  <img src="../images/maxclique.svg" alt="The solution of the Maximum clique problem." width="80%">
 </p>

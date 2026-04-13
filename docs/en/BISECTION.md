@@ -122,5 +122,5 @@ The solver finds a balanced partition with only 6 edges crossing the cut.
 The resulting graph is rendered and stored in the file `bisection.svg`:
 
 <p align="center">
-  <img src="images/bisection.svg" alt="The solution of the Minimum Graph Bisection problem." width="80%">
+  <img src="../images/bisection.svg" alt="The solution of the Minimum Graph Bisection problem." width="80%">
 </p>

@@ -159,5 +159,5 @@ different = 0
 ```
 Therefore, a valid edge coloring using `m = 6` colors is found:
 <p align="center">
-  <img src="images/edge_color.svg" alt="The solution of the graph coloring problem." width="80%">
+  <img src="../images/edge_color.svg" alt="The solution of the graph coloring problem." width="80%">
 </p>

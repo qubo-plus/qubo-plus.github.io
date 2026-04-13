@@ -15,7 +15,7 @@ We assume that the nodes are placed on a plane and that the tour length is measu
 In the figure below, an example of nine nodes and an optimal tour is shown:
 
 <p align="center">
-  <img src="images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
+  <img src="../images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
 </p>
 
 
@@ -27,7 +27,7 @@ Let $X=(x_{i,j})$ ($0\leq i,j\leq n-1$) be a matrix of $n\times n$ binary values
 The matrix $X$ is a **permutation matrix** each row and each column contains exactly one entry equal to 1, as illustrated below.
 
 <p align="center">
-  <img src="images/matrix.svg" alt="A permutation matrix of size 4x4" width="50%">
+  <img src="../images/matrix.svg" alt="A permutation matrix of size 4x4" width="50%">
 </p>
 
 We interpret  $x_{k,i}$ as "the $k$-th position in the tour is node $i$".

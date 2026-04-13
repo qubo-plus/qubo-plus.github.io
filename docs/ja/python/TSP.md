@@ -13,7 +13,7 @@ hreflang_lang: "en"
 ノードは平面上に配置され、巡回路の長さはユークリッド距離で測定するものとします。
 
 <p align="center">
-  <img src="../images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
+  <img src="../../images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
 </p>
 
 

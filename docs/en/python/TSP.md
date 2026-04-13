@@ -13,7 +13,7 @@ The Traveling Salesman Problem (TSP) asks for the shortest tour that visits ever
 We assume that the nodes are placed on a plane and that the tour length is measured using the Euclidean distance.
 
 <p align="center">
-  <img src="../images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
+  <img src="../../images/tsp_solution.svg" alt="An example of nodes and the TSP solution" width="50%">
 </p>
 
 

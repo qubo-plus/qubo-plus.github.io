@@ -133,7 +133,7 @@ constraint = 0
 画像ファイルには以下の画像が格納されています:
 
 <p align="center">
-  <img src="images/dominatingset.svg" alt="最小支配集合問題の解" width="80%">
+  <img src="../images/dominatingset.svg" alt="最小支配集合問題の解" width="80%">
 </p>
 
 ## QUBO定式化とQUBO++プログラム

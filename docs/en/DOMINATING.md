@@ -133,7 +133,7 @@ constraint = 0
 The image file stores the following image:
 
 <p align="center">
-  <img src="images/dominatingset.svg" alt="The solution of the minimum dominating set problem." width="80%">
+  <img src="../images/dominatingset.svg" alt="The solution of the minimum dominating set problem." width="80%">
 </p>
 
 ## QUBO formulation and the QUBO++ program

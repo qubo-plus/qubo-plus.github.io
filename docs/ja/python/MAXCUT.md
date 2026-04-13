@@ -18,7 +18,7 @@ $n$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{n-1}$ を導入し、$x_i=1$ 
 
 $$
 \begin{aligned}
-\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i(1-x_j) + (1-x_i)x_j\Bigr).
+\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i\overline{x_j} + \overline{x_i}x_j\Bigr).
 \end{aligned}
 $$
 

@@ -119,7 +119,7 @@ constraint = 0
 これは、得られた解が 7 個のノードを選択し、すべての制約を満たしていることを意味します。描画された画像は `mis.svg` として保存されます：
 
 <p align="center">
-  <img src="images/mis.svg" alt="MIS問題の解" width="80%">
+  <img src="../images/mis.svg" alt="MIS問題の解" width="80%">
 </p>
 
 ## QUBO++ 簡易グラフ描画ライブラリの API

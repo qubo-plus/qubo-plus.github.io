@@ -122,5 +122,5 @@ constraint = 0
 結果のグラフは描画され、ファイル `bisection.svg` に保存されます：
 
 <p align="center">
-  <img src="images/bisection.svg" alt="最小グラフ二分割問題の解" width="80%">
+  <img src="../images/bisection.svg" alt="最小グラフ二分割問題の解" width="80%">
 </p>

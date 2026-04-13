@@ -15,7 +15,7 @@ The figure below shows how two　$x_3x_2x_1x_0$ and　$y_3y_2y_1y_0$ are multipl
 In this figure, $p_{i,j}=x_iy_j$ ($0\leq i,j\leq 3$) and these partial products are summed to compute the final 8-bit result.
 
 <p align="center">
- <img src="images/multiplication.svg" alt="4-bit multiplication" width="50%">
+ <img src="../images/multiplication.svg" alt="4-bit multiplication" width="50%">
 </p>
 
 We use a 4-bit ripple-carry adder that computes the sum of two 4-bit integers
@@ -24,13 +24,13 @@ It consists of four full adders connected by a 5-bit carry wire $c_4c_3c_2c_1c_0
 that propagates carries.
 
 <p align="center">
- <img src="images/adder4.svg" alt="The 4-bit ripple carry adder" width="50%">
+ <img src="../images/adder4.svg" alt="The 4-bit ripple carry adder" width="50%">
 </p>
 
 A 4-bit multiplier can be constructed using three 4-bit adders.
 They are connected by wires $c_{i,j}$ ($0\leq i\leq 2, 0\leq j\leq 3$) to propagate intermediate sum bits, as shown below:
 <p align="center">
- <img src="images/multiplier.svg" alt="The 4-bit multiplier using three 4-bit adders" width="50%">
+ <img src="../images/multiplier.svg" alt="The 4-bit multiplier using three 4-bit adders" width="50%">
 </p>
 
 ## QUBO formulation for multiplier

@@ -25,7 +25,7 @@ $$
 この条件は $S$ が極大マッチングを構成する場合にのみ満たされます。$S$ が極大マッチングであることを保証するために、以下のケースがすべての場合を網羅します:
 
 <p align="center">
-  <img src="images/min_max_matching.svg" alt="最大マッチング問題の解" width="80%">
+  <img src="../images/min_max_matching.svg" alt="最大マッチング問題の解" width="80%">
 </p>
 
 最小極大マッチング問題は、上記の条件を満たし、かつ要素数が最小の部分集合 $S$ を見つける問題として定式化できます。
@@ -147,7 +147,7 @@ constraint = 0
 したがって、$S$ は6本の辺を含みます。
 `minmaxmatching.svg` に格納された結果のグラフを以下に示します:
 <p align="center">
-  <img src="images/minmaxmatching.svg" alt="最小極大マッチング問題の解" width="80%">
+  <img src="../images/minmaxmatching.svg" alt="最小極大マッチング問題の解" width="80%">
 </p>
 このグラフでは、$S$ 中の選択された辺と、それらの辺に接続するすべての頂点がハイライトされています。
 これ以上辺を追加できないことが確認でき、極大性条件が満たされています。

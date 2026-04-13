@@ -154,5 +154,5 @@ different = 0
 ```
 したがって、`m = 6` 色を使った有効な辺彩色が見つかりました：
 <p align="center">
-  <img src="images/edge_color.svg" alt="辺彩色問題の解" width="80%">
+  <img src="../images/edge_color.svg" alt="辺彩色問題の解" width="80%">
 </p>

@@ -15,12 +15,12 @@ hreflang_lang: "en"
 
 例として、以下のホストグラフとゲストグラフを考えます：
 <p align="center">
-  <img src="../images/host_graph.svg" alt="Host Graph" width="50%"><br>
+  <img src="../../images/host_graph.svg" alt="Host Graph" width="50%"><br>
   10ノードのホストグラフ $G_H=(V_H,E_H)$ の例
 </p>
 
 <p align="center">
-  <img src="../images/guest_graph.svg" alt="Guest Graph" width="30%"><br>
+  <img src="../../images/guest_graph.svg" alt="Guest Graph" width="30%"><br>
   6ノードのゲストグラフ $G_G=(V_G,E_G)$ の例
 </p>
 
@@ -111,7 +111,7 @@ Guest -> Host mapping:
 目的関数値はゲストグラフの辺数（$|E_G|=8$）と等しく、すべての制約が満たされています。
 
 <p align="center">
-  <img src="../images/subgraph_isomorphism.svg" alt="The solution of the subgraph isomorphism problem" width="50%"><br>
+  <img src="../../images/subgraph_isomorphism.svg" alt="The solution of the subgraph isomorphism problem" width="50%"><br>
   部分グラフ同型問題の解
 </p>
 

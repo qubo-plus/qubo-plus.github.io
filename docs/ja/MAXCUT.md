@@ -91,5 +91,5 @@ objective = 22
 結果のグラフは描画され、ファイル `maxcut.svg` に保存されます：
 
 <p align="center">
-  <img src="images/maxcut.svg" alt="最大カット問題の解" width="80%">
+  <img src="../images/maxcut.svg" alt="最大カット問題の解" width="80%">
 </p>

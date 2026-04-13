@@ -114,7 +114,7 @@ different = 0
 ```
 Therefore, a valid 4-coloring is found:
 <p align="center">
-  <img src="images/graph_color.svg" alt="The solution of the graph coloring problem." width="80%">
+  <img src="../images/graph_color.svg" alt="The solution of the graph coloring problem." width="80%">
 </p>
 
 ### Result for $m=3$
@@ -128,5 +128,5 @@ different = 0
 This output indicates that the solver failed to assign a color to exactly one node (i.e., one row is not one-hot). The resulting graph shows that node 7 is left uncolored:
 
 <p align="center">
-  <img src="images/graph_color_m3.svg" alt="The solution of the graph coloring problem with $m=3$ colors." width="80%">
+  <img src="../images/graph_color_m3.svg" alt="The solution of the graph coloring problem with $m=3$ colors." width="80%">
 </p>

@@ -28,7 +28,7 @@ We introduce $n$ binary variables $x_0, x_1, \ldots, x_{n-1}$, where $x_i=1$ if 
 The number of edges crossing the partition is:
 
 $$
-\text{objective} = \sum_{(i,j)\in E}\Bigl(x_i(1-x_j) + (1-x_i)x_j\Bigr)
+\text{objective} = \sum_{(i,j)\in E}\Bigl(x_i\overline{x_j} + \overline{x_i}x_j\Bigr)
 $$
 
 We want to **minimize** this value.

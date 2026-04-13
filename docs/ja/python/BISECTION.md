@@ -28,7 +28,7 @@ $n$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{n-1}$ を導入し、$x_i=1$ 
 分割を横断する辺の数は以下の通りです：
 
 $$
-\text{objective} = \sum_{(i,j)\in E}\Bigl(x_i(1-x_j) + (1-x_i)x_j\Bigr)
+\text{objective} = \sum_{(i,j)\in E}\Bigl(x_i\overline{x_j} + \overline{x_i}x_j\Bigr)
 $$
 
 この値を**最小化**します。

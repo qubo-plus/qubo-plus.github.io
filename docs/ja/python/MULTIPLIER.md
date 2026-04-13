@@ -15,20 +15,20 @@ hreflang_lang: "en"
 この図では、$p_{i,j}=x_iy_j$ ($0\leq i,j\leq 3$) であり、これらの部分積を合計して最終的な8ビットの結果を計算します。
 
 <p align="center">
- <img src="../images/multiplication.svg" alt="4-bit multiplication" width="50%">
+ <img src="../../images/multiplication.svg" alt="4-bit multiplication" width="50%">
 </p>
 
 2つの4ビット整数 $a_3a_2a_1a_0$ と $b_3b_2b_1b_0$ の和を計算して5ビットの和 $z_4z_3z_2z_1z_0$ を出力する4ビットリプルキャリー加算器を使用します。
 これは、キャリーを伝搬する5ビットのキャリー線 $c_4c_3c_2c_1c_0$ で接続された4つの全加算器で構成されています。
 
 <p align="center">
- <img src="../images/adder4.svg" alt="The 4-bit ripple carry adder" width="50%">
+ <img src="../../images/adder4.svg" alt="The 4-bit ripple carry adder" width="50%">
 </p>
 
 4ビット乗算器は3つの4ビット加算器を使って構築できます。
 以下に示すように、中間の和ビットを伝搬するためにワイヤ $c_{i,j}$ ($0\leq i\leq 2, 0\leq j\leq 3$) で接続されています:
 <p align="center">
- <img src="../images/multiplier.svg" alt="The 4-bit multiplier using three 4-bit adders" width="50%">
+ <img src="../../images/multiplier.svg" alt="The 4-bit multiplier using three 4-bit adders" width="50%">
 </p>
 
 ## 乗算器の QUBO 定式化
