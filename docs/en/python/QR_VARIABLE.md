@@ -36,17 +36,17 @@ The following functions are provided to create variables:
 - **`pyqbpp.var("name")`**:
   Creates a `pyqbpp.Var` object with the given name `"name"`.
 
-- **`pyqbpp.var("name", s1)`**:
+- **`pyqbpp.var("name", shape=s1)`**:
   Creates a one-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i]`.
   The resulting type is `pyqbpp.Array`.
 
-- **`pyqbpp.var("name", s1, s2)`**:
+- **`pyqbpp.var("name", shape=(s1, s2))`**:
   Creates a two-dimensional array (matrix) of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]`.
   The resulting type is a nested `pyqbpp.Array`.
 
-- **`pyqbpp.var("name", s1, s2, ...)`**:
+- **`pyqbpp.var("name", shape=(s1, s2, ...))`**:
   Creates a higher-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
   Each element is represented as `name[i][j]...`.
   The resulting type is a nested `pyqbpp.Array`.
@@ -58,11 +58,11 @@ The following functions are provided to create variables:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x")          # Single variable named "x"
-y = qbpp.var("y", 3)       # Array: y[0], y[1], y[2]
-z = qbpp.var("z", 2, 3)    # 2x3 matrix: z[0][0], ..., z[1][2]
-a = qbpp.var()             # Single unnamed variable
-b = qbpp.var(5)            # Array of 5 unnamed variables
+x = qbpp.var("x")              # Single variable named "x"
+y = qbpp.var("y", shape=3)     # Array: y[0], y[1], y[2]
+z = qbpp.var("z", shape=(2, 3))  # 2x3 matrix: z[0][0], ..., z[1][2]
+a = qbpp.var()                 # Single unnamed variable
+b = qbpp.var(shape=5)          # Array of 5 unnamed variables
 ```
 
 ## `pyqbpp.Var` properties and methods
@@ -78,17 +78,13 @@ For a `pyqbpp.Var` instance `x`, the following are available:
 ### Integer variable creation functions
 The following functions are provided to create integer variables:
 
-- **`pyqbpp.var_int("name")`**:
-  Returns an internally used helper object (`pyqbpp.VarIntCore`) and does not create a `pyqbpp.VarInt` by itself.
-  To define a `pyqbpp.VarInt`, the range must be specified using the `between()` function, as shown below.
-
-- **`pyqbpp.between(pyqbpp.var_int("name"), l, u)`**:
+- **`pyqbpp.var("name", between=(l, u))`**:
   Here, `l` and `u` must be integers.
   This expression creates a `pyqbpp.VarInt` object with the name `"name"`,
   which internally contains a `pyqbpp.Expr` object representing all integers in the range `[l, u]`.
   Internally, this also creates `pyqbpp.Var` objects used in the underlying expression.
 
-- **`pyqbpp.between(pyqbpp.var_int("name", s1), l, u)`**:
+- **`pyqbpp.var("name", shape=s1, between=(l, u))`**:
   Creates a one-dimensional array of `pyqbpp.VarInt` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
@@ -99,9 +95,9 @@ The following functions are provided to create integer variables:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)       # Integer variable x in [0, 10]
-y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Array of 3 integer variables in [-5, 5]
-z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variables in [1, 8]
+x = qbpp.var("x", between=(0, 10))                    # Integer variable x in [0, 10]
+y = qbpp.var("y", shape=3, between=(-5, 5))           # Array of 3 integer variables in [-5, 5]
+z = qbpp.var("z", shape=(2, 3), between=(1, 8))       # 2x3 matrix of integer variables in [1, 8]
 ```
 
 ### Integer variable properties
@@ -131,13 +127,13 @@ x.min_val + qbpp.sum(x.vars * x.coeffs)
 <tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
 </thead>
 <tbody>
-<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>between(var_int("name"), l, u)</code></td></tr>
-<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>between(var_int("name", s1), l, u)</code></td></tr>
+<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>var("name", between=(l, u))</code></td></tr>
+<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>var("name", shape=s1, between=(l, u))</code></td></tr>
 <tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
 <tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
-<tr><td><code>x.min_val()</code></td><td><code>x.min_val</code> (property)</td></tr>
-<tr><td><code>x.max_val()</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars()</code></td><td><code>x.vars</code> (property)</td></tr>
-<tr><td><code>x.coeffs()</code></td><td><code>x.coeffs</code> (property)</td></tr>
+<tr><td><code>x.min_val</code></td><td><code>x.min_val</code> (property)</td></tr>
+<tr><td><code>x.max_val</code></td><td><code>x.max_val</code> (property)</td></tr>
+<tr><td><code>x.vars</code></td><td><code>x.vars</code> (property)</td></tr>
+<tr><td><code>x.coeffs</code></td><td><code>x.coeffs</code> (property)</td></tr>
 </tbody>
 </table>

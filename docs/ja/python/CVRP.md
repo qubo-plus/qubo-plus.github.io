@@ -50,7 +50,7 @@ V = len(vehicle_capacity)
 
 a = qbpp.var("a", V, N, N)
 
-row_constraint = qbpp.sum(qbpp.vector_sum(a) == 1)
+row_constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(a), equal=1))
 
 column_sum = [0 for _ in range(N - 1)]
 for v in range(V):
@@ -59,7 +59,7 @@ for v in range(V):
             column_sum[i - 1] += a[v][t][i]
 column_constraint = 0
 for i in range(N - 1):
-    column_constraint += column_sum[i] == 1
+    column_constraint += qbpp.constrain(column_sum[i], equal=1)
 
 consecutive_constraint = 0
 for v in range(V):
@@ -72,7 +72,7 @@ for v in range(V):
     for t in range(N):
         for i in range(1, N):
             vehicle_load[v] += a[v][t][i] * locations[i][2]
-    capacity_constraint += qbpp.between(vehicle_load[v], 0, vehicle_capacity[v])
+    capacity_constraint += qbpp.constrain(vehicle_load[v], between=(0, vehicle_capacity[v]))
 
 objective = 0
 for v in range(V):
@@ -88,8 +88,8 @@ for v in range(V):
 f = objective + 10000 * (row_constraint + column_constraint +
                           consecutive_constraint + capacity_constraint)
 
-ml = [(a[v][0][0], 1) for v in range(V)]
-ml += [(a[v][0][i], 0) for v in range(V) for i in range(1, N)]
+ml = {a[v][0][0]: 1 for v in range(V)}
+ml.update({a[v][0][i]: 0 for v in range(V) for i in range(1, N)})
 
 g = qbpp.replace(f, ml)
 f.simplify_as_binary()
@@ -120,7 +120,7 @@ for v in range(V):
 このプログラムは $V\times N\times N$ のバイナリ変数の配列 `a` を定義します。
 次に、上記の定式化に従って目的関数と制約項を定義します。
 
-すべての車両の最初の訪問地点（$t=0$）をデポ（地点0）に固定するため、ペアのリストを構築し `replace()` を使って適用します。
+すべての車両の最初の訪問地点（$t=0$）をデポ（地点0）に固定するため、辞書を構築し `replace()` を使って適用します。
 
 例えば、このプログラムは以下の結果を出力します：
 ```

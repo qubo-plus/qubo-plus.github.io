@@ -56,12 +56,27 @@ The following type variants are available:
 | Import | Coefficient | Energy | Use case |
 |---|---|---|---|
 | `import pyqbpp` | 32-bit | 64-bit | Default; most common choice |
-| `import pyqbpp.c16e32` | 16-bit | 32-bit | Small problems |
 | `import pyqbpp.c32e64` | 32-bit | 64-bit | Same as default |
 | `import pyqbpp.c64e64` | 64-bit | 64-bit | Large coefficients |
 | `import pyqbpp.c64e128` | 64-bit | 128-bit | Large energy range |
 | `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
 | `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision |
+
+Each type variant is also available with a VarArray mode suffix (e.g., `import pyqbpp.c32e64m4`).
+The mode controls internal variable storage:
+
+| Suffix | Max degree | Description |
+|---|---|---|
+| `m0` (or no suffix) | unlimited | Variable-length (default) |
+| `m2` | 2 | Fixed-length, QUBO only (fastest) |
+| `m4` | 4 | Fixed-length, up to degree 4 |
+| `m6` | 6 | Fixed-length, up to degree 6 |
+
+```python
+import pyqbpp.c32e64m4 as qbpp   # degree 4, fastest
+import pyqbpp.c32e64m2 as qbpp   # QUBO only
+import pyqbpp as qbpp             # default (m0, any degree)
+```
 
 > **NOTE**
 > The type variant must be chosen at import time and cannot be changed afterward.

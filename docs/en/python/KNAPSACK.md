@@ -45,15 +45,15 @@ capacity = 50
 
 x = qbpp.var("x", len(w))
 
-constraint = qbpp.between(qbpp.sum(w * x), 0, capacity)
+constraint = qbpp.constrain(qbpp.sum(w * x), between=(0, capacity))
 objective = qbpp.sum(v * x)
 
 f = -objective + 1000 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for idx, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for idx, sol in enumerate(result.sols):
     print(f"[Solution {idx}]")
     print(f"Energy = {sol.energy}")
     print(f"Constraint = {sol(constraint.body)}")
@@ -90,5 +90,5 @@ Item 9: weight = 18, value = 160
 
 | C++ QUBO++                   | PyQBPP                              |
 |------------------------------|---------------------------------------|
-| `0 <= sum(w * x) <= capacity`| `between(sum(w * x), 0, capacity)`   |
+| `0 <= sum(w * x) <= capacity`| `constrain(sum(w * x), between=(0, capacity))`   |
 | `sol(*constraint)`           | `sol(constraint.body)`           |

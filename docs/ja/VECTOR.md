@@ -80,7 +80,7 @@ int main() {
   auto x = qbpp::var("x", 5);
   auto f = qbpp::sqr(qbpp::sum(x) - 1);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }

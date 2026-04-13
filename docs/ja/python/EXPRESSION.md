@@ -43,7 +43,7 @@ simplified f = -6 +x +7*y +x*x -x*y -2*y*y
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 f = -1
 for i in range(len(x)):
     f += x[i]

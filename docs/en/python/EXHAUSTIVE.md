@@ -38,10 +38,10 @@ Sets a target energy value for early termination.
 When the solver finds a solution with energy less than or equal to the target, the search terminates immediately.
 
 ## Searching Solutions
-The Exhaustive Solver searches for solutions by calling the **`search(params)`** method, where `params` is a dict of search parameters.
+The Exhaustive Solver searches for solutions by calling the **`search()`** method with keyword arguments.
 Multiple solutions can be collected by setting the appropriate parameter:
-- **`{"best_energy_sols": 0}`**: Collect all optimal solutions (minimum energy). Use `sol.sols()` to retrieve them.
-- **`{"topk_sols": k}`**: Collect the top-k solutions with the lowest energy.
+- **`best_energy_sols=0`**: Collect all optimal solutions (minimum energy). Use `sol.sols` to retrieve them.
+- **`topk_sols=k`**: Collect the top-k solutions with the lowest energy.
 - **`{"all_sols": 1}`**: Collect all $2^n$ solutions (use with care — memory intensive).
 
 # Program example
@@ -62,7 +62,7 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search({"enable_default_callback": 1})
+sol = solver.search(enable_default_callback=1)
 bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
 print(f"{sol.energy}: {bits}")
 ```
@@ -84,11 +84,11 @@ TTS = 0.014s Energy = 26
 26: -++---++-+---+-+++++
 ```
 {% endraw %}
-All optimal solutions can be collected by passing `"best_energy_sols"` to `search()`:
+All optimal solutions can be collected by passing `best_energy_sols` to `search()`:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search({"best_energy_sols": 0})
-for s in sol.sols():
+sol = solver.search(best_energy_sols=0)
+for s in sol.sols:
     bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
     print(f"{s.energy}: {bits}")
 ```
@@ -105,11 +105,11 @@ The output is as follows:
 26: +++++-+---+-++---++-
 ```
 {% endraw %}
-The top-k solutions with the lowest energy can be collected by passing `"topk_sols"`:
+The top-k solutions with the lowest energy can be collected by passing `topk_sols`:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search({"topk_sols": 10})
-for s in sol.sols():
+sol = solver.search(topk_sols=10)
+for s in sol.sols:
     bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
     print(f"{s.energy}: {bits}")
 ```
@@ -128,14 +128,14 @@ The output is as follows:
 34: +-++-+-+++-+++-----+
 ```
 {% endraw %}
-Furthermore, all solutions, including non-optimal ones, can be collected by passing `"all_sols"`.
+Furthermore, all solutions, including non-optimal ones, can be collected by passing `all_sols`.
 Note that this stores all $2^n$ solutions in memory, where $n$ is the number of variables.
 For example, with $n = 20$, over one million solutions are stored, and memory usage grows exponentially with $n$.
 Use this option only when $n$ is small enough.
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search({"all_sols": 1})
-for s in sol.sols():
+sol = solver.search(all_sols=1)
+for s in sol.sols:
     bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
     print(f"{s.energy}: {bits}")
 ```

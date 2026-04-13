@@ -56,7 +56,7 @@ labs.spin_to_binary()
 labs.simplify_as_binary()
 
 solver = qbpp.EasySolver(labs)
-sol = solver.search({"time_limit": 10.0, "enable_default_callback": 1})
+sol = solver.search(time_limit=10.0, enable_default_callback=1)
 bits = "".join("+" if sol(s[j]) == 1 else "-" for j in range(n))
 print(f"{sol.energy}: {bits}")
 ```

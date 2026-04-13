@@ -130,7 +130,6 @@ int main() {
 
 | 型 | 範囲 | 大きな定数の構文 |
 |----|------|-----------------|
-| `int16_t` | ±3.3×10⁴ | `1234`（整数リテラル） |
 | `int32_t` | ±2.1×10⁹ | `12345`（整数リテラル） |
 | `int64_t` | ±9.2×10¹⁸ | `1234567890123456789LL` |
 | `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::int128_t("12345678901234567890")` |
@@ -142,23 +141,35 @@ int main() {
 デフォルトでは `coeff_t` は `int32_t`、`energy_t` は `int64_t` です。
 デフォルト以外の型を使用するには、ヘッダのインクルード前に以下のマクロの一つを定義します（またはコンパイラフラグ `-D...` で指定）：
 
-| マクロ | `coeff_t` | `energy_t` | ライブラリ |
-|---|---|---|---|
-| `INTEGER_TYPE_C16E32` | `int16_t` | `int32_t` | `libqbpp_c16e32.so` |
-| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` | `libqbpp_c32e32.so` |
-| （デフォルト） | `int32_t` | `int64_t` | `libqbpp_c32e64.so` |
-| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` | `libqbpp_c64e64.so` |
-| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` | `libqbpp_c64e128.so` |
-| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` | `libqbpp_c128e128.so` |
-| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` | `libqbpp_cppint.so` |
+| マクロ | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| （デフォルト） | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-使用例：
+### VarArray モード
+
+`MAXDEG` マクロは、各項の変数の内部格納方式を制御します。
+最大次数が事前に分かっている場合、固定長モードを使うとヒープ確保が不要になり性能が向上します：
+
+| マクロ | 最大次数 | 説明 |
+|---|---|---|
+| `MAXDEG0`（デフォルト） | 無制限 | 可変長（3次以上でヒープ確保） |
+| `MAXDEG2` | 2 | 固定長、QUBOのみ（ヒープ確保なし、最速） |
+| `MAXDEG4` | 4 | 固定長、4次まで（ヒープ確保なし） |
+| `MAXDEG6` | 6 | 固定長、6次まで（ヒープ確保なし） |
+
+使用例 — 型と VarArray モードの両方を指定：
 ```cpp
-#define INTEGER_TYPE_CPP_INT
-#include <qbpp/easy_solver.hpp>
+#define INTEGER_TYPE_C32E32
+#define MAXDEG2
+#include <qbpp/qbpp.hpp>
 ```
 
-指定された型に基づいて適切なライブラリが実行時に自動的にロードされるため、明示的なリンクは不要です。
+指定されたマクロに基づいて適切なライブラリが実行時に自動的にロードされます。
 
 ### 文字列コンストラクタ
 `qbpp::int128_t` および `qbpp::cpp_int` では、

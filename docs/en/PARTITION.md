@@ -63,7 +63,7 @@ int main() {
   auto f = qbpp::sqr(p - q);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "Solution: " << sol << std::endl;

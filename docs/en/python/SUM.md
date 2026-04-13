@@ -18,7 +18,7 @@ The following program demonstrates the difference between `sum()` and `vector_su
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 2, 3, 3)
+x = qbpp.var("x", shape=(2, 3, 3))
 y = x + 1
 for i in range(2):
     for j in range(3):

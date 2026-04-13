@@ -138,7 +138,7 @@ int main() {
 
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(-static_cast<int>(guest.size()))}});
 
   std::cout << "sol(x) = " << sol(x) << std::endl;

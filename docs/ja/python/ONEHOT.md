@@ -29,18 +29,18 @@ $[0, m-1]$ の範囲の $n$ 個の整数からなる1次元配列を返します
 import pyqbpp as qbpp
 
 n, m = 5, 5
-x = qbpp.var("x", n, m)
+x = qbpp.var("x", shape=(n, m))
 
 # ワンホット制約: 各行にちょうど1つの1
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 # 全異なり制約: 各列にちょうど1つの1
-alldiff = qbpp.sum(qbpp.vector_sum(x, 0) == 1)
+alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
 
 f = onehot + alldiff
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print("x =", sol(x))
 
@@ -82,7 +82,7 @@ col_result = qbpp.onehot_to_int(sol(x), 0)  # {1,3,2,0,4}
 入力が有効なワンホットベクトルでない場合は $-1$ を返します。
 
 ```python
-v = qbpp.var("v", 4)
+v = qbpp.var("v", shape=4)
 # ... v = {0, 0, 1, 0} となるように求解 ...
 idx = qbpp.onehot_to_int(sol(v))  # {2}
 ```

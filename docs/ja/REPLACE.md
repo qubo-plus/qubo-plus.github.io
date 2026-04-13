@@ -43,7 +43,7 @@ int main() {
   qbpp::MapList ml({{x[0], 1}, {x[1], 0}});
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(g);
+  auto solver = qbpp::ExhaustiveSolver(g);
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
@@ -107,7 +107,7 @@ Q : 27 74 63 40
   qbpp::MapList ml({{x[0], ~x[1]}});
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(g);
+  auto solver = qbpp::ExhaustiveSolver(g);
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol, ml);
@@ -181,7 +181,7 @@ int main() {
   g.simplify_as_binary();
   std::cout << "g = " << g << std::endl;
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);

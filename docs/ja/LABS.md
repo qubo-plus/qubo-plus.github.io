@@ -64,12 +64,12 @@ int main() {
   labs.spin_to_binary();
   labs.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(labs);
+  auto solver = qbpp::EasySolver(labs);
   auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 0}});
   size_t i = 0;
   for (const auto& sol : sols.sols()) {
     std::cout << i++ << ": LABS = ";
-    std::cout << sol.energy() << " : ";
+    std::cout << sol.energy << " : ";
     for (size_t j = 0; j < n; ++j) {
       std::cout << (sol(s[j]) ? "+" : "-");
     }

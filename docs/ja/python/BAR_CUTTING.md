@@ -48,7 +48,7 @@ N = len(l)
 M = 6
 
 # Create integer variables x[i][j] for pieces of order j cut from bar i
-x = [[qbpp.between(qbpp.var_int(), 0, c[j]) for j in range(N)] for i in range(M)]
+x = [[qbpp.var(between=(0, c[j])) for j in range(N)] for i in range(M)]
 
 # Order constraint: total pieces for each order must equal c[j]
 order_constraint = 0
@@ -66,13 +66,13 @@ for i in range(M):
     for j in range(N):
         used += x[i][j] * l[j]
     bar_length_used.append(used)
-    bar_constraint += qbpp.between(used, 0, L)
+    bar_constraint += qbpp.constrain(used, between=(0, L))
 
 f = order_constraint + bar_constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 10.0, "target_energy": 0})
+sol = solver.search(time_limit=10.0, target_energy=0)
 
 for i in range(M):
     pieces = "  ".join(str(sol(x[i][j])) for j in range(N))

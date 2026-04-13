@@ -16,7 +16,7 @@ hreflang_lang: "en"
   デフォルトの型は`int32_t`です。
   この型を変更するには、コンパイル時に`COEFF_TYPE`マクロを定義します。例:
 ```
--DCOEFF_TYPE=int16_t
+-DCOEFF_TYPE=int64_t
 ```
 - **`energy_t`**:
 `qbpp::Expr`オブジェクトのエネルギー値の計算、および`qbpp::Expr`内の整数定数項に使用される整数データ型。
@@ -35,7 +35,7 @@ hreflang_lang: "en"
 
 ## 使用可能な整数データ型
 - **標準整数型**:
-`int16_t`, `int32_t`, `int64_t`
+`int32_t`, `int64_t`
 
 - **多倍長整数型**（Boost.Multiprecisionライブラリを使用して実装）:
 `qbpp::int128_t`, `qbpp::cpp_int`
@@ -138,19 +138,19 @@ std::cout << obj << std::endl;
 - **`std::string x.str()`**:
   基礎となる式の文字列表現を返します。
 
-- **`energy_t x.min_val()`**:
+- **`energy_t x.min_val`**:
   `x`の最小値`l`を返します。
 
-- **`energy_t x.max_val()`**:
+- **`energy_t x.max_val`**:
   `x`の最大値`u`を返します。
 
-- **`x.vars()`**:
+- **`x.vars`**:
   整数変数を表現するために使用される`qbpp::Var`オブジェクト配列のconst参照を返します。
 
-- **`x.coeffs()`**:
+- **`x.coeffs`**:
   整数係数配列を返します。
 
 以下の式は`x`に格納されている式と等価です:
 ```cpp
-x.min_val() + qbpp::sum(x.coeffs() * x.vars())
+x.min_val + qbpp::sum(x.coeffs * x.vars)
 ```

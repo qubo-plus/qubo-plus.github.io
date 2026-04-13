@@ -105,21 +105,21 @@ int main() {
   auto f = qbpp::sqr(x + 2 * y + 3 * z - 4);
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
-  std::cout << "energy = " << sol.energy() << std::endl;
+  std::cout << "energy = " << sol.energy << std::endl;
 
   sol.flip(z);
   std::cout << "flipped sol = " << sol << std::endl;
-  std::cout << "flipped energy = " << sol.energy() << std::endl;
+  std::cout << "flipped energy = " << sol.energy << std::endl;
 }
 ```
 {% endraw %}
-このプログラムでは、`sol.energy()` は正しく0を返します。
+このプログラムでは、`sol.energy` は正しく0を返します。
 しかし、変数 `z` をフリップした後、キャッシュされたエネルギー値は無効になります。
-エネルギーを再計算せずに `sol.energy()` を呼び出すと、以下のように**ランタイムエラー**が発生します:
+エネルギーを再計算せずに `sol.energy` を呼び出すと、以下のように**ランタイムエラー**が発生します:
 {% raw %}
 ```
 sol = 0:{{x,1},{y,0},{z,1}}
@@ -130,12 +130,12 @@ terminate called after throwing an instance of 'std::runtime_error'
 この問題を解決するには、解を変更した後に **`sol.comp_energy()`** を呼び出してエネルギーを明示的に再計算する必要があります:
 ```cpp
   std::cout << "sol = " << sol << std::endl;
-  std::cout << "energy = " << sol.energy() << std::endl;
+  std::cout << "energy = " << sol.energy << std::endl;
 
   sol.flip(z);
   std::cout << "sol.comp_energy() = " << sol.comp_energy() << std::endl;
   std::cout << "flipped sol = " << sol << std::endl;
-  std::cout << "flipped energy = " << sol.energy() << std::endl;
+  std::cout << "flipped energy = " << sol.energy << std::endl;
 ```
 このプログラムは以下の出力を生成します:
 {% raw %}

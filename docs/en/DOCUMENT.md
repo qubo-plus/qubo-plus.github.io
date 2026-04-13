@@ -52,6 +52,7 @@ sections by providing a deeper understanding of QUBO++.
 14. [Exhaustive Solver Usage](EXHAUSTIVE)
 15. [ABS3 Solver Usage](ABS3)
 16. [Search Parameters](PARAMS)
+17. [Performance Tips](TIPS)
 
 
 

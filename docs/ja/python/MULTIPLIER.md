@@ -39,7 +39,7 @@ hreflang_lang: "en"
 以下の QUBO 式は、3つの入力ビット `a`、`b`、`i` と、2つの出力ビット: キャリーアウト `o` および和 `s` を持つ全加算器をシミュレートします:
 ```python
 def fa(a, b, i, o, s):
-    return (a + b + i) - (2 * o + s) == 0
+    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 ```
 関数 `fa` は、全加算器の入力ビットと出力ビットの間の整合性を強制する式を返します。
 
@@ -50,11 +50,11 @@ def fa(a, b, i, o, s):
 ```python
 def adder(a, b, s):
     N = len(a)
-    c = qbpp.var(N + 1)
+    c = qbpp.var(shape=N + 1)
     f = 0
     for j in range(N):
         f += fa(a[j], b[j], c[j], c[j + 1], s[j])
-    ml = [(c[0], 0), (c[N], s[N])]
+    ml = {c[0]: 0, c[N]: s[N]}
     return qbpp.replace(f, ml)
 ```
 この関数では、`c` は `N + 1` 個の変数のベクトルで、`fa` ブロックのキャリーアウトとキャリーインの信号を接続し、`N`ビットのリプルキャリー加算器を形成します。
@@ -66,7 +66,7 @@ def adder(a, b, s):
 ```python
 def multiplier(x, y, z):
     N = len(x)
-    c = qbpp.var("c", N - 1, N + 1)
+    c = qbpp.var("c", shape=(N - 1, N + 1))
 
     f = 0
 
@@ -81,16 +81,16 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += z[0] - x[0] * y[0] == 0
+    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
 
-    ml = [(c[i][0], z[i + 1]) for i in range(N - 2)]
-    ml += [(c[N - 2][i], z[N + i - 1]) for i in range(N + 1)]
+    ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
+    ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
     f = qbpp.replace(f, ml)
     f.simplify_as_binary()
     return f
 ```
 この関数は `(N-1)x(N+1)` の変数行列 `c` を使って `N-1` 個の `N`ビット加算器を接続します。
-`z` の各ビットは `c` の1つの要素に対応するため、その対応関係を `ml` で定義し、`replace()` を使って置換を実行します。
+`z` の各ビットは `c` の1つの要素に対応するため、その対応関係を辞書 `ml` で定義し、`replace()` を使って置換を実行します。
 
 ## 素因数分解の PyQBPP プログラム
 関数 `multiplier` を使って、合成数を2つの因数に分解できます。
@@ -101,20 +101,20 @@ def multiplier(x, y, z):
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return (a + b + i) - (2 * o + s) == 0
+    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 
 def adder(a, b, s):
     N = len(a)
-    c = qbpp.var(N + 1)
+    c = qbpp.var(shape=N + 1)
     f = 0
     for j in range(N):
         f += fa(a[j], b[j], c[j], c[j + 1], s[j])
-    ml = [(c[0], 0), (c[N], s[N])]
+    ml = {c[0]: 0, c[N]: s[N]}
     return qbpp.replace(f, ml)
 
 def multiplier(x, y, z):
     N = len(x)
-    c = qbpp.var("c", N - 1, N + 1)
+    c = qbpp.var("c", shape=(N - 1, N + 1))
 
     f = 0
 
@@ -129,22 +129,22 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += z[0] - x[0] * y[0] == 0
+    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
 
-    ml = [(c[i][0], z[i + 1]) for i in range(N - 2)]
-    ml += [(c[N - 2][i], z[N + i - 1]) for i in range(N + 1)]
+    ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
+    ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
     f = qbpp.replace(f, ml)
     f.simplify_as_binary()
     return f
 
-x = qbpp.var("x", 4)
-y = qbpp.var("y", 4)
+x = qbpp.var("x", shape=4)
+y = qbpp.var("y", shape=4)
 z = [1, 1, 1, 1, 0, 0, 0, 1]
 f = multiplier(x, y, z)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 x_bits = "".join(str(sol(x[j])) for j in reversed(range(4)))
 y_bits = "".join(str(sol(y[j])) for j in reversed(range(4)))

@@ -84,7 +84,7 @@ f = objective + (N + 1) * constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")
@@ -122,9 +122,9 @@ for i in range(N):
     t = x[i]
     for j in adj[i]:
         t += x[j]
-    constraint += qbpp.between(t, 1, len(adj[i]) + 1)
+    constraint += qbpp.constrain(t, between=(1, len(adj[i]) + 1))
 ```
-このコードでは、`t` は式 $\sum_{j\in N[i]}x_j$ を格納し、`between()` 関数は $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$ のペナルティ式を生成します。この式は不等式が満たされている場合にのみ最小値0をとります。
+このコードでは、`t` は式 $\sum_{j\in N[i]}x_j$ を格納し、`constrain()` 関数は $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$ のペナルティ式を生成します。この式は不等式が満たされている場合にのみ最小値0をとります。
 
 ### C++ QUBO++との比較
 

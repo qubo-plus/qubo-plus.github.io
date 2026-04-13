@@ -112,12 +112,12 @@ int main() {
   auto f = (objective + penalty_weight * constraint).simplify_as_binary();
 
   // 求解
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   // n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
   auto sol = solver.search({{"target_energy", 1}});
 
   // 結果の出力
-  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "Energy = " << sol.energy << std::endl;
   std::cout << "Assignment: ";
   for (int i = 0; i < n; ++i) {
     std::cout << "x[" << i << "]=" << sol(x[i]) << " ";

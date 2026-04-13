@@ -72,7 +72,7 @@ for u, v in edges:
         t += x[idx]
     for idx in adj[v]:
         t += x[idx]
-    constraint += qbpp.between(t, 1, 2)
+    constraint += qbpp.constrain(t, between=(1, 2))
 
 f = objective + constraint
 
@@ -102,7 +102,7 @@ Thus, $S$ contains 6 edges, forming a minimum maximal matching.
 
 | C++ QUBO++                   | PyQBPP                              |
 |------------------------------|---------------------------------------|
-| `1 <= t <= 2`                | `between(t, 1, 2)`                   |
+| `1 <= t <= 2`                | `constrain(t, between=(1, 2))`                   |
 
 ## Visualization using matplotlib
 The following code visualizes the Min-Max Matching solution:

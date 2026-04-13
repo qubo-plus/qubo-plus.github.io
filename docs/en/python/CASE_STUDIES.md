@@ -36,6 +36,7 @@ This section provides examples of solving optimization, mathematical, and graph 
 14. [Minimum Graph Bisection Problem](BISECTION) (Easy)
 
 ## Combinatorial Optimization Problems
+1. [QUBO Problem](QUBO) (Easy)
 1. [Knapsack Problem](KNAPSACK) (Medium)
 2. [Shift Scheduling Problem](SHIFT_SCHEDULING) (Hard)
 3. [LABS Problem](LABS) (Medium)

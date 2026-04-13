@@ -192,8 +192,8 @@ int main() {
   auto f = x + 1;
   f += x - 2;
   f.simplify_as_binary();
-  std::cout << "total = " << f.total() << std::endl;
-  std::cout << "ndim = " << f.ndim() << std::endl;
+  std::cout << "total = " << f.total << std::endl;
+  std::cout << "ndim = " << f.ndim << std::endl;
   std::cout << "shape = (" << f.shape(0) << ", " << f.shape(1) << ")" << std::endl;
   for (size_t i = 0; i < f.size(); ++i) {
     for (size_t j = 0; j < f[i].size(); ++j) {
@@ -203,7 +203,7 @@ int main() {
   }
 }
 ```
-ここで、`f.total()`は全要素数、`f.ndim()`は次元数、`f.shape(d)`は次元`d`のサイズを返します。
+ここで、`f.total`は全要素数、`f.ndim`は次元数、`f.shape(d)`は次元`d`のサイズを返します。
 `f[i][j]`は行`i`、列`j`の要素にアクセスします。
 
 このプログラムの出力は次のとおりです:

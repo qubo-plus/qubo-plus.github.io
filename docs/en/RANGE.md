@@ -65,7 +65,7 @@ int main() {
   auto c2 = 0 <= 7 * x + 5 * y <= 54;
   auto g = -f + 100 * (c1 + c2);
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
   std::cout << "f = " << sol(f) << std::endl;

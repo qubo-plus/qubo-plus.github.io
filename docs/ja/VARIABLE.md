@@ -37,7 +37,7 @@ int main() {
 
 ヘッダとライブラリのパスが適切に設定されていれば、このプログラム（**`test.cpp`** として保存）は `g++` で以下のようにコンパイルできます。
 ```bash
-g++ test.cpp -o test -std=c++17 -lqbpp -ldl
+g++ test.cpp -o test -std=c++17 -ldl -pthread
 ```
 実行すると、展開された式が出力されます。
 ```bash

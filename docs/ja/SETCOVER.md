@@ -97,7 +97,7 @@ int main() {
   auto f = objective + 1000 * constraint;
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
 
   auto sol = solver.search();
 

@@ -44,19 +44,19 @@ The following PyQBPP program finds all solutions:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 1, 9)
-y = qbpp.between(qbpp.var_int("y"), 0, 9)
-t = qbpp.between(qbpp.var_int("t"), 0, 4)
+x = qbpp.var("x", between=(1, 9))
+y = qbpp.var("y", between=(0, 9))
+t = qbpp.var("t", between=(0, 4))
 z = 2 * t + 1
 v = x * 100 + y * 10 + z
 
-f = x * y * z == 252
+f = qbpp.constrain(x * y * z, equal=252)
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
+result = solver.search(best_energy_sols=0)
 results = set()
-for sol in result.sols():
+for sol in result.sols:
     results.add(sol(v))
 for val in sorted(results):
     print(val, end=" ")

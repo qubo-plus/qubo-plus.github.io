@@ -133,7 +133,6 @@ The following types can be specified:
 
 | Type | Range | Large constant syntax |
 |------|-------|-----------------------|
-| `int16_t` | ±3.3×10⁴ | `1234` (integer literal) |
 | `int32_t` | ±2.1×10⁹ | `12345` (integer literal) |
 | `int64_t` | ±9.2×10¹⁸ | `1234567890123456789LL` |
 | `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::int128_t("12345678901234567890")` |
@@ -144,23 +143,35 @@ The type **`qbpp::cpp_int`** represents an integer with an arbitrary number of d
 By default, `coeff_t` is `int32_t` and `energy_t` is `int64_t`.
 To use a different type, define one of the following macros before including the header (or pass as a compiler flag `-D...`):
 
-| Macro | `coeff_t` | `energy_t` | Library |
-|---|---|---|---|
-| `INTEGER_TYPE_C16E32` | `int16_t` | `int32_t` | `libqbpp_c16e32.so` |
-| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` | `libqbpp_c32e32.so` |
-| (default) | `int32_t` | `int64_t` | `libqbpp_c32e64.so` |
-| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` | `libqbpp_c64e64.so` |
-| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` | `libqbpp_c64e128.so` |
-| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` | `libqbpp_c128e128.so` |
-| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` | `libqbpp_cppint.so` |
+| Macro | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-Example:
+### VarArray Mode
+
+The `MAXDEG` macro controls how variables within each term are stored internally.
+Fixed-length modes eliminate heap allocation and improve performance when the maximum degree is known:
+
+| Macro | Max degree | Description |
+|---|---|---|
+| `MAXDEG0` (default) | unlimited | Variable-length (heap allocation for degree 3+) |
+| `MAXDEG2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
+| `MAXDEG4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
+| `MAXDEG6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
+
+Example — selecting both type and VarArray mode:
 ```cpp
-#define INTEGER_TYPE_CPP_INT
-#include <qbpp/easy_solver.hpp>
+#define INTEGER_TYPE_C32E32
+#define MAXDEG2
+#include <qbpp/qbpp.hpp>
 ```
 
-The appropriate library is automatically loaded at runtime based on the specified types; no explicit linking is required.
+The appropriate library is automatically loaded at runtime based on the specified macros.
 
 ### String constructors
 

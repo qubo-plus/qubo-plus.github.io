@@ -194,8 +194,8 @@ int main() {
   auto f = x + 1;
   f += x - 2;
   f.simplify_as_binary();
-  std::cout << "total = " << f.total() << std::endl;
-  std::cout << "ndim = " << f.ndim() << std::endl;
+  std::cout << "total = " << f.total << std::endl;
+  std::cout << "ndim = " << f.ndim << std::endl;
   std::cout << "shape = (" << f.shape(0) << ", " << f.shape(1) << ")" << std::endl;
   for (size_t i = 0; i < f.size(); ++i) {
     for (size_t j = 0; j < f[i].size(); ++j) {
@@ -205,7 +205,7 @@ int main() {
   }
 }
 ```
-Here, `f.total()` returns the total number of elements, `f.ndim()` the number of dimensions, and `f.shape(d)` returns the size of dimension `d`.
+Here, `f.total` returns the total number of elements, `f.ndim` the number of dimensions, and `f.shape(d)` returns the size of dimension `d`.
 `f[i][j]` accesses the element at row `i`, column `j`.
 
 This program outputs:

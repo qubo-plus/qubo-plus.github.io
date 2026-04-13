@@ -51,6 +51,21 @@ f = 1 +a*b +b*b +a*c +b*c -a -b -b -c
 > The variable name in `var()` may be omitted.
 > If omitted, a default name such as `{0}`, `{1}`,... is automatically assigned.
 
+## Creating variable arrays and integer variables
+The `var()` function supports `shape=` and `between=` keyword arguments
+for creating arrays of variables and integer variables:
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")                              # Single binary variable
+v = qbpp.var("v", shape=3)                      # 1D array: v[0], v[1], v[2]
+v = qbpp.var("v", shape=(3,))                   # same (tuple form also works)
+m = qbpp.var("m", shape=(2, 3))                 # 2D array (2x3 matrix)
+y = qbpp.var("y", between=(0, 10))              # Single integer variable in [0, 10]
+w = qbpp.var("w", shape=(3, 4), between=(0, 7)) # 2D array of integer variables in [0, 7]
+e = qbpp.expr(shape=(2, 3))                     # 2D expression array (all zeros)
+```
+
 > **WARNING**
 > The textual output of expressions is not guaranteed to be stable and should not be used as input for subsequent computations, since its format may change in future releases.
 

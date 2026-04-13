@@ -41,7 +41,7 @@ To do this, we implement functions that construct a full adder, an adder, and a 
 The following QUBO expression simulates a full adder with three input bits `a`, `b`, and `i`, and two output bits: carry-out `o` and sum `s`:
 ```python
 def fa(a, b, i, o, s):
-    return (a + b + i) - (2 * o + s) == 0
+    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 ```
 The function `fa` returns an expression that enforces consistency between the input and output bits of a full adder.
 
@@ -52,11 +52,11 @@ The following function `adder` returns a QUBO expression whose minimum value is 
 ```python
 def adder(a, b, s):
     N = len(a)
-    c = qbpp.var(N + 1)
+    c = qbpp.var(shape=N + 1)
     f = 0
     for j in range(N):
         f += fa(a[j], b[j], c[j], c[j + 1], s[j])
-    ml = [(c[0], 0), (c[N], s[N])]
+    ml = {c[0]: 0, c[N]: s[N]}
     return qbpp.replace(f, ml)
 ```
 In this function, `c` is a vector of `N + 1` variables used to connect the carry-out and carry-in signals of the `fa` blocks, forming an `N`-bit ripple-carry adder.
@@ -68,7 +68,7 @@ The following function `multiplier` returns a QUBO expression whose minimum valu
 ```python
 def multiplier(x, y, z):
     N = len(x)
-    c = qbpp.var("c", N - 1, N + 1)
+    c = qbpp.var("c", shape=(N - 1, N + 1))
 
     f = 0
 
@@ -83,16 +83,16 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += z[0] - x[0] * y[0] == 0
+    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
 
-    ml = [(c[i][0], z[i + 1]) for i in range(N - 2)]
-    ml += [(c[N - 2][i], z[N + i - 1]) for i in range(N + 1)]
+    ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
+    ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
     f = qbpp.replace(f, ml)
     f.simplify_as_binary()
     return f
 ```
 This function uses an `(N−1)×(N+1)` matrix `c` of variables to connect the `N−1` adders of `N` bits.
-Since each bit of `z` corresponds to one element of `c`, their correspondence is defined in `ml`, and the replacements are performed using `replace()`.
+Since each bit of `z` corresponds to one element of `c`, their correspondence is defined in the dict `ml`, and the replacements are performed using `replace()`.
 
 ## PyQBPP program for factorization
 Using the function `multiplier`, we can factor a composite integer into two factors.
@@ -104,20 +104,20 @@ The following program constructs a 4-bit multiplier where
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return (a + b + i) - (2 * o + s) == 0
+    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 
 def adder(a, b, s):
     N = len(a)
-    c = qbpp.var(N + 1)
+    c = qbpp.var(shape=N + 1)
     f = 0
     for j in range(N):
         f += fa(a[j], b[j], c[j], c[j + 1], s[j])
-    ml = [(c[0], 0), (c[N], s[N])]
+    ml = {c[0]: 0, c[N]: s[N]}
     return qbpp.replace(f, ml)
 
 def multiplier(x, y, z):
     N = len(x)
-    c = qbpp.var("c", N - 1, N + 1)
+    c = qbpp.var("c", shape=(N - 1, N + 1))
 
     f = 0
 
@@ -132,22 +132,22 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += z[0] - x[0] * y[0] == 0
+    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
 
-    ml = [(c[i][0], z[i + 1]) for i in range(N - 2)]
-    ml += [(c[N - 2][i], z[N + i - 1]) for i in range(N + 1)]
+    ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
+    ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
     f = qbpp.replace(f, ml)
     f.simplify_as_binary()
     return f
 
-x = qbpp.var("x", 4)
-y = qbpp.var("y", 4)
+x = qbpp.var("x", shape=4)
+y = qbpp.var("y", shape=4)
 z = [1, 1, 1, 1, 0, 0, 0, 1]
 f = multiplier(x, y, z)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 x_bits = "".join(str(sol(x[j])) for j in reversed(range(4)))
 y_bits = "".join(str(sol(y[j])) for j in reversed(range(4)))

@@ -108,7 +108,7 @@ int main() {
   auto f = c1 + c2 + c3 + c4;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
   auto result = qbpp::onehot_to_int(sol(x));
   for (size_t i = 0; i < 3; ++i) {
@@ -181,7 +181,7 @@ We modify the program above as follows:
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);

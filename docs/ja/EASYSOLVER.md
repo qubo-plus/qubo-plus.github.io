@@ -12,12 +12,12 @@ hreflang_lang: "en"
 **Easy Solver**はQUBO/HUBO式のためのヒューリスティックソルバーです。
 
 Easy Solverを使って問題を解くには、以下の3つのステップで行います：
-1. Easy Solver（`qbpp::easy_solver::EasySolver`）オブジェクトを作成します。
+1. Easy Solver（`qbpp::EasySolver`）オブジェクトを作成します。
 2. `search()` メンバ関数を呼び出して解を探索します。パラメータは初期化子リストとして渡します。`qbpp::easy_solver::Sols` オブジェクトが返されます。
 
 ## Easy Solverオブジェクトの作成
-Easy Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引数としてEasy Solverオブジェクト（`qbpp::easy_solver::EasySolver`）を以下のように構築します：
-- **`qbpp::easy_solver::EasySolver(const qbpp::Expr& f)`**
+Easy Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引数としてEasy Solverオブジェクト（`qbpp::EasySolver`）を以下のように構築します：
+- **`qbpp::EasySolver(const qbpp::Expr& f)`**
 
 ここで、`f` は解くべき式です。
 事前に `simplify_as_binary()` 関数を呼び出してバイナリ式として簡約化しておく必要があります。
@@ -67,10 +67,10 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
 
   auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
-  std::cout << sol.energy() << ": ";
+  std::cout << sol.energy << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -179,11 +179,11 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
 
   auto sols = solver.search({{"time_limit", 5.0}, {"topk_sols", 20}});
   for (const auto& sol : sols) {
-    std::cout << sol.energy() << ": ";
+    std::cout << sol.energy << ": ";
     for (auto val : sol(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }

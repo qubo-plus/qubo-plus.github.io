@@ -39,25 +39,25 @@ $$
 ```python
 import pyqbpp as qbpp
 
-p = qbpp.between(qbpp.var_int("p"), 2, 5)
-q = qbpp.between(qbpp.var_int("q"), 6, 17)
+p = qbpp.var("p", between=(2, 5))
+q = qbpp.var("q", between=(6, 17))
 
-f = (p * q) == 35
+f = qbpp.constrain(p * q, equal=35)
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print("sol =", sol)
 print("p =", sol(p))
 print("q =", sol(q))
 ```
 
-このプログラムでは、式 `(p * q) == 35` は自動的に `sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値 0 を達成します。
+このプログラムでは、式 `qbpp.constrain(p * q, equal=35)` は自動的に `sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値 0 を達成します。
 このプログラムの出力は以下の通りです:
 ```
 f = 529 -240*p[0] -408*p[1] -88*q[0] -168*q[1] -304*q[2] -304*q[3] +144*p[0]*p[1] ...
-sol = Sol(energy=0, p[0]=1, p[1]=1, q[0]=1, q[1]=0, q[2]=0, q[3]=0)
+sol = Sol(energy=0, {p[0]: 1, p[1]: 1, q[0]: 1, q[1]: 0, q[2]: 0, q[3]: 0})
 p = 5
 q = 7
 ```

@@ -34,7 +34,7 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4, 4)
+x = qbpp.var("x", shape=(4, 4))
 f = qbpp.expr()
 
 for i in range(4):
@@ -51,13 +51,13 @@ for j in range(4):
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for k, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for k, sol in enumerate(result.sols):
     row = [sol.get_vector(x[i]) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
-このプログラムでは、**`var("x", 4, 4)`** が **`x`** という名前の $4\times 4$ サイズのネストされた `Array` を返します。
+このプログラムでは、**`var("x", shape=(4, 4))`** が **`x`** という名前の $4\times 4$ サイズのネストされた `Array` を返します。
 `Expr` オブジェクト **`f`** に対して、2つの二重forループが $f(X)$ の式を構築します。
 Exhaustive Solverを使用して、すべての最適解が計算され **`sols`** に格納されます。
 `sols` 内のすべての解は `sol.get_vector()` を使用して1つずつ表示されます。
@@ -74,13 +74,13 @@ Exhaustive Solverを使用して、すべての最適解が計算され **`sols`
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4, 4)
+x = qbpp.var("x", shape=(4, 4))
 f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 0) - 1))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for k, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for k, sol in enumerate(result.sols):
     perm = []
     for i in range(4):
         for j in range(4):
@@ -131,14 +131,14 @@ c = qbpp.Array([[58, 73, 91, 44],
                  [62, 15, 87, 39],
                  [78, 56, 23, 94],
                  [11, 85, 68, 72]])
-x = qbpp.var("x", 4, 4)
-f = qbpp.sum(qbpp.vector_sum(x, 1) == 1) + qbpp.sum(qbpp.vector_sum(x, 0) == 1)
+x = qbpp.var("x", shape=(4, 4))
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
 g = qbpp.sum(c * x)
 h = 1000 * f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 print("sol =", sol)
 
 result = []
@@ -152,7 +152,7 @@ for i in range(len(result)):
 ```
 
 Easy Solverを使用して `h` の解を求めます。
-`search()` にパラメータ辞書を渡すことで、探索の制限時間を1.0秒に設定しています。
+`search()` に `time_limit=1.0` を渡すことで、探索の制限時間を1.0秒に設定しています。
 このプログラムの出力は以下の通りです:
 ```
 Result : [3, 1, 2, 0]
@@ -162,5 +162,5 @@ c[2][2] = 23
 c[3][0] = 11
 ```
 > **NOTE**
-> 式 `f` と整数 `m` に対して、`f == m` は式 `sqr(f - m)` を返します。
+> 式 `f` と整数 `m` に対して、`qbpp.constrain(f, equal=m)` は式 `sqr(f - m)` を返します。
 > これは等式 `f == m` が満たされる場合に限り最小値0をとります。

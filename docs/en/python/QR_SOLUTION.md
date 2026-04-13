@@ -23,32 +23,29 @@ It stores variable assignments along with the energy value and time-to-solution.
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `sol(x)` | `int` | Evaluate `Var` `x` (returns 0 or 1) |
+| `sol[x]` | `int` | Get value of `Var` `x` (returns 0 or 1) |
+| `sol[vi]` | `int` | Get value of `VarInt` `vi` |
 | `sol(t)` | `int` | Evaluate `Term` `t` |
 | `sol(f)` | `int` | Evaluate `Expr` `f` |
 
 For arrays, use element-wise access:
 ```python
 for i in range(n):
-    print(sol(x[i]))
+    print(sol[x[i]])
 ```
 
 ## Setting Variable Values
 
 | Expression | Description |
 |------------|-------------|
-| `sol.set(x, value)` | Set variable `x` to `value` (0 or 1) |
+| `sol[x] = value` | Set variable `x` to `value` (0 or 1) |
+| `sol[vi] = value` | Set `VarInt` `vi` to `value` |
 | `sol.set(other_sol)` | Copy all variable values from another `Sol` |
-| `sol.set([(x, val), ...])` | Set variable values from a list of pairs |
-| `sol.set([other_sol, [(x, val), ...]])` | Copy from `Sol`, then apply pair list |
 
 ```python
-sol.set([(x[0], 1), (x[1], 0), (vi, 5)])
-```
-
-The `set` method returns `self`, allowing chaining:
-```python
-full_sol = Sol(f).set([sol, [(x[0], 1)]])
+sol[x[0]] = 1
+sol[x[1]] = 0
+sol[vi] = 5
 ```
 
 ## Energy and Evaluation
@@ -61,7 +58,7 @@ full_sol = Sol(f).set([sol, [(x[0], 1)]])
 
 `sol.energy` is a property that returns the energy value stored when the solver found the solution.
 It does **not** recompute the energy.
-After calling `sol.set()` to modify variable values, the stored energy becomes **invalid**.
+After modifying variable values (e.g., `sol[x] = val`), the stored energy becomes **invalid**.
 Accessing `sol.energy` in this state raises an error.
 Call `sol.comp_energy()` to recompute and update the energy before accessing it.
 
@@ -89,8 +86,8 @@ and provide additional information via **`info`**.
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
 | `sol.info` | `dict` | Key-value pairs of solver information |
-| `sol.sols()` | `list[Sol]` | All collected solutions |
-| `sol.size()` | `int` | Number of collected solutions |
+| `sol.sols` | `list[Sol]` | All collected solutions |
+| `sol.size` | `int` | Number of collected solutions |
 | `sol[i]` | `Sol` | Access the $i$-th solution |
 
 The `info` dictionary contains solver metadata as string key-value pairs.

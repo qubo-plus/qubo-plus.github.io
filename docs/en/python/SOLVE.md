@@ -63,14 +63,14 @@ f = qbpp.sqr(a + 2 * b + 3 * c + 4 * d - 5)
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 print(sol)
 ```
 
 The output of this program is as follows:
 ```
 f = 25 -9*a -16*b -21*c -24*d +4*a*b +6*a*c +8*a*d +12*b*c +16*b*d +24*c*d
-Sol(energy=0, a=1, b=0, c=0, d=1)
+Sol(energy=0, {a: 1, b: 0, c: 0, d: 1})
 ```
 One of the optimal solutions is correctly output.
 
@@ -97,18 +97,18 @@ print(sol)
 ```
 The output of this program is as follows:
 ```
-Sol(energy=0, a=0, b=1, c=1, d=0)
+Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 ```
-All optimal solutions can be obtained by passing `"best_energy_sols"` to `search()`:
+All optimal solutions can be obtained by passing `best_energy_sols` to `search()`:
 ```python
-sol = solver.search({"best_energy_sols": 0})
-for i, s in enumerate(sol.sols()):
+sol = solver.search(best_energy_sols=0)
+for i, s in enumerate(sol.sols):
     print(f"({i}) {s}")
 ```
 The output is as follows:
 ```
-(0) Sol(energy=0, a=0, b=1, c=1, d=0)
-(1) Sol(energy=0, a=1, b=0, c=0, d=1)
+(0) Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
+(1) Sol(energy=0, {a: 1, b: 0, c: 0, d: 1})
 ```
 
 The Exhaustive Solver is very useful for analyzing small expressions and for debugging.
@@ -119,7 +119,7 @@ If no GPU is available, it automatically falls back to CPU-only mode.
 
 Usage involves two steps:
 1. Create an **`ABS3Solver`** object for the expression.
-2. Call the **`search()`** method with a parameter dict, which returns the obtained solution.
+2. Call the **`search()`** method with keyword arguments, which returns the obtained solution.
 
 ```python
 import pyqbpp as qbpp
@@ -133,13 +133,13 @@ f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search({"time_limit": 5.0, "target_energy": 0})
+sol = solver.search(time_limit=5.0, target_energy=0)
 print(sol)
 ```
 The output of this program is as follows:
 ```
 TTS = 0.000s Energy = 0
-Sol(energy=0, a=0, b=1, c=1, d=0)
+Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 ```
 
 For details on parameters, callbacks, and multiple solution collection, see **[ABS3 Solver](ABS3)**.

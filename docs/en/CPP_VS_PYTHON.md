@@ -116,18 +116,18 @@ The following table shows the main syntax differences between C++ and Python.
 |---|---|---|
 | **Include / Import** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
 | **Variable** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
-| **Variable vector** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", n)` |
+| **Variable array** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
 | **Negated literal** | `~x` | `~x` |
-| **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.between(qbpp.var_int("x"), 0, 10)` |
-| **Equality** | `auto f = (expr == 3);` | `f = (expr == 3)` |
-| **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.between(expr, 1, 5)` |
+| **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
+| **Equality** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
+| **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
 | **Body of ExprExpr** | `*f` | `f.body` |
 | **Simplify** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
-| **Easy Solver** | `qbpp::easy_solver::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
-| **Exhaustive Solver** | `qbpp::exhaustive_solver::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
-| **ABS3 Solver** | `qbpp::abs3_solver::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
+| **Easy Solver** | `qbpp::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
+| **Exhaustive Solver** | `qbpp::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
+| **ABS3 Solver** | `qbpp::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
 | **Search** | `auto sol = solver.search();` | `sol = solver.search()` |
-| **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search({"time_limit": 10, "target_energy": 0})` |
+| **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **Solution value** | `sol(x)` | `sol(x)` |
 | **Output** | `std::cout << sol << std::endl;` | `print(sol)` |
 
@@ -145,7 +145,7 @@ int main() {
   auto y = 0 <= qbpp::var_int("y") <= 10;
   auto h = (x + y == 10) + (2 * x + 4 * y == 28);
   h.simplify_as_binary();
-  auto sol = qbpp::exhaustive_solver::ExhaustiveSolver(h).search();
+  auto sol = qbpp::ExhaustiveSolver(h).search();
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
 }
 ```
@@ -154,9 +154,9 @@ int main() {
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
-h = (x + y == 10) + (2 * x + 4 * y == 28)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+h = qbpp.constrain(x + y, equal=10) + qbpp.constrain(2 * x + 4 * y, equal=28)
 h.simplify_as_binary()
 sol = qbpp.ExhaustiveSolver(h).search()
 print(f"x = {sol(x)}, y = {sol(y)}")
@@ -169,8 +169,8 @@ Both output: `x = 6, y = 4`
 ### C++ (QUBO++) — Strengths
 
 - **Faster expression building**: Building large expressions with millions of terms is significantly faster in native C++. The solver execution time is the same in both languages, but the time to construct the model can differ substantially for large problems.
-- **Fine-grained type control**: You can choose smaller coefficient types (e.g., `int32_t`, `int64_t`) when arbitrary precision is not needed. Fixed-width integers are much faster than arbitrary-precision integers, which can make a noticeable difference in both expression building and solver performance. When overflow-free computation is needed, you can switch to `cpp_int` for arbitrary-precision integers at the cost of speed — giving you the flexibility to trade performance for correctness on a per-project basis.
 - **Mathematical range syntax**: Range constraints use the natural notation `l <= f <= u`, which reads like a mathematical formula.
+- **Integration with existing C++ projects**: Can be embedded directly into existing C++ applications.
 
 ### Python (PyQBPP) — Strengths
 
@@ -186,8 +186,7 @@ Both output: `x = 6, y = 4`
 |---|---|---|
 | **Expression building speed** | Fast (native) | Slower (ctypes overhead) |
 | **Solver speed** | Same | Same |
-| **Type control** | Fine-grained (int16 ~ cpp_int) | Same (default: c32e64) |
 | **Ease of use** | Moderate | Easy |
 | **Interactive use** | No | Yes (Jupyter, REPL) |
 
-**Recommendation**: Start with **PyQBPP (Python)** for prototyping and learning. Switch to **C++ (QUBO++)** if you need faster expression building for large-scale problems or fine-grained type control for performance.
+**Recommendation**: Start with **PyQBPP (Python)** for prototyping and learning. Switch to **C++ (QUBO++)** if you need faster expression building for large-scale problems.

@@ -57,7 +57,7 @@ m = 4
 
 x = qbpp.var("x", n, m)
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 different = 0
 for u, v in edges:
     different += qbpp.sum(x[u] * x[v])
@@ -66,7 +66,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print(f"onehot = {sol(onehot)}")
 print(f"different = {sol(different)}")
@@ -79,7 +79,7 @@ for i in range(n):
             break
 ```
 このプログラムでは、まず $n\times m$ のバイナリ変数の行列 `x` を定義し、次に式 `onehot`、`different`、`f` を構築します。
-得られた QUBO を、`search()` に `{"target_energy": 0}` を渡して Easy Solver で解きます。
+得られた QUBO を、`search()` に `target_energy=0` を渡して Easy Solver で解きます。
 
 ### $m=4$ の場合の結果
 このプログラムは以下の出力を生成します：

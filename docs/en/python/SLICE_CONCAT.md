@@ -20,7 +20,7 @@ PyQBPP arrays support standard Python slice notation. Slicing returns a new `Arr
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 8)
+x = qbpp.var("x", shape=8)
 print(x[:3])     # first 3:  [x[0], x[1], x[2]]
 print(x[-3:])    # last 3:   [x[5], x[6], x[7]]
 print(x[2:5])    # range:    [x[2], x[3], x[4]]
@@ -29,12 +29,12 @@ print(x[2:5])    # range:    [x[2], x[3], x[4]]
 For multi-dimensional arrays, use tuple indexing (similar to NumPy):
 
 ```python
-x = qbpp.var("x", 3, 5)
+x = qbpp.var("x", shape=(3, 5))
 print(x[:, :3])    # first 3 columns of each row
 print(x[:, -2:])   # last 2 columns of each row
 print(x[1:3, 1:4]) # rows 1-2, columns 1-3
 
-x = qbpp.var("x", 2, 3, 4)
+x = qbpp.var("x", shape=(2, 3, 4))
 print(x[:, :, :2]) # first 2 elements along the 3rd dimension
 ```
 
@@ -45,14 +45,14 @@ The `concat()` function joins arrays or prepends/appends scalars:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 
 # 1D: scalar + array, array + scalar
 y = qbpp.concat(1, qbpp.concat(x, 0))
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
 # 2D with dim parameter
-z = qbpp.var("z", 3, 4)
+z = qbpp.var("z", shape=(3, 4))
 zg0 = qbpp.concat(1, qbpp.concat(z, 0, 0), 0)  # dim=0: guard rows -> 5 x 4
 zg1 = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)  # dim=1: guard cols -> 3 x 6
 ```
@@ -86,7 +86,7 @@ For $n$ variables, there are $n+1$ such patterns, representing integers $0$ thro
 import pyqbpp as qbpp
 
 n = 8
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 
 # y = (1, x[0], ..., x[n-1], 0)
 y = qbpp.concat(1, qbpp.concat(x, 0))
@@ -101,7 +101,7 @@ f.simplify_as_binary()
 print("f =", f)
 
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search({"best_energy_sols": 0})
+sol = solver.search(best_energy_sols=0)
 
 print("energy =", sol.energy)
 print("solutions =", len(sol.all_solutions()))
@@ -139,8 +139,8 @@ For details, see: [https://arxiv.org/abs/2308.01024](https://arxiv.org/abs/2308.
 import pyqbpp as qbpp
 
 n = 6
-x = qbpp.var("x", n - 1, n)  # (n-1) x n
-y = qbpp.var("y", n, n - 1)  # n x (n-1)
+x = qbpp.var("x", shape=(n - 1, n))  # (n-1) x n
+y = qbpp.var("y", shape=(n, n - 1))  # n x (n-1)
 
 # x: guard rows (dim=0), diff -> n x n (column one-hot)
 xg = qbpp.concat(1, qbpp.concat(x, 0, 0), 0)
@@ -153,13 +153,13 @@ y_oh = yg[:, :n] - yg[:, -n:]
 y_dw = qbpp.sum(qbpp.sqr(y_oh))
 
 # Match: x_oh == y_oh
-match = qbpp.sum(x_oh - y_oh == 0)
+match = qbpp.sum(qbpp.constrain(x_oh - y_oh, equal=0))
 
 f = x_dw + y_dw + match
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 2 * n})
+sol = solver.search(target_energy=2 * n)
 
 print("energy =", sol.energy)
 print("permutation:")

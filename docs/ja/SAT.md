@@ -100,11 +100,11 @@ int main() {
   auto constraint = c0 + c1 + c2 + c3 + c4 + c5;
 
   constraint.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(constraint);
+  auto solver = qbpp::EasySolver(constraint);
   auto sol = solver.search({{"target_energy", 0}});
 
   // 結果の出力
-  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "Energy = " << sol.energy << std::endl;
   std::cout << "Assignment (True=0, False=1):" << std::endl;
   for (size_t i = 0; i < 5; ++i) {
     std::cout << "  x[" << i << "] = " << sol(x[i])

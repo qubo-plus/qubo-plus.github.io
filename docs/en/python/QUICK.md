@@ -24,29 +24,35 @@ Create a PyQBPP sample program below and save as file **`test.py`**:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.sqr(a + 2 * b + 3 * c - 4)
+f = qbpp.simplify_as_binary(f)
+print("f =", f)
 
-f = x + y == 10
-g = 2 * x + 4 * y == 28
-h = f + g
-h.simplify_as_binary()
-print(f"h = {h}")
-
-solver = qbpp.ExhaustiveSolver(h)
-sol = solver.search()
-print(f"sol = {sol}")
-print(f"x = {sol(x)}, y = {sol(y)}")
+solver = qbpp.EasySolver(f)
+sol = solver.search(time_limit=10, target_energy=0)
+print("sol =", sol)
 ```
+
+This program expands and simplifies the following expression $f$ into a QUBO formula, then solves it using the EasySolver.
+
+$$
+\begin{aligned}
+f &= (a+2b+3c-4)^2
+\end{aligned}
+$$
 
 ### Run the program
-Run `test.py` as follows:
+Run `test.py` as follows to display the expanded expression and the solution:
+{% raw %}
 ```bash
 python3 test.py
-h = 884 -127*x[0] -244*x[1] -448*x[2] -351*x[3] -227*y[0] -420*y[1] -704*y[2] -579*y[3] +20*x[0]*x[1] +40*x[0]*x[2] +30*x[0]*x[3] +18*x[0]*y[0] +36*x[0]*y[1] +72*x[0]*y[2] +54*x[0]*y[3] +80*x[1]*x[2] +60*x[1]*x[3] +36*x[1]*y[0] +72*x[1]*y[1] +144*x[1]*y[2] +108*x[1]*y[3] +120*x[2]*x[3] +72*x[2]*y[0] +144*x[2]*y[1] +288*x[2]*y[2] +216*x[2]*y[3] +54*x[3]*y[0] +108*x[3]*y[1] +216*x[3]*y[2] +162*x[3]*y[3] +68*y[0]*y[1] +136*y[0]*y[2] +102*y[0]*y[3] +272*y[1]*y[2] +204*y[1]*y[3] +408*y[2]*y[3]
-sol = Sol(energy=0, x[0]=1, x[1]=1, x[2]=0, x[3]=1, y[0]=0, y[1]=0, y[2]=1, y[3]=0)
-x = 6, y = 4
+f = 16 -7*a -12*b -15*c +4*a*b +6*a*c +12*b*c
+sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 ```
+{% endraw %}
 
 ## Next steps
 1. Activate your license. See [**License Management**](../LICENSE_MANAGEMENT) for details.

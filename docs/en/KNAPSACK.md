@@ -71,12 +71,12 @@ int main() {
   auto f = -objective + 1000 * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t i = 0; i < sols.size(); ++i) {
     const auto sol = sols[i];
     std::cout << "[Solution " << i << "]" << std::endl;
-    std::cout << "Energy = " << sol.energy() << std::endl;
+    std::cout << "Energy = " << sol.energy << std::endl;
     std::cout << "Constraint  = " << sol(*constraint) << std::endl;
     std::cout << "Objective  = " << sol(objective) << std::endl;
     for (size_t j = 0; j < w.size(); ++j) {

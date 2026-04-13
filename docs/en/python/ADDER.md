@@ -43,15 +43,15 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = (a + b + i) - (2 * o + s) == 0
+fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 fa.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(fa)
-result = solver.search({"best_energy_sols": 0})
-for idx, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for idx, sol in enumerate(result.sols):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
     print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
-In this program, the constraint $fa(a,b,i,c,s)$ is implemented using the equality operator `==`, which intuitively represents the constraint $a+b+i=2o+s$.
+In this program, the constraint $fa(a,b,i,c,s)$ is implemented using `constrain(..., equal=0)`, which intuitively represents the constraint $a+b+i=2o+s$.
 The program produces the following output, confirming that the expression correctly models a full adder:
 ```
 (0) 0: a=0, b=0, i=0, o=0, s=0
@@ -67,7 +67,7 @@ The program produces the following output, confirming that the expression correc
 If some bits are fixed, the valid values of the remaining bits can be derived.
 For example, the three input bits can be fixed using the `replace()` function:
 ```python
-ml = [(a, 1), (b, 1), (i, 0)]
+ml = {a: 1, b: 1, i: 0}
 fa2 = qbpp.replace(fa, ml)
 fa2.simplify_as_binary()
 solver2 = qbpp.ExhaustiveSolver(fa2)
@@ -92,25 +92,25 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = (a + b + i) - (2 * o + s) == 0
+fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 
-x = qbpp.var("x", 4)
-y = qbpp.var("y", 4)
-c = qbpp.var("c", 5)
-z = qbpp.var("z", 4)
+x = qbpp.var("x", shape=4)
+y = qbpp.var("y", shape=4)
+c = qbpp.var("c", shape=5)
+z = qbpp.var("z", shape=4)
 
-fa0 = qbpp.replace(fa, [(a, x[0]), (b, y[0]), (i, c[0]), (o, c[1]), (s, z[0])])
-fa1 = qbpp.replace(fa, [(a, x[1]), (b, y[1]), (i, c[1]), (o, c[2]), (s, z[1])])
-fa2 = qbpp.replace(fa, [(a, x[2]), (b, y[2]), (i, c[2]), (o, c[3]), (s, z[2])])
-fa3 = qbpp.replace(fa, [(a, x[3]), (b, y[3]), (i, c[3]), (o, c[4]), (s, z[3])])
+fa0 = qbpp.replace(fa, {a: x[0], b: y[0], i: c[0], o: c[1], s: z[0]})
+fa1 = qbpp.replace(fa, {a: x[1], b: y[1], i: c[1], o: c[2], s: z[1]})
+fa2 = qbpp.replace(fa, {a: x[2], b: y[2], i: c[2], o: c[3], s: z[2]})
+fa3 = qbpp.replace(fa, {a: x[3], b: y[3], i: c[3], o: c[4], s: z[3]})
 
 adder = fa0 + fa1 + fa2 + fa3
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-result = solver.search({"best_energy_sols": 0})
-print(f"Number of valid solutions: {len(result.sols())}")
-for idx in [0, 1, len(result.sols())-2, len(result.sols())-1]:
+result = solver.search(best_energy_sols=0)
+print(f"Number of valid solutions: {len(result.sols)}")
+for idx in [0, 1, len(result.sols)-2, len(result.sols)-1]:
     sol = sols[idx]
     xv = "".join(str(sol(x[j])) for j in range(4))
     yv = "".join(str(sol(y[j])) for j in range(4))
@@ -118,7 +118,7 @@ for idx in [0, 1, len(result.sols())-2, len(result.sols())-1]:
     zv = "".join(str(sol(z[j])) for j in range(4))
     print(f"({idx}) x={xv}, y={yv}, c={cv}, z={zv}")
 ```
-In this program, four full-adder expressions are created using the `replace()` function with lists of pairs, and combined into a single expression, `adder`.
+In this program, four full-adder expressions are created using the `replace()` function with dicts, and combined into a single expression, `adder`.
 The Exhaustive Solver is then used to enumerate all optimal solutions.
 
 This program produces 512 valid solutions, corresponding to all possible input combinations of a 4-bit adder:
@@ -135,22 +135,22 @@ Alternatively, we can define a Python function `fa` to construct full-adder cons
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return (a + b + i) - (2 * o + s) == 0
+    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 
-x = qbpp.var("x", 4)
-y = qbpp.var("y", 4)
-c = qbpp.var("c", 5)
-z = qbpp.var("z", 4)
+x = qbpp.var("x", shape=4)
+y = qbpp.var("y", shape=4)
+c = qbpp.var("c", shape=5)
+z = qbpp.var("z", shape=4)
 
 adder = 0
 for j in range(4):
     adder += fa(x[j], y[j], c[j], c[j + 1], z[j])
 
-adder = qbpp.replace(adder, [(c[0], 0), (c[4], 0)])
+adder = qbpp.replace(adder, {c[0]: 0, c[4]: 0})
 adder.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(adder)
-result = solver.search({"best_energy_sols": 0})
-print(f"Number of valid solutions: {len(result.sols())}")
+result = solver.search(best_energy_sols=0)
+print(f"Number of valid solutions: {len(result.sols)}")
 ```
 This program produces 136 valid solutions (carry-in and carry-out are both fixed to 0, so only pairs with $x + y \leq 15$ are valid).

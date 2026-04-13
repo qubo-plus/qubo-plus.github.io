@@ -11,7 +11,7 @@ hreflang_lang: "ja"
 # ABS3 Solver Usage
 Solving an expression `f` using the ABS3 Solver involves the following two steps:
 1. Create an **`ABS3Solver`** object for the expression `f`.
-2. Call the **`search()`** method with a parameter dict, which returns the obtained solution.
+2. Call the **`search()`** method with keyword arguments, which returns the obtained solution.
 
 ## Solving LABS problem using the ABS3 Solver
 The following program solves the **Low Autocorrelation Binary Sequence (LABS)** problem using the ABS3 Solver:
@@ -30,12 +30,12 @@ f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
 print(f"{sol.energy}: {bits}")
 ```
 In this program, an `ABS3Solver` object is created for the expression `f`.
-The `callback()` sets a function that prints the energy and TTS of newly found best solutions, and search parameters such as `time_limit` are passed as a dict to `search()`.
+The `callback()` sets a function that prints the energy and TTS of newly found best solutions, and search parameters such as `time_limit` are passed as keyword arguments to `search()`.
 
 This program produces output similar to the following:
 {% raw %}
@@ -59,7 +59,7 @@ An optional second argument `gpu` controls GPU usage:
 - **`ABS3Solver(f, n)`**: Uses `n` GPUs.
 
 ## Search Parameters
-The **`search(params)`** method runs the search. The `params` dict can contain the following keys:
+The **`search()`** method runs the search. The following keyword arguments can be specified:
 
 | Key | Type | Description |
 |----|----|----|
@@ -75,12 +75,12 @@ The **`search(params)`** method runs the search. The `params` dict can contain t
 
 ## Multiple Solutions
 When **`topk_sols`** or **`best_energy_sols`** is set, the solver collects multiple solutions.
-These can be retrieved by calling **`sol.sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
+These can be retrieved by calling **`sol.sols`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
 
 ```python
 solver = qbpp.ABS3Solver(f)
-sol = solver.search({"topk_sols": 5})
-for s in sol.sols():
+sol = solver.search(topk_sols=5)
+for s in sol.sols:
     print(f"energy = {s.energy}")
 ```
 
@@ -101,7 +101,7 @@ The `event` argument is one of:
 ```python
 solver = qbpp.ABS3Solver(f)
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 ```
 
 ### Advanced callback with subclass
@@ -123,7 +123,7 @@ class MyCallback(qbpp.ABS3Solver):
             print(f"TTS = {sol.tts:.3f}s Energy = {sol.energy}")
 
 solver = MyCallback(f)
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 ```
 
 ## Properties
@@ -133,6 +133,6 @@ sol = solver.search({"time_limit": 10.0})
 To use the ABS3 Solver without a GPU, pass `0` as the second argument:
 ```python
 solver = qbpp.ABS3Solver(f, 0)
-sol = solver.search({"time_limit": 5.0, "target_energy": 0})
+sol = solver.search(time_limit=5.0, target_energy=0)
 print(sol)
 ```

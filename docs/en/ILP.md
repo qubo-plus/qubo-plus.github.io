@@ -37,7 +37,7 @@ int main() {
 
   auto f = -objective + 100 * (c1 + c2 + c3);
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "x0 = " << sol(x[0]) << ", x1 = " << sol(x[1])
             << ", x2 = " << sol(x[2]) << std::endl;

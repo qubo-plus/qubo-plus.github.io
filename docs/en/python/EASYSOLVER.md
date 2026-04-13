@@ -13,7 +13,7 @@ The **Easy Solver** is a heuristic solver for QUBO/HUBO expressions.
 
 Solving a problem with the Easy Solver consists of the following two steps:
 1. Create an **`EasySolver`** object.
-2. Call the **`search()`** method with a parameter dict, which returns a **`Sol`** object.
+2. Call the **`search()`** method with keyword arguments, which returns a **`Sol`** object.
 
 ## Creating Easy Solver object
 To use the Easy Solver, an `EasySolver` object is constructed with an expression as follows:
@@ -23,29 +23,29 @@ Here, `f` is the expression to be solved.
 It must be simplified as a binary expression in advance by calling `simplify_as_binary()`.
 
 ## Search Parameters
-Parameters are passed as a dict to the **`search()`** method.
+Parameters are passed as keyword arguments to the **`search()`** method.
 
 | Parameter | Description | Default |
 |---|---|---|
-| `"time_limit"` | Time limit in seconds (float). Set to 0 for no time limit. | 10.0 |
-| `"target_energy"` | Target energy (int). The solver terminates when a solution with energy ≤ this value is found. | (none) |
-| `"topk_sols"` | Number of top-k solutions to keep (int). | (disabled) |
-| `"best_energy_sols"` | Keep solutions with the best energy (int). `0` for unlimited. | (disabled) |
-| `"enable_default_callback"` | Print newly obtained best solutions (int, `1` to enable). | (disabled) |
+| `time_limit` | Time limit in seconds (float). Set to 0 for no time limit. | 10.0 |
+| `target_energy` | Target energy (int). The solver terminates when a solution with energy ≤ this value is found. | (none) |
+| `topk_sols` | Number of top-k solutions to keep (int). | (disabled) |
+| `best_energy_sols` | Keep solutions with the best energy (int). `0` for unlimited. | (disabled) |
+| `enable_default_callback` | Print newly obtained best solutions (int, `1` to enable). | (disabled) |
 
 Unknown parameter keys will cause a runtime error.
 
 ## Searching Solutions
-The Easy Solver searches for solutions by calling **`search(params)`**, where `params` is a dict of search parameters. It returns a **`Sol`** object.
+The Easy Solver searches for solutions by calling **`search()`** with keyword arguments. It returns a **`Sol`** object.
 
 ### Multiple Solutions
-When `"topk_sols"` is set in the parameter dict, the solver collects up to `n` solutions with the best energies encountered during the search.
-These can be retrieved by calling **`sol.sols()`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
+When `topk_sols` is specified, the solver collects up to `n` solutions with the best energies encountered during the search.
+These can be retrieved by calling **`sol.sols`** on the returned `Sol`, which returns a list of `Sol` objects sorted in increasing order of energy.
 
 ```python
 solver = qbpp.EasySolver(f)
-sol = solver.search({"topk_sols": 5})
-for s in sol.sols():
+sol = solver.search(topk_sols=5)
+for s in sol.sols:
     print(f"energy = {s.energy}")
 ```
 
@@ -66,7 +66,7 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 5.0, "target_energy": 900, "enable_default_callback": 1})
+sol = solver.search(time_limit=5.0, target_energy=900, enable_default_callback=1)
 bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
 print(f"{sol.energy}: {bits}")
 ```

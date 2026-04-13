@@ -86,7 +86,7 @@ f = objective + (N + 1) * constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")
@@ -124,16 +124,16 @@ for i in range(N):
     t = x[i]
     for j in adj[i]:
         t += x[j]
-    constraint += qbpp.between(t, 1, len(adj[i]) + 1)
+    constraint += qbpp.constrain(t, between=(1, len(adj[i]) + 1))
 ```
-In this code, `t` stores the expression $\sum_{j\in N[i]}x_j$ and the `between()` function creates a penalty expression for $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$, which takes the minimum value 0 if and only if the inequality is satisfied.
+In this code, `t` stores the expression $\sum_{j\in N[i]}x_j$ and the `constrain()` function creates a penalty expression for $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$, which takes the minimum value 0 if and only if the inequality is satisfied.
 
 ### Comparison with C++ QUBO++
 
 | C++ QUBO++                  | PyQBPP                                |
 |-----------------------------|----------------------------------------|
 | `~x[i]`                    | `~x[i]`                               |
-| `1 <= t <= +qbpp::inf`     | `between(t, 1, upper_bound)`          |
+| `1 <= t <= +qbpp::inf`     | `constrain(t, between=(1, upper_bound))`          |
 
 ## Visualization using matplotlib
 The following code visualizes the Dominating Set solution:

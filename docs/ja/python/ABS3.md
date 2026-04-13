@@ -11,7 +11,7 @@ hreflang_lang: "en"
 # ABS3 Solverの使い方
 ABS3 Solverを使用して式 `f` を解くには、以下の2つのステップで行います:
 1. 式 `f` に対して **`ABS3Solver`** オブジェクトを作成する。
-2. パラメータのdictを指定して **`search()`** メソッドを呼び出し、得られた解を取得する。
+2. キーワード引数を指定して **`search()`** メソッドを呼び出し、得られた解を取得する。
 
 ## ABS3 Solverを使用したLABS問題の求解
 以下のプログラムは、ABS3 Solverを使用して **Low Autocorrelation Binary Sequence (LABS)** 問題を解きます:
@@ -30,12 +30,12 @@ f.simplify_as_binary()
 
 solver = qbpp.ABS3Solver(f)
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
 print(f"{sol.energy}: {bits}")
 ```
 このプログラムでは、式 `f` に対して `ABS3Solver` オブジェクトを作成しています。
-`callback()` で新しい最良解が見つかったときにエネルギーとTTSを表示する関数を設定し、`time_limit` などの探索パラメータは `search()` にdictとして渡しています。
+`callback()` で新しい最良解が見つかったときにエネルギーとTTSを表示する関数を設定し、`time_limit` などの探索パラメータは `search()` にキーワード引数として渡しています。
 
 このプログラムは以下のような出力を生成します:
 {% raw %}
@@ -59,7 +59,7 @@ TTS = 4.364s Energy = 834
 - **`ABS3Solver(f, n)`**: `n` 個のGPUを使用します。
 
 ## 探索パラメータ
-**`search(params)`** メソッドで探索を実行します。`params` dict には以下のキーを指定できます:
+**`search()`** メソッドで探索を実行します。以下のキーワード引数を指定できます:
 
 | キー | 型 | 説明 |
 |----|----|----|
@@ -75,12 +75,12 @@ TTS = 4.364s Energy = 834
 
 ## 複数解の取得
 **`topk_sols`** または **`best_energy_sols`** を設定すると、複数の解が収集されます。
-返された `Sol` に対して **`sol.sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
+返された `Sol` に対して **`sol.sols`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
 
 ```python
 solver = qbpp.ABS3Solver(f)
-sol = solver.search({"topk_sols": 5})
-for s in sol.sols():
+sol = solver.search(topk_sols=5)
+for s in sol.sols:
     print(f"energy = {s.energy}")
 ```
 
@@ -101,7 +101,7 @@ for s in sol.sols():
 ```python
 solver = qbpp.ABS3Solver(f)
 solver.callback(lambda energy, tts, event: print(f"TTS = {tts:.3f}s Energy = {energy}"))
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 ```
 
 ### サブクラスによる高度なコールバック
@@ -123,7 +123,7 @@ class MyCallback(qbpp.ABS3Solver):
             print(f"TTS = {sol.tts:.3f}s Energy = {sol.energy}")
 
 solver = MyCallback(f)
-sol = solver.search({"time_limit": 10.0})
+sol = solver.search(time_limit=10.0)
 ```
 
 ## プロパティ
@@ -133,6 +133,6 @@ sol = solver.search({"time_limit": 10.0})
 GPUなしでABS3 Solverを使用するには、第2引数に `0` を渡します:
 ```python
 solver = qbpp.ABS3Solver(f, 0)
-sol = solver.search({"time_limit": 5.0, "target_energy": 0})
+sol = solver.search(time_limit=5.0, target_energy=0)
 print(sol)
 ```

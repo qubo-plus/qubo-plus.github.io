@@ -11,16 +11,16 @@ hreflang_lang: "ja"
 # Multi-dimensional Variables and Expressions
 
 ## Defining multi-dimensional variables
-PyQBPP supports **multi-dimensional variables** and **multi-dimensional integer variables** of arbitrary depth using the functions `var()` and `var_int()`, respectively.
+PyQBPP supports **multi-dimensional variables** and **multi-dimensional integer variables** of arbitrary depth using the `var()` function.
 Their basic usage is as follows:
-- `var("name", s1, s2, ..., sd)`: Creates an array of `Var` objects with the given `name` and shape $s_1\times s_2\times \cdots\times s_d$.
-- `between(var_int("name", s1, s2, ..., sd), l, u)`: Creates an array of `VarInt` objects with the specified range and shape.
+- `var("name", shape=(s1, s2, ..., sd))`: Creates an array of `Var` objects with the given `name` and shape $s_1\times s_2\times \cdots\times s_d$.
+- `var("name", shape=(s1, s2, ..., sd), between=(l, u))`: Creates an array of `VarInt` objects with the specified range and shape.
 
 The following program creates a binary variable with dimension $2\times 3\times 4$:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 2, 3, 4)
+x = qbpp.var("x", shape=(2, 3, 4))
 print("x =", x)
 ```
 {% raw %}
@@ -29,48 +29,48 @@ Each `Var` object in **`x`** can be accessed as **`x[i][j][k]`**.
 
 ## Creating integer variable arrays with individual ranges
 
-When defining a multi-dimensional array of integer variables, all elements created by `qbpp.between(qbpp.var_int("name", s1, s2, ...), l, u)` share the same range $[l, u]$.
+When defining a multi-dimensional array of integer variables, all elements created by `qbpp.var("name", shape=(s1, s2, ...), between=(l, u))` share the same range $[l, u]$.
 In many practical problems, however, each element may need a different range.
 There are three approaches to achieve this.
 
 ### Approach 1: Placeholder array
 
-First create a **placeholder array** using **`qbpp.var_int("name", s1, s2, ...) == 0`**, then assign individual ranges to each element using `qbpp.between()`:
+First create a **placeholder array** using **`qbpp.var("name", shape=..., equal=val)`**, then assign individual ranges to each element using `qbpp.constrain()`:
 
 ```python
 import pyqbpp as qbpp
 
 max_vals = [3, 7, 15, 5]
-x = qbpp.var_int("x", len(max_vals)) == 0
+x = qbpp.var("x", shape=len(max_vals), equal=0)
 for i in range(len(max_vals)):
-    x[i] = qbpp.between(x[i], 0, max_vals[i])
+    x[i] = qbpp.constrain(x[i], between=(0, max_vals[i]))
 for i in range(len(max_vals)):
     print(f"x[{i}] = {x[i]}")
 ```
-Here, `qbpp.var_int("x", 4) == 0` creates an array of 4 constant-zero `VarInt` placeholders.
-Each element is then reassigned with its own range using `qbpp.between(x[i], 0, max_vals[i])`.
-The `qbpp.between()` function automatically inherits the name from the placeholder, so no explicit name is needed.
+Here, `qbpp.var("x", shape=4, equal=0)` creates a mutable array of 4 `VarInt` placeholders, each initialized with the constant value 0.
+Each element is then reassigned with its own range using `qbpp.constrain(x[i], between=(0, max_vals[i]))`.
+The `qbpp.constrain()` function automatically inherits the name from the placeholder, so no explicit name is needed.
 
 > **NOTE**
-> The `== 0` syntax creates a `VarInt` with `min_val = max_val = 0` (i.e., a constant zero placeholder).
+> The `equal=` value can be any integer (not just 0). It allocates a mutable array in memory where each element can be individually reassigned.
 > It does **not** create an equality constraint.
 
-### Approach 2: Passing lists to `between()`
+### Approach 2: Passing lists to `between=`
 
-You can pass Python lists as the `min_val` and `max_val` arguments to `qbpp.between()`.
+You can pass Python lists as the `between` bounds.
 Each element of the array will be assigned the corresponding range from the lists:
 
 ```python
 import pyqbpp as qbpp
 
 max_vals = [3, 7, 15, 5]
-x = qbpp.between(qbpp.var_int("x", len(max_vals)), 0, max_vals)
+x = qbpp.var("x", shape=len(max_vals), between=(0, max_vals))
 for i in range(len(max_vals)):
     print(f"x[{i}] = {x[i]}")
 ```
 
-This is the most concise approach. The `var_int("x", n)` creates a named array builder, and
-`between()` assigns individual ranges from the lists element by element.
+This is the most concise approach. The `shape=` specifies the array dimensions, and
+`between=` assigns individual ranges from the lists element by element.
 This is analogous to the C++ syntax `lower <= qbpp::var_int("x", n) <= upper`.
 
 ### Approach 3: List comprehension with `Array`
@@ -81,7 +81,7 @@ You can also use a Python list comprehension wrapped with `qbpp.Array()`:
 import pyqbpp as qbpp
 
 max_vals = [3, 7, 15, 5]
-x = qbpp.Array([qbpp.between(qbpp.var_int(f"x[{i}]"), 0, max_vals[i])
+x = qbpp.Array([qbpp.var(f"x[{i}]", between=(0, max_vals[i]))
                   for i in range(len(max_vals))])
 ```
 
@@ -91,7 +91,7 @@ and the result must be wrapped with `qbpp.Array()` to enable element-wise operat
 
 ## Defining multi-dimensional expressions
 PyQBPP allows you to define **multi-dimensional expressions** with arbitrary depth using the function `expr()`:
-- **`expr(s1, s2, ..., sd)`**: Creates a multi-dimensional array of `Expr` objects with shape $s_1\times s_2\times \cdots\times s_d$.
+- **`expr(shape=(s1, s2, ..., sd))`**: Creates a multi-dimensional array of `Expr` objects with shape $s_1\times s_2\times \cdots\times s_d$.
 
 The following program defines a 3-dimensional array **`x`** of `Var` objects with shape $2\times 3\times 4$ and
 a 2-dimensional array `f` of size $2\times 3$.
@@ -99,8 +99,8 @@ Then, using nested loops, each `f[i][j]` accumulates the sum of `x[i][j][0]` thr
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 2, 3, 4)
-f = qbpp.expr(2, 3)
+x = qbpp.var("x", shape=(2, 3, 4))
+f = qbpp.expr(shape=(2, 3))
 for i in range(2):
     for j in range(3):
         for k in range(4):
@@ -128,7 +128,7 @@ When an arithmetic operation yields an array-shaped result, an array of `Expr` o
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 2, 3)
+x = qbpp.var("x", shape=(2, 3))
 f = x + 1
 f += x - 2
 f.simplify_as_binary()
@@ -151,7 +151,7 @@ Since PyQBPP arrays support Python iteration, nested for loops can be used:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 2, 3)
+x = qbpp.var("x", shape=(2, 3))
 f = x + 1
 f += x - 2
 f.simplify_as_binary()
@@ -188,7 +188,7 @@ For example:
 
 ```python
 w = [64, 27, 47, 74, 12, 83, 63, 40]
-x = qbpp.var("x", len(w))
+x = qbpp.var("x", shape=len(w))
 f = w * x       # list * Array → element-wise multiplication
 ```
 

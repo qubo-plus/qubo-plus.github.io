@@ -76,7 +76,7 @@ int main() {
   auto f = onehot + different;
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "onehot = " << sol(onehot) << std::endl;

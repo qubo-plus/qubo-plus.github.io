@@ -71,25 +71,25 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3, 3, 9)
+x = qbpp.var("x", shape=(3, 3, 9))
 
-c1 = qbpp.sum(qbpp.vector_sum(x) == 1)
+c1 = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
-temp = qbpp.expr(9)
+temp = qbpp.expr(shape=9)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             temp[k] += x[i][j][k]
-c2 = qbpp.sum(temp == 1)
+c2 = qbpp.sum(qbpp.constrain(temp, equal=1))
 
-row = qbpp.expr(3)
-column = qbpp.expr(3)
+row = qbpp.expr(shape=3)
+column = qbpp.expr(shape=3)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             row[i] += (k + 1) * x[i][j][k]
             column[j] += (k + 1) * x[i][j][k]
-c3 = qbpp.sum(row == 15) + qbpp.sum(column == 15)
+c3 = qbpp.sum(qbpp.constrain(row, equal=15)) + qbpp.sum(qbpp.constrain(column, equal=15))
 
 diag = 0
 for k in range(9):
@@ -97,13 +97,13 @@ for k in range(9):
 anti_diag = 0
 for k in range(9):
     anti_diag += (k + 1) * (x[0][2][k] + x[1][1][k] + x[2][0][k])
-c4 = (diag == 15) + (anti_diag == 15)
+c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
 
 f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 for i in range(3):
     for j in range(3):
         val = next(k for k in range(9) if sol(x[i][j][k]) == 1)
@@ -114,7 +114,7 @@ for i in range(3):
 次に、4つの制約式 `c1`、`c2`、`c3`、`c4` を構築し、それらを `f` にまとめます。
 式 `f` はすべての制約が満たされたとき最小エネルギー0を達成します。
 
-`f` に対するEasy Solverオブジェクト `solver` を作成し、`search()` に `{"target_energy": 0}` を渡します。これにより、実行可能（最適）解が見つかり次第、探索が終了します。
+`f` に対するEasy Solverオブジェクト `solver` を作成し、`search()` に `target_energy=0` を渡します。これにより、実行可能（最適）解が見つかり次第、探索が終了します。
 得られたone-hotエンコーディングは、`sol(x[i][j][k]) == 1` となるインデックス `k` を見つけることでデコードされます。
 
 このプログラムの出力は以下の通りです：
@@ -151,25 +151,25 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3, 3, 9)
+x = qbpp.var("x", shape=(3, 3, 9))
 
-c1 = qbpp.sum(qbpp.vector_sum(x) == 1)
+c1 = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
-temp = qbpp.expr(9)
+temp = qbpp.expr(shape=9)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             temp[k] += x[i][j][k]
-c2 = qbpp.sum(temp == 1)
+c2 = qbpp.sum(qbpp.constrain(temp, equal=1))
 
-row = qbpp.expr(3)
-column = qbpp.expr(3)
+row = qbpp.expr(shape=3)
+column = qbpp.expr(shape=3)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             row[i] += (k + 1) * x[i][j][k]
             column[j] += (k + 1) * x[i][j][k]
-c3 = qbpp.sum(row == 15) + qbpp.sum(column == 15)
+c3 = qbpp.sum(qbpp.constrain(row, equal=15)) + qbpp.sum(qbpp.constrain(column, equal=15))
 
 diag = 0
 for k in range(9):
@@ -177,19 +177,19 @@ for k in range(9):
 anti_diag = 0
 for k in range(9):
     anti_diag += (k + 1) * (x[0][2][k] + x[1][1][k] + x[2][0][k])
-c4 = (diag == 15) + (anti_diag == 15)
+c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
 
 f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
 
-ml = [(x[0][0][k], 1 if k == 1 else 0) for k in range(9)]
-ml += [(x[i][j][1], 0) for i in range(3) for j in range(3) if not (i == 0 and j == 0)]
+ml = {x[0][0][k]: (1 if k == 1 else 0) for k in range(9)}
+ml.update({x[i][j][1]: 0 for i in range(3) for j in range(3) if not (i == 0 and j == 0)})
 
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 full_sol = qbpp.Sol(f).set([sol, ml])
 
 for i in range(3):
@@ -199,7 +199,7 @@ for i in range(3):
     print()
 ```
 
-このコードでは、固定された割り当てを含むペアのリスト `ml` を作成します。
+このコードでは、固定された割り当てを含む辞書 `ml` を作成します。
 次に、元の式 `f` に対する解オブジェクト `full_sol` を作成します。
 `replace(f, ml)` を呼び出すと、固定された値が `f` に代入され、`ml` に含まれる変数は `g` から消えます。
 その結果、ソルバーが返す解 `sol` にはそれらの固定された変数が含まれません。

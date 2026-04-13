@@ -52,6 +52,7 @@ usage patterns, and, where appropriate, internal implementations.
 14. [Exhaustive Solver Usage](EXHAUSTIVE)
 15. [ABS3 Solver Usage](ABS3)
 16. [Search Parameters](PARAMS)
+17. [Performance Tips](TIPS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.

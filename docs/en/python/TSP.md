@@ -58,7 +58,7 @@ def dist(i, j):
 n = len(nodes)
 x = qbpp.var("x", n, n)
 
-constraint = qbpp.sum(qbpp.vector_sum(x, 1) == 1) + qbpp.sum(qbpp.vector_sum(x, 0) == 1)
+constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
 
 objective = qbpp.expr()
 for i in range(n):
@@ -72,7 +72,7 @@ f = objective + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 # Extract tour from permutation matrix
 tour = []
@@ -98,15 +98,15 @@ By fixing the start node, we can reduce the number of binary variables in the QU
 ```python
 import pyqbpp as qbpp
 
-ml = [(x[0][0], 1)]
-ml += [(x[i][0], 0) for i in range(1, n)]
-ml += [(x[0][i], 0) for i in range(1, n)]
+ml = {x[0][0]: 1}
+ml.update({x[i][0]: 0 for i in range(1, n)})
+ml.update({x[0][i]: 0 for i in range(1, n)})
 
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -119,7 +119,7 @@ for i in range(n):
             break
 print(f"Tour: {tour}")
 ```
-First, we create a list of pairs `ml`, which stores fixed assignments of variables.
+First, we create a dict `ml`, which stores fixed assignments of variables.
 Next, we call `replace(f, ml)`, which returns a new expression obtained by substituting the fixed values.
 Since `sol` corresponds to the reduced problem, we create a `Sol` object for `f` and set both the solver output `sol` and the fixed assignments `ml`.
 
@@ -133,8 +133,8 @@ Tour: [0, 3, 6, 7, 8, 5, 2, 1, 4]
 | C++ QUBO++                        | PyQBPP                            |
 |------------------------------------|------------------------------------|
 | `qbpp::onehot_to_int(sol(x))`    | Manual loop over `sol(x[i][j])` |
-| `qbpp::MapList ml;`              | `ml = [(x[0][0], 1)]`             |
-| `ml.push_back({x[0][0], 1})`    | `ml.append((x[0][0], 1))`         |
+| `qbpp::MapList ml;`              | `ml = {x[0][0]: 1}`               |
+| `ml.push_back({x[0][0], 1})`    | `ml[x[0][0]] = 1`                 |
 | `qbpp::replace(f, ml)`          | `replace(f, ml)`                   |
 | `qbpp::Sol(f).set(sol).set(ml)` | `Sol(f).set([sol, ml])`                       |
 

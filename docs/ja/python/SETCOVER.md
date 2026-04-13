@@ -123,7 +123,7 @@ for i in range(m):
 
 constraint = 0
 for j in range(n):
-    constraint += qbpp.between(c[j], 1, m)
+    constraint += qbpp.constrain(c[j], between=(1, m))
 ```
 
 ### C++ QUBO++との比較

@@ -61,7 +61,7 @@ m = max_degree
 s = len(edges)
 x = qbpp.var("x", s, m)
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 different = 0
 for i in range(n):
     for u in adj[i]:
@@ -73,7 +73,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print(f"colors = {m}")
 print(f"onehot = {sol(onehot)}")

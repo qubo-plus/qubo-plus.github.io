@@ -19,14 +19,14 @@ The table below summarizes the operators and functions available for `pyqbpp.Exp
 | Compound Division             | `f /= n`                                              | In-place        | `Expr`            | `int`                    |
 | Unary Operators               | `+f`, `-f`                                            | Global          | `Expr`            | `ExprType`               |
 | Comparison (Equality)         | `f == n`                                              | Global          | `ExprExpr`        | `ExprType`-`int`         |
-| Comparison (Range)            | `qbpp.between(f, l, u)`                                    | Global          | `ExprExpr`        | `ExprType`-`int`-`int`   |
+| Comparison (Range)            | `qbpp.constrain(f, between=(l, u))`                             | Global          | `ExprExpr`        | `ExprType`-`int`-`int`   |
 | Square                        | `qbpp.sqr(f)`                                              | Global          | `Expr`            | `ExprType`               |
 | GCD                           | `qbpp.gcd(f)`                                              | Global          | `int`             | `ExprType`               |
 | Simplify                      | `qbpp.simplify_as_binary(f)`, etc.                         | Global          | `Expr`            | `ExprType`               |
 | Simplify                      | `f.simplify_as_binary()`, etc.                        | In-place        | `Expr`            | —                        |
-| Eval                          | `f(ml)`                                               | Global          | `int`             | `Expr`-`list`            |
-| Replace                       | `qbpp.replace(f, ml)`                                      | Global          | `Expr`            | `ExprType`-`list`        |
-| Replace                       | `f.replace(ml)`                                       | In-place        | `Expr`            | `list`                   |
+| Eval                          | `f(ml)`                                               | Global          | `int`             | `Expr`-`dict`            |
+| Replace                       | `qbpp.replace(f, ml)`                                      | Global          | `Expr`            | `ExprType`-`dict`        |
+| Replace                       | `f.replace(ml)`                                       | In-place        | `Expr`            | `dict`                   |
 | Binary/Spin Conversion        | `qbpp.spin_to_binary(f)`, `qbpp.binary_to_spin(f)`              | Global          | `Expr`            | `ExprType`               |
 | Binary/Spin Conversion        | `f.spin_to_binary()`, `f.binary_to_spin()`            | In-place        | `Expr`            | —                        |
 | Slice                         | `v[from:to]`, `v[:, from:to]`                         | Global          | `Array`          | `Array`                 |
@@ -110,11 +110,11 @@ The `body` property returns the associated underlying `pyqbpp.Expr` object.
 In C++ QUBO++, `*g` (dereference operator) is used to access the underlying expression.
 In PyQBPP, `g.body` property is used instead.
 
-## Comparison (Range): `between()`
+## Comparison (Range): `constrain()`
 In C++ QUBO++, the range comparison is written as `l <= f <= u`.
-In PyQBPP, the `between()` function is used instead:
+In PyQBPP, the `constrain()` function is used instead:
 ```python
-g = qbpp.between(f, l, u)
+g = qbpp.constrain(f, between=(l, u))
 ```
 where:
 - `f` is a non-integer `ExprType`, and
@@ -135,7 +135,7 @@ For the returned `pyqbpp.ExprExpr` object `g`:
 
 | C++ QUBO++       | PyQBPP            |
 |------------------|---------------------|
-| `l <= f <= u`    | `qbpp.between(f, l, u)`  |
+| `l <= f <= u`    | `qbpp.constrain(f, between=(l, u))`  |
 | `*g`             | `g.body`            |
 
 ## Square function: `sqr()`
@@ -208,9 +208,9 @@ g.simplify_as_spin()    # 1 + x (since x^2 = 1)
 ```
 
 ## Evaluation function: `f(ml)`
-The evaluation function takes a list of `(variable, value)` pairs, where each pair defines a mapping from a variable to an integer value.
+The evaluation function takes a dict mapping variables to integer values.
 
-For a `pyqbpp.Expr` object `f` and a list of pairs `ml`, the evaluation function `f(ml)` evaluates the value of `f` under the variable assignments specified by `ml` and returns the resulting integer value.
+For a `pyqbpp.Expr` object `f` and a dict `ml`, the evaluation function `f(ml)` evaluates the value of `f` under the variable assignments specified by `ml` and returns the resulting integer value.
 
 All variables appearing in `f` must have corresponding mappings defined in `ml`.
 
@@ -222,24 +222,24 @@ x = qbpp.var("x")
 y = qbpp.var("y")
 f = 3 * x + 2 * y + 1
 
-print(f([(x, 1), (y, 0)]))  # 4  (= 3*1 + 2*0 + 1)
+print(f({x: 1, y: 0}))  # 4  (= 3*1 + 2*0 + 1)
 ```
 
 ## Replace functions: `replace()`
-The `replace()` function accepts a list of `(variable, expression)` pairs, where the expression can also be an integer value.
+The `replace()` function accepts a dict mapping variables to expressions, where the expression can also be an integer value.
 
-For a `pyqbpp.Expr` object `f` and a list of pairs `ml`:
+For a `pyqbpp.Expr` object `f` and a dict `ml`:
 - **`pyqbpp.replace(f, ml)`** (global function):
 Returns a new `pyqbpp.Expr` object obtained by replacing variables in `f` according to the mappings in `ml`, without modifying `f`.
 - **`f.replace(ml)`** (member function):
 Replaces variables in `f` according to the mappings in `ml` in place and returns the resulting `pyqbpp.Expr` object.
 
-### Creating a list of pairs
+### Creating a dict
 ```python
 import pyqbpp as qbpp
 
-ml = [(x, 0), (y, 1)]                    # List of (variable, expression) pairs
-ml = [(x, 0), (y, qbpp.Expr(z))]         # Expressions can also be integer values
+ml = {x: 0, y: 1}                    # Dict mapping variables to expressions
+ml = {x: 0, y: qbpp.Expr(z)}         # Expressions can also be integer values
 ```
 
 ### Example
@@ -250,7 +250,7 @@ x = qbpp.var("x")
 y = qbpp.var("y")
 f = 2 * x + 3 * y + 1
 
-ml = [(x, 1), (y, 0)]
+ml = {x: 1, y: 0}
 g = qbpp.replace(f, ml)   # g = 2*1 + 3*0 + 1 = 3 (new Expr)
 f.replace(ml)         # f is modified in place
 ```
@@ -259,8 +259,8 @@ f.replace(ml)         # f is modified in place
 
 | C++ QUBO++                    | PyQBPP                          |
 |-------------------------------|-----------------------------------|
-| `qbpp::MapList ml;`           | `ml = []`                         |
-| `ml.push_back({x, 0});`      | `ml.append((x, 0))`              |
+| `qbpp::MapList ml;`           | `ml = {}`                         |
+| `ml.push_back({x, 0});`      | `ml[x] = 0`                      |
 | `qbpp::replace(f, ml)`       | `qbpp.replace(f, ml)`                  |
 | `f.replace(ml)`              | `f.replace(ml)`                   |
 
@@ -329,7 +329,7 @@ For multi-dimensional arrays, use tuple indexing to slice along inner dimensions
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3, 5)
+x = qbpp.var("x", shape=(3, 5))
 print(x[:, :3])     # first 3 columns of each row
 print(x[1:3, 2:4])  # rows 1-2, columns 2-3
 ```
@@ -348,11 +348,11 @@ The `concat()` function joins arrays or prepends/appends scalars.
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 y = qbpp.concat(1, qbpp.concat(x, 0))
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
-z = qbpp.var("z", 3, 4)
+z = qbpp.var("z", shape=(3, 4))
 zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
 # each row: [1, z[i][0], ..., z[i][3], 0]
 ```
@@ -409,11 +409,11 @@ The following member functions of `pyqbpp.Expr` provide read-only access to the 
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `f.constant()` | `int` | Return the constant term |
+| `f.constant` | `int` | Return the constant term |
 | `f.term_count()` | `int` | Return the number of terms (excluding the constant) |
 | `f.term_count(d)` | `int` | Return the number of terms of degree `d` |
 | `f.term(i)` | `Term` | Return a copy of the `i`-th term |
-| `f.max_degree()` | `int` | Return the maximum degree of all terms |
+| `f.max_degree` | `int` | Return the maximum degree of all terms |
 | `f.has(v)` | `bool` | Return `True` if `Var` `v` appears in the expression |
 
 ### Example
@@ -425,14 +425,14 @@ y = qbpp.var("y")
 f = qbpp.simplify(3 * x + 2 * x * y + 5)
 # f = 5 + 3*x + 2*x*y
 
-f.constant()          # 5
+f.constant          # 5
 f.term_count()        # 2
 f.term(0)             # 3*x
 f.term(1)             # 2*x*y
 f.term(1).coeff()     # 2
 f.term(1).var(0)      # x
 f.term(1).var(1)      # y
-f.max_degree()        # 2
+f.max_degree        # 2
 f.has(x)              # True
 f.has(y)              # True
 ```

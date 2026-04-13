@@ -60,14 +60,14 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `sol.energy()` | `energy_t` | Return the stored energy value |
+| `sol.energy` | `energy_t` | Return the stored energy value |
 | `sol.comp_energy()` | `energy_t` | Recompute energy from current variable values and store it |
-| `sol.tts()` | `double` | Time-to-solution (seconds) |
+| `sol.tts` | `double` | Time-to-solution (seconds) |
 
-`sol.energy()` returns the energy value that was stored when the solver found the solution.
+`sol.energy` returns the energy value that was stored when the solver found the solution.
 It does **not** recompute the energy.
 After calling `sol.set()` to modify variable values, the stored energy becomes **invalid**.
-Calling `sol.energy()` in this state throws an error.
+Calling `sol.energy` in this state throws an error.
 Call `sol.comp_energy()` to recompute and update the energy before accessing it.
 
 ## Extracting Integers from Solutions
@@ -95,7 +95,7 @@ and provide additional information via **`info()`**.
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | Key-value pairs of solver information |
 | `sol.sols()` | `const std::vector<Sol>&` | All collected solutions |
-| `sol.size()` | `size_t` | Number of collected solutions |
+| `sol.size` | `size_t` | Number of collected solutions |
 | `sol[i]` | `const Sol&` | Access the $i$-th solution |
 
 The `info()` object contains solver metadata as string key-value pairs.

@@ -36,17 +36,17 @@ s = str(obj)
 - **`pyqbpp.var("name")`**:
   指定された名前 `"name"` を持つ `pyqbpp.Var` オブジェクトを作成します。
 
-- **`pyqbpp.var("name", s1)`**:
+- **`pyqbpp.var("name", shape=s1)`**:
   基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの1次元配列を作成します。
   各要素は `name[i]` として表されます。
   結果の型は `pyqbpp.Array` です。
 
-- **`pyqbpp.var("name", s1, s2)`**:
+- **`pyqbpp.var("name", shape=(s1, s2))`**:
   基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの2次元配列（行列）を作成します。
   各要素は `name[i][j]` として表されます。
   結果の型はネストされた `pyqbpp.Array` です。
 
-- **`pyqbpp.var("name", s1, s2, ...)`**:
+- **`pyqbpp.var("name", shape=(s1, s2, ...))`**:
   基本名 `"name"` を持つ `pyqbpp.Var` オブジェクトの高次元配列を作成します。
   各要素は `name[i][j]...` として表されます。
   結果の型はネストされた `pyqbpp.Array` です。
@@ -59,10 +59,10 @@ s = str(obj)
 import pyqbpp as qbpp
 
 x = qbpp.var("x")          # Single variable named "x"
-y = qbpp.var("y", 3)       # Array: y[0], y[1], y[2]
-z = qbpp.var("z", 2, 3)    # 2x3 matrix: z[0][0], ..., z[1][2]
+y = qbpp.var("y", shape=3)       # Array: y[0], y[1], y[2]
+z = qbpp.var("z", shape=(2, 3))    # 2x3 matrix: z[0][0], ..., z[1][2]
 a = qbpp.var()             # Single unnamed variable
-b = qbpp.var(5)            # Array of 5 unnamed variables
+b = qbpp.var(shape=5)            # Array of 5 unnamed variables
 ```
 
 ## `pyqbpp.Var` のプロパティとメソッド
@@ -78,17 +78,13 @@ b = qbpp.var(5)            # Array of 5 unnamed variables
 ### 整数変数作成関数
 整数変数を作成するために以下の関数が提供されています。
 
-- **`pyqbpp.var_int("name")`**:
-  内部的に使用されるヘルパーオブジェクト（`pyqbpp.VarIntCore`）を返し、それ自体では `pyqbpp.VarInt` を作成しません。
-  `pyqbpp.VarInt` を定義するには、以下に示すように `between()` 関数を使って範囲を指定する必要があります。
-
-- **`pyqbpp.between(pyqbpp.var_int("name"), l, u)`**:
+- **`pyqbpp.var("name", between=(l, u))`**:
   ここで `l` と `u` は整数でなければなりません。
   この式は名前 `"name"` を持つ `pyqbpp.VarInt` オブジェクトを作成し、
   内部的に範囲 `[l, u]` のすべての整数を表す `pyqbpp.Expr` オブジェクトを含みます。
   内部的に、基礎となる式で使用される `pyqbpp.Var` オブジェクトも作成します。
 
-- **`pyqbpp.between(pyqbpp.var_int("name", s1), l, u)`**:
+- **`pyqbpp.var("name", shape=s1, between=(l, u))`**:
   基本名 `"name"` と同じ範囲 `[l, u]` を持つ `pyqbpp.VarInt` オブジェクトの1次元配列を作成します。
   各要素は `name[i]` として表されます。
   結果の型は `pyqbpp.Array` です。
@@ -98,9 +94,9 @@ b = qbpp.var(5)            # Array of 5 unnamed variables
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)       # Integer variable x in [0, 10]
-y = qbpp.between(qbpp.var_int("y", 3), -5, 5)    # Array of 3 integer variables in [-5, 5]
-z = qbpp.between(qbpp.var_int("z", 2, 3), 1, 8)  # 2x3 matrix of integer variables in [1, 8]
+x = qbpp.var("x", between=(0, 10))           # Integer variable x in [0, 10]
+y = qbpp.var("y", shape=3, between=(-5, 5))        # Array of 3 integer variables in [-5, 5]
+z = qbpp.var("z", shape=(2, 3), between=(1, 8))      # 2x3 matrix of integer variables in [1, 8]
 ```
 
 ### 整数変数のプロパティ
@@ -130,13 +126,13 @@ x.min_val + qbpp.sum(x.vars * x.coeffs)
 <tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
 </thead>
 <tbody>
-<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>between(var_int("name"), l, u)</code></td></tr>
-<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>between(var_int("name", s1), l, u)</code></td></tr>
+<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>var("name", between=(l, u))</code></td></tr>
+<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>var("name", shape=s1, between=(l, u))</code></td></tr>
 <tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
 <tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
-<tr><td><code>x.min_val()</code></td><td><code>x.min_val</code> (property)</td></tr>
-<tr><td><code>x.max_val()</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars()</code></td><td><code>x.vars</code> (property)</td></tr>
-<tr><td><code>x.coeffs()</code></td><td><code>x.coeffs</code> (property)</td></tr>
+<tr><td><code>x.min_val</code></td><td><code>x.min_val</code> (property)</td></tr>
+<tr><td><code>x.max_val</code></td><td><code>x.max_val</code> (property)</td></tr>
+<tr><td><code>x.vars</code></td><td><code>x.vars</code> (property)</td></tr>
+<tr><td><code>x.coeffs</code></td><td><code>x.coeffs</code> (property)</td></tr>
 </tbody>
 </table>

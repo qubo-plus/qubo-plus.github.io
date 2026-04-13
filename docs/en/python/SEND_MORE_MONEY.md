@@ -103,7 +103,7 @@ def I(c):
 
 x = qbpp.var("x", L, 10)
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
 different = 0
 for i in range(L - 1):
@@ -118,18 +118,18 @@ for k in range(10):
     more += k * (1000 * x[I('M')][k] + 100 * x[I('O')][k] + 10 * x[I('R')][k] + x[I('E')][k])
     money += k * (10000 * x[I('M')][k] + 1000 * x[I('O')][k] + 100 * x[I('N')][k] + 10 * x[I('E')][k] + x[I('Y')][k])
 
-equal = send + more - money == 0
+equal = qbpp.constrain(send + more - money, equal=0)
 
 P = 10000
 f = P * (onehot + different) + equal
 f.simplify_as_binary()
 
-ml = [(x[I('S')][0], 0), (x[I('M')][0], 0)]
+ml = {x[I('S')][0]: 0, x[I('M')][0]: 0}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -151,7 +151,7 @@ In this program, `LETTERS` assigns an integer index to each letter in `"SENDMORY
 We define an `L`$\times$`10` matrix `x` of binary variables (here $L=8$).
 The expressions `onehot`, `different`, and `equal` are computed according to the formulation and combined into a single objective `f` with a penalty weight `P`.
 
-We use a list of pairs `ml` to fix `x[I('S')][0]` and `x[I('M')][0]` to 0, and create a reduced expression `g` by applying this replacement.
+We use a dict `ml` to fix `x[I('S')][0]` and `x[I('M')][0]` to 0, and create a reduced expression `g` by applying this replacement.
 The solver is run on `g`, and the resulting assignment `sol` is merged with the fixed assignments `ml` to produce `full_sol` for the original objective `f`.
 
 Finally, the one-hot rows are decoded into digits, and the program prints the obtained solution.

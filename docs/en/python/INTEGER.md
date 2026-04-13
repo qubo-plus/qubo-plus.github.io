@@ -18,14 +18,14 @@ The following program demonstrates how integer variables are defined:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 1, 8)
-y = qbpp.between(qbpp.var_int("y"), -10, 10)
-print(f"x = {x} uses {x.var_count()} variables.")
-print(f"y = {y} uses {y.var_count()} variables.")
+x = qbpp.var("x", between=(1, 8))
+y = qbpp.var("y", between=(-10, 10))
+print(f"x = {x} uses {x.var_count} variables.")
+print(f"y = {y} uses {y.var_count} variables.")
 ```
 
-An integer variable is defined using the **`between()`** function, which specifies the integer range that the variable can take.
-The function **`var_int("name")`** creates a **`VarIntCore`** object with the given `name`, and **`between(var_int("name"), min, max)`** creates a **`VarInt`** object representing the linear expression encoded by binary variables.
+An integer variable is defined using the **`between=`** keyword argument, which specifies the integer range that the variable can take.
+The call **`var("name", between=(min, max))`** creates a **`VarInt`** object representing the linear expression encoded by binary variables.
 The program outputs the following expressions:
 ```
 x = 1 +x[0] +2*x[1] +4*x[2] uses 3 variables.
@@ -52,16 +52,16 @@ The following program constructs the QUBO expression, solves it, and decodes the
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
 
-f = (x + y) == 10
-g = (2 * x + 4 * y) == 28
+f = qbpp.constrain(x + y, equal=10)
+g = qbpp.constrain(2 * x + 4 * y, equal=28)
 h = f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print("sol =", sol)
 print("x =", x, "=", sol(x))
@@ -72,11 +72,11 @@ print("x + y =", sol(f.body))
 print("2x + 4y =", sol(g.body))
 ```
 First, `VarInt` objects **`x`** and **`y`** are defined with the range $[0,10]$.
-An `Expr` object **`f`** is created to represent the constraint **`(x + y) == 10`**.
+An `Expr` object **`f`** is created to represent the constraint **`constrain(x + y, equal=10)`**.
 Internally, this is equivalent to the QUBO expression `sqr(x + y - 10)`.
-Similarly, **`g`** represents the constraint **`(2 * x + 4 * y) == 28`**.
+Similarly, **`g`** represents the constraint **`constrain(2 * x + 4 * y, equal=28)`**.
 The combined expression **`h = f + g`** encodes both equations.
-An Easy Solver instance is created with `h`, and `{"target_energy": 0}` is passed to `search()`, since the optimal solution satisfies all constraints.
+An Easy Solver instance is created with `h`, and `target_energy=0` is passed to `search()`, since the optimal solution satisfies all constraints.
 Calling `search()` returns a `Sol` object `sol` that stores the optimal assignment of all binary variables.
 
 Here,
@@ -87,7 +87,7 @@ The same applies to **`g`** and **`g.body`**.
 
 The program outputs the following result:
 ```
-sol = Sol(energy=0, x[0]=0, x[1]=1, x[2]=1, x[3]=0, y[0]=0, y[1]=0, y[2]=1, y[3]=0)
+sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, y[0]: 0, y[1]: 0, y[2]: 1, y[3]: 0})
 x = x[0] +2*x[1] +4*x[2] +3*x[3] = 6
 y = y[0] +2*y[1] +4*y[2] +3*y[3] = 4
 f = 0
@@ -99,5 +99,5 @@ x + y = 10
 Thus, we can confirm that the values of `x`, `y`, and the constraint expressions are consistent with the solution.
 
 > **WARNING**
-> PyQBPP supports the `==` operator only when the left-hand side is an expression and the right-hand side is an integer.
-> Comparisons of the form `integer == expression` or `expression == expression` are not supported.
+> PyQBPP supports the `constrain()` equality form only with an integer value: `constrain(expression, equal=integer)`.
+> To constrain two expressions to be equal, use `constrain(expression1 - expression2, equal=0)`.

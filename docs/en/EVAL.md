@@ -107,21 +107,21 @@ int main() {
   auto f = qbpp::sqr(x + 2 * y + 3 * z - 4);
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
-  std::cout << "energy = " << sol.energy() << std::endl;
+  std::cout << "energy = " << sol.energy << std::endl;
 
   sol.flip(z);
   std::cout << "flipped sol = " << sol << std::endl;
-  std::cout << "flipped energy = " << sol.energy() << std::endl;
+  std::cout << "flipped energy = " << sol.energy << std::endl;
 }
 ```
 {% endraw %}
-In this program, `sol.energy()` correctly returns 0.
+In this program, `sol.energy` correctly returns 0.
 However, after flipping the variable `z`, the cached energy value becomes invalid.
-Calling `sol.energy()` without recomputing the energy therefore results in **a runtime error**, as shown below:
+Calling `sol.energy` without recomputing the energy therefore results in **a runtime error**, as shown below:
 {% raw %}
 ```
 sol = 0:{{x,1},{y,0},{z,1}}
@@ -132,12 +132,12 @@ terminate called after throwing an instance of 'std::runtime_error'
 To resolve this issue, you must explicitly recompute the energy by calling **`sol.comp_energy()`** after modifying the solution, as follows:
 ```cpp
   std::cout << "sol = " << sol << std::endl;
-  std::cout << "energy = " << sol.energy() << std::endl;
+  std::cout << "energy = " << sol.energy << std::endl;
 
   sol.flip(z);
   std::cout << "sol.comp_energy() = " << sol.comp_energy() << std::endl;
   std::cout << "flipped sol = " << sol << std::endl;
-  std::cout << "flipped energy = " << sol.energy() << std::endl;
+  std::cout << "flipped energy = " << sol.energy << std::endl;
 ```
 This program produces the following output:
 {% raw %}

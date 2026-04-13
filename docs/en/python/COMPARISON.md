@@ -11,13 +11,13 @@ hreflang_lang: "ja"
 # Comparison Operators
 PyQBPP supports two types of operators for creating constraints:
 
-- **Equality operator**: `f == n`, where `f` is an expression and `n` is an integer.
-- **Range operator**: `between(f, l, u)`, where `f` is an expression and `l` and `u` ($l\leq u$) are integers.
+- **Equality operator**: `constrain(f, equal=n)`, where `f` is an expression and `n` is an integer.
+- **Range operator**: `constrain(f, between=(l, u))`, where `f` is an expression and `l` and `u` ($l\leq u$) are integers.
 
 These operators return an `ExprExpr` object that attains **the minimum value of 0 if and only if the corresponding constraints are satisfied**.
 
 ## Equality operator
-The equality operator `f == n` creates the following expression:
+The equality operator `constrain(f, equal=n)` creates the following expression:
 
 $$
 (f-n)^2
@@ -33,14 +33,14 @@ import pyqbpp as qbpp
 a = qbpp.var("a")
 b = qbpp.var("b")
 c = qbpp.var("c")
-f = a + 2 * b + 3 * c == 3
+f = qbpp.constrain(a + 2 * b + 3 * c, equal=3)
 f.simplify_as_binary()
 print("f =", f)
 print("body =", f.body)
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for sol in result.sols():
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```
@@ -58,20 +58,16 @@ a=1, b=1, c=0, f=0, body=3
 
 ## Notes on Supported Equality Forms
 PyQBPP supports the equality operator only in the following form:
-- **`expression == integer`**
+- **`constrain(expression, equal=integer)`**
 
-The following forms are not supported:
-- **`integer == expression`**
-- **`expression1 == expression2`**
-
-Instead of `expression1 == expression2`, you can rewrite the constraint as:
-- **`expression1 - expression2 == 0`**
+Instead of comparing two expressions, you can rewrite the constraint as:
+- **`constrain(expression1 - expression2, equal=0)`**
 
 ## Range operator
-The range operator `between(f, l, u)` creates an expression that attains the minimum value of 0 if and only if the constraint $l\leq f\leq u$ is satisfied.
+The range operator `constrain(f, between=(l, u))` creates an expression that attains the minimum value of 0 if and only if the constraint $l\leq f\leq u$ is satisfied.
 
 > **NOTE**
-> Unlike the C++ version which uses the syntax `l <= f <= u`, PyQBPP uses the function `between(f, l, u)` for range constraints on expressions.
+> Unlike the C++ version which uses the syntax `l <= f <= u`, PyQBPP uses the function `constrain(f, between=(l, u))` for range constraints on expressions.
 
 The following program demonstrates the use of the range operator:
 ```python
@@ -80,12 +76,12 @@ import pyqbpp as qbpp
 a = qbpp.var("a")
 b = qbpp.var("b")
 c = qbpp.var("c")
-f = qbpp.between(4 * a + 9 * b + 15 * c, 5, 14)
+f = qbpp.constrain(4 * a + 9 * b + 15 * c, between=(5, 14))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for sol in result.sols():
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```

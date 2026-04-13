@@ -121,7 +121,7 @@ int main() {
   auto h = f + g;
   h.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(h);
+  auto solver = qbpp::EasySolver(h);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;

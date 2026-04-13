@@ -14,7 +14,7 @@ PyQBPPは変数の配列と配列演算をサポートしています。
 
 ## 変数配列の定義
 バイナリ変数の配列は **`var()`** 関数を使って作成できます。
-- **`var("name", size)`** は、指定された `name` を持つ `size` 個の変数からなる `Array` を返します。
+- **`var("name", shape=size)`** は、指定された `name` を持つ `size` 個の変数からなる `Array` を返します。
 
 以下のプログラムは、**`x`** という名前の5個の変数からなる配列を定義します。
 `x` を表示すると、5つの変数 **`x[0]`**、**`x[1]`**、**`x[2]`**、**`x[3]`**、**`x[4]`** が含まれていることが確認できます。
@@ -24,7 +24,7 @@ PyQBPPは変数の配列と配列演算をサポートしています。
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 5)
+x = qbpp.var("x", shape=5)
 print(x)
 f = qbpp.expr()
 for i in range(5):
@@ -38,7 +38,7 @@ f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```
 
 > **NOTE**
-> **`var(name, size)`** は `size` 個の `Var` 型要素を含む **`Array`** オブジェクトを返します。
+> **`var(name, shape=size)`** は `size` 個の `Var` 型要素を含む **`Array`** オブジェクトを返します。
 > **`Array`** クラスは、要素ごとの演算をサポートするオーバーロードされた演算子を提供します。
 
 ## Sum 関数
@@ -47,7 +47,7 @@ f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 5)
+x = qbpp.var("x", shape=5)
 print(x)
 f = qbpp.sum(x)
 print("f =", f.simplify_as_binary())
@@ -69,13 +69,13 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 5)
+x = qbpp.var("x", shape=5)
 f = qbpp.sqr(qbpp.sum(x) - 1)
 print("f =", f.simplify_as_binary())
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for i, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for i, sol in enumerate(result.sols):
     print(f"({i}) {sol}")
 ```
 関数 **`sum()`** は配列内のすべての変数の合計を計算します。
@@ -83,10 +83,10 @@ for i, sol in enumerate(result.sols()):
 Exhaustive Solver は、エネルギー値 0 のすべての最適解を以下のように求めます。
 ```
 f = 1 -x[0] -x[1] -x[2] -x[3] -x[4] +2*x[0]*x[1] +2*x[0]*x[2] +2*x[0]*x[3] +2*x[0]*x[4] +2*x[1]*x[2] +2*x[1]*x[3] +2*x[1]*x[4] +2*x[2]*x[3] +2*x[2]*x[4] +2*x[3]*x[4]
-(0) Sol(energy=0, x[0]=0, x[1]=0, x[2]=0, x[3]=0, x[4]=1)
-(1) Sol(energy=0, x[0]=0, x[1]=0, x[2]=0, x[3]=1, x[4]=0)
-(2) Sol(energy=0, x[0]=0, x[1]=0, x[2]=1, x[3]=0, x[4]=0)
-(3) Sol(energy=0, x[0]=0, x[1]=1, x[2]=0, x[3]=0, x[4]=0)
-(4) Sol(energy=0, x[0]=1, x[1]=0, x[2]=0, x[3]=0, x[4]=0)
+(0) Sol(energy=0, {x[0]: 0, x[1]: 0, x[2]: 0, x[3]: 0, x[4]: 1})
+(1) Sol(energy=0, {x[0]: 0, x[1]: 0, x[2]: 0, x[3]: 1, x[4]: 0})
+(2) Sol(energy=0, {x[0]: 0, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 0})
+(3) Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 0, x[3]: 0, x[4]: 0})
+(4) Sol(energy=0, {x[0]: 1, x[1]: 0, x[2]: 0, x[3]: 0, x[4]: 0})
 ```
 5つの最適解がすべて表示されます。

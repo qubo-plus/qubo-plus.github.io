@@ -112,11 +112,11 @@ int main() {
   auto f = (objective + penalty_weight * constraint).simplify_as_binary();
 
   // Solve
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 1}});
 
   // Print results
-  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "Energy = " << sol.energy << std::endl;
   std::cout << "Assignment: ";
   for (int i = 0; i < n; ++i) {
     std::cout << "x[" << i << "]=" << sol(x[i]) << " ";

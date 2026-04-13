@@ -36,6 +36,7 @@ hreflang_lang: "en"
 14. [最小グラフ二分割問題](BISECTION) (Easy)
 
 ## 組合せ最適化問題
+1. [QUBO 問題](QUBO) (Easy)
 1. [ナップサック問題](KNAPSACK) (Medium)
 2. [シフトスケジューリング問題](SHIFT_SCHEDULING) (Hard)
 3. [LABS問題](LABS) (Medium)

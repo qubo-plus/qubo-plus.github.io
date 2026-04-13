@@ -33,12 +33,12 @@ PyQBPPでは `~` 演算子で否定リテラルを表現します。
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 f = 1
 for i in range(len(x)):
     f *= ~x[i]
 
-ml = [(~x[i], 1 - x[i]) for i in range(len(x))]
+ml = {~x[i]: 1 - x[i] for i in range(len(x))}
 g = qbpp.replace(f, ml)
 
 f.simplify_as_binary()
@@ -109,7 +109,7 @@ g = 1 -x[0] -x[1] -x[2] +x[0]*x[1] +x[0]*x[2] +x[1]*x[2] -x[0]*x[1]*x[2]
 
 ## `replace()` と否定リテラル
 `replace()` 関数は `x` と `~x` を独立したキーとして扱います。
-したがって、変数の値を固定するには、正リテラルと否定リテラルの両方を整合的に指定する必要があります。
+したがって、変数の値を固定するには、正リテラルと否定リテラルの両方を整合的に辞書で指定する必要があります。
 
 以下のプログラムは、まず `x` を 1 に固定し、次に `~x` を 0 に固定します：
 ```python
@@ -120,9 +120,9 @@ y = qbpp.var("y")
 z = qbpp.var("z")
 f = x * y * z + ~x * ~y * ~z
 print("f =", f)
-f.replace([(x, 1)])
+f.replace({x: 1})
 print("f =", f)
-f.replace([(~x, 0)])
+f.replace({~x: 0})
 print("f =", f)
 ```
 このプログラムは以下の出力を生成します：
@@ -145,7 +145,7 @@ y = qbpp.var("y")
 z = qbpp.var("z")
 f = x * y * z + ~x * ~y * ~z
 print("f =", f)
-print("f(0, 0, 0) =", f([(x, 0), (~y, 1), (~z, 1)]))
+print("f(0, 0, 0) =", f({x: 0, ~y: 1, ~z: 1}))
 ```
 このプログラムは以下の出力を生成します：
 ```
@@ -161,5 +161,5 @@ f(0, 0, 0) = 1
 |-----------------------------------------|--------------------------------------------|
 | `qbpp::Expr(1)`                         | `1`                                        |
 | `f *= ~x[i]`                            | `f *= ~x[i]`                               |
-| `qbpp::MapList ml;`<br>`ml.push_back({~x[i], 1 - x[i]});` | `ml = [(~x[i], 1 - x[i]) for i in range(len(x))]` |
-| `f({% raw %}{{x, 0}, {~y, 1}}{% endraw %})` | `f([(x, 0), (~y, 1)])`               |
+| `qbpp::MapList ml;`<br>`ml.push_back({~x[i], 1 - x[i]});` | `ml = {~x[i]: 1 - x[i] for i in range(len(x))}` |
+| `f({% raw %}{{x, 0}, {~y, 1}}{% endraw %})` | `f({x: 0, ~y: 1})`               |

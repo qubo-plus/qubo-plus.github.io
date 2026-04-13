@@ -63,7 +63,7 @@ int main() {
   }
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols[k];
@@ -141,7 +141,7 @@ int main() {
   auto f = qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 1) - 1)) +
            qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 0) - 1));
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols[k];
@@ -241,7 +241,7 @@ int main() {
   auto h = 1000 * f + g;
   h.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(h);
+  auto solver = qbpp::EasySolver(h);
   auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "sol = " << sol << std::endl;
   auto result = qbpp::onehot_to_int(x(sol), 1);

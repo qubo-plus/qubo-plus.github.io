@@ -16,7 +16,7 @@ hreflang_lang: "ja"
   The default type is `int32_t`.
   To change this type, define the `COEFF_TYPE` macro at compile time, for example:
 ```
--DCOEFF_TYPE=int16_t
+-DCOEFF_TYPE=int64_t
 ```
 - **`energy_t`**:
 The integer data type used to compute energy values of `qbpp::Expr` objects,
@@ -34,7 +34,7 @@ In most cases, it is not necessary to change this data type.
 
 ## Available integer data types
 - **Standard integer types**:
-`int16_t`, `int32_t`, `int64_t`
+`int32_t`, `int64_t`
 
 - **Multiprecision integer types** (implemented using the Boost.Multiprecision library):
 `qbpp::int128_t`, `qbpp::cpp_int`
@@ -140,19 +140,19 @@ For a `qbpp::VarInt` instance `x`, the following member functions are available:
 - **`std::string x.str()`**:
   Returns the string representation of the underlying expression.
 
-- **`energy_t x.min_val()`**:
+- **`energy_t x.min_val`**:
   Returns the minimum value `l` of `x`.
 
-- **`energy_t x.max_val()`**:
+- **`energy_t x.max_val`**:
   Returns the maximum value `u` of `x`.
 
-- **`x.vars()`**:
+- **`x.vars`**:
   Returns the `qbpp::Var` object array used to represent the integer variable.
 
-- **`x.coeffs()`**:
+- **`x.coeffs`**:
   Returns the integer coefficient array.
 
 The following expression is equivalent to the expression stored in `x`:
 ```cpp
-x.min_val() + qbpp::sum(x.coeffs() * x.vars())
+x.min_val + qbpp::sum(x.coeffs * x.vars)
 ```

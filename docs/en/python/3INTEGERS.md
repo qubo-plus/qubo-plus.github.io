@@ -47,21 +47,21 @@ The following PyQBPP program formulates these constraints as a HUBO expression a
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 1, 10)
-y = qbpp.between(qbpp.var_int("y"), 1, 10)
-z = qbpp.between(qbpp.var_int("z"), 1, 10)
+x = qbpp.var("x", between=(1, 10))
+y = qbpp.var("y", between=(1, 10))
+z = qbpp.var("z", between=(1, 10))
 
-c1 = x * y + y * z + z * x - x * y * z == 0
-c2 = qbpp.between(y - x, 1, 9)
-c3 = qbpp.between(z - y, 1, 9)
+c1 = qbpp.constrain(x * y + y * z + z * x - x * y * z, equal=0)
+c2 = qbpp.constrain(y - x, between=(1, 9))
+c3 = qbpp.constrain(z - y, between=(1, 9))
 
 f = c1 + c2 + c3
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
+result = solver.search(best_energy_sols=0)
 
 seen = set()
-for sol in result.sols():
+for sol in result.sols:
     key = (sol(x), sol(y), sol(z))
     if key not in seen:
         seen.add(key)

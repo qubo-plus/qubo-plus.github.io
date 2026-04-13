@@ -28,7 +28,7 @@ $$
 $a$ は $[l,u]$ の任意の整数値を取れるため、
 式 $g$ が0になるのは $f$ 自体が同じ範囲内の整数値を取るときかつそのときに限ります。
 
-この補助変数の手法を用いて、PyQBPPは **`between()`** 関数により範囲制約を実装しています。
+この補助変数の手法を用いて、PyQBPPは **`constrain()`** 関数により範囲制約を実装しています。
 
 ## 整数線形計画法の求解
 **整数線形計画法**のインスタンスは、**目的関数**と複数の**線形制約**から構成されます。
@@ -48,16 +48,16 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
 f = 5 * x + 4 * y
-c1 = qbpp.between(2 * x + 3 * y, 0, 24)
-c2 = qbpp.between(7 * x + 5 * y, 0, 54)
+c1 = qbpp.constrain(2 * x + 3 * y, between=(0, 24))
+c2 = qbpp.constrain(7 * x + 5 * y, between=(0, 54))
 g = -f + 100 * (c1 + c2)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"x = {sol(x)}, y = {sol(y)}")
 print(f"f = {sol(f)}")
@@ -67,7 +67,7 @@ print(f"2x+3y = {sol(c1.body)}, 7x+5y = {sol(c2.body)}")
 
 このプログラムでは、
 - **`f`** は目的関数を表し、
-- **`c1`** と **`c2`** は **`between()`** を使って作成された範囲制約を表し、
+- **`c1`** と **`c2`** は **`constrain()`** を使って作成された範囲制約を表し、
 - **`g`** はそれらを1つの最適化式にまとめたものです。
 
 目標が最大化であるため、目的関数は `-f` として符号を反転しています。

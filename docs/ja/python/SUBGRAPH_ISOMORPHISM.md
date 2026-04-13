@@ -66,7 +66,7 @@ x = qbpp.var("x", M, N)
 
 host_assigned = qbpp.vector_sum(x, 0)
 
-constraint = qbpp.sum(qbpp.vector_sum(x, 1) == 1) + qbpp.sum(qbpp.between(host_assigned, 0, 1))
+constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + qbpp.sum(qbpp.constrain(host_assigned, between=(0, 1)))
 
 objective = 0
 for ug, vg in guest:
@@ -77,7 +77,7 @@ f = -objective + constraint * (M * N)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": -len(guest)})
+sol = solver.search(target_energy=-len(guest))
 
 print(f"objective = {sol(objective)}")
 print(f"constraint = {sol(constraint)}")

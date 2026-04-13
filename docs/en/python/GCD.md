@@ -33,9 +33,9 @@ import pyqbpp as qbpp
 
 P = 858
 Q = 693
-p = qbpp.between(qbpp.var_int("p"), 1, 1000)
-q = qbpp.between(qbpp.var_int("q"), 1, 1000)
-r = qbpp.between(qbpp.var_int("r"), 1, 1000)
+p = qbpp.var("p", between=(1, 1000))
+q = qbpp.var("q", between=(1, 1000))
+r = qbpp.var("r", between=(1, 1000))
 
 constraint = (p * r == Q) + (q * r == P)
 f = -r + constraint * 1000
@@ -43,7 +43,7 @@ f = -r + constraint * 1000
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"GCD = {sol(r)}")
 print(f"{sol(p)} * {sol(r)} = {P}")

@@ -94,7 +94,7 @@ int main() {
 
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {

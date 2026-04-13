@@ -33,12 +33,12 @@ x = qbpp.var("x", workers, days + 2)
 workers_each_day = qbpp.vector_sum(x, 0)
 each_day_4_workers = 0
 for j in range(1, days + 1):
-    each_day_4_workers += workers_each_day[j] == 4
+    each_day_4_workers += qbpp.constrain(workers_each_day[j], equal=4)
 
 workers_working_days = qbpp.vector_sum(x)
 work_20_21_days = 0
 for i in range(workers):
-    work_20_21_days += qbpp.between(workers_working_days[i], 20, 21)
+    work_20_21_days += qbpp.constrain(workers_working_days[i], between=(20, 21))
 
 no_more_than_6 = 0
 for w in range(workers):
@@ -66,15 +66,15 @@ constraints = (work_20_21_days + no_less_than_3 + no_more_than_6 +
                no_single_day_off + each_day_4_workers)
 f = total_worker_cost + 10000 * constraints
 
-ml = [(x[i][0], 0) for i in range(workers)]
-ml += [(x[i][days + 1], 0) for i in range(workers)]
+ml = {x[i][0]: 0 for i in range(workers)}
+ml.update({x[i][days + 1]: 0 for i in range(workers)})
 f.simplify_as_binary()
 
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"time_limit": 5.0, "target_energy": 0})
+sol = solver.search(time_limit=5.0, target_energy=0)
 
 full_sol = qbpp.Sol(f).set([ml, sol])
 

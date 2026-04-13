@@ -34,12 +34,12 @@ The following program demonstrates how PyQBPP handles negated literals:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 f = 1
 for i in range(len(x)):
     f *= ~x[i]
 
-ml = [(~x[i], 1 - x[i]) for i in range(len(x))]
+ml = {~x[i]: 1 - x[i] for i in range(len(x))}
 g = qbpp.replace(f, ml)
 
 f.simplify_as_binary()
@@ -127,9 +127,9 @@ y = qbpp.var("y")
 z = qbpp.var("z")
 f = x * y * z + ~x * ~y * ~z
 print("f =", f)
-f.replace([(x, 1)])
+f.replace({x: 1})
 print("f =", f)
-f.replace([(~x, 0)])
+f.replace({~x: 0})
 print("f =", f)
 ```
 This program produces the following output:
@@ -154,7 +154,7 @@ y = qbpp.var("y")
 z = qbpp.var("z")
 f = x * y * z + ~x * ~y * ~z
 print("f =", f)
-print("f(0, 0, 0) =", f([(x, 0), (~y, 1), (~z, 1)]))
+print("f(0, 0, 0) =", f({x: 0, ~y: 1, ~z: 1}))
 ```
 This program produces the following output:
 ```
@@ -171,5 +171,5 @@ All three variables are effectively set to 0, and $\bar{x}\cdot\bar{y}\cdot\bar{
 |-----------------------------------------|--------------------------------------------|
 | `qbpp::Expr(1)`                         | `1`                                        |
 | `f *= ~x[i]`                            | `f *= ~x[i]`                               |
-| `qbpp::MapList ml;`<br>`ml.push_back({~x[i], 1 - x[i]});` | `ml = [(~x[i], 1 - x[i]) for i in range(len(x))]` |
-| `f({% raw %}{{x, 0}, {~y, 1}}{% endraw %})` | `f([(x, 0), (~y, 1)])`               |
+| `qbpp::MapList ml;`<br>`ml.push_back({~x[i], 1 - x[i]});` | `ml = {~x[i]: 1 - x[i] for i in range(len(x))}` |
+| `f({% raw %}{{x, 0}, {~y, 1}}{% endraw %})` | `f({x: 0, ~y: 1})`               |

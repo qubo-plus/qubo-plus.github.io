@@ -334,11 +334,11 @@ The following member functions of `qbpp::Expr` provide read-only access to the i
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `f.constant()` | `energy_t` | Return the constant term |
+| `f.constant` | `energy_t` | Return the constant term |
 | `f.term_count()` | `size_t` | Return the number of terms (excluding the constant) |
 | `f.term_count(d)` | `size_t` | Return the number of terms of degree `d` |
 | `f.term(i)` | `qbpp::Term` | Return a copy of the `i`-th term |
-| `f.max_degree()` | `uint32_t` | Return the maximum degree of all terms |
+| `f.max_degree` | `uint32_t` | Return the maximum degree of all terms |
 | `f.has(v)` | `bool` | Return `true` if `Var` `v` appears in the expression |
 | `f.has(vi)` | `bool` | Return `true` if all variables of `VarInt` `vi` appear in the expression |
 
@@ -349,14 +349,14 @@ auto y = qbpp::var("y");
 qbpp::Expr f = qbpp::simplify(3 * x + 2 * x * y + 5);
 // f = 5 + 3*x + 2*x*y
 
-f.constant();          // 5
+f.constant;          // 5
 f.term_count();        // 2
 f.term(0);             // 3*x
 f.term(1);             // 2*x*y
 f.term(1).coeff();     // 2
 f.term(1).var(0);      // x
 f.term(1).var(1);      // y
-f.max_degree();        // 2
+f.max_degree;        // 2
 f.has(x);              // true
 f.has(y);              // true
 ```

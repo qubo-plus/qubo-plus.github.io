@@ -29,18 +29,18 @@ the function returns $-1$ for that row.
 import pyqbpp as qbpp
 
 n, m = 5, 5
-x = qbpp.var("x", n, m)
+x = qbpp.var("x", shape=(n, m))
 
 # One-hot constraint: each row has exactly one 1
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 # All-different constraint: each column has exactly one 1
-alldiff = qbpp.sum(qbpp.vector_sum(x, 0) == 1)
+alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
 
 f = onehot + alldiff
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print("x =", sol(x))
 
@@ -82,7 +82,7 @@ For a 1D array of size $m$, `onehot_to_int()` returns a single-element array con
 or $-1$ if the input is not a valid one-hot vector.
 
 ```python
-v = qbpp.var("v", 4)
+v = qbpp.var("v", shape=4)
 # ... solve so that v = {0, 0, 1, 0} ...
 idx = qbpp.onehot_to_int(sol(v))  # {2}
 ```

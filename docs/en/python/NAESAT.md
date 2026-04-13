@@ -108,7 +108,7 @@ f = (objective + penalty_weight * constraint).simplify_as_binary()
 
 # Solve
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 1})  # n=5 is odd, so best balance gives (2*s-n)^2 = 1
+sol = solver.search(target_energy=1)  # n=5 is odd, so best balance gives (2*s-n)^2 = 1
 
 # Print results
 print(f"Energy = {sol.energy}")

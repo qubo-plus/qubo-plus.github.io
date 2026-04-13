@@ -111,7 +111,7 @@ int main() {
   auto f = -sum + 1000 * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
@@ -237,7 +237,7 @@ int main() {
   auto f = -sum + 1000 * (constraint1 + constraint2);
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {

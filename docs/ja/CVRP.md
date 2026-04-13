@@ -270,7 +270,7 @@ int main() {
   auto g = qbpp::replace(f, ml);
   f.simplify_as_binary();
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
 
   auto sol = solver.search();
 

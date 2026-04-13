@@ -8,16 +8,16 @@ hreflang_alt: "en/python/COMPARISON"
 hreflang_lang: "en"
 ---
 
-# 比較演算子
+# 制約演算子
 PyQBPPは制約を作成するための2種類の演算子をサポートしています：
 
-- **等価演算子**: `f == n`。`f` は式、`n` は整数です。
-- **範囲演算子**: `between(f, l, u)`。`f` は式、`l` と `u`（$l\leq u$）は整数です。
+- **等価演算子**: `qbpp.constrain(f, equal=n)`。`f` は式、`n` は整数です。
+- **範囲演算子**: `qbpp.constrain(f, between=(l, u))`。`f` は式、`l` と `u`（$l\leq u$）は整数です。
 
 これらの演算子は、**対応する制約が満たされるときかつそのときに限り最小値0を取る** `ExprExpr` オブジェクトを返します。
 
 ## 等価演算子
-等価演算子 `f == n` は以下の式を作成します：
+等価演算子 `qbpp.constrain(f, equal=n)` は以下の式を作成します：
 
 $$
 (f-n)^2
@@ -32,14 +32,14 @@ import pyqbpp as qbpp
 a = qbpp.var("a")
 b = qbpp.var("b")
 c = qbpp.var("c")
-f = a + 2 * b + 3 * c == 3
+f = qbpp.constrain(a + 2 * b + 3 * c, equal=3)
 f.simplify_as_binary()
 print("f =", f)
 print("body =", f.body)
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for sol in result.sols():
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```
@@ -57,20 +57,16 @@ a=1, b=1, c=0, f=0, body=3
 
 ## サポートされる等価演算子の形式に関する注意
 PyQBPPは等価演算子を以下の形式でのみサポートしています：
-- **`expression == integer`**
+- **`qbpp.constrain(expression, equal=integer)`**
 
-以下の形式はサポートされていません：
-- **`integer == expression`**
-- **`expression1 == expression2`**
-
-`expression1 == expression2` の代わりに、制約を以下のように書き換えることができます：
-- **`expression1 - expression2 == 0`**
+`expression1 == expression2` の形式は直接サポートされていません。代わりに、制約を以下のように書き換えることができます：
+- **`qbpp.constrain(expression1 - expression2, equal=0)`**
 
 ## 範囲演算子
-範囲演算子 `between(f, l, u)` は、制約 $l\leq f\leq u$ が満たされるときかつそのときに限り最小値0を取る式を作成します。
+範囲演算子 `qbpp.constrain(f, between=(l, u))` は、制約 $l\leq f\leq u$ が満たされるときかつそのときに限り最小値0を取る式を作成します。
 
 > **注意**
-> C++版では `l <= f <= u` という構文を使いますが、PyQBPPでは式に対する範囲制約に `between(f, l, u)` 関数を使います。
+> C++版では `l <= f <= u` という構文を使いますが、PyQBPPでは式に対する範囲制約に `qbpp.constrain(f, between=(l, u))` 関数を使います。
 
 以下のプログラムは範囲演算子の使用方法を示しています：
 ```python
@@ -79,12 +75,12 @@ import pyqbpp as qbpp
 a = qbpp.var("a")
 b = qbpp.var("b")
 c = qbpp.var("c")
-f = qbpp.between(4 * a + 9 * b + 15 * c, 5, 14)
+f = qbpp.constrain(4 * a + 9 * b + 15 * c, between=(5, 14))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for sol in result.sols():
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
     print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
           f"f={sol(f)}, body={sol(f.body)}")
 ```

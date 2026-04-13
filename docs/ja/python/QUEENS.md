@@ -58,7 +58,7 @@ import pyqbpp as qbpp
 n = 8
 x = qbpp.var("x", n, n)
 
-f = qbpp.sum(qbpp.vector_sum(x, 0) == 1) + qbpp.sum(qbpp.vector_sum(x, 1) == 1)
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1)) + qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1))
 
 m = 2 * n - 3
 a = qbpp.expr(m)
@@ -77,13 +77,13 @@ for i in range(m):
         if 0 <= c < n:
             b[i] += x[r][c]
 
-f += qbpp.sum(qbpp.between(a, 0, 1))
-f += qbpp.sum(qbpp.between(b, 0, 1))
+f += qbpp.sum(qbpp.constrain(a, between=(0, 1)))
+f += qbpp.sum(qbpp.constrain(b, between=(0, 1)))
 
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 for i in range(n):
     for j in range(n):
         print("Q" if sol(x[i][j]) == 1 else ".", end="")
@@ -91,7 +91,7 @@ for i in range(n):
 ```
 `n`$\times$`n` のバイナリ変数の行列 `x` を導入し、`x[i][j] = 1` は行 `i`、列 `j` にクイーンが配置されていることを示します。
 列方向の和は `vector_sum(x, 0)` を用いて計算され、`n` 個の式のベクトル（各列に1つ）を返します。
-`==` 演算子を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が1に等しい場合にのみ0と評価されます。
+`qbpp.constrain(..., equal=1)` を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が1に等しい場合にのみ0と評価されます。
 同様に、`vector_sum(x, 1)` を用いて行方向の one-hot 制約を課すことができます。
 
 対角線制約を課すために、長さ `m = 2*n - 3` の2つの式ベクトル `a` と `b` を構築します。
@@ -100,7 +100,7 @@ for i in range(n):
 範囲制約 `between(a, 0, 1)`（`b` も同様）は要素ごとに適用され、各対角線/反対角線に最大1つのクイーンが含まれる場合にのみ0となるペナルティを生成します。
 これらのペナルティは `f` に加算されます。
 
-`f.simplify_as_binary()` で式をバイナリ QUBO 形式に変換した後、`search()` に `{"target_energy": 0}` を渡して Easy Solver がターゲットエネルギー0の解を探索します。
+`f.simplify_as_binary()` で式をバイナリ QUBO 形式に変換した後、`search()` に `target_energy=0` を渡して Easy Solver がターゲットエネルギー0の解を探索します。
 得られた割り当て `sol` は 8x8 の盤面として出力され、`Q` はクイーン、`.` は空のマスを表します。
 例えば、プログラムは以下のような出力を生成する場合があります：
 ```

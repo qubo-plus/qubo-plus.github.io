@@ -14,15 +14,15 @@ Since all possible assignments are examined, the optimality of the solutions is 
 The search is parallelized using CPU threads, and if a CUDA GPU is available, GPU acceleration is automatically enabled to further speed up the search.
 
 Solving a problem with the Exhaustive Solver consists of the following three steps:
-1. Create an Exhaustive Solver (`qbpp::exhaustive_solver::ExhaustiveSolver`) object.
+1. Create an Exhaustive Solver (`qbpp::ExhaustiveSolver`) object.
 2. Call the `search()` member function, optionally passing parameters as an initializer list.
 
 
 ## Creating Exhaustive Solver object
 To use the Exhaustive Solver, an Exhaustive Solver object
-(`qbpp::exhaustive_solver::ExhaustiveSolver`) is constructed with an expression
+(`qbpp::ExhaustiveSolver`) is constructed with an expression
 (`qbpp::Expr`) object as follows:
-- **`qbpp::exhaustive_solver::ExhaustiveSolver(const qbpp::Expr& f)`**:
+- **`qbpp::ExhaustiveSolver(const qbpp::Expr& f)`**:
 Here, `f` is the expression to be solved.
 It must be simplified as a binary expression in advance by calling the
 `simplify_as_binary()` function.
@@ -68,9 +68,9 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"enable_default_callback", 1}});
-  std::cout << sol.energy() << ": ";
+  std::cout << sol.energy << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -99,10 +99,10 @@ TTS = 0.004s Energy = 26
 All optimal solutions can be obtained by setting `best_energy_sols` as follows:
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -126,10 +126,10 @@ The output is as follows:
 The top-k solutions with the lowest energy can be obtained by setting `topk_sols` as follows:
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"topk_sols", 10}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -158,10 +158,10 @@ For example, with $n = 20$, over one million solutions are stored, and memory us
 Use this only when $n$ is small enough.
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }

@@ -43,7 +43,7 @@ Expressions can also be built incrementally starting from a plain integer:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4)
+x = qbpp.var("x", shape=4)
 f = -1
 for i in range(len(x)):
     f += x[i]

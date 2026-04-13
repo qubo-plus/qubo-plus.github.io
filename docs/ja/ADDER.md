@@ -47,7 +47,7 @@ int main() {
   auto s = qbpp::var("s");
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(fa);
+  auto solver = qbpp::ExhaustiveSolver(fa);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -129,7 +129,7 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -173,7 +173,7 @@ int main() {
   auto fa3 = fa(x[3], y[3], c[3], c[4], z[3]);
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }

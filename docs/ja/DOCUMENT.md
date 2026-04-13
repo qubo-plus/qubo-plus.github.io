@@ -52,6 +52,7 @@ hreflang_lang: "en"
 14. [Exhaustive Solver の使い方](EXHAUSTIVE)
 15. [ABS3 Solver の使い方](ABS3)
 16. [探索パラメータ](PARAMS)
+17. [高速化のための Tips](TIPS)
 
 
 

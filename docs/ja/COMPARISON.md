@@ -40,7 +40,7 @@ int main() {
   std::cout << "f = " << f << std::endl;
   std::cout << "*f = " << *f << std::endl;
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -247,7 +247,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 5 <= 4 * a + 9 * b + 15 * c <= 14;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -317,7 +317,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -348,7 +348,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = -qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)

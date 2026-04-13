@@ -22,7 +22,7 @@ The following program illustrates this behavior:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3)
+x = qbpp.var("x", shape=3)
 f = 2 * x + 1
 
 print("f =", f)
@@ -43,8 +43,8 @@ When you combine two arrays of the same size, the operation is performed element
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3)
-y = qbpp.var("y", 3)
+x = qbpp.var("x", shape=3)
+y = qbpp.var("y", shape=3)
 f = 2 * x + 3 * y + 1
 
 print("f =", f)
@@ -64,8 +64,8 @@ The compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** also work elem
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3)
-y = qbpp.var("y", 3)
+x = qbpp.var("x", shape=3)
+y = qbpp.var("y", shape=3)
 f = 6 * x + 4
 
 f += 3 * y
@@ -90,7 +90,7 @@ The square function also works element-wise for arrays:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3)
+x = qbpp.var("x", shape=3)
 f = qbpp.sqr(x + 1)
 
 print("f =", f)
@@ -105,7 +105,7 @@ Simplify functions also work element-wise for arrays:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3)
+x = qbpp.var("x", shape=3)
 f = qbpp.sqr(x - 1)
 print("f =", f)
 print("qbpp.simplify(f) =", qbpp.simplify(f))
@@ -129,7 +129,7 @@ Calling **`sum()`** with no argument sums all elements to a scalar `Expr`:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 3, 4)
+x = qbpp.var("x", shape=(3, 4))
 col_sums = x.sum(0)          # shape (4,)
 e = col_sums.sum()           # scalar Expr (sum of all elements)
 print("e =", e)

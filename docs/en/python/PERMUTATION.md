@@ -35,7 +35,7 @@ We can design a PyQBPP program based on the formula $f(X)$ above as follows:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4, 4)
+x = qbpp.var("x", shape=(4, 4))
 f = qbpp.expr()
 
 for i in range(4):
@@ -52,13 +52,13 @@ for j in range(4):
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for k, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for k, sol in enumerate(result.sols):
     row = [sol.get_vector(x[i]) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
-In this program, **`var("x", 4, 4)`** returns a nested `Array` of size $4\times 4$ named **`x`**.
+In this program, **`var("x", shape=(4, 4))`** returns a nested `Array` of size $4\times 4$ named **`x`**.
 For an `Expr` object **`f`**, two double for-loops build the formula for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.
 All solutions in `sols` are displayed one-by-one using `sol.get_vector()`.
@@ -75,13 +75,13 @@ The following program implements a QUBO formulation using these array functions 
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", 4, 4)
+x = qbpp.var("x", shape=(4, 4))
 f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 0) - 1))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for k, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for k, sol in enumerate(result.sols):
     perm = []
     for i in range(4):
         for j in range(4):
@@ -132,14 +132,14 @@ c = qbpp.Array([[58, 73, 91, 44],
                  [62, 15, 87, 39],
                  [78, 56, 23, 94],
                  [11, 85, 68, 72]])
-x = qbpp.var("x", 4, 4)
-f = qbpp.sum(qbpp.vector_sum(x, 1) == 1) + qbpp.sum(qbpp.vector_sum(x, 0) == 1)
+x = qbpp.var("x", shape=(4, 4))
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
 g = qbpp.sum(c * x)
 h = 1000 * f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 print("sol =", sol)
 
 result = []
@@ -153,7 +153,7 @@ for i in range(len(result)):
 ```
 
 We use the Easy Solver to find a solution of `h`.
-The time limit for searching is set to 1.0 seconds by passing a parameter dictionary to `search()`.
+The time limit for searching is set to 1.0 seconds by passing `time_limit=1.0` to `search()`.
 The output of this program is as follows:
 ```
 Result : [3, 1, 2, 0]
@@ -163,5 +163,5 @@ c[2][2] = 23
 c[3][0] = 11
 ```
 > **NOTE**
-> For an expression `f` and an integer `m`, `f == m` returns an expression `sqr(f - m)`,
+> For an expression `f` and an integer `m`, `qbpp.constrain(f, equal=m)` returns an expression `sqr(f - m)`,
 > which takes the minimum value 0 if and only if the equality `f == m` is satisfied.

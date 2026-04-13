@@ -100,7 +100,7 @@ def I(c):
 
 x = qbpp.var("x", L, 10)
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
 different = 0
 for i in range(L - 1):
@@ -115,18 +115,18 @@ for k in range(10):
     more += k * (1000 * x[I('M')][k] + 100 * x[I('O')][k] + 10 * x[I('R')][k] + x[I('E')][k])
     money += k * (10000 * x[I('M')][k] + 1000 * x[I('O')][k] + 100 * x[I('N')][k] + 10 * x[I('E')][k] + x[I('Y')][k])
 
-equal = send + more - money == 0
+equal = qbpp.constrain(send + more - money, equal=0)
 
 P = 10000
 f = P * (onehot + different) + equal
 f.simplify_as_binary()
 
-ml = [(x[I('S')][0], 0), (x[I('M')][0], 0)]
+ml = {x[I('S')][0]: 0, x[I('M')][0]: 0}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -148,7 +148,7 @@ print(f"{digit_str(val[I('S')])}{digit_str(val[I('E')])}{digit_str(val[I('N')])}
 `L`$\times$`10` のバイナリ変数行列 `x` を定義します（ここで $L=8$）。
 式 `onehot`、`different`、`equal` は定式化に従って計算され、ペナルティ重み `P` とともに1つの目的関数 `f` にまとめられます。
 
-ペアのリスト `ml` を使って `x[I('S')][0]` と `x[I('M')][0]` を 0 に固定し、この置換を適用して縮約された式 `g` を作成します。
+辞書 `ml` を使って `x[I('S')][0]` と `x[I('M')][0]` を 0 に固定し、この置換を適用して縮約された式 `g` を作成します。
 ソルバーは `g` に対して実行され、得られた割り当て `sol` は固定値 `ml` と統合されて、元の目的関数 `f` に対する `full_sol` が生成されます。
 
 最後に、one-hot行を数字にデコードし、得られた解を出力します。

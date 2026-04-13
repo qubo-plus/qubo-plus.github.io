@@ -103,7 +103,7 @@ int main() {
   auto f = objective + (N + 1) * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "objective = " << objective(sol) << std::endl;

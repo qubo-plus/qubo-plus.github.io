@@ -98,7 +98,7 @@ In these loops, **`sol(x[i])`** returns the value of `x[i]` in `sol`.
 This program outputs:
 ```
 f = 168100 -88576*x[0] ...
-Solution: Sol(energy=0, x[0]=0, x[1]=0, x[2]=1, x[3]=0, x[4]=1, x[5]=1, x[6]=1, x[7]=0)
+Solution: Sol(energy=0, {x[0]: 0, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 1, x[7]: 0})
 f(sol) = 0
 p(sol) = 205
 q(sol) = 205

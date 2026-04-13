@@ -87,7 +87,7 @@ int main() {
   auto f = objective + static_cast<int>(M + 1) * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "Cut edges = " << sol(objective) << std::endl;

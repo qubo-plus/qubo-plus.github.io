@@ -24,15 +24,15 @@ In the following PyQBPP program, we define an integer variable x that takes valu
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), -100, 100)
-f = x * x * x - 147 * x + 286 == 0
+x = qbpp.var("x", between=(-100, 100))
+f = qbpp.constrain(x * x * x - 147 * x + 286, equal=0)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
+result = solver.search(best_energy_sols=0)
 
 seen = set()
-for sol in result.sols():
+for sol in result.sols:
     xv = sol(x)
     if xv not in seen:
         seen.add(xv)

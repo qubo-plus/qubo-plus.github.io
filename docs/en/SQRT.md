@@ -60,9 +60,9 @@ int main() {
   auto x = s <= qbpp::var_int("x") <= c * s;
   auto f = x * x == c * s * s;
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
-  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "Energy = " << sol.energy << std::endl;
   std::cout << "x = " << x << "\n = " << sol(x) << std::endl;
 }
 ```

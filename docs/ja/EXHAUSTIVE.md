@@ -14,13 +14,13 @@ hreflang_lang: "en"
 探索はCPUスレッドを使用して並列化され、CUDA GPUが利用可能な場合は、探索をさらに高速化するためにGPUアクセラレーションが自動的に有効になります。
 
 Exhaustive Solverを使って問題を解くには、以下の3つのステップで行います：
-1. Exhaustive Solver（`qbpp::exhaustive_solver::ExhaustiveSolver`）オブジェクトを作成します。
+1. Exhaustive Solver（`qbpp::ExhaustiveSolver`）オブジェクトを作成します。
 2. `search()` メンバ関数を呼び出します。パラメータは初期化子リストとして渡すことができます。
 
 
 ## Exhaustive Solverオブジェクトの作成
-Exhaustive Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引数としてExhaustive Solverオブジェクト（`qbpp::exhaustive_solver::ExhaustiveSolver`）を以下のように構築します：
-- **`qbpp::exhaustive_solver::ExhaustiveSolver(const qbpp::Expr& f)`**:
+Exhaustive Solverを使用するには、式（`qbpp::Expr`）オブジェクトを引数としてExhaustive Solverオブジェクト（`qbpp::ExhaustiveSolver`）を以下のように構築します：
+- **`qbpp::ExhaustiveSolver(const qbpp::Expr& f)`**:
 ここで、`f` は解くべき式です。
 事前に `simplify_as_binary()` 関数を呼び出してバイナリ式として簡約化しておく必要があります。
 この関数は与えられた式 `f` を解探索中に使用される内部フォーマットに変換します。
@@ -62,9 +62,9 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"enable_default_callback", 1}});
-  std::cout << sol.energy() << ": ";
+  std::cout << sol.energy << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -93,10 +93,10 @@ TTS = 0.004s Energy = 26
 すべての最適解は `best_energy_sols` を設定することで取得できます：
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -120,10 +120,10 @@ TTS = 0.004s Energy = 26
 最小エネルギーのtop-k解は `topk_sols` を設定することで取得できます：
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"topk_sols", 10}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -152,10 +152,10 @@ TTS = 0.004s Energy = 26
 $n$ が十分小さい場合にのみ使用してください。
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
   for (const auto& s : sol.all_solutions()) {
-    std::cout << s.energy() << ": ";
+    std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }

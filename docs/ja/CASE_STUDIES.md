@@ -37,7 +37,8 @@ hreflang_lang: "en"
 
 
 ## 組合せ最適化問題
-1. [ナップサック問題](KNAPSACK)（Medium）
+1. [QUBO 問題](QUBO)（Easy）
+2. [ナップサック問題](KNAPSACK)（Medium）
 2. [シフトスケジューリング問題](SHIFT_SCHEDULING)（Hard）
 3. [LABS 問題](LABS)（Medium）
 4. [切出し問題](BAR_CUTTING)（Hard）

@@ -114,18 +114,18 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 |---|---|---|
 | **インクルード / インポート** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
 | **変数** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
-| **変数ベクトル** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", n)` |
+| **変数配列** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
 | **否定リテラル** | `~x` | `~x` |
-| **整数変数** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.between(qbpp.var_int("x"), 0, 10)` |
-| **等式制約** | `auto f = (expr == 3);` | `f = (expr == 3)` |
-| **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.between(expr, 1, 5)` |
+| **整数変数** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
+| **等式制約** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
+| **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
 | **ExprExpr の本体** | `*f` | `f.body` |
 | **簡約化** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
-| **Easy Solver** | `qbpp::easy_solver::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
-| **Exhaustive Solver** | `qbpp::exhaustive_solver::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
-| **ABS3 Solver** | `qbpp::abs3_solver::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
+| **Easy Solver** | `qbpp::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
+| **Exhaustive Solver** | `qbpp::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
+| **ABS3 Solver** | `qbpp::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
 | **探索** | `auto sol = solver.search();` | `sol = solver.search()` |
-| **パラメータ付き探索** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search({"time_limit": 10, "target_energy": 0})` |
+| **パラメータ付き探索** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **解の値** | `sol(x)` | `sol(x)` |
 | **出力** | `std::cout << sol << std::endl;` | `print(sol)` |
 
@@ -143,7 +143,7 @@ int main() {
   auto y = 0 <= qbpp::var_int("y") <= 10;
   auto h = (x + y == 10) + (2 * x + 4 * y == 28);
   h.simplify_as_binary();
-  auto sol = qbpp::exhaustive_solver::ExhaustiveSolver(h).search();
+  auto sol = qbpp::ExhaustiveSolver(h).search();
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
 }
 ```
@@ -152,9 +152,9 @@ int main() {
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
-h = (x + y == 10) + (2 * x + 4 * y == 28)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+h = qbpp.constrain(x + y, equal=10) + qbpp.constrain(2 * x + 4 * y, equal=28)
 h.simplify_as_binary()
 sol = qbpp.ExhaustiveSolver(h).search()
 print(f"x = {sol(x)}, y = {sol(y)}")
@@ -167,8 +167,8 @@ print(f"x = {sol(x)}, y = {sol(y)}")
 ### C++（QUBO++）の長所
 
 - **式の構築が高速**: 数百万項を含む大規模な式の構築は、ネイティブ C++ の方が大幅に高速です。ソルバーの実行時間は両言語で同じですが、モデルの構築時間は大規模問題で大きく異なります。
-- **きめ細かい型制御**: 多倍長精度が不要な場合、小さい係数型（例: `int32_t`、`int64_t`）を選択できます。固定幅整数は多倍長整数よりはるかに高速で、式の構築とソルバーの両方の性能に影響します。オーバーフローのない計算が必要な場合は、速度を犠牲にして `cpp_int` による多倍長整数に切り替えることもでき、プロジェクトごとに性能と正確性のバランスを柔軟に選択できます。
 - **数学的な範囲制約構文**: 範囲制約に `l <= f <= u` という数式に近い自然な記法を使えます。
+- **既存の C++ プロジェクトとの統合**: 既存の C++ アプリケーションに組み込んで使えます。
 
 ### Python（PyQBPP）の長所
 
@@ -184,8 +184,7 @@ print(f"x = {sol(x)}, y = {sol(y)}")
 |---|---|---|
 | **式の構築速度** | 高速（ネイティブ） | やや遅い（ctypes オーバーヘッド） |
 | **ソルバー速度** | 同じ | 同じ |
-| **型制御** | きめ細かい（int16 〜 cpp_int） | 同じ（デフォルト: c32e64） |
 | **使いやすさ** | 普通 | 簡単 |
 | **対話的利用** | 不可 | 可能（Jupyter、REPL） |
 
-**推奨**: まず **PyQBPP（Python）** でプロトタイピングや学習を始め、大規模問題での式構築の高速化や性能のための型制御が必要になったら **C++（QUBO++）** に移行してください。
+**推奨**: まず **PyQBPP（Python）** でプロトタイピングや学習を始め、大規模問題での式構築の高速化が必要になったら **C++（QUBO++）** に移行してください。

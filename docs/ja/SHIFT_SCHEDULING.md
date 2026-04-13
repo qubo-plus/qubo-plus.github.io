@@ -161,7 +161,7 @@ int main() {
   g.simplify_as_binary();
   workers_working_days.replace(ml);
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 0}});
   for (size_t i = 0; i < workers; ++i) {
     std::cout << "Worker " << i << ": " << sol(workers_working_days[i])

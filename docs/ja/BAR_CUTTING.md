@@ -78,7 +78,7 @@ int main() {
   auto f = qbpp::sum(order_constraint) + qbpp::sum(bar_constraint);
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 10.0}, {"target_energy", 0}});
   for (size_t i = 0; i < M; i++) {
     std::cout << "Bar " << i << ":  ";

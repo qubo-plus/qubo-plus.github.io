@@ -199,7 +199,7 @@ int main() {
   auto z = qbpp::int_array({1, 1, 1, 1, 0, 0, 0, 1});
   auto f = multiplier(x, y, z).simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   for (size_t i = x.size(); i > 0; --i) {

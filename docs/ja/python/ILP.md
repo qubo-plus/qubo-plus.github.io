@@ -25,16 +25,16 @@ $$
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x", 3), 0, 5)
+x = qbpp.var("x", shape=3, between=(0, 5))
 objective = 2 * x[0] + 5 * x[1] + 5 * x[2]
-c1 = qbpp.between(x[0] + 3 * x[1] + x[2], 0, 12)
-c2 = qbpp.between(x[0] + 2 * x[2], 0, 5)
-c3 = qbpp.between(x[1] + x[2], 0, 4)
+c1 = qbpp.constrain(x[0] + 3 * x[1] + x[2], between=(0, 12))
+c2 = qbpp.constrain(x[0] + 2 * x[2], between=(0, 5))
+c3 = qbpp.constrain(x[1] + x[2], between=(0, 4))
 
 f = -objective + 100 * (c1 + c2 + c3)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 print(f"x0 = {sol(x[0])}, x1 = {sol(x[1])}, x2 = {sol(x[2])}")
 print(f"objective = {sol(objective)}")
 print(f"c1 = {sol(c1.body)}, c2 = {sol(c2.body)}, c3 = {sol(c3.body)}")

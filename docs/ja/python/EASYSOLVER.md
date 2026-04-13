@@ -13,7 +13,7 @@ hreflang_lang: "en"
 
 Easy Solverで問題を解くには、以下の2つのステップで行います:
 1. **`EasySolver`** オブジェクトを作成する。
-2. パラメータ辞書を渡して **`search()`** メソッドを呼び出し、解を探索する。このメソッドは **`Sol`** オブジェクトを返す。
+2. キーワード引数を渡して **`search()`** メソッドを呼び出し、解を探索する。このメソッドは **`Sol`** オブジェクトを返す。
 
 ## Easy Solverオブジェクトの作成
 Easy Solverを使用するには、以下のように式を引数として `EasySolver` オブジェクトを作成します:
@@ -23,31 +23,31 @@ Easy Solverを使用するには、以下のように式を引数として `Easy
 事前に `simplify_as_binary()` を呼び出してバイナリ式として簡約化しておく必要があります。
 
 ## 探索パラメータ
-パラメータは **`search()`** メソッドに辞書として渡します。**`callback()`** メソッドのみ、`search()` の前にソルバーオブジェクトに対して別途呼び出します。
+パラメータは **`search()`** メソッドにキーワード引数として渡します。**`callback()`** メソッドのみ、`search()` の前にソルバーオブジェクトに対して別途呼び出します。
 
 | パラメータ | 説明 | デフォルト |
 |---|---|---|
-| `"time_limit"` | 制限時間（秒、float）。0で時間制限なし。 | 10.0 |
-| `"target_energy"` | 目標エネルギー（int）。この値以下の解が見つかると探索を終了。 | （なし） |
-| `"topk_sols"` | 保持するtop-k解の数（int）。 | （無効） |
-| `"best_energy_sols"` | 最良エネルギーの解を保持（int）。`0` で無制限。 | （無効） |
-| `"enable_default_callback"` | 新たに得られた最良解を出力（int、`1` で有効）。 | （無効） |
+| `time_limit` | 制限時間（秒、float）。0で時間制限なし。 | 10.0 |
+| `target_energy` | 目標エネルギー（int）。この値以下の解が見つかると探索を終了。 | （なし） |
+| `topk_sols` | 保持するtop-k解の数（int）。 | （無効） |
+| `best_energy_sols` | 最良エネルギーの解を保持（int）。`0` で無制限。 | （無効） |
+| `enable_default_callback` | 新たに得られた最良解を出力（int、`1` で有効）。 | （無効） |
 
 **`callback(func)`** メソッドは、新しい最良解が見つかったときに呼び出されるコールバック関数を設定します。`energy`（int）と `tts`（float）を受け取ります。
 
 未知のパラメータキーを設定するとランタイムエラーが発生します。
 
 ## 解の探索
-Easy Solverは **`search(params)`** を呼び出すことで解を探索します。`params` は探索パラメータの辞書です。このメソッドは **`Sol`** オブジェクトを返します。
+Easy Solverは **`search()`** にキーワード引数を渡すことで解を探索します。このメソッドは **`Sol`** オブジェクトを返します。
 
 ### 複数解の取得
-パラメータ辞書に `"topk_sols"` を設定した場合、ソルバーは探索中に見つかったエネルギーが最良の解を最大 `n` 個収集します。
-返された `Sol` に対して **`sol.sols()`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
+`topk_sols` を指定した場合、ソルバーは探索中に見つかったエネルギーが最良の解を最大 `n` 個収集します。
+返された `Sol` に対して **`sol.sols`** を呼び出すことで、エネルギーの昇順にソートされた `Sol` オブジェクトのリストを取得できます。
 
 ```python
 solver = qbpp.EasySolver(f)
-sol = solver.search({"topk_sols": 5})
-for s in sol.sols():
+sol = solver.search(topk_sols=5)
+for s in sol.sols:
     print(f"energy = {s.energy}")
 ```
 
@@ -68,7 +68,7 @@ for d in range(1, size):
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 5.0, "target_energy": 900, "enable_default_callback": 1})
+sol = solver.search(time_limit=5.0, target_energy=900, enable_default_callback=1)
 bits = "".join("-" if sol(x[i]) == 0 else "+" for i in range(size))
 print(f"{sol.energy}: {bits}")
 ```

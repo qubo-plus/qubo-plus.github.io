@@ -104,7 +104,7 @@ int main() {
   auto f = objective + constraint * 1000;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
   auto tour = qbpp::onehot_to_int(sol(x));
 
@@ -169,7 +169,7 @@ QUBO++では、固定された変数の割り当てを `qbpp::replace()` 関数�
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"time_limit", 1.0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);

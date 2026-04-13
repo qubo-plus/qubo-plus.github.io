@@ -58,7 +58,7 @@ int main() {
   auto f = x * y * z == 252;
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   std::set<int> s;
   for (const auto& sol : sols) {

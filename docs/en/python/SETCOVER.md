@@ -124,13 +124,13 @@ for i in range(m):
 
 constraint = 0
 for j in range(n):
-    constraint += qbpp.between(c[j], 1, m)
+    constraint += qbpp.constrain(c[j], between=(1, m))
 ```
 
 ### Comparison with C++ QUBO++
 
 | C++ QUBO++                   | PyQBPP                              |
 |------------------------------|---------------------------------------|
-| `1 <= c[j] <= +qbpp::inf`   | `between(c[j], 1, m)`                |
+| `1 <= c[j] <= +qbpp::inf`   | `constrain(c[j], between=(1, m))`     |
 
 With this modification, the program produces the same optimal solution as the HUBO version.

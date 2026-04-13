@@ -11,10 +11,10 @@ hreflang_lang: "ja"
 # Replace Functions
 
 PyQBPP provides the following replace function, which can be used to fix variable values in an expression:
-- **`replace(f, ml)`**: Returns a new expression in which variables are replaced according to the list of pairs `ml`.
+- **`replace(f, ml)`**: Returns a new expression in which variables are replaced according to the dict `ml`.
 - **`f.replace(ml)`**: Replaces variables in expression `f` in place.
 
-Here, `ml` is a Python list of `(variable, expression)` pairs, where the expression can also be an integer value, e.g., `[(x, 0), (y, ~z)]`.
+Here, `ml` is a Python dict mapping variables to expressions, where the expression can also be an integer value, e.g., `{x: 0, y: ~z}`.
 
 ## Using the replace function to fix variable values
 We explain the `replace()` function using the
@@ -33,7 +33,7 @@ q = qbpp.sum([w[i] * ~x[i] for i in range(len(w))])
 f = qbpp.sqr(p - q)
 f.simplify_as_binary()
 
-ml = [(x[0], 1), (x[1], 0)]
+ml = {x[0]: 1, x[1]: 0}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
@@ -48,7 +48,7 @@ Q = [w[i] for i in range(len(w)) if full_sol(x[i]) == 0]
 print("P:", P)
 print("Q:", Q)
 ```
-In this program, a list of pairs **`ml`** fixes `x[0]=1` (64 in $P$) and `x[1]=0` (27 in $Q$).
+In this program, a dict **`ml`** fixes `x[0]=1` (64 in $P$) and `x[1]=0` (27 in $Q$).
 The `replace()` function substitutes these values into `f`, and the Exhaustive Solver finds the optimal partition for the remaining variables.
 
 This program produces the following output:
@@ -65,7 +65,7 @@ For example, to ensure that 64 and 27 are placed in distinct subsets,
 we replace `x[0]` with `~x[1]` so they always take opposite values:
 
 ```python
-ml = [(x[0], ~x[1])]
+ml = {x[0]: ~x[1]}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
@@ -98,18 +98,18 @@ Fix $p=5$ and $q=7$ to find $r=35$:
 ```python
 import pyqbpp as qbpp
 
-p = qbpp.between(qbpp.var_int("p"), 2, 8)
-q = qbpp.between(qbpp.var_int("q"), 2, 8)
-r = qbpp.between(qbpp.var_int("r"), 2, 40)
-f = p * q - r == 0
+p = qbpp.var("p", between=(2, 8))
+q = qbpp.var("q", between=(2, 8))
+r = qbpp.var("r", between=(2, 40))
+f = qbpp.constrain(p * q - r, equal=0)
 f.simplify_as_binary()
 
-ml = [(p, 5), (q, 7)]
+ml = {p: 5, q: 7}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
@@ -122,7 +122,7 @@ p=5, q=7, r=35
 ### Factorization
 Fix $r=35$ to find $p$ and $q$:
 ```python
-ml = [(r, 35)]
+ml = {r: 35}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 # ... same solver setup ...
@@ -131,7 +131,7 @@ g.simplify_as_binary()
 ### Division
 Fix $p=5$ and $r=35$ to find $q=7$:
 ```python
-ml = [(p, 5), (r, 35)]
+ml = {p: 5, r: 35}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 # ... same solver setup ...
@@ -146,13 +146,13 @@ g.simplify_as_binary()
 > The `Term` is promoted to an `Expr`, and a new `Expr` is returned:
 > ```python
 > t = ~a * b * ~c * ~d  # Term
-> e = t.replace([(~a, 1 - a), (~c, 1 - c), (d, 1 - d)])  # returns Expr
+> e = t.replace({~a: 1 - a, ~c: 1 - c, d: 1 - d})  # returns Expr
 > ```
 
 > **NOTE: Negated literals and `replace()`**
 > The `replace()` function treats `x` and `~x` as independent keys.
-> Specifying `(x, 0)` in the list does **not** automatically replace `~x` with `1`.
+> Specifying `x: 0` in the dict does **not** automatically replace `~x` with `1`.
 > If the expression contains negated literals such as `~x`, you should explicitly include both mappings:
 > ```python
-> ml = [(x, 0), (~x, 1)]
+> ml = {x: 0, ~x: 1}
 > ```

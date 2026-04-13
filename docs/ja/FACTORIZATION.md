@@ -48,7 +48,7 @@ int main() {
   auto f = p * q == 35;
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
@@ -93,7 +93,7 @@ int main() {
   auto f = p * q == qbpp::cpp_int("1000039") * qbpp::cpp_int("1000079");
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
