@@ -53,14 +53,14 @@ f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
 result = solver.search(best_energy_sols=0)
 for k, sol in enumerate(result.sols):
-    row = [sol.get_vector(x[i]) for i in range(4)]
+    row = [list(sol(x[i])) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
 このプログラムでは、**`var("x", shape=(4, 4))`** が **`x`** という名前の $4\times 4$ サイズのネストされた `Array` を返します。
 `Expr` オブジェクト **`f`** に対して、2つの二重forループが $f(X)$ の式を構築します。
 Exhaustive Solverを使用して、すべての最適解が計算され **`sols`** に格納されます。
-`sols` 内のすべての解は `sol.get_vector()` を使用して1つずつ表示されます。
+`sols` 内のすべての解は `list(sol(x[i]))` を使用して1つずつ表示されます。
 このプログラムは24個すべての置換を出力します。
 
 ## 配列関数と演算を使用したQUBO定式化

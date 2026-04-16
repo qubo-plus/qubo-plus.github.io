@@ -40,7 +40,7 @@ Exhaustive Solverを使用するには、式（`qbpp::Expr`）オブジェクト
 
 ## 解の探索
 - **`search()`**: 見つかった最良解を返します（パラメータなし）。CUDA GPUが利用可能な場合、CPUスレッドと並行してGPUを使用した探索の高速化が自動的に行われます。
-- **`search(params)`**: `Sol` オブジェクトを返します。`topk_sols`、`best_energy_sols`、`all_sols` が設定されている場合、収集された解は `sol.all_solutions()` でエネルギーの昇順にアクセスできます。
+- **`search(params)`**: `Sol` オブジェクトを返します。`topk_sols`、`best_energy_sols`、`all_sols` が設定されている場合、収集された解は `sol.sols()` でエネルギーの昇順にアクセスできます。
 
 # プログラム例
 以下のプログラムは、Exhaustive Solverを使用して**Low Autocorrelation Binary Sequences (LABS)**問題の解を探索します：
@@ -64,7 +64,7 @@ int main() {
 
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"enable_default_callback", 1}});
-  std::cout << sol.energy << ": ";
+  std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -95,7 +95,7 @@ TTS = 0.004s Energy = 26
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
@@ -122,7 +122,7 @@ TTS = 0.004s Energy = 26
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"topk_sols", 10}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
@@ -154,7 +154,7 @@ $n$ が十分小さい場合にのみ使用してください。
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");

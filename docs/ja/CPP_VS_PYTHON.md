@@ -106,6 +106,26 @@ f = 2          # ただの int — 問題なし
 f += x         # f は自動的に 2 + x を表す Expr になる
 ```
 
+## 整数変数 (`VarInt`) と制約 (`ExprExpr`) の immutability
+
+`qbpp::VarInt` / `qbpp::ExprExpr` (および対応する `pyqbpp.VarInt` / `pyqbpp.ExprExpr`) は **どちらの言語でも immutable** で、in-place 変更はできません。
+ただし **エラーの出方が言語によって異なります**:
+
+| 操作 | C++ | Python |
+|---|---|---|
+| `vi += 1`, `ee += 1` (複合代入) | **コンパイルエラー** (`= delete`) | **silent rebind** — `vi` / `ee` は新しい `Expr` に再束縛されます (Python の immutable 型 `Decimal` / `Fraction` / `str` と同じ流儀)。VarInt の metadata / ExprExpr の body は破棄 |
+| `vi.simplify_as_binary()` 等の mutator メソッド | **コンパイルエラー** | **`TypeError`** (エラーメッセージに代替の `qbpp.simplify_as_binary(vi)` を提示) |
+| `ee.replace(ml)` | **コンパイルエラー** | **`TypeError`** (代替: `qbpp.replace(ee, ml)`) |
+
+**理由**: C++ では型の不一致を**コンパイル時に検出する**のが慣習なので `= delete` が自然。Python では `f = 1; f += x` のような型変換を伴う複合代入が当たり前 (Python の immutable 型と同じ) なので、`vi += 1` も silent rebind のほうが自然 — ただし mutator メソッドには rebind の fallback がないので `TypeError`。
+
+両言語に共通する原則:
+- **上書きは同じ型の代入のみ**: `vi = other_vi`, `ee = other_ee` は OK
+- **`Expr` への暗黙 decay**: 算術文脈で `vi + 1`, `ee + ee2` などは新しい `Expr` を返す
+- **関数を適用したい時はグローバル関数**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — 元のオブジェクトは変更されず新しい `Expr` を返す
+
+詳細はクイックリファレンス [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT) を参照。
+
 ## 構文の違い
 
 以下の表に、C++ と Python の主な構文の違いを示します。
@@ -119,7 +139,9 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 | **整数変数** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
 | **等式制約** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **ExprExpr の本体** | `*f` | `f.body` |
+| **ExprExpr の本体** | `f.body()` | `f.body` |
+| **ExprExpr のペナルティ** | `f.penalty()` または `Expr(f)` (decay) | `f.penalty` または `Expr` 文脈で decay |
+| **VarInt の Expr 部分** | `vi.expr()` または `Expr(vi)` (decay) | `vi._expr()` / `vi.to_expr()` |
 | **簡約化** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
 | **Easy Solver** | `qbpp::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
 | **Exhaustive Solver** | `qbpp::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |

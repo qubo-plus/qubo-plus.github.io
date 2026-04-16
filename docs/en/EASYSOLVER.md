@@ -70,7 +70,7 @@ int main() {
   auto solver = qbpp::EasySolver(f);
 
   auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 900}, {"enable_default_callback", 1}});
-  std::cout << sol.energy << ": ";
+  std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -184,7 +184,7 @@ int main() {
 
   auto sols = solver.search({{"time_limit", 5.0}, {"topk_sols", 20}});
   for (const auto& sol : sols) {
-    std::cout << sol.energy << ": ";
+    std::cout << sol.energy() << ": ";
     for (auto val : sol(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }

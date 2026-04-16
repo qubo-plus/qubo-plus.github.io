@@ -89,10 +89,10 @@ The following QUBO++ program factorizes the product of two large prime numbers:
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto p = 2 <= qbpp::var_int("p") <= qbpp::cpp_int("2000000");
-  auto q = 2 <= qbpp::var_int("q") <= qbpp::cpp_int("2000000");
+  auto p = 2 <= qbpp::var_int("p") <= qbpp::integer("2000000");
+  auto q = 2 <= qbpp::var_int("q") <= qbpp::integer("2000000");
 
-  auto f = p * q == qbpp::cpp_int("1000039") * qbpp::cpp_int("1000079");
+  auto f = p * q == qbpp::integer("1000039") * qbpp::integer("1000079");
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
 
   auto solver = qbpp::EasySolver(f);
@@ -106,7 +106,8 @@ int main() {
 {% endraw %}
 
 Before including `qbpp/qbpp.hpp`, `INTEGER_TYPE_CPP_INT` is defined to set both `coeff_t` and `energy_t` to `cpp_int`.
-Constant integers are specified using **`qbpp::cpp_int()`** with a string literal as its argument.
+Constant integers are specified using **`qbpp::integer()`** with a decimal string literal as its argument
+(the product is written as `qbpp::integer("1000039") * qbpp::integer("1000079")` to avoid intermediate `int * int` overflow).
 
 This program outputs the following result:
 {% raw %}

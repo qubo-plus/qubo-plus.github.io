@@ -8,16 +8,14 @@ hreflang_alt: "ja/python/VAREXPR"
 hreflang_lang: "ja"
 ---
 
-# Variable and Expression Classes
+# Variables and expressions
 
-## Var and Expr classes
+## The three concepts
+PyQBPP uses only three concepts to represent QUBO/HUBO problems:
 
-PyQBPP provides two main classes for building QUBO/HUBO expressions:
-- **`Var`**: Represents a binary variable, associated with a display name.
-- **`Expr`**: Represents an expression consisting of an integer constant and zero or more product terms.
-
-`Var` objects are created using `qbpp.var()` and are **immutable**.
-Expressions are built from variables using arithmetic operators (`+`, `-`, `*`) and are **mutable** via compound assignment operators such as `+=`.
+- **integer**: Python's built-in `int`, used as constants and coefficients.
+- **variable**: a binary variable created by `qbpp.var("x")`. Its type is `pyqbpp.Var` and it is **immutable**.
+- **expression**: a polynomial built from integers and variables using the arithmetic operators `+`, `-`, `*`. Its type is `pyqbpp.Expr` and it is **mutable** via compound assignment operators such as `+=`. Every operation **expands the expression automatically**, so an expression is always stored internally as a **sum of product terms** (e.g., `(x + 1) * (y + 2)` is expanded on the fly to `2 + x*y + 2*x + y`).
 
 The following program demonstrates variable and expression creation:
 ```python
@@ -36,9 +34,9 @@ f = 1 -x +2*x*y +3*y
 ```
 
 > **NOTE**
-> PyQBPP uses the C++ QUBO++ library as its backend, which internally distinguishes between `Term` (a single product term like `2*x*y`) and `Expr` (a sum of terms).
-> In PyQBPP, however, you do not need to be aware of this distinction.
-> Python's dynamic typing automatically converts between types as needed, so you can simply write expressions naturally.
+> Python's dynamic typing automatically handles the necessary type conversions
+> while building an expression, so you do not have to think about the types of
+> intermediate results — just mix integers, variables, and expressions freely.
 
 ## Coefficient and Energy Types
 By default, `import pyqbpp` uses **32-bit coefficients and 64-bit energy** (`c32e64`),

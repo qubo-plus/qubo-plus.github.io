@@ -54,14 +54,14 @@ f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
 result = solver.search(best_energy_sols=0)
 for k, sol in enumerate(result.sols):
-    row = [sol.get_vector(x[i]) for i in range(4)]
+    row = [list(sol(x[i])) for i in range(4)]
     print(f"Solution {k} : {row}")
 ```
 
 In this program, **`var("x", shape=(4, 4))`** returns a nested `Array` of size $4\times 4$ named **`x`**.
 For an `Expr` object **`f`**, two double for-loops build the formula for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.
-All solutions in `sols` are displayed one-by-one using `sol.get_vector()`.
+All solutions in `sols` are displayed one-by-one using `list(sol(x[i]))`.
 This program outputs all 24 permutations.
 
 ## QUBO formulation using array functions and operations

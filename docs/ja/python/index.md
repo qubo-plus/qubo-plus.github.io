@@ -61,4 +61,5 @@ PyQBPPを使った求解方法を学ぶことができます。
 ## クイックリファレンス
 1. [変数と式](QR_VARIABLE)
 2. [演算子と関数](QR_OPERATION)
-3. [解](QR_SOLUTION)
+3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
+4. [解](QR_SOLUTION)

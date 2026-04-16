@@ -72,7 +72,7 @@ int main() {
   size_t i = 0;
   for (const auto& sol : sols.sols()) {
     std::cout << i++ << ": LABS = ";
-    std::cout << sol.energy << " : ";
+    std::cout << sol.energy() << " : ";
     for (size_t j = 0; j < n; ++j) {
       std::cout << (sol(s[j]) ? "+" : "-");
     }

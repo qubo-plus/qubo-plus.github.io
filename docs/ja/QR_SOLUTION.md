@@ -2,7 +2,7 @@
 layout: default
 nav_exclude: true
 title: "QR: Solutions"
-nav_order: 32
+nav_order: 33
 lang: ja
 hreflang_alt: "en/QR_SOLUTION"
 hreflang_lang: "en"
@@ -60,14 +60,14 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `sol.energy` | `energy_t` | 格納されたエネルギー値を返す |
+| `sol.energy()` | `energy_t` | 格納されたエネルギー値を返す |
 | `sol.comp_energy()` | `energy_t` | 現在の変数値からエネルギーを再計算して格納 |
-| `sol.tts` | `double` | 求解時間（秒） |
+| `sol.tts()` | `double` | 求解時間（秒） |
 
-`sol.energy` はソルバーが解を見つけた時点で格納されたエネルギー値を返します。
+`sol.energy()` はソルバーが解を見つけた時点で格納されたエネルギー値を返します。
 エネルギーの再計算は**行いません**。
 `sol.set()` で変数値を変更した後は、格納されたエネルギーは**無効**になります。
-この状態で `sol.energy` を呼び出すとエラーが発生します。
+この状態で `sol.energy()` を呼び出すとエラーが発生します。
 `sol.comp_energy()` を呼んでエネルギーを再計算・更新してからアクセスしてください。
 
 ## 解からの整数の抽出

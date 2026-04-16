@@ -135,10 +135,12 @@ The following types can be specified:
 |------|-------|-----------------------|
 | `int32_t` | ±2.1×10⁹ | `12345` (integer literal) |
 | `int64_t` | ±9.2×10¹⁸ | `1234567890123456789LL` |
-| `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::int128_t("12345678901234567890")` |
-| `qbpp::cpp_int` | unlimited | `qbpp::cpp_int("...")` |
+| `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::integer("12345678901234567890")` |
+| `qbpp::cpp_int` | unlimited | `qbpp::integer("...")` |
 
 The type **`qbpp::cpp_int`** represents an integer with an arbitrary number of digits.
+The helper function **`qbpp::integer("...")`** parses a decimal string into the current `coeff_t` type,
+so the same source code works unchanged for any build from `int32_t` through `cpp_int`.
 
 By default, `coeff_t` is `int32_t` and `energy_t` is `int64_t`.
 To use a different type, define one of the following macros before including the header (or pass as a compiler flag `-D...`):
@@ -173,18 +175,30 @@ Example — selecting both type and VarArray mode:
 
 The appropriate library is automatically loaded at runtime based on the specified macros.
 
-### String constructors
+### Large constants: qbpp::integer()
+Constant values that exceed the 64-bit integer range are specified by passing a decimal string
+to the helper function **`qbpp::integer("...")`**.
+It parses the string into the current `coeff_t` type (`int32_t` through `cpp_int`),
+so the same source code works for every build.
+If the value does not fit in `coeff_t`, `std::out_of_range` is thrown.
 
-For `qbpp::int128_t` and `qbpp::cpp_int`,
-constant values that exceed the 64-bit integer range can be specified using **string constructors**.
-The string is parsed as a decimal number at runtime.
+Small values such as `qbpp::integer("0")` and `qbpp::integer("-1")` are accepted as well.
+However, the string-to-value conversion happens **at runtime**, so for values that fit in
+`int64_t` (±9.2×10¹⁸) it is more efficient to use ordinary integer literals (e.g., `12345`,
+`1234567890123456789LL`).
+When the same string appears inside a hot loop, bind it once to a variable to avoid repeated
+parse overhead:
+```cpp
+const auto K = qbpp::integer("1000000000000");  // parsed once
+for (int i = 0; i < n; ++i) f += K * x[i];
+```
 
 > **Note**:
 > Standard integer literals (e.g., `12345`) and 64-bit literals with the `LL` suffix can be used directly
 > with any type via implicit conversion.
-> String constructors are only needed when the value exceeds the `int64_t` range (±9.2×10¹⁸).
+> `qbpp::integer()` is only needed when the value exceeds the `int64_t` range.
 
-### Example with qbpp::int128_t
+### Example with 128-bit integers
 
 The following program creates a `qbpp::Expr` object with coefficients exceeding 64-bit range:
 ```cpp
@@ -195,8 +209,8 @@ The following program creates a `qbpp::Expr` object with coefficients exceeding 
 int main() {
   auto x = qbpp::var("x");
   auto y = qbpp::var("y");
-  auto f = qbpp::int128_t("12345678901234567890") * x +
-           qbpp::int128_t("98765432109876543210") * y;
+  auto f = qbpp::integer("12345678901234567890") * x +
+           qbpp::integer("98765432109876543210") * y;
   std::cout << "f = " << f << std::endl;
 }
 ```
@@ -205,7 +219,7 @@ This program produces the following output:
 f = 12345678901234567890*x +98765432109876543210*y
 ```
 
-### Example with qbpp::cpp_int
+### Example with arbitrary-precision integers (cpp_int)
 
 The following program creates a `qbpp::Expr` object with very large coefficient and constant terms:
 ```cpp
@@ -215,8 +229,8 @@ The following program creates a `qbpp::Expr` object with very large coefficient 
 
 int main() {
   auto x = qbpp::var("x");
-  auto f = qbpp::cpp_int("123456789012345678901234567890") * x +
-           qbpp::cpp_int("987654321098765432109876543210");
+  auto f = qbpp::integer("123456789012345678901234567890") * x +
+           qbpp::integer("987654321098765432109876543210");
   std::cout << "f = " << f << std::endl;
 }
 ```

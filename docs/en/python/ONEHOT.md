@@ -102,10 +102,3 @@ For example, for a $2 \times 3 \times 4$ array:
 |------------------|------|--------------|---------------|
 | $(m)$            | —    | $(1)$        | $[0, m-1]$ or $-1$ |
 | $(d_0 \times \cdots \times d_{n-1})$ | $k$ | all dims except $d_k$ | $[0, d_k-1]$ or $-1$ |
-
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                              | PyQBPP                                  |
-|------------------------------------------|-----------------------------------------|
-| `qbpp::onehot_to_int(sol(x))`          | `qbpp.onehot_to_int(sol(x))`           |
-| `qbpp::onehot_to_int(sol(x), k)`       | `qbpp.onehot_to_int(sol(x), k)`        |

@@ -77,7 +77,7 @@ for i, j in edges:
     objective += x[i] * ~x[j] + ~x[i] * x[j]
 
 # 制約: 各パーティションに正確に N/2 ノード
-constraint = qbpp.sum(x) == N // 2
+constraint = qbpp.constrain(qbpp.sum(x), equal=N // 2)
 
 # ペナルティ重み: M + 1 で制約を優先
 f = objective + (M + 1) * constraint

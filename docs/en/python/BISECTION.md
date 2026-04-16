@@ -77,7 +77,7 @@ for i, j in edges:
     objective += x[i] * ~x[j] + ~x[i] * x[j]
 
 # Constraint: exactly N/2 nodes in each partition
-constraint = qbpp.sum(x) == N // 2
+constraint = qbpp.constrain(qbpp.sum(x), equal=N // 2)
 
 # Penalty weight: M + 1 ensures constraint is prioritized
 f = objective + (M + 1) * constraint

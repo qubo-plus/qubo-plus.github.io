@@ -61,4 +61,5 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 ## Quick References
 1. [Variables and Expressions](QR_VARIABLE)
 2. [Operators and Functions](QR_OPERATION)
-3. [Solutions](QR_SOLUTION)
+3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
+4. [Solutions](QR_SOLUTION)

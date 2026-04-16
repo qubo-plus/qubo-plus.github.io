@@ -102,10 +102,3 @@ idx = qbpp.onehot_to_int(sol(v))  # {2}
 |------------------|------|--------------|---------------|
 | $(m)$            | —    | $(1)$        | $[0, m-1]$ または $-1$ |
 | $(d_0 \times \cdots \times d_{n-1})$ | $k$ | $d_k$ を除く全次元 | $[0, d_k-1]$ または $-1$ |
-
-### C++ QUBO++ との比較
-
-| C++ QUBO++                              | PyQBPP                                  |
-|------------------------------------------|-----------------------------------------|
-| `qbpp::onehot_to_int(sol(x))`          | `qbpp.onehot_to_int(sol(x))`           |
-| `qbpp::onehot_to_int(sol(x), k)`       | `qbpp.onehot_to_int(sol(x), k)`        |

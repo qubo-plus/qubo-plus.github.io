@@ -2,7 +2,7 @@
 layout: default
 nav_exclude: true
 title: "QR: Solutions"
-nav_order: 32
+nav_order: 33
 lang: en
 hreflang_alt: "ja/python/QR_SOLUTION"
 hreflang_lang: "ja"

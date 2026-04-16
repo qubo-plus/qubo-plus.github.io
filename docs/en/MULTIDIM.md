@@ -152,24 +152,29 @@ f[1][1] = -1 +2*x[1][1]
 f[1][2] = -1 +2*x[1][2]
 ```
 
-## The `qbpp::Array` class
-**`qbpp::Array`** is a multi-dimensional array class that supports arrays of any dimension, including 1D.
+## The `qbpp::Array<Dim, T>` class
+**`qbpp::Array<Dim, T>`** is a multi-dimensional array class where `Dim` is the number of dimensions and `T` is the element type (`qbpp::Var`, `qbpp::Expr`, `qbpp::Term`, `qbpp::VarInt`, or the integer coefficient type).
+In practice you rarely need to write `Array<Dim, T>` by hand: the factory functions and `auto` type deduction pick the right instantiation, and the compiler checks that operations (element-wise `+`, `-`, `*`, assignment, …) are consistent with the declared element type.
 It provides multi-dimensional indexing via `operator[]` chaining (e.g., `x[i][j][k]`) and element-wise arithmetic operations.
-The element type (Var, Expr, integer, etc.) is determined internally and does not need to be specified as a template parameter.
 
 Arrays are created using the following factory functions:
-- **`qbpp::var("name", s1, s2, ...)`**: Array of binary variables.
-- **`qbpp::expr(s1, s2, ...)`**: Array of zero-initialized expressions.
-- **`qbpp::int_array({v1, v2, ...})`**: Array of integer constants.
-- **`qbpp::int_array(s1, s2, ...)`**: Zero-initialized integer array with given shape.
+- **`qbpp::var("name", s1, s2, ...)`** → `Array<Dim, Var>`: Array of binary variables.
+- **`qbpp::expr(s1, s2, ...)`** → `Array<Dim, Expr>`: Array of zero-initialized expressions.
+- **`qbpp::int_array({v1, v2, ...})`** → `Array<1, coeff_t>`: Array of integer constants.
+- **`qbpp::int_array(s1, s2, ...)`** → `Array<Dim, coeff_t>`: Zero-initialized integer array with given shape.
+- **`l <= qbpp::var_int("name", s1, s2, ...) <= u`** → `Array<Dim, VarInt>`: Array of integer variables.
 
-The `qbpp::Array` class provides the following member functions:
+The `qbpp::Array<Dim, T>` class provides the following member functions:
 - **`size()`**: Returns the size of the outermost dimension.
 - **`total()`**: Returns the total number of elements.
-- **`ndim()`**: Returns the number of dimensions.
+- **`ndim()`**: Returns the number of dimensions (equal to `Dim`).
+- **`shape(d)`**: Returns the size of dimension `d`.
 - **`empty()`**: Returns `true` if the array has no elements.
-- **`operator[]`**: Returns an element (1D) or a sub-array proxy (multi-dimensional).
+- **`operator[]`**: Returns an element (when `Dim == 1`) or a sub-array (when `Dim > 1`).
 - **`begin()`** / **`end()`**: Iterators for range-based `for` loops.
+
+> **NOTE — element type and arithmetic results**
+> Arithmetic promotes the element type the same way scalar expressions do: `Array<Dim, Var> + 1` produces `Array<Dim, Expr>`, `Array<Dim, Var> * Array<Dim, Var>` produces `Array<Dim, Term>`, and so on. Compound assignments such as `+=`, `-=`, `*=` keep the left-hand side's element type fixed, so writing `Array<Var> += 1` is a compile-time error — use `auto f = x + 1;` to obtain an `Array<Expr>` instead.
 
 In addition, `qbpp::Array` supports the following operators for element-wise operations:
 - **`+`**: Element-wise addition of two arrays, or an array and a scalar.
@@ -194,8 +199,8 @@ int main() {
   auto f = x + 1;
   f += x - 2;
   f.simplify_as_binary();
-  std::cout << "total = " << f.total << std::endl;
-  std::cout << "ndim = " << f.ndim << std::endl;
+  std::cout << "total = " << f.total() << std::endl;
+  std::cout << "ndim = " << f.ndim() << std::endl;
   std::cout << "shape = (" << f.shape(0) << ", " << f.shape(1) << ")" << std::endl;
   for (size_t i = 0; i < f.size(); ++i) {
     for (size_t j = 0; j < f[i].size(); ++j) {
@@ -205,7 +210,7 @@ int main() {
   }
 }
 ```
-Here, `f.total` returns the total number of elements, `f.ndim` the number of dimensions, and `f.shape(d)` returns the size of dimension `d`.
+Here, `f.total()` returns the total number of elements, `f.ndim()` the number of dimensions, and `f.shape(d)` returns the size of dimension `d`.
 `f[i][j]` accesses the element at row `i`, column `j`.
 
 This program outputs:

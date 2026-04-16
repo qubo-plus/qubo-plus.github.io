@@ -12,35 +12,37 @@ hreflang_lang: "ja"
 
 ## Data types used in `qbpp::Expr`
 - **`coeff_t`**:
-  The integer data type used for coefficients in `qbpp::Term` objects.
-  The default type is `int32_t`.
-  To change this type, define the `COEFF_TYPE` macro at compile time, for example:
-```
--DCOEFF_TYPE=int64_t
-```
+  The integer data type used for coefficients in `qbpp::Term` objects. The default is `int32_t`.
 - **`energy_t`**:
-The integer data type used to compute energy values of `qbpp::Expr` objects,
-as well as for integer constant terms in `qbpp::Expr`.
-The default type is `int64_t`.
-To change this type, define the `ENERGY_TYPE` macro at compile time, for example:
-```
--DENERGY_TYPE=int32_t
-```
-The bit width of `energy_t` is guaranteed to be equal to or larger than that of `coeff_t`.
+  The integer data type used to compute energy values of `qbpp::Expr` objects,
+  as well as for integer constant terms in `qbpp::Expr`. The default is `int64_t`.
+  The bit width of `energy_t` is guaranteed to be equal to or larger than that of `coeff_t`.
 
-- **`vindex_t`**:
-Defined as `uint32_t` and used to store a unique integer ID for each `qbpp::Var` object.
-In most cases, it is not necessary to change this data type.
+These types come as prebuilt shared-library variants. Select one by defining one of the
+following `INTEGER_TYPE_*` shorthand macros before including the header (or pass it as a
+compiler flag `-D...`):
 
-## Available integer data types
-- **Standard integer types**:
-`int32_t`, `int64_t`
+| Macro | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-- **Multiprecision integer types** (implemented using the Boost.Multiprecision library):
-`qbpp::int128_t`, `qbpp::cpp_int`
+In addition, the `MAXDEG*` macro controls how each `qbpp::Term` stores its variables.
+Fixed-length modes eliminate heap allocation and improve performance when the maximum degree
+is known in advance:
 
-- **`qbpp::cpp_int`**:
-An integer type with unlimited precision.
+| Macro | Max degree | Description |
+|---|---|---|
+| `MAXDEG0` (default) | unlimited | Variable-length (heap allocation for degree 3+) |
+| `MAXDEG2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
+| `MAXDEG4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
+| `MAXDEG6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
+
+`INTEGER_TYPE_*` and `MAXDEG*` can be combined independently. See [VAREXPR](VAREXPR) for details.
 
 > **WARNING**
 > To maximize performance, QUBO++ does not check for arithmetic overflow.
@@ -102,7 +104,7 @@ For a `qbpp::Var` instance `x`, the following member functions are available:
 - **`std::string x.str()`**:
   Returns the name of `x`.
 
-- **`vindex_t x.index()`**:
+- **`uint32_t x.index()`**:
   Returns the unique integer ID of `x`.
 
 Usually, there is no need to call these member functions explicitly in QUBO++ programs.

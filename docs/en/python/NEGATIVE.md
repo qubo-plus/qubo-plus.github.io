@@ -164,12 +164,3 @@ f(0, 0, 0) = 1
 Note that `x` is specified as a positive literal with value 0,
 while `~y` and `~z` are specified as negated literals with value 1.
 All three variables are effectively set to 0, and $\bar{x}\cdot\bar{y}\cdot\bar{z} = 1$.
-
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                              | PyQBPP                                     |
-|-----------------------------------------|--------------------------------------------|
-| `qbpp::Expr(1)`                         | `1`                                        |
-| `f *= ~x[i]`                            | `f *= ~x[i]`                               |
-| `qbpp::MapList ml;`<br>`ml.push_back({~x[i], 1 - x[i]});` | `ml = {~x[i]: 1 - x[i] for i in range(len(x))}` |
-| `f({% raw %}{{x, 0}, {~y, 1}}{% endraw %})` | `f({x: 0, ~y: 1})`               |

@@ -9,69 +9,121 @@ hreflang_lang: "ja"
 ---
 
 # Quick Reference: Operators and Functions for Expressions
-The table below summarizes the operators and functions available for `pyqbpp.Expr` objects.
+The table below summarizes the operators and functions available for expressions (`pyqbpp.Expr`).
+Here, an "expression" is a polynomial built from the three concepts described in [VAREXPR](VAREXPR)
+(integer, variable, and expression).
+An `expression` entry in the *Argument Type* column means that an integer, a variable, or an
+expression is accepted.
 
-| Operators/Functions           | Syntax                                                | Global/In-place | Return Type       | Argument Type            |
-|-------------------------------|-------------------------------------------------------|-----------------|-------------------|--------------------------|
-| Binary Operators              | `f + g`, `f - g`, `f * g`                             | Global          | `Expr`            | `ExprType`-`ExprType`    |
-| Compound Assignment           | `f += g`, `f -= g`, `f *= g`                          | In-place        | `Expr`            | `ExprType` or `int`      |
-| Division                      | `f / n`                                               | Global          | `Expr`            | `ExprType`-`int`         |
-| Compound Division             | `f /= n`                                              | In-place        | `Expr`            | `int`                    |
-| Unary Operators               | `+f`, `-f`                                            | Global          | `Expr`            | `ExprType`               |
-| Comparison (Equality)         | `f == n`                                              | Global          | `ExprExpr`        | `ExprType`-`int`         |
-| Comparison (Range)            | `qbpp.constrain(f, between=(l, u))`                             | Global          | `ExprExpr`        | `ExprType`-`int`-`int`   |
-| Square                        | `qbpp.sqr(f)`                                              | Global          | `Expr`            | `ExprType`               |
-| GCD                           | `qbpp.gcd(f)`                                              | Global          | `int`             | `ExprType`               |
-| Simplify                      | `qbpp.simplify_as_binary(f)`, etc.                         | Global          | `Expr`            | `ExprType`               |
-| Simplify                      | `f.simplify_as_binary()`, etc.                        | In-place        | `Expr`            | —                        |
-| Eval                          | `f(ml)`                                               | Global          | `int`             | `Expr`-`dict`            |
-| Replace                       | `qbpp.replace(f, ml)`                                      | Global          | `Expr`            | `ExprType`-`dict`        |
-| Replace                       | `f.replace(ml)`                                       | In-place        | `Expr`            | `dict`                   |
-| Binary/Spin Conversion        | `qbpp.spin_to_binary(f)`, `qbpp.binary_to_spin(f)`              | Global          | `Expr`            | `ExprType`               |
-| Binary/Spin Conversion        | `f.spin_to_binary()`, `f.binary_to_spin()`            | In-place        | `Expr`            | —                        |
-| Slice                         | `v[from:to]`, `v[:, from:to]`                         | Global          | `Array`          | `Array`                 |
-| Concatenation                 | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`           | Global          | `Array`          | `Array`/`int`           |
+## Global functions and in-place methods
+Operations on expressions are provided, whenever applicable, as a pair:
 
-## Expression-related type: **`ExprType`**
-The term **`ExprType`** denotes a category of types that can be converted to a `pyqbpp.Expr` object.
-In PyQBPP, this includes:
-- `int` — integer constant
-- `pyqbpp.Var` — binary variable
-- `pyqbpp.Term` — polynomial term
-- `pyqbpp.Expr` — expression
+- **Global function** `qbpp.func(f, ...)` — **non-destructive**. Does not modify `f`; returns a new result object.
+- **In-place method** `f.func(...)` — **overwrites `f` with the result** and returns `self` (supports method chaining).
 
-## Global Functions and In-place Methods
-Many operations are provided in two forms:
-- **Global**: Takes arguments and returns a new object without modifying the inputs. Example: `qbpp.simplify_as_binary(f)` returns a simplified copy; `f` is unchanged.
-- **In-place**: A method that updates the object itself and returns it. Example: `f.simplify_as_binary()` modifies `f` in place.
+Use the global form when you want to keep `f` unchanged; use the method form when you want `f` to become the processed result.
+Even when the return type of the global differs from `Expr`, the member form is consistent — it writes the result back into `self`.
+For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` with a constant expression whose value is that integer.
 
-## Assignment
-In Python, the `=` operator rebinds the variable name to a new object.
-To copy an expression, use the `Expr` constructor:
+## Summary of operators and functions
+
+| Operator/Function      | Syntax                                            | Kind     | Return type                       | Argument type              |
+|------------------------|---------------------------------------------------|----------|-----------------------------------|----------------------------|
+| Copy                   | `qbpp.copy(f)`                                    | Global   | expression                        | integer / variable / expression |
+| Binary operators       | `f + g`, `f - g`, `f * g`                         | Global   | expression                        | expression ⊕ expression    |
+| Compound assignment    | `f += g`, `f -= g`, `f *= g`                      | In-place | expression                        | expression                 |
+| Division               | `f / n`                                           | Global   | expression                        | expression, integer        |
+| Compound division      | `f /= n`                                          | In-place | expression                        | integer                    |
+| Unary operators        | `+f`, `-f`                                        | Global   | expression                        | expression                 |
+| Equality constraint    | `qbpp.constrain(f, equal=n)`                      | Global   | `ExprExpr`                        | expression, integer        |
+| Range constraint       | `qbpp.constrain(f, between=(l, u))`               | Global   | `ExprExpr`                        | expression, integer, integer |
+| Square                 | `qbpp.sqr(f)`                                     | Global   | expression                        | expression                 |
+| Square                 | `f.sqr()`                                         | In-place | expression                        | —                          |
+| GCD                    | `qbpp.gcd(f)`                                     | Global   | integer                           | expression                 |
+| GCD                    | `f.gcd()`                                         | In-place | expression (overwritten to constant) | —                      |
+| Simplify               | `qbpp.simplify(f)`                                | Global   | expression                        | expression                 |
+| Simplify               | `f.simplify()`                                    | In-place | expression                        | —                          |
+| Binary simplify        | `qbpp.simplify_as_binary(f)`                      | Global   | expression                        | expression                 |
+| Binary simplify        | `f.simplify_as_binary()`                          | In-place | expression                        | —                          |
+| Spin simplify          | `qbpp.simplify_as_spin(f)`                        | Global   | expression                        | expression                 |
+| Spin simplify          | `f.simplify_as_spin()`                            | In-place | expression                        | —                          |
+| Evaluation             | `f(ml)`                                           | Global   | integer                           | expression, dict           |
+| Replace                | `qbpp.replace(f, ml)`                             | Global   | expression                        | expression, dict           |
+| Replace                | `f.replace(ml)`                                   | In-place | expression                        | dict                       |
+| Spin → binary          | `qbpp.spin_to_binary(f)`                          | Global   | expression                        | expression                 |
+| Spin → binary          | `f.spin_to_binary()`                              | In-place | expression                        | —                          |
+| Binary → spin          | `qbpp.binary_to_spin(f)`                          | Global   | expression                        | expression                 |
+| Binary → spin          | `f.binary_to_spin()`                              | In-place | expression                        | —                          |
+| Slice                  | `v[from:to]`, `v[:, from:to]`                     | Global   | `Array`                           | `Array`                    |
+| Concatenation          | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | `Array`                           | `Array`, integer / variable / expression |
+
+## Assignment: `g = f` vs. `g = qbpp.copy(f)`
+Python's `=` is **name binding**, not value copying.
+Writing `g = f` simply binds the new name `g` to the same object that `f` refers to,
+so `f` and `g` **share a single expression object**.
+In contrast, `g = qbpp.copy(f)` creates a new, independent expression.
+The difference becomes visible as soon as you apply an **in-place operation**
+(a compound assignment or an in-place member).
+
 ```python
-f = qbpp.Expr(g)  # f is a copy of g
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+
+# --- g = f: shared reference ---
+f = 2 * x + 3 * y
+g = f                    # g and f are the same object (g is f → True)
+g += 100
+print(f)                 # 100 +2*x +3*y  ← f is also mutated
+print(g)                 # 100 +2*x +3*y
+
+# --- g = qbpp.copy(f): independent copy ---
+f = 2 * x + 3 * y
+g = qbpp.copy(f)         # g holds a separate object with the same value (g is f → False)
+g += 100
+print(f)                 # 2*x +3*y       ← f is untouched
+print(g)                 # 100 +2*x +3*y
 ```
 
-## Binary Operators: `+`, `-`, `*`
-These operators take two `ExprType` operands, compute the result, and return it.
-If at least one operand is a `pyqbpp.Expr`, the result is always a `pyqbpp.Expr`.
-If neither operand is a `pyqbpp.Expr`, the result may be a `pyqbpp.Term`.
-
-### Example
-For a variable `x` of type `pyqbpp.Var`:
-- `2 + x`: `pyqbpp.Expr`
-- `2 * x`: `pyqbpp.Term`
-
-## Compound Assignment Operators: `+=`, `-=`, `*=`
-The left-hand side must be a `pyqbpp.Expr`.
-The specified operation is applied using the right-hand side operand.
-The left-hand side expression is updated in place.
+> **NOTE**
+> When the right-hand side is a **binary or unary operation** such as `f + 1`, `2 * f`, or `-f`,
+> the operator returns a fresh expression each time, so the result is automatically
+> independent of `f`. The footgun is limited to the specific pattern
+> "`g = f` followed by an in-place mutation of `g`". Use **`qbpp.copy(f)`** whenever you want
+> an independent copy.
 
 > **NOTE**
-> `*=` only accepts `int` operands in PyQBPP.
+> The same trap applies when the right-hand side is just an **in-place member call**.
+> An in-place member overwrites `f` with the result and returns `self`, so `g = f.sqr()`
+> is not "assign a new expression to `g`" — it is "square `f` in place and bind that same
+> `f` to `g` under a new name". The three typical forms behave differently:
+>
+> | Statement | Effect |
+> |---|---|
+> | `g = f.sqr()`           | `f` is squared in place, and `g` refers to the same object as `f` (`g is f` → True) |
+> | `g = qbpp.sqr(f)`       | Non-destructive global form. `f` is unchanged; `g` is a fresh, independent expression |
+> | `g = qbpp.copy(f.sqr())`| `f` is squared in place, then the result is copied into an independent `g` (the mutation of `f` persists) |
+>
+> When you want the squared value without touching `f`, use the **global form `qbpp.sqr(f)`**.
+> The same rule holds for every other in-place member (`simplify_as_binary`, `replace`,
+> `spin_to_binary`, …).
+
+> **NOTE**
+> `qbpp.copy()` is safe to call on integers and variables too. Since those are **immutable**,
+> sharing cannot cause any surprise and `copy()` simply returns the original object.
+> You do not need to special-case the argument type.
+
+## Binary Operators: `+`, `-`, `*`
+`+`, `-`, `*` accept any mix of integers, variables, and expressions and return an expression.
+You can write naturally — e.g. `2 * x * y - x + 1` — without thinking about operand types.
+
+## Compound Assignment Operators: `+=`, `-=`, `*=`
+The left-hand side must be an expression. The right-hand side may be an integer, a variable,
+or an expression. The operation is applied and the left-hand side is updated in place.
 
 ## Division `/` and Compound Division `/=`
-The division operator `/` takes a `pyqbpp.Expr` as the **dividend** and an integer as the **divisor**, and returns the **quotient** as a new `pyqbpp.Expr`.
+The division operator `/` takes an expression as the **dividend** and an integer as the **divisor**, and returns the **quotient** as a new expression.
 
 The dividend expression must be divisible by the divisor; that is,
 both the integer constant term and all integer coefficients in the expression must be divisible by the divisor.
@@ -90,58 +142,34 @@ f = qbpp.Expr(f)
 f /= 2             # f = 3*x + 2*y + 1
 ```
 
-## Comparison (Equality): `==`
-The equality comparison operator `==` takes:
-- a `pyqbpp.Expr` (or `ExprType` that creates one) on the left-hand side, and
-- an integer on the right-hand side.
+## Equality and range constraints: `constrain()`
+The `constrain()` function expresses a constraint on an expression `f` as a penalty expression.
+Both equality and range constraints are written through the same function:
 
-It returns an expression whose minimum value is 0 when the equality constraint is satisfied.
-More specifically, for a `pyqbpp.Expr` object `f` and an integer `n`, the operator returns: `sqr(f - n)`.
+```python
+g = qbpp.constrain(f, equal=n)           # penalty for the constraint f = n
+g = qbpp.constrain(f, between=(l, u))    # penalty for l <= f <= u
+g = qbpp.constrain(f, between=(l, None)) # penalty for l <= f  (no upper bound)
+g = qbpp.constrain(f, between=(None, u)) # penalty for f <= u  (no lower bound)
+```
 
-For the returned object `g`:
-- **`g`** represents the constraint expression `sqr(f - n)`, and
-- **`g.body`** returns the underlying expression `f`.
+Here `f` is an expression and `n` / `l` / `u` are integers.
+Each form returns an expression whose minimum value is 0 when the constraint is satisfied.
+
+- **`equal=n`**: returns `sqr(f - n)`.
+- **`between=(l, u)`**: implicitly introduces an auxiliary integer variable `a` with unit gaps, taking values in `[l, u-1]`, and returns `(f - a) * (f - (a + 1))`.
+- **`between=(l, None)`** / **`between=(None, u)`**: half-open forms that constrain only one side.
 
 ### `pyqbpp.ExprExpr` class
-Here, `g` is a **`pyqbpp.ExprExpr`** object, which is a derived class of `pyqbpp.Expr`.
-The `body` property returns the associated underlying `pyqbpp.Expr` object.
+The object `g` returned by `constrain()` is a **`pyqbpp.ExprExpr`**, a derived class of `pyqbpp.Expr`.
 
-### Comparison with C++ QUBO++
-In C++ QUBO++, `*g` (dereference operator) is used to access the underlying expression.
-In PyQBPP, `g.body` property is used instead.
-
-## Comparison (Range): `constrain()`
-In C++ QUBO++, the range comparison is written as `l <= f <= u`.
-In PyQBPP, the `constrain()` function is used instead:
-```python
-g = qbpp.constrain(f, between=(l, u))
-```
-where:
-- `f` is a non-integer `ExprType`, and
-- `l` and `u` are integers.
-
-This function returns an expression whose minimum value is 0 when the range constraint `l <= f <= u` is satisfied.
-
-More specifically, an auxiliary integer variable `a` with unit gaps, taking values in the range `[l, u-1]`, is implicitly introduced, and the function returns:
-```python
-(f - a) * (f - (a + 1))
-```
-
-For the returned `pyqbpp.ExprExpr` object `g`:
-- **`g`** represents the constraint expression `(f - a) * (f - (a + 1))`, and
-- **`g.body`** returns the underlying expression `f`.
-
-### Comparison with C++ QUBO++
-
-| C++ QUBO++       | PyQBPP            |
-|------------------|---------------------|
-| `l <= f <= u`    | `qbpp.constrain(f, between=(l, u))`  |
-| `*g`             | `g.body`            |
+- **`g`** is the penalty expression itself (corresponding to C++ `*g`) and can be used like any expression — evaluated, simplified, or passed to solvers.
+- **`g.body`** returns the original expression `f` before the constraint was applied.
 
 ## Square function: `sqr()`
-For a `pyqbpp.Expr` object `f`:
-- **`pyqbpp.sqr(f)`** (global function): Returns the expression `f * f`.
-The argument `f` may be any `ExprType` object.
+For an expression `f`:
+- **`pyqbpp.sqr(f)`** (global function): Returns `f * f`.
+The argument `f` may be an integer, a variable, or an expression.
 
 For a `pyqbpp.Array` object `v`:
 - **`pyqbpp.sqr(v)`**: Returns a new `pyqbpp.Array` with each element squared.
@@ -155,9 +183,15 @@ f = qbpp.sqr(x)       # x * x
 ```
 
 ## Greatest Common Divisor function: `gcd()`
-The global function **`pyqbpp.gcd()`** takes a `pyqbpp.Expr` object as its argument and returns the greatest common divisor (GCD) of all integer coefficients and the integer constant term.
+Computes the greatest common divisor (GCD) of all integer coefficients and the integer constant
+term of an expression `f`. Two forms are available:
 
-Since the given expression is divisible by the resulting GCD, all integer coefficients and the integer constant term can be reduced by dividing by the GCD.
+- **`qbpp.gcd(f)`** (global, non-destructive):
+  Does not modify `f`; returns the GCD as an **integer value**.
+- **`f.gcd()`** (member, in-place):
+  **Overwrites** `f` with a constant expression whose value is that GCD, and returns `self`.
+
+To reduce an expression by its GCD, combine the global form with compound division: `f /= qbpp.gcd(f)`.
 
 ### Example
 ```python
@@ -166,12 +200,24 @@ import pyqbpp as qbpp
 x = qbpp.var("x")
 y = qbpp.var("y")
 f = 6 * x + 4 * y + 2
-print(qbpp.gcd(f))    # 2
-g = f / qbpp.gcd(f)   # 3*x + 2*y + 1
+
+# Global form: get the value, f is unchanged
+print(qbpp.gcd(f))     # 2
+print(f)               # 2 +6*x +4*y
+
+# To reduce f, combine the global with /=
+g = qbpp.Expr(f)
+g /= qbpp.gcd(g)       # g = 1 +3*x +2*y
+print(g)
+
+# In-place: overwrite f with the GCD as a constant expression
+h = qbpp.Expr(f)
+h.gcd()                # h = 2 (constant expression)
+print(h)
 ```
 
 ## Simplify functions: `simplify()`, `simplify_as_binary()`, `simplify_as_spin()`
-For a `pyqbpp.Expr` object `f`, the member function **`f.simplify()`** performs the following operations in place:
+For an expression `f`, the member function **`f.simplify()`** performs the following operations in place:
 - Sort variables within each term according to their unique variable IDs
 - Merge duplicated terms
 - Sort terms such that:
@@ -210,7 +256,7 @@ g.simplify_as_spin()    # 1 + x (since x^2 = 1)
 ## Evaluation function: `f(ml)`
 The evaluation function takes a dict mapping variables to integer values.
 
-For a `pyqbpp.Expr` object `f` and a dict `ml`, the evaluation function `f(ml)` evaluates the value of `f` under the variable assignments specified by `ml` and returns the resulting integer value.
+For an expression `f` and a dict `ml`, the evaluation function `f(ml)` evaluates the value of `f` under the variable assignments specified by `ml` and returns the resulting integer value.
 
 All variables appearing in `f` must have corresponding mappings defined in `ml`.
 
@@ -226,13 +272,13 @@ print(f({x: 1, y: 0}))  # 4  (= 3*1 + 2*0 + 1)
 ```
 
 ## Replace functions: `replace()`
-The `replace()` function accepts a dict mapping variables to expressions, where the expression can also be an integer value.
+The `replace()` function accepts a dict mapping variables to expressions (integers are also accepted on the right side).
 
-For a `pyqbpp.Expr` object `f` and a dict `ml`:
+For an expression `f` and a dict `ml`:
 - **`pyqbpp.replace(f, ml)`** (global function):
-Returns a new `pyqbpp.Expr` object obtained by replacing variables in `f` according to the mappings in `ml`, without modifying `f`.
+Returns a new expression obtained by replacing variables in `f` according to the mappings in `ml`, without modifying `f`.
 - **`f.replace(ml)`** (member function):
-Replaces variables in `f` according to the mappings in `ml` in place and returns the resulting `pyqbpp.Expr` object.
+Replaces variables in `f` according to the mappings in `ml` in place and returns the resulting expression.
 
 ### Creating a dict
 ```python
@@ -254,15 +300,6 @@ ml = {x: 1, y: 0}
 g = qbpp.replace(f, ml)   # g = 2*1 + 3*0 + 1 = 3 (new Expr)
 f.replace(ml)         # f is modified in place
 ```
-
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                    | PyQBPP                          |
-|-------------------------------|-----------------------------------|
-| `qbpp::MapList ml;`           | `ml = {}`                         |
-| `ml.push_back({x, 0});`      | `ml[x] = 0`                      |
-| `qbpp::replace(f, ml)`       | `qbpp.replace(f, ml)`                  |
-| `f.replace(ml)`              | `f.replace(ml)`                   |
 
 ## Binary/Spin Conversion functions: `spin_to_binary()`, `binary_to_spin()`
 Let `x` be a binary variable and `s` be a spin variable.
@@ -295,22 +332,8 @@ g = qbpp.spin_to_binary(f)   # -2 + 6*s  (replaced s with 2*s-1)
 
 b = qbpp.var("b")
 h = 2 * b + 1
-k = qbpp.binary_to_spin(h)   # 2 + 2*b  (replaced b with (b+1)/2, multiplied by 2)
+k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 2)
 ```
-
-### Comparison with C++ QUBO++
-
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>qbpp::spin_to_binary(f)</code></td><td><code>qbpp.spin_to_binary(f)</code></td></tr>
-<tr><td><code>f.spin_to_binary()</code></td><td><code>f.spin_to_binary()</code></td></tr>
-<tr><td><code>qbpp::binary_to_spin(f)</code></td><td><code>qbpp.binary_to_spin(f)</code></td></tr>
-<tr><td><code>f.binary_to_spin()</code></td><td><code>f.binary_to_spin()</code></td></tr>
-</tbody>
-</table>
 
 ## Slice functions: `v[from:to]`
 
@@ -334,15 +357,17 @@ print(x[:, :3])     # first 3 columns of each row
 print(x[1:3, 2:4])  # rows 1-2, columns 2-3
 ```
 
-## Concat function: `concat()`
+## Concatenation function: `concat()`
 
 The `concat()` function joins arrays or prepends/appends scalars.
 
 - **`qbpp.concat(a, b)`**: Concatenates two arrays along the outermost dimension.
-- **`concat(scalar, v)`**: Prepends a scalar (converted to `Expr`).
-- **`concat(v, scalar)`**: Appends a scalar.
-- **`concat(scalar, v, dim)`**: `dim=0` prepends a row filled with scalar; `dim=1` prepends scalar to each row.
-- **`concat(v, scalar, dim)`**: `dim=0` appends a row; `dim=1` appends to each row.
+- **`qbpp.concat(scalar, v)`**: Prepends a scalar (converted to `Expr`).
+- **`qbpp.concat(v, scalar)`**: Appends a scalar.
+- **`qbpp.concat(scalar, v, dim)`**: `dim=0` prepends a row filled with the scalar; `dim=1` prepends the scalar to each row.
+- **`qbpp.concat(v, scalar, dim)`**: `dim=0` appends a row; `dim=1` appends to each row.
+
+Scalars can be an integer, a variable, or an expression. When the two sides have different element types, the result is automatically promoted to an `Array` of expressions.
 
 ### Example
 ```python
@@ -357,64 +382,28 @@ zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
 # each row: [1, z[i][0], ..., z[i][3], 0]
 ```
 
-### Comparison with C++ QUBO++
+## Expression members
 
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>qbpp::head(v, n)</code></td><td><code>v[:n]</code></td></tr>
-<tr><td><code>qbpp::tail(v, n)</code></td><td><code>v[-n:]</code></td></tr>
-<tr><td><code>qbpp::slice(v, from, to)</code></td><td><code>v[from:to]</code></td></tr>
-<tr><td><code>qbpp::head(v, n, 1)</code></td><td><code>v[:, :n]</code></td></tr>
-<tr><td><code>qbpp::tail(v, n, 1)</code></td><td><code>v[:, -n:]</code></td></tr>
-<tr><td><code>qbpp::concat(1, v)</code></td><td><code>qbpp.concat(1, v)</code></td></tr>
-<tr><td><code>qbpp::concat(1, v, 0)</code></td><td><code>qbpp.concat(1, v, 0)</code></td></tr>
-<tr><td><code>qbpp::concat(1, v, 1)</code></td><td><code>qbpp.concat(1, v, 1)</code></td></tr>
-</tbody>
-</table>
-
-## Term Member Functions
-
-The following member functions of `pyqbpp.Term` provide read-only access to the internal structure of a term.
+The following members of an expression `f` provide read-only access to its internal structure.
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `t.coeff()` | `int` | Return the coefficient |
-| `t.degree()` | `int` | Return the degree (number of variables) |
-| `t.var(i)` | `Var` | Return the `i`-th variable |
-| `t.has(v)` | `bool` | Return `True` if `Var` `v` appears in the term |
+| `f.constant` | integer | Constant term (property) |
+| `f.max_degree` | integer | Maximum degree over all terms (property) |
+| `f.term_count()` | integer | Number of terms (excluding the constant) |
+| `f.term_count(d)` | integer | Number of terms of degree `d` |
+| `f.term(i)` | single-term expression | The `i`-th term as an expression with a single monomial |
+| `f.has(v)` | `bool` | `True` if variable `v` appears in `f` |
 
-### Example
-```python
-import pyqbpp as qbpp
-
-x = qbpp.var("x")
-y = qbpp.var("y")
-z = qbpp.var("z")
-t = 3 * x * y
-
-t.coeff()    # 3
-t.degree()   # 2
-t.var(0)     # x
-t.var(1)     # y
-t.has(x)     # True
-t.has(z)     # False
-```
-
-## Expr Member Functions
-
-The following member functions of `pyqbpp.Expr` provide read-only access to the internal structure of an expression.
+The single-term expression `t` returned by `f.term(i)` supports the following additional
+accessors for inspecting that one monomial:
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `f.constant` | `int` | Return the constant term |
-| `f.term_count()` | `int` | Return the number of terms (excluding the constant) |
-| `f.term_count(d)` | `int` | Return the number of terms of degree `d` |
-| `f.term(i)` | `Term` | Return a copy of the `i`-th term |
-| `f.max_degree` | `int` | Return the maximum degree of all terms |
-| `f.has(v)` | `bool` | Return `True` if `Var` `v` appears in the expression |
+| `t.coeff` | integer | Coefficient of the monomial (property) |
+| `t.degree` | integer | Degree (number of variables in the monomial; property) |
+| `t.var(i)` | `Var` | The `i`-th variable of the monomial |
+| `t.has(v)` | `bool` | `True` if variable `v` appears in the monomial |
 
 ### Example
 ```python
@@ -425,14 +414,16 @@ y = qbpp.var("y")
 f = qbpp.simplify(3 * x + 2 * x * y + 5)
 # f = 5 + 3*x + 2*x*y
 
-f.constant          # 5
+f.constant            # 5
 f.term_count()        # 2
-f.term(0)             # 3*x
-f.term(1)             # 2*x*y
-f.term(1).coeff()     # 2
-f.term(1).var(0)      # x
-f.term(1).var(1)      # y
-f.max_degree        # 2
+f.max_degree          # 2
 f.has(x)              # True
 f.has(y)              # True
+
+t = f.term(1)         # 2*x*y (single-term expression)
+t.coeff               # 2
+t.degree              # 2
+t.var(0)              # x
+t.var(1)              # y
+t.has(x)              # True
 ```

@@ -76,7 +76,7 @@ int main() {
   for (size_t i = 0; i < sols.size(); ++i) {
     const auto sol = sols[i];
     std::cout << "[Solution " << i << "]" << std::endl;
-    std::cout << "Energy = " << sol.energy << std::endl;
+    std::cout << "Energy = " << sol.energy() << std::endl;
     std::cout << "Constraint  = " << sol(*constraint) << std::endl;
     std::cout << "Objective  = " << sol(objective) << std::endl;
     for (size_t j = 0; j < w.size(); ++j) {

@@ -174,24 +174,6 @@ for i in range(n):
 - **`concat(1, x, 0)`** (`dim=0`): Adds a guard row of 1s at the top.
 - **`concat(1, x, 1)`** (`dim=1`): Prepends 1 to each row.
 
-### Comparison with C++ QUBO++
-
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>qbpp::head(v, n)</code></td><td><code>v[:n]</code></td></tr>
-<tr><td><code>qbpp::tail(v, n)</code></td><td><code>v[-n:]</code></td></tr>
-<tr><td><code>qbpp::slice(v, from, to)</code></td><td><code>v[from:to]</code></td></tr>
-<tr><td><code>qbpp::head(v, n, 1)</code></td><td><code>v[:, :n]</code></td></tr>
-<tr><td><code>qbpp::tail(v, n, 1)</code></td><td><code>v[:, -n:]</code></td></tr>
-<tr><td><code>qbpp::concat(1, v)</code></td><td><code>qbpp.concat(1, v)</code></td></tr>
-<tr><td><code>qbpp::concat(1, v, 0)</code></td><td><code>qbpp.concat(1, v, 0)</code></td></tr>
-<tr><td><code>qbpp::concat(1, v, 1)</code></td><td><code>qbpp.concat(1, v, 1)</code></td></tr>
-</tbody>
-</table>
-
 ### Output
 
 ```

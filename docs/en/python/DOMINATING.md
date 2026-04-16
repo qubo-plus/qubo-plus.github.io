@@ -128,13 +128,6 @@ for i in range(N):
 ```
 In this code, `t` stores the expression $\sum_{j\in N[i]}x_j$ and the `constrain()` function creates a penalty expression for $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$, which takes the minimum value 0 if and only if the inequality is satisfied.
 
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                  | PyQBPP                                |
-|-----------------------------|----------------------------------------|
-| `~x[i]`                    | `~x[i]`                               |
-| `1 <= t <= +qbpp::inf`     | `constrain(t, between=(1, upper_bound))`          |
-
 ## Visualization using matplotlib
 The following code visualizes the Dominating Set solution:
 ```python

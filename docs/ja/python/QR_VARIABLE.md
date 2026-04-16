@@ -10,8 +10,42 @@ hreflang_lang: "en"
 
 # クイックリファレンス: 変数と式
 ## PyQBPP のデータ型
-PyQBPPは係数、エネルギー値、定数にPythonのネイティブな `int` 型を使用します。
-Pythonの整数は精度に制限がないため、C++版のように `coeff_t` や `energy_t` を指定する必要はありません。
+PyQBPPでは係数・エネルギー値・定数をPythonのネイティブな `int` 型で扱うため、
+ユーザーコード上で `coeff_t` や `energy_t` を気にする必要はありません。
+ただし、内部で使用する共有ライブラリは C++ 版と同じ型バリアントを備えており、
+**インポート時にサブモジュールを選択する**ことで切り替えます
+（デフォルトの `import pyqbpp` は `c32e64`、つまり32ビット係数・64ビットエネルギー）。
+
+```python
+import pyqbpp as qbpp              # デフォルト: c32e64
+import pyqbpp.cppint as qbpp       # 任意精度 (cpp_int)
+import pyqbpp.c32e64m4 as qbpp     # c32e64 + 4次まで固定長
+```
+
+利用可能な型バリアント:
+
+| インポート | 係数 | エネルギー | 用途 |
+|---|---|---|---|
+| `import pyqbpp` / `pyqbpp.c32e64` | 32ビット | 64ビット | デフォルト、最も一般的 |
+| `import pyqbpp.c32e32` | 32ビット | 32ビット | 小規模問題 |
+| `import pyqbpp.c64e64` | 64ビット | 64ビット | 大きな係数 |
+| `import pyqbpp.c64e128` | 64ビット | 128ビット | 大きなエネルギー範囲 |
+| `import pyqbpp.c128e128` | 128ビット | 128ビット | 非常に大規模な問題 |
+| `import pyqbpp.cppint` | 無制限 | 無制限 | 任意精度 (`cpp_int`) |
+
+さらに各バリアントに VarArray モード接尾辞 `m0` / `m2` / `m4` / `m6` を付けて、
+`qbpp::Term` の変数格納方式を選択できます
+（例: `import pyqbpp.c32e64m4 as qbpp`）:
+
+| 接尾辞 | 最大次数 | 説明 |
+|---|---|---|
+| （なし）/ `m0` | 無制限 | 可変長（デフォルト、3次以上でヒープ確保） |
+| `m2` | 2 | 固定長、QUBO専用（ヒープ確保なし、最速） |
+| `m4` | 4 | 固定長、4次まで（ヒープ確保なし） |
+| `m6` | 6 | 固定長、6次まで（ヒープ確保なし） |
+
+型バリアントはインポート時に選択し、プログラム実行中に切り替えることはできません。
+詳細は [VAREXPR](VAREXPR) を参照してください。
 
 ## オブジェクトの表示
 すべてのPyQBPPオブジェクトは `print()` で表示するか、`str()` で文字列に変換できます。
@@ -118,21 +152,3 @@ z = qbpp.var("z", shape=(2, 3), between=(1, 8))      # 2x3 matrix of integer var
 ```python
 x.min_val + qbpp.sum(x.vars * x.coeffs)
 ```
-
-### C++ QUBO++ との比較
-
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>var("name", between=(l, u))</code></td></tr>
-<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>var("name", shape=s1, between=(l, u))</code></td></tr>
-<tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
-<tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
-<tr><td><code>x.min_val</code></td><td><code>x.min_val</code> (property)</td></tr>
-<tr><td><code>x.max_val</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars</code></td><td><code>x.vars</code> (property)</td></tr>
-<tr><td><code>x.coeffs</code></td><td><code>x.coeffs</code> (property)</td></tr>
-</tbody>
-</table>

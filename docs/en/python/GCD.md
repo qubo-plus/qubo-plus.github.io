@@ -37,7 +37,7 @@ p = qbpp.var("p", between=(1, 1000))
 q = qbpp.var("q", between=(1, 1000))
 r = qbpp.var("r", between=(1, 1000))
 
-constraint = (p * r == Q) + (q * r == P)
+constraint = qbpp.constrain(p * r, equal=Q) + qbpp.constrain(q * r, equal=P)
 f = -r + constraint * 1000
 
 f.simplify_as_binary()

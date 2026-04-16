@@ -36,7 +36,7 @@ int main() {
   auto solver = qbpp::ABS3Solver(f);
 
   auto sol = solver.search({{"time_limit", 10.0}, {"enable_default_callback", 1}});
-  std::cout << sol.energy << ": ";
+  std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -146,7 +146,7 @@ std::cout << "Best energy: " << result.energy << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
 for (const auto& sol : result.sols()) {
-  std::cout << "Energy = " << sol.energy << " TTS = " << sol.tts << "s" << std::endl;
+  std::cout << "Energy = " << sol.energy() << " TTS = " << sol.tts() << "s" << std::endl;
 }
 ```
 
@@ -213,7 +213,7 @@ int main() {
 
   auto solver = MySolver(f);
   auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
-  std::cout << "energy=" << sol.energy << std::endl;
+  std::cout << "energy=" << sol.energy() << std::endl;
 }
 ```
 {% endraw %}

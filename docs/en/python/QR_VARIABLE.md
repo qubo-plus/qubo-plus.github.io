@@ -10,8 +10,42 @@ hreflang_lang: "ja"
 
 # Quick Reference: Variables and Expressions
 ## Data types in PyQBPP
-PyQBPP uses Python's native `int` type for coefficients, energy values, and constants.
-Since Python integers have unlimited precision, there is no need to specify `coeff_t` or `energy_t` as in the C++ version.
+In user code, PyQBPP represents coefficients, energy values, and constants as Python's
+native `int`, so you don't need to worry about `coeff_t` or `energy_t`.
+Internally, however, PyQBPP uses the same shared-library variants as the C++ version,
+and the variant is **chosen at import time** by selecting a submodule.
+The default `import pyqbpp` corresponds to `c32e64` — 32-bit coefficients and 64-bit energy.
+
+```python
+import pyqbpp as qbpp              # default: c32e64
+import pyqbpp.cppint as qbpp       # arbitrary precision (cpp_int)
+import pyqbpp.c32e64m4 as qbpp     # c32e64 with fixed-length up to degree 4
+```
+
+Available type variants:
+
+| Import | Coefficient | Energy | Use case |
+|---|---|---|---|
+| `import pyqbpp` / `pyqbpp.c32e64` | 32-bit | 64-bit | Default, most common |
+| `import pyqbpp.c32e32` | 32-bit | 32-bit | Small problems |
+| `import pyqbpp.c64e64` | 64-bit | 64-bit | Larger coefficients |
+| `import pyqbpp.c64e128` | 64-bit | 128-bit | Larger energy range |
+| `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
+| `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision (`cpp_int`) |
+
+Each variant can also be combined with a VarArray mode suffix `m0` / `m2` / `m4` / `m6`,
+which controls how each `qbpp::Term` stores its variables
+(e.g. `import pyqbpp.c32e64m4 as qbpp`):
+
+| Suffix | Max degree | Description |
+|---|---|---|
+| (none) / `m0` | unlimited | Variable-length (default; heap allocation for degree 3+) |
+| `m2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
+| `m4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
+| `m6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
+
+The type variant is chosen at import time and cannot be changed at runtime.
+See [VAREXPR](VAREXPR) for details.
 
 ## Printing objects
 All PyQBPP objects can be printed using `print()` or converted to strings using `str()`:
@@ -119,21 +153,3 @@ The following expression is equivalent to the expression stored in `x`:
 ```python
 x.min_val + qbpp.sum(x.vars * x.coeffs)
 ```
-
-### Comparison with C++ QUBO++
-
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>l &lt;= qbpp::var_int("name") &lt;= u</code></td><td><code>var("name", between=(l, u))</code></td></tr>
-<tr><td><code>l &lt;= qbpp::var_int("name", s1) &lt;= u</code></td><td><code>var("name", shape=s1, between=(l, u))</code></td></tr>
-<tr><td><code>x.name()</code></td><td><code>x.name</code></td></tr>
-<tr><td><code>x.str()</code></td><td><code>str(x)</code></td></tr>
-<tr><td><code>x.min_val</code></td><td><code>x.min_val</code> (property)</td></tr>
-<tr><td><code>x.max_val</code></td><td><code>x.max_val</code> (property)</td></tr>
-<tr><td><code>x.vars</code></td><td><code>x.vars</code> (property)</td></tr>
-<tr><td><code>x.coeffs</code></td><td><code>x.coeffs</code> (property)</td></tr>
-</tbody>
-</table>

@@ -150,24 +150,29 @@ f[1][1] = -1 +2*x[1][1]
 f[1][2] = -1 +2*x[1][2]
 ```
 
-## `qbpp::Array` クラス
-**`qbpp::Array`** は、1次元を含む任意の次元の多次元配列をサポートするクラスです。
+## `qbpp::Array<Dim, T>` クラス
+**`qbpp::Array<Dim, T>`** は多次元配列クラスで、`Dim` は次元数、`T` は要素型（`qbpp::Var`, `qbpp::Expr`, `qbpp::Term`, `qbpp::VarInt`, または整数係数型）です。
+実際には `Array<Dim, T>` を手書きする必要はほとんどありません。ファクトリ関数と `auto` による型推論が適切な具体化を選んでくれて、要素ごとの `+`, `-`, `*`, 代入などの演算が宣言された要素型と整合しているかをコンパイラが検査します。
 `operator[]` のチェーン（例: `x[i][j][k]`）による多次元インデックスアクセスと、要素ごとの算術演算を提供します。
-要素型（Var, Expr, 整数など）は内部で管理されるため、テンプレートパラメータとして指定する必要はありません。
 
 配列は以下のファクトリ関数で作成します:
-- **`qbpp::var("name", s1, s2, ...)`**: バイナリ変数の配列。
-- **`qbpp::expr(s1, s2, ...)`**: ゼロ初期化された式の配列。
-- **`qbpp::int_array({v1, v2, ...})`**: 整数定数の配列。
-- **`qbpp::int_array(s1, s2, ...)`**: ゼロ初期化された整数配列。
+- **`qbpp::var("name", s1, s2, ...)`** → `Array<Dim, Var>`: バイナリ変数の配列。
+- **`qbpp::expr(s1, s2, ...)`** → `Array<Dim, Expr>`: ゼロ初期化された式の配列。
+- **`qbpp::int_array({v1, v2, ...})`** → `Array<1, coeff_t>`: 整数定数の配列。
+- **`qbpp::int_array(s1, s2, ...)`** → `Array<Dim, coeff_t>`: ゼロ初期化された整数配列。
+- **`l <= qbpp::var_int("name", s1, s2, ...) <= u`** → `Array<Dim, VarInt>`: 整数変数の配列。
 
-`qbpp::Array` クラスは以下のメンバ関数を提供しています:
+`qbpp::Array<Dim, T>` クラスは以下のメンバ関数を提供しています:
 - **`size()`**: 最外次元のサイズを返します。
 - **`total()`**: 全要素数を返します。
-- **`ndim()`**: 次元数を返します。
+- **`ndim()`**: 次元数（`Dim` と等しい）を返します。
+- **`shape(d)`**: 次元 `d` のサイズを返します。
 - **`empty()`**: 配列が空の場合 `true` を返します。
-- **`operator[]`**: 要素（1次元）またはサブ配列プロキシ（多次元）を返します。
+- **`operator[]`**: 要素（`Dim == 1` のとき）またはサブ配列（`Dim > 1` のとき）を返します。
 - **`begin()`** / **`end()`**: range-based `for` ループ用イテレータ。
+
+> **NOTE — 要素型と演算結果**
+> 算術演算はスカラー式と同じ規則で要素型を昇格させます：`Array<Dim, Var> + 1` は `Array<Dim, Expr>` になり、`Array<Dim, Var> * Array<Dim, Var>` は `Array<Dim, Term>` になります。一方、`+=`, `-=`, `*=` のような複合代入は左辺の要素型を変えません。したがって `Array<Var> += 1` はコンパイルエラーになります — `auto f = x + 1;` のように新しい `Array<Expr>` を作って受け取ってください。
 
 さらに、`qbpp::Array` は要素ごとの演算のために以下の演算子をサポートしています:
 - **`+`**: 2つの配列、または配列とスカラーの要素ごとの加算。
@@ -192,8 +197,8 @@ int main() {
   auto f = x + 1;
   f += x - 2;
   f.simplify_as_binary();
-  std::cout << "total = " << f.total << std::endl;
-  std::cout << "ndim = " << f.ndim << std::endl;
+  std::cout << "total = " << f.total() << std::endl;
+  std::cout << "ndim = " << f.ndim() << std::endl;
   std::cout << "shape = (" << f.shape(0) << ", " << f.shape(1) << ")" << std::endl;
   for (size_t i = 0; i < f.size(); ++i) {
     for (size_t j = 0; j < f[i].size(); ++j) {
@@ -203,7 +208,7 @@ int main() {
   }
 }
 ```
-ここで、`f.total`は全要素数、`f.ndim`は次元数、`f.shape(d)`は次元`d`のサイズを返します。
+ここで、`f.total()`は全要素数、`f.ndim()`は次元数、`f.shape(d)`は次元`d`のサイズを返します。
 `f[i][j]`は行`i`、列`j`の要素にアクセスします。
 
 このプログラムの出力は次のとおりです:

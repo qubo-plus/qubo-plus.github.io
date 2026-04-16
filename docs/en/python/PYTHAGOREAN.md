@@ -65,17 +65,3 @@ x=5, y=12, z=13, f=0, c=7
 x=6, y=8, z=10, f=0, c=2
 x=9, y=12, z=15, f=0, c=3
 ```
-
-### Comparison with C++ QUBO++
-
-<table>
-<thead>
-<tr><th>C++ QUBO++</th><th>PyQBPP</th></tr>
-</thead>
-<tbody>
-<tr><td><code>1 &lt;= qbpp::var_int("x") &lt;= 16</code></td><td><code>qbpp.var("x", between=(1, 16))</code></td></tr>
-<tr><td><code>1 &lt;= y - x &lt;= +qbpp::inf</code></td><td><code>qbpp.constrain(y - x, between=(1, +qbpp.inf))</code></td></tr>
-<tr><td><code>sol(x)</code></td><td><code>sol(x)</code></td></tr>
-<tr><td><code>sol(*f)</code></td><td><code>sol(f.body)</code></td></tr>
-</tbody>
-</table>

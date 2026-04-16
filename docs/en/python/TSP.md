@@ -128,16 +128,6 @@ This program produces the following tour starting from node 0:
 Tour: [0, 3, 6, 7, 8, 5, 2, 1, 4]
 ```
 
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                        | PyQBPP                            |
-|------------------------------------|------------------------------------|
-| `qbpp::onehot_to_int(sol(x))`    | Manual loop over `sol(x[i][j])` |
-| `qbpp::MapList ml;`              | `ml = {x[0][0]: 1}`               |
-| `ml.push_back({x[0][0], 1})`    | `ml[x[0][0]] = 1`                 |
-| `qbpp::replace(f, ml)`          | `replace(f, ml)`                   |
-| `qbpp::Sol(f).set(sol).set(ml)` | `Sol(f).set([sol, ml])`                       |
-
 ## Visualization using matplotlib
 The following code visualizes the TSP solution:
 ```python

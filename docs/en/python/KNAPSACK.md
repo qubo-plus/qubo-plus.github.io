@@ -85,10 +85,3 @@ Item 6: weight = 12, value = 110
 Item 7: weight = 7, value = 70
 Item 9: weight = 18, value = 160
 ```
-
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                   | PyQBPP                              |
-|------------------------------|---------------------------------------|
-| `0 <= sum(w * x) <= capacity`| `constrain(sum(w * x), between=(0, capacity))`   |
-| `sol(*constraint)`           | `sol(constraint.body)`           |

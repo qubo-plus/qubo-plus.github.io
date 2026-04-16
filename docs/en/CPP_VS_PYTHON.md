@@ -108,6 +108,25 @@ f = 2          # Just an int — no problem
 f += x         # f automatically becomes an Expr representing 2 + x
 ```
 
+## Immutability of `VarInt` and `ExprExpr`
+
+`qbpp::VarInt` / `qbpp::ExprExpr` (and the corresponding `pyqbpp.VarInt` / `pyqbpp.ExprExpr`) are **immutable in both languages**. In-place modification is forbidden, but **the way the error surfaces differs by language**:
+
+| Operation | C++ | Python |
+|---|---|---|
+| `vi += 1`, `ee += 1` (compound assignment) | **Compile error** (`= delete`) | **Silent rebind** — `vi` / `ee` is rebound to a fresh `Expr` (matches Python's idiom for immutable types `Decimal` / `Fraction` / `str`). The VarInt metadata / ExprExpr body is discarded. |
+| `vi.simplify_as_binary()` etc. mutator methods | **Compile error** | **`TypeError`** (the message names the global-form replacement `qbpp.simplify_as_binary(vi)`) |
+| `ee.replace(ml)` | **Compile error** | **`TypeError`** (use: `qbpp.replace(ee, ml)`) |
+
+**Why**: C++ catches type mismatches at compile time, so `= delete` is the natural form. Python, by contrast, treats type-changing compound assignment (`f = 1; f += x`) as routine — the immutable built-in types follow the same idiom — so silent rebinding for `vi += 1` is the most natural Python behavior. Mutator methods, however, have no rebinding fallback, so they raise `TypeError`.
+
+Common to both languages:
+- **Overwriting requires the same type**: `vi = other_vi`, `ee = other_ee` are OK.
+- **Implicit decay to `Expr`**: arithmetic such as `vi + 1`, `ee + ee2` returns a fresh `Expr`.
+- **Use the global free functions to apply transformations**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — the original object is unchanged; a fresh `Expr` is returned.
+
+See the quick reference [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT) for the full table.
+
 ## Syntax Differences
 
 The following table shows the main syntax differences between C++ and Python.
@@ -121,7 +140,9 @@ The following table shows the main syntax differences between C++ and Python.
 | **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
 | **Equality** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **Body of ExprExpr** | `*f` | `f.body` |
+| **Body of ExprExpr** | `f.body()` | `f.body` |
+| **Penalty of ExprExpr** | `f.penalty()` or `Expr(f)` (decay) | `f.penalty` or `Expr` context decay |
+| **Expr part of VarInt** | `vi.expr()` or `Expr(vi)` (decay) | `vi._expr()` / `vi.to_expr()` |
 | **Simplify** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
 | **Easy Solver** | `qbpp::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
 | **Exhaustive Solver** | `qbpp::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |

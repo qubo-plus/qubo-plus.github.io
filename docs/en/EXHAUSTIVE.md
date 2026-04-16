@@ -44,7 +44,7 @@ The following parameters are available:
 
 ## Searching Solutions
 - **`search()`**: Returns the best solution found (without parameters). If a CUDA GPU is available, the search is automatically accelerated using the GPU alongside CPU threads.
-- **`search(params)`**: Returns a `Sol` object. When `topk_sols`, `best_energy_sols`, or `all_sols` is set, the collected solutions are accessible via `sol.all_solutions()`, sorted in increasing order of energy.
+- **`search(params)`**: Returns a `Sol` object. When `topk_sols`, `best_energy_sols`, or `all_sols` is set, the collected solutions are accessible via `sol.sols()`, sorted in increasing order of energy.
 
 # Program example
 The following program searches for a solution to the
@@ -70,7 +70,7 @@ int main() {
 
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"enable_default_callback", 1}});
-  std::cout << sol.energy << ": ";
+  std::cout << sol.energy() << ": ";
   for (auto val : sol(x)) {
     std::cout << (val == 0 ? "-" : "+");
   }
@@ -101,7 +101,7 @@ All optimal solutions can be obtained by setting `best_energy_sols` as follows:
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
@@ -128,7 +128,7 @@ The top-k solutions with the lowest energy can be obtained by setting `topk_sols
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"topk_sols", 10}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
@@ -160,7 +160,7 @@ Use this only when $n$ is small enough.
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
-  for (const auto& s : sol.all_solutions()) {
+  for (const auto& s : sol.sols()) {
     std::cout << s.energy << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");

@@ -116,7 +116,7 @@ int main() {
   auto sol = solver.search({{"target_energy", 1}});
 
   // Print results
-  std::cout << "Energy = " << sol.energy << std::endl;
+  std::cout << "Energy = " << sol.energy() << std::endl;
   std::cout << "Assignment: ";
   for (int i = 0; i < n; ++i) {
     std::cout << "x[" << i << "]=" << sol(x[i]) << " ";

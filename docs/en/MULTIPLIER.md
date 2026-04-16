@@ -48,17 +48,17 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
 The function `fa` returns an expression that enforces consistency between the input and output bits of a full adder.
 
 ### Adder
-Assume that arrays `a`, `b`, and `s` of `qbpp::Expr` objects represent integers.
+Assume that arrays `a`, `b`, and `s` represent integers.
 We assume that `a` and `b` each have `N` elements representing `N`-bit integers, while `s` has `N + 1` elements representing an `(N + 1)`-bit integer.
-The following function adder returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds:
+The following function `adder` returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds.
+Because `a`, `b` and `s` may be arrays of different element types (`qbpp::Var`, `qbpp::Expr`, or integer constants from `qbpp::int_array`), the function is written as a template so that each call site can pass whichever array type it has:
 {% raw %}
 ```cpp
-qbpp::Expr adder(const qbpp::ArrayBase& a,
-                 const qbpp::ArrayBase& b,
-                 const qbpp::ArrayBase& s) {
+template <typename A, typename B, typename S>
+qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto N = a.size();
   auto c = qbpp::var("_c", N + 1);
-  auto f = qbpp::toExpr(0);
+  auto f = qbpp::expr();
   for (size_t j = 0; j < N; ++j) {
     f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
@@ -70,39 +70,39 @@ qbpp::Expr adder(const qbpp::ArrayBase& a,
 In this function, `c` is an array of `N + 1` variables used to connect the carry-out and carry-in signals of the `fa` blocks, forming an `N`-bit ripple-carry adder.
 
 ### Multiplier
-Assume that arrays `x`, `y`, and `z` of `qbpp::Expr` represent integers.
+Assume that arrays `x`, `y`, and `z` represent integers.
 We assume that `x` and `y` each have `N` elements and that `z` has `2 * N` elements.
-The following function multiplier returns a QUBO expression whose minimum value is 0 if and only if `x * y == z` holds.
+The following function `multiplier` returns a QUBO expression whose minimum value is 0 if and only if `x * y == z` holds.
+It is written as a template for the same reason as `adder` — the caller may pass `Array<1, qbpp::Var>`, `Array<1, qbpp::Expr>`, or `Array<1, coeff_t>` in any combination.
 ```cpp
-qbpp::Expr multiplier(const qbpp::ArrayBase& x,
-                      const qbpp::ArrayBase& y,
-                      const qbpp::ArrayBase& z) {
+template <typename X, typename Y, typename Z>
+qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
-  auto f = qbpp::toExpr(0);
+  auto f = qbpp::expr();
 
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
+      b[j] = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
     auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
+        a[j] = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.at(N - 1) = 0;
+      a[N - 1] = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
+        a[j] = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
     auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.at(j) = qbpp::Expr(c[i][j]);
+      s[j] = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }
@@ -137,47 +137,45 @@ qbpp::Expr fa(const qbpp::Expr& a, const qbpp::Expr& b, const qbpp::Expr& i,
   return (a + b + i) - (2 * o + s) == 0;
 }
 
-qbpp::Expr adder(const qbpp::ArrayBase& a,
-                 const qbpp::ArrayBase& b,
-                 const qbpp::ArrayBase& s) {
+template <typename A, typename B, typename S>
+qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto N = a.size();
   auto c = qbpp::var("_c", N + 1);
-  auto f = qbpp::toExpr(0);
+  auto f = qbpp::expr();
   for (size_t j = 0; j < N; ++j) {
     f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
   }
   return f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
 }
 
-qbpp::Expr multiplier(const qbpp::ArrayBase& x,
-                      const qbpp::ArrayBase& y,
-                      const qbpp::ArrayBase& z) {
+template <typename X, typename Y, typename Z>
+qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
-  auto f = qbpp::toExpr(0);
+  auto f = qbpp::expr();
 
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b.at(j) = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
+      b[j] = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
     }
 
     auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a.at(j) = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
+        a[j] = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
       }
-      a.at(N - 1) = 0;
+      a[N - 1] = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a.at(j) = qbpp::Expr(c[i - 1][j + 1]);
+        a[j] = qbpp::Expr(c[i - 1][j + 1]);
       }
     }
 
     auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s.at(j) = qbpp::Expr(c[i][j]);
+      s[j] = qbpp::Expr(c[i][j]);
     }
     f += adder(a, b, s);
   }

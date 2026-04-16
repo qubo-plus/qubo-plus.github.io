@@ -58,7 +58,7 @@ for j in range(N):
     col_sum = 0
     for i in range(M):
         col_sum += x[i][j]
-    order_constraint += col_sum == c[j]
+    order_constraint += qbpp.constrain(col_sum, equal=c[j])
 
 # Bar constraint: total length used in each bar must not exceed L
 bar_length_used = []
