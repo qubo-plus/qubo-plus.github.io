@@ -22,12 +22,22 @@ hreflang_lang: "en"
 
 ## 1. `pyqbpp.VarInt`
 
-### 生成
+### 生成（公式）
 
 | 構文 | 戻り値 |
 |---|---|
-| `qbpp.between(qbpp.var_int("x"), l, u)` | `VarInt` (範囲 `[l, u]`) |
-| `qbpp.between(qbpp.var_int("x", s1, s2, ...), l, u)` | `Array` (VarInt 要素) |
+| `qbpp.var("x", between=(l, u))` | `VarInt` (範囲 `[l, u]`) |
+| `qbpp.var("x", shape=N, between=(l, u))` | `Array` (VarInt 要素) |
+| `qbpp.var("x", shape=(s1, s2, ...), between=(l, u))` | 多次元 VarInt 配列 |
+| `qbpp.var("x", shape=N, equal=0)` | placeholder VarInt 配列 (各要素を後から代入) |
+
+### 生成（裏サポート、後方互換）
+
+下記は内部的にサポートされていますが、新規コードでは公式形式 (`qbpp.var(..., between=...)`) と `qbpp.constrain(...)` を使ってください:
+
+| 構文 | 戻り値 |
+|---|---|
+| `qbpp.var_int("x")` + `qbpp.between(..., l, u)` | `VarInt` |
 | `qbpp.var_int("x").between(l, u)` | `VarInt` (チェーン形式) |
 
 ### 使える演算・関数
@@ -37,8 +47,9 @@ hreflang_lang: "en"
 | 単項 | `-vi` | `Expr` | `_expr()` に委譲 |
 | 算術 (右辺 Expr 系) | `vi + 1`, `vi * 2`, `vi - x` | `Expr` | `_expr()` に委譲 |
 | 算術 (右辺 VarInt) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | 両辺 `_expr()` |
-| 比較 (== int) | `vi == 5` | `ExprExpr` | 制約生成 |
-| 比較 (範囲) | `qbpp.between(vi, l, u)` | `ExprExpr` | between 制約 |
+| 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | 公式形式 |
+| 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | 公式形式 |
+| 制約 (裏サポート) | `vi == 5`, `qbpp.between(vi, l, u)` | `ExprExpr` | 後方互換のため残存。新規コードは `qbpp.constrain()` を |
 | グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | decay → Expr に適用 |
 | メタ情報プロパティ | `vi.name`, `vi.min_val`, `vi.max_val` | 各種 | read-only |
 | 構造プロパティ・メソッド | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
@@ -60,16 +71,23 @@ hreflang_lang: "en"
 
 ## 2. `pyqbpp.ExprExpr`
 
-### 生成
+### 生成（公式）
 
 | 構文 | 戻り値 | 意味 (penalty / body) |
 |---|---|---|
-| `f == n` | `ExprExpr` | penalty = `sqr(f - n)`, body = `f` |
-| `qbpp.between(f, l, u)` | `ExprExpr` | penalty = between, body = `f` |
-| `qbpp.constrain(f, equal=n)` | `ExprExpr` | `f == n` と同じ |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | `qbpp.between(f, l, u)` と同じ |
+| `qbpp.constrain(f, equal=n)` | `ExprExpr` | penalty = `sqr(f - n)`, body = `f` |
+| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | penalty = between, body = `f` |
+| `qbpp.constrain(f, between=(l, None))` | `ExprExpr` | `f >= l` (無上限) |
+| `qbpp.constrain(f, between=(None, u))` | `ExprExpr` | `f <= u` (無下限) |
 
 `f` は非整数の式型 (`Var`, `Term`, `Expr`, `VarInt`)、`n`, `l`, `u` は整数。
+
+### 生成（裏サポート、後方互換）
+
+| 構文 | 戻り値 | 備考 |
+|---|---|---|
+| `f == n` | `ExprExpr` | `qbpp.constrain(f, equal=n)` と同じ |
+| `qbpp.between(f, l, u)` | `ExprExpr` | `qbpp.constrain(f, between=(l, u))` と同じ |
 
 ### 使える演算・関数
 
@@ -104,9 +122,9 @@ hreflang_lang: "en"
 | `qbpp.simplify_as_binary(x)` | `Expr` | binary (0/1) ルールで簡約 |
 | `qbpp.simplify_as_spin(x)` | `Expr` | spin (±1) ルールで簡約 |
 | `qbpp.replace(x, ml)` | `Expr` | 変数置換 |
-| `qbpp.between(x, l, u)` | `ExprExpr` | 範囲制約 |
-| `qbpp.constrain(f, equal=...)` | `ExprExpr` | 等値制約 |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約 |
+| `qbpp.constrain(f, equal=n)` | `ExprExpr` | 等値制約（公式） |
+| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約（公式） |
+| `qbpp.between(x, l, u)` | `ExprExpr` | 範囲制約（裏サポート、`qbpp.constrain(x, between=(l, u))` と同じ） |
 
 引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に decay)。
 
@@ -121,15 +139,15 @@ hreflang_lang: "en"
 
 ```python
 # VarInt 配列
-x = qbpp.between(qbpp.var_int("x", 3), 0, 7)   # Array (VarInt 要素)
-sum_expr = qbpp.sum(x)                          # Expr
-f = qbpp.sqr(sum_expr - 5)                      # Expr
+x = qbpp.var("x", shape=3, between=(0, 7))      # Array (VarInt 要素)
+sum_expr = qbpp.sum(x)                           # Expr
+f = qbpp.sqr(sum_expr - 5)                       # Expr
 
 # ExprExpr 配列 (要素ごとの制約)
-m = qbpp.var("m", 3, 4)                         # 2D Var 配列
-rows = qbpp.vector_sum(m, axis=0)               # 各行の和 (Expr 配列)
-onehot = (rows == 1)                            # Array (ExprExpr 要素)
-penalty = qbpp.sum(onehot)                      # Expr (全制約の合計)
+m = qbpp.var("m", shape=(3, 4))                  # 2D Var 配列
+rows = qbpp.vector_sum(m, axis=0)                # 各行の和 (Expr 配列)
+onehot = qbpp.constrain(rows, equal=1)           # Array (ExprExpr 要素)
+penalty = qbpp.sum(onehot)                       # Expr (全制約の合計)
 ```
 
 要素ごとの `body` アクセスは `arr[i].body`。
@@ -144,6 +162,6 @@ C++ では `+=` 等の複合代入はコンパイルエラー、Python では si
 
 ## 関連ページ
 
-- [整数変数と連立方程式の求解](INTEGER) — `var_int` と `between` を使った例
+- [整数変数と連立方程式の求解](INTEGER) — `qbpp.var(..., between=...)` と `qbpp.constrain(...)` を使った例
 - [比較演算子](COMPARISON) — `==` の制約生成
 - [置換関数](REPLACE) — `qbpp.replace(...)` の使用例
