@@ -22,7 +22,7 @@ Integer variables (`pyqbpp.VarInt`) and constraints (`pyqbpp.ExprExpr`) are **tw
 
 ## 1. `pyqbpp.VarInt`
 
-### Construction (official)
+### Construction
 
 | Syntax | Result |
 |---|---|
@@ -31,15 +31,6 @@ Integer variables (`pyqbpp.VarInt`) and constraints (`pyqbpp.ExprExpr`) are **tw
 | `qbpp.var("x", shape=(s1, s2, ...), between=(l, u))` | multi-dim VarInt array |
 | `qbpp.var("x", shape=N, equal=0)` | placeholder VarInt array (assign each element later) |
 
-### Construction (back-supported, kept for backward compatibility)
-
-The forms below still work but new code should use the official forms above (`qbpp.var(..., between=...)`) and `qbpp.constrain(...)`:
-
-| Syntax | Result |
-|---|---|
-| `qbpp.var_int("x")` + `qbpp.between(..., l, u)` | `VarInt` |
-| `qbpp.var_int("x").between(l, u)` | `VarInt` (chain form) |
-
 ### Allowed operations / functions
 
 | Category | Example | Result | Notes |
@@ -47,9 +38,8 @@ The forms below still work but new code should use the official forms above (`qb
 | Unary | `-vi` | `Expr` | delegates to `_expr()` |
 | Arithmetic (RHS Expr-like) | `vi + 1`, `vi * 2`, `vi - x` | `Expr` | delegates to `_expr()` |
 | Arithmetic (RHS VarInt) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | both sides `_expr()` |
-| Constraint (equality) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | official form |
-| Constraint (range) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | official form |
-| Constraint (back-supported) | `vi == 5`, `qbpp.between(vi, l, u)` | `ExprExpr` | kept for backward compat; new code should use `qbpp.constrain()` |
+| Constraint (equality) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | constraint creation |
+| Constraint (range) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | range constraint |
 | Global functions | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | applied to decayed Expr |
 | Metadata properties | `vi.name`, `vi.min_val`, `vi.max_val` | various | read-only |
 | Structure properties / methods | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | various | read-only |
@@ -71,7 +61,7 @@ The error message names the specific replacement form (e.g. `qbpp.simplify_as_bi
 
 ## 2. `pyqbpp.ExprExpr`
 
-### Construction (official)
+### Construction
 
 | Syntax | Result | Meaning (penalty / body) |
 |---|---|---|
@@ -81,13 +71,6 @@ The error message names the specific replacement form (e.g. `qbpp.simplify_as_bi
 | `qbpp.constrain(f, between=(None, u))` | `ExprExpr` | `f <= u` (no lower bound) |
 
 `f` is a non-integer expression type (`Var`, `Term`, `Expr`, `VarInt`); `n`, `l`, `u` are integers.
-
-### Construction (back-supported, kept for backward compatibility)
-
-| Syntax | Result | Notes |
-|---|---|---|
-| `f == n` | `ExprExpr` | same as `qbpp.constrain(f, equal=n)` |
-| `qbpp.between(f, l, u)` | `ExprExpr` | same as `qbpp.constrain(f, between=(l, u))` |
 
 ### Allowed operations / functions
 
@@ -122,9 +105,8 @@ The principal global functions that accept `VarInt` / `ExprExpr`. **All return a
 | `qbpp.simplify_as_binary(x)` | `Expr` | binary (0/1) simplification |
 | `qbpp.simplify_as_spin(x)` | `Expr` | spin (±1) simplification |
 | `qbpp.replace(x, ml)` | `Expr` | variable substitution |
-| `qbpp.constrain(f, equal=n)` | `ExprExpr` | equality constraint (official) |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | range constraint (official) |
-| `qbpp.between(x, l, u)` | `ExprExpr` | range constraint (back-supported, same as `qbpp.constrain(x, between=(l, u))`) |
+| `qbpp.constrain(f, equal=n)` | `ExprExpr` | equality constraint |
+| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | range constraint |
 
 The argument `x` may be `Var`, `Term`, `Expr`, `VarInt`, or `ExprExpr` (decays internally to `Expr`).
 

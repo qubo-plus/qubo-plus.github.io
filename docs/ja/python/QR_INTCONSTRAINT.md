@@ -22,7 +22,7 @@ hreflang_lang: "en"
 
 ## 1. `pyqbpp.VarInt`
 
-### 生成（公式）
+### 生成
 
 | 構文 | 戻り値 |
 |---|---|
@@ -31,15 +31,6 @@ hreflang_lang: "en"
 | `qbpp.var("x", shape=(s1, s2, ...), between=(l, u))` | 多次元 VarInt 配列 |
 | `qbpp.var("x", shape=N, equal=0)` | placeholder VarInt 配列 (各要素を後から代入) |
 
-### 生成（裏サポート、後方互換）
-
-下記は内部的にサポートされていますが、新規コードでは公式形式 (`qbpp.var(..., between=...)`) と `qbpp.constrain(...)` を使ってください:
-
-| 構文 | 戻り値 |
-|---|---|
-| `qbpp.var_int("x")` + `qbpp.between(..., l, u)` | `VarInt` |
-| `qbpp.var_int("x").between(l, u)` | `VarInt` (チェーン形式) |
-
 ### 使える演算・関数
 
 | カテゴリ | 例 | 戻り値 | 備考 |
@@ -47,9 +38,8 @@ hreflang_lang: "en"
 | 単項 | `-vi` | `Expr` | `_expr()` に委譲 |
 | 算術 (右辺 Expr 系) | `vi + 1`, `vi * 2`, `vi - x` | `Expr` | `_expr()` に委譲 |
 | 算術 (右辺 VarInt) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | 両辺 `_expr()` |
-| 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | 公式形式 |
-| 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | 公式形式 |
-| 制約 (裏サポート) | `vi == 5`, `qbpp.between(vi, l, u)` | `ExprExpr` | 後方互換のため残存。新規コードは `qbpp.constrain()` を |
+| 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | 制約生成 |
+| 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | 範囲制約 |
 | グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | decay → Expr に適用 |
 | メタ情報プロパティ | `vi.name`, `vi.min_val`, `vi.max_val` | 各種 | read-only |
 | 構造プロパティ・メソッド | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
@@ -71,7 +61,7 @@ hreflang_lang: "en"
 
 ## 2. `pyqbpp.ExprExpr`
 
-### 生成（公式）
+### 生成
 
 | 構文 | 戻り値 | 意味 (penalty / body) |
 |---|---|---|
@@ -81,13 +71,6 @@ hreflang_lang: "en"
 | `qbpp.constrain(f, between=(None, u))` | `ExprExpr` | `f <= u` (無下限) |
 
 `f` は非整数の式型 (`Var`, `Term`, `Expr`, `VarInt`)、`n`, `l`, `u` は整数。
-
-### 生成（裏サポート、後方互換）
-
-| 構文 | 戻り値 | 備考 |
-|---|---|---|
-| `f == n` | `ExprExpr` | `qbpp.constrain(f, equal=n)` と同じ |
-| `qbpp.between(f, l, u)` | `ExprExpr` | `qbpp.constrain(f, between=(l, u))` と同じ |
 
 ### 使える演算・関数
 
@@ -122,9 +105,8 @@ hreflang_lang: "en"
 | `qbpp.simplify_as_binary(x)` | `Expr` | binary (0/1) ルールで簡約 |
 | `qbpp.simplify_as_spin(x)` | `Expr` | spin (±1) ルールで簡約 |
 | `qbpp.replace(x, ml)` | `Expr` | 変数置換 |
-| `qbpp.constrain(f, equal=n)` | `ExprExpr` | 等値制約（公式） |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約（公式） |
-| `qbpp.between(x, l, u)` | `ExprExpr` | 範囲制約（裏サポート、`qbpp.constrain(x, between=(l, u))` と同じ） |
+| `qbpp.constrain(f, equal=n)` | `ExprExpr` | 等値制約 |
+| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約 |
 
 引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に decay)。
 
