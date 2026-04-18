@@ -81,7 +81,7 @@ int main() {
   auto f = objective + constraint * 2;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -111,5 +111,5 @@ constraint = 0
 選択された頂点がハイライトされた結果の画像を以下に示します:
 
 <p align="center">
-  <img src="images/vertexcover.svg" alt="最小頂点被覆問題の解" width="80%">
+  <img src="../images/vertexcover.svg" alt="最小頂点被覆問題の解" width="80%">
 </p>

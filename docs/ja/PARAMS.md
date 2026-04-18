@@ -64,7 +64,7 @@ auto sol = solver.search(params);
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
-auto solver = qbpp::easy_solver::EasySolver(f);
+auto solver = qbpp::EasySolver(f);
 auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
 ```
 {% endraw %}
@@ -88,7 +88,7 @@ Exhaustive Solver は完全探索を行うため、`time_limit` パラメータ�
 #include <qbpp/qbpp.hpp>
 #include <qbpp/exhaustive_solver.hpp>
 
-auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+auto solver = qbpp::ExhaustiveSolver(f);
 auto sol = solver.search({{"target_energy", 0}});
 ```
 {% endraw %}

@@ -52,6 +52,7 @@ PyQBPPを使った求解方法を学ぶことができます。
 14. [Exhaustive Solverの使い方](EXHAUSTIVE)
 15. [ABS3 Solverの使い方](ABS3)
 16. [探索パラメータ](PARAMS)
+17. [高速化のための Tips](TIPS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。
@@ -60,4 +61,5 @@ PyQBPPを使った求解方法を学ぶことができます。
 ## クイックリファレンス
 1. [変数と式](QR_VARIABLE)
 2. [演算子と関数](QR_OPERATION)
-3. [解](QR_SOLUTION)
+3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
+4. [解](QR_SOLUTION)

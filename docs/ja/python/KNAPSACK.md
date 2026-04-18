@@ -9,7 +9,7 @@ hreflang_lang: "en"
 ---
 
 # ナップサック問題
-重さと価値を持つアイテムの集合と、重量制限のあるナップサックが与えられたとき、**ナップサック問題**は、総重量を容量以内に保ちながら総価値を最大化するアイテムの部分集合を選択する問題です。
+重さと価値を持つアイテムの集合と、重量制限のあるナップサックが与えられたとき、**ナップサック問題**は、総重量が容量以内に収まるようにしつつ、総価値を最大化するアイテムの部分集合を選択することを目的とします。
 
 $w_i$ と $v_i$（$0\leq i\leq n-1$）をそれぞれアイテム $i$ の重さと価値とします。
 $S\in \lbrace 0, 1, \ldots n-1\rbrace$ を選択されたアイテムの集合とします。
@@ -24,9 +24,20 @@ $$
 ここで $W$ はナップサックの重量容量です。
 
 ## QUBO定式化
-$n$ 個のバイナリ変数 $x_i\in\lbrace 0,1\rbrace$（$0\leq i\leq n-1$）を導入します。
-アイテム $i$ が選択されるのは $x_i=1$ のときかつそのときに限ります。
-QUBO目的関数は以下のとおりです：
+この問題をQUBOとして定式化するために、$n$ 個のバイナリ変数 $x_i\in\lbrace 0,1\rbrace$（$0\leq i\leq n-1$）の集合 $X$ を導入します。ここで、アイテム $i$ が選択されるのは $x_i=1$ のときかつそのときに限ります。
+
+上記の定式化は次のように書き換えられます：
+
+$$
+\begin{aligned}
+\text{Maximize:} & \sum_{i=0}^{n-1} v_ix_i \\
+\text{Subject to:} & \sum_{i=0}^{n-1} w_ix_i \leq W
+\end{aligned}
+$$
+
+## PyQBPPプログラム
+制約は PyQBPP が提供する**範囲演算子** `qbpp.constrain(..., between=(lo, hi))` を用いて表現できます。
+結果として得られるQUBO目的関数は次のように定義されます：
 
 $$
 \begin{aligned}
@@ -34,7 +45,10 @@ f(X) &= -\sum_{i=0}^{n-1} v_ix_i + P\times (0\leq \sum_{i=0}^{n-1} w_ix_i \leq W
 \end{aligned}
 $$
 
-## PyQBPPプログラム
+QUBOソルバーは目的関数を最小化するため、元の最大化目的は符号を反転しています。
+定数 $P$ は制約を強制するための十分大きなペナルティパラメータです。
+
+以下のPyQBPPプログラムは、Exhaustive Solverを用いて10個のアイテムのナップサック問題を解きます：
 ```python
 import pyqbpp as qbpp
 
@@ -42,17 +56,17 @@ w = [10, 20, 30, 5, 8, 15, 12, 7, 17, 18]
 v = [60, 100, 120, 60, 80, 150, 110, 70, 150, 160]
 capacity = 50
 
-x = qbpp.var("x", len(w))
+x = qbpp.var("x", shape=len(w))
 
-constraint = qbpp.between(qbpp.sum(w * x), 0, capacity)
+constraint = qbpp.constrain(qbpp.sum(w * x), between=(0, capacity))
 objective = qbpp.sum(v * x)
 
 f = -objective + 1000 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-for idx, sol in enumerate(result.sols()):
+result = solver.search(best_energy_sols=0)
+for idx, sol in enumerate(result.sols):
     print(f"[Solution {idx}]")
     print(f"Energy = {sol.energy}")
     print(f"Constraint = {sol(constraint.body)}")
@@ -61,10 +75,11 @@ for idx, sol in enumerate(result.sols()):
         if sol(x[j]) == 1:
             print(f"Item {j}: weight = {w[j]}, value = {v[j]}")
 ```
-`constraint` と `objective` の式を個別に構築し、最終的なQUBO式 `f` にまとめます。
-次に、Exhaustive Solverを適用してすべての最適解を列挙します。
 
-以下の出力は最適解を示しています：
+このプログラムでは、式 `constraint` と `objective` を別々に構築し、ペナルティ係数 `1000` を用いて最終的なQUBO式 `f` に結合しています。
+次に、Exhaustive Solver を `f` に適用し、すべての最適解を列挙します。
+
+以下の出力は、エネルギー、制約値、目的関数値を含む最適解を示しています：
 ```
 [Solution 0]
 Energy = -480
@@ -84,10 +99,4 @@ Item 6: weight = 12, value = 110
 Item 7: weight = 7, value = 70
 Item 9: weight = 18, value = 160
 ```
-
-### C++ QUBO++との比較
-
-| C++ QUBO++                   | PyQBPP                              |
-|------------------------------|---------------------------------------|
-| `0 <= sum(w * x) <= capacity`| `between(sum(w * x), 0, capacity)`   |
-| `sol(*constraint)`           | `sol(constraint.body)`           |
+このインスタンスには2つの最適解があり、いずれも総価値 `480` を達成しつつ、容量制約をちょうど満たしていることがわかります。

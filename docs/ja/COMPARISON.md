@@ -40,7 +40,7 @@ int main() {
   std::cout << "f = " << f << std::endl;
   std::cout << "*f = " << *f << std::endl;
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -247,7 +247,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 5 <= 4 * a + 9 * b + 15 * c <= 14;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -298,7 +298,7 @@ $$
 $f$ の取りうる最小値と最大値はそれぞれ0と24です。
 したがって、QUBO++は対応する範囲制約を構築する際に、$-\infty$ と $+\infty$ の代わりに0と24を使用します。
 
-> **NOTE**
+> **注意**
 > QUBO++は不等式制約において下界と上界の両方を指定することを意図的に要求しています。
 > これにより、**MIPスタイルの解釈**（例: $f\leq u$ が $0\leq f\leq u$ を意味する）と**QUBOスタイルの解釈**（例: $f\leq u$ が $-\infty\leq f\leq u$ を意味する）の間の曖昧さを回避し、微妙なモデリングエラーを防ぎます。
 
@@ -317,7 +317,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = 14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
@@ -348,7 +348,7 @@ int main() {
   auto c = qbpp::var("c");
   auto f = -qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)

@@ -52,6 +52,7 @@ hreflang_lang: "en"
 14. [Exhaustive Solver の使い方](EXHAUSTIVE)
 15. [ABS3 Solver の使い方](ABS3)
 16. [探索パラメータ](PARAMS)
+17. [高速化のための Tips](TIPS)
 
 
 
@@ -62,4 +63,5 @@ hreflang_lang: "en"
 ## クイックリファレンス
 1. [変数と式](QR_VARIABLE)
 2. [式の演算子と関数](QR_OPERATION)
-3. [解](QR_SOLUTION)
+3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
+4. [解](QR_SOLUTION)

@@ -83,7 +83,7 @@ int main() {
   auto f = objective + constraint * 2;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -113,5 +113,5 @@ An optimal solution with objective value 9 and constraint value 0 is obtained.
 The resulting image, which highlights the selected vertices, is shown below:
 
 <p align="center">
-  <img src="images/vertexcover.svg" alt="The solution of the minimum vertex cover problem." width="80%">
+  <img src="../images/vertexcover.svg" alt="The solution of the minimum vertex cover problem." width="80%">
 </p>

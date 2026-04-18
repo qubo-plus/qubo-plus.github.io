@@ -103,7 +103,7 @@ int main() {
   auto f = objective + (N + 1) * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -133,7 +133,7 @@ constraint = 0
 The image file stores the following image:
 
 <p align="center">
-  <img src="images/dominatingset.svg" alt="The solution of the minimum dominating set problem." width="80%">
+  <img src="../images/dominatingset.svg" alt="The solution of the minimum dominating set problem." width="80%">
 </p>
 
 ## QUBO formulation and the QUBO++ program

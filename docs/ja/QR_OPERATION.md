@@ -229,7 +229,7 @@ $f(s)$をスピン変数$s$の関数とします。
 `spin_to_binary()`と同様に、`binary_to_spin()`にもグローバル関数とメンバ関数の両方のバリアントが提供されています。
 
 ## スライス関数: `slice()`, `head()`, `tail()`, `row()`, `col()`
-スライス関数は `qbpp::Array` からサブ配列を取り出します。
+スライス関数は配列からサブ配列を取り出します。
 
 ### 範囲スライス: `slice()`, `head()`, `tail()`
 
@@ -297,4 +297,63 @@ auto s = qbpp::sum(prod);
 auto x = qbpp::var("x", 4);
 auto diff = qbpp::concat(1, x) - qbpp::concat(x, 0);
 // diff = {1-x[0], x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-0}
+```
+
+## Term メンバ関数
+
+以下の `qbpp::Term` のメンバ関数は、項の内部構造への読み取り専用アクセスを提供します。
+
+| 式 | 戻り値の型 | 説明 |
+|------------|-------------|-------------|
+| `t.coeff()` | `coeff_t` | 係数を返す |
+| `t.degree()` | `uint32_t` | 次数（変数の数）を返す |
+| `t.var(i)` | `qbpp::Var` | `i` 番目の変数を返す |
+| `t.has(v)` | `bool` | `Var` `v` が項に含まれていれば `true` を返す |
+
+### 例
+```cpp
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+auto z = qbpp::var("z");
+qbpp::Term t = 3 * x * y;
+
+t.coeff();    // 3
+t.degree();   // 2
+t.var(0);     // x
+t.var(1);     // y
+t.has(x);     // true
+t.has(z);     // false
+```
+
+## Expr メンバ関数
+
+以下の `qbpp::Expr` のメンバ関数は、式の内部構造への読み取り専用アクセスを提供します。
+
+| 式 | 戻り値の型 | 説明 |
+|------------|-------------|-------------|
+| `f.constant` | `energy_t` | 定数項を返す |
+| `f.term_count()` | `size_t` | 項の数を返す（定数項を除く） |
+| `f.term_count(d)` | `size_t` | 次数 `d` の項の数を返す |
+| `f.term(i)` | `qbpp::Term` | `i` 番目の項のコピーを返す |
+| `f.max_degree` | `uint32_t` | すべての項の最大次数を返す |
+| `f.has(v)` | `bool` | `Var` `v` が式に含まれていれば `true` を返す |
+| `f.has(vi)` | `bool` | `VarInt` `vi` のすべての変数が式に含まれていれば `true` を返す |
+
+### 例
+```cpp
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = qbpp::simplify(3 * x + 2 * x * y + 5);
+// f = 5 + 3*x + 2*x*y
+
+f.constant;          // 5
+f.term_count();        // 2
+f.term(0);             // 3*x
+f.term(1);             // 2*x*y
+f.term(1).coeff();     // 2
+f.term(1).var(0);      // x
+f.term(1).var(1);      // y
+f.max_degree;        // 2
+f.has(x);              // true
+f.has(y);              // true
 ```

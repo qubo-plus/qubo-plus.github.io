@@ -61,7 +61,7 @@ int main() {
   auto f = -objective;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -92,5 +92,5 @@ objective = 22
 The resulting graph is rendered and stored in the file `maxcut.svg`:
 
 <p align="center">
-  <img src="images/maxcut.svg" alt="The solution of the Max Cut problem." width="80%">
+  <img src="../images/maxcut.svg" alt="The solution of the Max Cut problem." width="80%">
 </p>

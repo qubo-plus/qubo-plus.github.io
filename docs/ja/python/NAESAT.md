@@ -86,7 +86,7 @@ clauses = [
 ]
 
 # バイナリ変数の作成
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 
 # NAE 制約: 全 True または全 False のときペナルティ
 constraint = 0
@@ -108,7 +108,7 @@ f = (objective + penalty_weight * constraint).simplify_as_binary()
 
 # 求解
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 1})  # n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
+sol = solver.search(target_energy=1)  # n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
 
 # 結果の出力
 print(f"Energy = {sol.energy}")

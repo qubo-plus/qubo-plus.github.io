@@ -12,35 +12,37 @@ hreflang_lang: "ja"
 
 ## Data types used in `qbpp::Expr`
 - **`coeff_t`**:
-  The integer data type used for coefficients in `qbpp::Term` objects.
-  The default type is `int32_t`.
-  To change this type, define the `COEFF_TYPE` macro at compile time, for example:
-```
--DCOEFF_TYPE=int16_t
-```
+  The integer data type used for coefficients in `qbpp::Term` objects. The default is `int32_t`.
 - **`energy_t`**:
-The integer data type used to compute energy values of `qbpp::Expr` objects,
-as well as for integer constant terms in `qbpp::Expr`.
-The default type is `int64_t`.
-To change this type, define the `ENERGY_TYPE` macro at compile time, for example:
-```
--DENERGY_TYPE=int32_t
-```
-The bit width of `energy_t` is guaranteed to be equal to or larger than that of `coeff_t`.
+  The integer data type used to compute energy values of `qbpp::Expr` objects,
+  as well as for integer constant terms in `qbpp::Expr`. The default is `int64_t`.
+  The bit width of `energy_t` is guaranteed to be equal to or larger than that of `coeff_t`.
 
-- **`vindex_t`**:
-Defined as `uint32_t` and used to store a unique integer ID for each `qbpp::Var` object.
-In most cases, it is not necessary to change this data type.
+These types come as prebuilt shared-library variants. Select one by defining one of the
+following `INTEGER_TYPE_*` shorthand macros before including the header (or pass it as a
+compiler flag `-D...`):
 
-## Available integer data types
-- **Standard integer types**:
-`int16_t`, `int32_t`, `int64_t`
+| Macro | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-- **Multiprecision integer types** (implemented using the Boost.Multiprecision library):
-`qbpp::int128_t`, `qbpp::cpp_int`
+In addition, the `MAXDEG*` macro controls how each `qbpp::Term` stores its variables.
+Fixed-length modes eliminate heap allocation and improve performance when the maximum degree
+is known in advance:
 
-- **`qbpp::cpp_int`**:
-An integer type with unlimited precision.
+| Macro | Max degree | Description |
+|---|---|---|
+| `MAXDEG0` (default) | unlimited | Variable-length (heap allocation for degree 3+) |
+| `MAXDEG2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
+| `MAXDEG4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
+| `MAXDEG6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
+
+`INTEGER_TYPE_*` and `MAXDEG*` can be combined independently. See [VAREXPR](VAREXPR) for details.
 
 > **WARNING**
 > To maximize performance, QUBO++ does not check for arithmetic overflow.
@@ -56,15 +58,13 @@ For example, an object `obj` in QUBO++ can be printed to `std::cout` as follows:
 ```cpp
 std::cout << obj << std::endl;
 ```
-This invokes either `obj.str()` or `str(obj)`, which returns a std::string
-containing a textual representation of obj.
 This design allows easy inspection of internal states without relying on a debugger.
 
 
 ## Variable classes
 - **`qbpp::Var`**:
   A class that holds a unique 32-bit integer ID.
-  The variable name is stored in a global registry and can be retrieved via `x.str()`.
+  The variable name is stored in a global registry and can be inspected via `std::cout << x`.
 
 
 > **NOTE**
@@ -79,19 +79,16 @@ The following functions are provided to create variables:
   Creates a `qbpp::Var` object with the given name `"name"`.
 
 - **`qbpp::var("name", s1)`**:
-  Creates a one-dimensional array of `qbpp::Var` objects with the base name `"name"`.
+  Creates a 1-dimensional variable array with the base name `"name"`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Array<1, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2)`**:
-  Creates a two-dimensional array (matrix) of `qbpp::Var` objects with the base name `"name"`.
+  Creates a 2-dimensional variable array (matrix) with the base name `"name"`.
   Each element is represented as `name[i][j]`.
-  The resulting type is `qbpp::Array<2, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2, ...)`**:
-  Creates a higher-dimensional array of `qbpp::Var` objects with the base name `"name"`.
+  Creates an N-dimensional variable array with the base name `"name"`, where `N` is the number of dimensions.
   Each element is represented as `name[i][j]...`.
-  The resulting type is `qbpp::Array<N, qbpp::Var>` where `N` is the number of dimensions.
 
 > **NOTE**
 > If `"name"` is omitted, numbered names such as `"{0}"`, `"{1}"`, ... are automatically assigned in creation order.
@@ -99,10 +96,7 @@ The following functions are provided to create variables:
 ## `qbpp::Var` member functions
 For a `qbpp::Var` instance `x`, the following member functions are available:
 
-- **`std::string x.str()`**:
-  Returns the name of `x`.
-
-- **`vindex_t x.index()`**:
+- **`uint32_t x.index()`**:
   Returns the unique integer ID of `x`.
 
 Usually, there is no need to call these member functions explicitly in QUBO++ programs.
@@ -125,11 +119,10 @@ The following functions are provided to create integer variables:
   Internally, this also creates `qbpp::Var` objects used in the underlying expression.
 
 - **`l <= qbpp::var_int("name", s1) <= u`**:
-  Creates a one-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
+  Creates a 1-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Array<1, qbpp::VarInt>`.
-  Higher-dimensional arrays (e.g., `qbpp::Array<2, qbpp::VarInt>`) can be created in the same way as `qbpp::Var` objects.
+  Higher-dimensional arrays of `qbpp::VarInt` can be created in the same way as `qbpp::Var` objects.
 
 ### Integer variable member functions
 For a `qbpp::VarInt` instance `x`, the following member functions are available:
@@ -137,22 +130,19 @@ For a `qbpp::VarInt` instance `x`, the following member functions are available:
 - **`std::string x.name()`**:
   Returns the name of `x`.
 
-- **`std::string x.str()`**:
-  Returns the string representation of the underlying expression.
-
-- **`energy_t x.min_val()`**:
+- **`energy_t x.min_val`**:
   Returns the minimum value `l` of `x`.
 
-- **`energy_t x.max_val()`**:
+- **`energy_t x.max_val`**:
   Returns the maximum value `u` of `x`.
 
-- **`x.vars()`**:
+- **`x.vars`**:
   Returns the `qbpp::Var` object array used to represent the integer variable.
 
-- **`x.coeffs()`**:
+- **`x.coeffs`**:
   Returns the integer coefficient array.
 
 The following expression is equivalent to the expression stored in `x`:
 ```cpp
-x.min_val() + qbpp::sum(x.coeffs() * x.vars())
+x.min_val + qbpp::sum(x.coeffs * x.vars)
 ```

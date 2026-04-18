@@ -47,12 +47,12 @@ int main() {
 
   std::cout << "f = " << f << std::endl;
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
-  std::cout << "solutions = " << sol.all_solutions().size() << std::endl;
-  for (const auto& s : sol.all_solutions()) {
+  std::cout << "solutions = " << sol.sols().size() << std::endl;
+  for (const auto& s : sol.sols()) {
     for (size_t i = 0; i < n; ++i) std::cout << s(x[i]);
     std::cout << "  (sum = " << s(qbpp::sum(x)) << ")" << std::endl;
   }
@@ -144,7 +144,7 @@ int main() {
   auto f = x_dw + y_dw + match;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(static_cast<int64_t>(2 * n))}});
 
   std::cout << "energy = " << sol.energy() << std::endl;

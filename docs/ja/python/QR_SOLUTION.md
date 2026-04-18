@@ -2,7 +2,7 @@
 layout: default
 nav_exclude: true
 title: "QR: Solutions"
-nav_order: 32
+nav_order: 33
 lang: ja
 hreflang_alt: "en/python/QR_SOLUTION"
 hreflang_lang: "en"
@@ -23,32 +23,35 @@ hreflang_lang: "en"
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `sol(x)` | `int` | `Var` `x` を評価（0 または 1 を返す） |
-| `sol(t)` | `int` | `Term` `t` を評価 |
-| `sol(f)` | `int` | `Expr` `f` を評価 |
+| `sol[x]` | `int` | 変数 `x` の値を取得（0 または 1） |
+| `sol[vi]` | `int` | 整数変数 `vi` の整数値を取得 |
+| `sol(t)` | `int` | 項 `t` を評価 |
+| `sol(f)` | `int` | 式 `f` を評価 |
 
 配列の場合は要素ごとにアクセスします:
 ```python
 for i in range(n):
-    print(sol(x[i]))
+    print(sol[x[i]])
 ```
 
 ## 変数値の設定
 
 | 式 | 説明 |
 |------------|-------------|
-| `sol.set(x, value)` | 変数 `x` を `value`（0 または 1）に設定 |
-| `sol.set(other_sol)` | 別の `Sol` からすべての変数値をコピー |
-| `sol.set([(x, val), ...])` | ペアのリストから変数値を設定 |
-| `sol.set([other_sol, [(x, val), ...]])` | `Sol` からコピーし、ペアリストを適用 |
+| `sol[x] = value` | 変数 `x` を `value`（0 または 1）に設定 |
+| `sol[vi] = value` | 整数変数 `vi` を整数値 `value` に設定 |
+| `sol.set(other_sol)` | 別の解からすべての変数値をコピー |
 
 ```python
-sol.set([(x[0], 1), (x[1], 0), (vi, 5)])
+sol[x[0]] = 1
+sol[x[1]] = 0
+sol[vi] = 5
 ```
 
 `set` メソッドは `self` を返すため、チェーンが可能です:
 ```python
-full_sol = Sol(f).set([sol, [(x[0], 1)]])
+full_sol = Sol(f).set(sol)
+full_sol[x[0]] = 1
 ```
 
 ## エネルギーと評価
@@ -56,14 +59,15 @@ full_sol = Sol(f).set([sol, [(x[0], 1)]])
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
 | `sol.energy` | `int` | 格納されたエネルギー値を返す |
-| `sol.comp_energy()` | `int` | 現在の変数値からエネルギーを再計算して格納 |
+| `sol.comp_energy()` | `int` | エネルギーを返す（無効な場合のみ再計算） |
 | `sol.tts` | `float` | 求解時間（秒） |
 
 `sol.energy` はソルバーが解を見つけた時点で格納されたエネルギー値を返すプロパティです。
 エネルギーの再計算は**行いません**。
-`sol.set()` で変数値を変更した後は、格納されたエネルギーは**無効**になります。
+`sol[x] = val` で変数値を変更した後は、格納されたエネルギーは**無効**になります。
 この状態で `sol.energy` にアクセスするとエラーが発生します。
-`sol.comp_energy()` を呼んでエネルギーを再計算・更新してからアクセスしてください。
+`sol.comp_energy()` を呼んでエネルギーを再計算・キャッシュしてからアクセスしてください。
+エネルギーが既に有効な場合、`comp_energy()` は再計算せずにキャッシュ値を返します。
 
 ## 解からの整数の抽出
 
@@ -71,8 +75,8 @@ full_sol = Sol(f).set([sol, [(x[0], 1)]])
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `qbpp.onehot_to_int(sol(x))` | `Array` | 最後の軸に沿ってワンホットをデコード（デフォルト） |
-| `qbpp.onehot_to_int(sol(x), k)` | `Array` | 軸 $k$ に沿ってワンホットをデコード |
+| `qbpp.onehot_to_int(sol(x))` | array | 最後の軸に沿ってワンホットをデコード（デフォルト） |
+| `qbpp.onehot_to_int(sol(x), k)` | array | 軸 $k$ に沿ってワンホットをデコード |
 
 指定された軸に沿ってデコードし、次元が1つ少ない配列を返します。
 出力形状は入力形状から軸 $k$ を除いたもので、各要素はその軸に沿った1のインデックスです。
@@ -89,8 +93,8 @@ full_sol = Sol(f).set([sol, [(x[0], 1)]])
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
 | `sol.info` | `dict` | ソルバー情報のキーバリューペア |
-| `sol.sols()` | `list[Sol]` | 収集された全解 |
-| `sol.size()` | `int` | 収集された解の数 |
+| `sol.sols` | `list[Sol]` | 収集された全解 |
+| `sol.size` | `int` | 収集された解の数 |
 | `sol[i]` | `Sol` | $i$ 番目の解にアクセス |
 
 `info` 辞書はソルバーのメタデータを文字列のキーバリューペアとして格納しています。

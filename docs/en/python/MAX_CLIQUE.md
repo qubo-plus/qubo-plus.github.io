@@ -60,7 +60,7 @@ adj = [[False] * N for _ in range(N)]
 for u, v in edges:
     adj[u][v] = adj[v][u] = True
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = qbpp.sum(x)
 

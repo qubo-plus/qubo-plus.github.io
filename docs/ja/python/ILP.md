@@ -22,36 +22,35 @@ $$
 $$
 
 ## PyQBPPプログラム
+以下のPyQBPPプログラムは、このILPをQUBO式として定式化し、Easy Solver を使って解きます:
+{% raw %}
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x", 3), 0, 5)
+x = qbpp.var("x", shape=3, between=(0, 5))
 objective = 2 * x[0] + 5 * x[1] + 5 * x[2]
-c1 = qbpp.between(x[0] + 3 * x[1] + x[2], 0, 12)
-c2 = qbpp.between(x[0] + 2 * x[2], 0, 5)
-c3 = qbpp.between(x[1] + x[2], 0, 4)
+c1 = qbpp.constrain(x[0] + 3 * x[1] + x[2], between=(0, 12))
+c2 = qbpp.constrain(x[0] + 2 * x[2], between=(0, 5))
+c3 = qbpp.constrain(x[1] + x[2], between=(0, 4))
 
 f = -objective + 100 * (c1 + c2 + c3)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 print(f"x0 = {sol(x[0])}, x1 = {sol(x[1])}, x2 = {sol(x[2])}")
 print(f"objective = {sol(objective)}")
 print(f"c1 = {sol(c1.body)}, c2 = {sol(c2.body)}, c3 = {sol(c3.body)}")
 ```
-このプログラムでは、`x` は3つの整数変数のベクトルで、それぞれ $[0, 5]$ の範囲の値をとります。
-目的関数と3つの制約は `objective`、`c1`、`c2`、`c3` で表現されています。
+{% endraw %}
+このプログラムでは、`x` は3つの整数変数のベクトルであり、それぞれ $[0, 5]$ の範囲の整数値をとります。
+目的関数と3つの制約は、それぞれ `objective`、`c1`、`c2`、`c3` で表されます。
+これらはペナルティ定数 `100` を用いて制約を強制する1つのQUBO式 `f` にまとめられます。
 
-得られた解は以下のように表示されます:
+Easy Solver は `f` の低エネルギー解を探索し、`sol` として返します。
+得られた解と `objective`、`c1.body`、`c2.body`、`c3.body` の値は以下のように出力されます:
 ```
 x0 = 2, x1 = 3, x2 = 1
 objective = 24
 c1 = 12, c2 = 4, c3 = 4
 ```
-
-### C++ QUBO++との比較
-
-| C++ QUBO++                        | PyQBPP                              |
-|------------------------------------|---------------------------------------|
-| `0 <= x[0] + 3 * x[1] + x[2] <= 12` | `between(x[0] + 3 * x[1] + x[2], 0, 12)` |
-| `sol(*c1)`                         | `sol(c1.body)`                  |
+目的関数値24の解が得られ、すべての制約が満たされていることが確認できます。

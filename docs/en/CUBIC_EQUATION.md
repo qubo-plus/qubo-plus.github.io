@@ -33,7 +33,7 @@ int main() {
   auto f = x * x * x - 147 * x + 286 == 0;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
 
   for (const auto& sol : sols) {

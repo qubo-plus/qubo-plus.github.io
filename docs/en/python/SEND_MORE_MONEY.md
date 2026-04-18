@@ -56,9 +56,12 @@ by:
 
 $$
 \begin{aligned}
-\text{SEND} &= \sum_{k=0}^9k(1000x_{I(S),k}+100x_{I(E),k}+10x_{I(N),k}+x_{I(D),k})\\
-\text{MORE} &= \sum_{k=0}^9k(1000x_{I(M),k}+100x_{I(O),k}+10x_{I(R),k}+x_{I(E),k})\\
-\text{MONEY} &= \sum_{k=0}^9k(10000x_{I(M),k}+ 1000x_{I(O),k}+100x_{I(N),k}+10x_{I(E),k}+x_{I(Y),k})
+\text{SEND} &= 1000\sum_{k=0}^9 kx_{I(S),k}+ 100\sum_{k=0}^9 kx_{I(E),k}+ 10\sum_{k=0}^9 kx_{I(N),k}+\sum_{k=0}^9 kx_{I(D),k}\\
+       &= \sum_{k=0}^9k(1000x_{I(S),k}+100x_{I(E),k}+10x_{I(N),k}+x_{I(D),k})\\
+\text{MORE} &= 1000\sum_{k=0}^9 kx_{I(M),k}+ 100\sum_{k=0}^9 kx_{I(O),k}+ 10\sum_{k=0}^9 kx_{I(R),k}+\sum_{k=0}^9 kx_{I(E),k}\\
+       &= \sum_{k=0}^9k(1000x_{I(M),k}+100x_{I(O),k}+10x_{I(R),k}+x_{I(E),k})\\
+\text{MONEY} &= 10000\sum_{k=0}^9 kx_{I(M),k}+1000\sum_{k=0}^9 kx_{I(O),k}+ 100\sum_{k=0}^9 kx_{I(N),k}+ 10\sum_{k=0}^9 kx_{I(E),k}+\sum_{k=0}^9 kx_{I(Y),k}\\
+       &= \sum_{k=0}^9k(10000x_{I(M),k}+ 1000x_{I(O),k}+100x_{I(N),k}+10x_{I(E),k}+x_{I(Y),k})
 \end{aligned}
 $$
 
@@ -83,6 +86,13 @@ $$
 
 where
 `P` is a sufficiently large constant to prioritize feasibility (`onehot` and `different`).
+In principle, if all terms are nonnegative and each becomes 0 exactly when its constraint holds, then any solution with $f=0$ satisfies all constraints.
+In practice, choosing a larger `P` often helps heuristic solvers.
+
+In this case, there is no need to prioritize them and we can set $P=1$,
+because $\text{equal}\geq 0$ always holds and $f$ takes a minimum value of 0
+only if $\text{onehot}=\text{different}=\text{equal}=0$ holds.
+However, a large constant $P$ helps solvers to find the optimal solution.
 
 Finally, since $\text{S}$ and $\text{M}$ must not be 0, we fix
 the binary variables as follows:
@@ -92,6 +102,7 @@ $$
 
 ## PyQBPP program for SEND+MORE=MONEY
 The following PyQBPP program implements the QUBO formulation above and finds a solution using EasySolver:
+{% raw %}
 ```python
 import pyqbpp as qbpp
 
@@ -101,9 +112,9 @@ L = len(LETTERS)
 def I(c):
     return LETTERS.index(c)
 
-x = qbpp.var("x", L, 10)
+x = qbpp.var("x", shape=(L, 10))
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
 different = 0
 for i in range(L - 1):
@@ -118,18 +129,18 @@ for k in range(10):
     more += k * (1000 * x[I('M')][k] + 100 * x[I('O')][k] + 10 * x[I('R')][k] + x[I('E')][k])
     money += k * (10000 * x[I('M')][k] + 1000 * x[I('O')][k] + 100 * x[I('N')][k] + 10 * x[I('E')][k] + x[I('Y')][k])
 
-equal = send + more - money == 0
+equal = qbpp.constrain(send + more - money, equal=0)
 
 P = 10000
 f = P * (onehot + different) + equal
 f.simplify_as_binary()
 
-ml = [(x[I('S')][0], 0), (x[I('M')][0], 0)]
+ml = {x[I('S')][0]: 0, x[I('M')][0]: 0}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
@@ -147,16 +158,17 @@ print(f"{digit_str(val[I('S')])}{digit_str(val[I('E')])}{digit_str(val[I('N')])}
       f"{digit_str(val[I('M')])}{digit_str(val[I('O')])}{digit_str(val[I('R')])}{digit_str(val[I('E')])} = "
       f"{digit_str(val[I('M')])}{digit_str(val[I('O')])}{digit_str(val[I('N')])}{digit_str(val[I('E')])}{digit_str(val[I('Y')])}")
 ```
+{% endraw %}
 In this program, `LETTERS` assigns an integer index to each letter in `"SENDMORY"`, which is used to implement $I(\alpha)$.
 We define an `L`$\times$`10` matrix `x` of binary variables (here $L=8$).
 The expressions `onehot`, `different`, and `equal` are computed according to the formulation and combined into a single objective `f` with a penalty weight `P`.
 
-We use a list of pairs `ml` to fix `x[I('S')][0]` and `x[I('M')][0]` to 0, and create a reduced expression `g` by applying this replacement.
-The solver is run on `g`, and the resulting assignment `sol` is merged with the fixed assignments `ml` to produce `full_sol` for the original objective `f`.
+We use a dict `ml` to fix `x[I('S')][0]` and `x[I('M')][0]` to 0, and create a reduced expression `g` by applying this replacement.
+The solver is run on `g`, and the resulting assignment `sol` is merged with the fixed assignments `ml` via `qbpp.Sol(f).set([sol, ml])` to produce `full_sol` for the original objective `f`.
 
-Finally, the one-hot rows are decoded into digits, and the program prints the obtained solution.
+Finally, the one-hot rows of `full_sol(x)` are decoded into digits by scanning each row for the index `k` with value 1 (or `-1` if none is found), and the program prints the obtained solution.
 
-> **Note:** Unlike the C++ version, Python has unlimited precision integers, so there is no need for `COEFF_TYPE=qbpp::int128_t`.
+> **Note:** Unlike the C++ version, Python has unlimited precision integers, so there is no need for `INTEGER_TYPE_C128E128`.
 
 This program produces the following output:
 ```

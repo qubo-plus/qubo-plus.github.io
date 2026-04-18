@@ -54,8 +54,8 @@ $$
 
 int main() {
   const int L = 60;
-  const auto l = qbpp::int_array({13, 23, 8, 11});
-  const auto c = qbpp::int_array({10, 4, 8, 6});
+  const auto l = qbpp::array({13, 23, 8, 11});
+  const auto c = qbpp::array({10, 4, 8, 6});
   const size_t N = l.size();
   const size_t M = 6;
 
@@ -78,7 +78,7 @@ int main() {
   auto f = qbpp::sum(order_constraint) + qbpp::sum(bar_constraint);
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 10.0}, {"target_energy", 0}});
   for (size_t i = 0; i < M; i++) {
     std::cout << "Bar " << i << ":  ";

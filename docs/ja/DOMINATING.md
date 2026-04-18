@@ -103,7 +103,7 @@ int main() {
   auto f = objective + (N + 1) * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -133,7 +133,7 @@ constraint = 0
 画像ファイルには以下の画像が格納されています:
 
 <p align="center">
-  <img src="images/dominatingset.svg" alt="最小支配集合問題の解" width="80%">
+  <img src="../images/dominatingset.svg" alt="最小支配集合問題の解" width="80%">
 </p>
 
 ## QUBO定式化とQUBO++プログラム

@@ -56,7 +56,7 @@ The following PyQBPP program solves the 3-SAT instance described above:
 import pyqbpp as qbpp
 
 # 5 Boolean variables
-x = qbpp.var("x", 5)
+x = qbpp.var("x", shape=5)
 
 # Convention: True=0, False=1
 # Positive literal x_i: False when x_i=1 -> contribute x[i]
@@ -98,7 +98,7 @@ constraint = c0 + c1 + c2 + c3 + c4 + c5
 
 constraint.simplify_as_binary()
 solver = qbpp.EasySolver(constraint)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 # Print result
 print(f"Energy = {sol.energy}")

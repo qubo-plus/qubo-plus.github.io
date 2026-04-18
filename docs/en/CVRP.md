@@ -274,7 +274,7 @@ int main() {
   auto g = qbpp::replace(f, ml);
   f.simplify_as_binary();
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
 
   auto sol = solver.search();
 
@@ -353,5 +353,5 @@ Finally, the program visualizes the obtained solution as a graph and writes it t
 
 
 <p align="center">
-  <img src="images/cvrp.svg" alt="A solution of the CVRP instance." width="80%">
+  <img src="../images/cvrp.svg" alt="A solution of the CVRP instance." width="80%">
 </p>

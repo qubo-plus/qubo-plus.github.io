@@ -121,7 +121,7 @@ constexpr size_t I(char c) {
   return L;
 }
 
-const auto K = qbpp::int_array({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+const auto K = qbpp::array({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 int main() {
   auto x = qbpp::var("x", L, 10);
@@ -152,7 +152,7 @@ int main() {
   auto g = qbpp::replace(f, ml);
 
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);

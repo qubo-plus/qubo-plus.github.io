@@ -118,10 +118,10 @@ int main() {
 
   auto f = x + y == 10;
   auto g = 2 * x + 4 * y == 28;
-  auto h = f + g;
+  auto h = f + g;            // h は Expr（ExprExpr は penalty に decay）
   h.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(h);
+  auto solver = qbpp::EasySolver(h);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
@@ -133,6 +133,27 @@ int main() {
   std::cout << "*g = " << *g << " = " << sol(*g) << std::endl;
 }
 ```
+
+> **注意 — `qbpp::VarInt` と `qbpp::ExprExpr` は immutable**
+> `qbpp::var_int(...)` は `qbpp::VarInt` を、`x + y == 10` のような制約式は
+> `qbpp::ExprExpr` を生成します。**両方とも in-place 変更はできません。**
+> `vi += 1`、`ee.replace(ml)`、`ee.sqr()` 等はコンパイルエラーです（`ee.simplify_as_binary()` は in-place 対応済み）。
+> `VarInt` / `ExprExpr` 変数を上書きできるのは **同じ型 (`VarInt` 同士、`ExprExpr` 同士) の代入のみ** です (`vi = other_vi`, `ee = other_ee`)。
+>
+> `VarInt` や `ExprExpr` を式の中で使うときは、普通の `qbpp::Expr` 演算に
+> 混ぜてください — どちらも `Expr` への暗黙変換を持ち（`ExprExpr` は penalty、
+> `VarInt` は二進展開された Expr）、結果は `Expr` 型になり自由に変更できます:
+>
+> ```cpp
+> auto h = f + g;            // h は Expr (f, g は ExprExpr で decay)
+> h.simplify_as_binary();    // OK — Expr は in-place 可能
+>
+> auto e  = qbpp::sqr(vi - 3);             // VarInt → Expr → sqr
+> auto e2 = qbpp::simplify_as_binary(ee);  // 自由関数の形
+> ```
+>
+> 元の `ExprExpr` 制約 `f`, `g` はそのまま残っているので、解の検査時に
+> `*f` / `*g` で参照できます。
 {% endraw %}
 まず、`qbpp::VarInt`オブジェクト**`x`**と**`y`**が範囲$[0,10]$で定義されます。
 `qbpp::Expr`オブジェクト**`f`**は制約**`x + y == 10`**を表すために作成されます。

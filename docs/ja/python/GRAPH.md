@@ -8,7 +8,27 @@ hreflang_alt: "en/python/GRAPH"
 hreflang_lang: "en"
 ---
 
-# 最大独立集合（MIS）問題
+# 最大独立集合（MIS）問題とグラフの可視化
+
+## PyQBPP でのグラフ可視化
+QUBO++ のC++版には、Graphviz をラップした簡易グラフ描画ライブラリ（`qbpp::graph::GraphDrawer`）が付属しており、グラフを `svg` / `png` / `jpg` / `pdf` に直接出力できます。詳細は [C++ 版のグラフライブラリのページ](../GRAPH) を参照してください。
+
+PyQBPP には専用のグラフクラスは**ありません**。その代わりに、Python エコシステムで広く使われている以下のライブラリを使ってグラフを可視化できます:
+
+- [`networkx`](https://networkx.org/) — グラフデータ構造とレイアウトアルゴリズム
+- [`matplotlib`](https://matplotlib.org/) — 作図と画像出力
+
+インストールは以下のコマンドで行えます:
+```bash
+pip install networkx matplotlib
+```
+
+このページの以降では、最大独立集合（MIS）問題を QUBO として定式化し、PyQBPP で解き、得られた結果を `networkx` + `matplotlib` で可視化する方法を説明します。
+
+> **注意**: 以下に示す可視化コードは、PyQBPP のサンプルプログラムで得られた結果を例示する目的のものです。
+> API が変更され得るサードパーティライブラリに依存しているため、ミッションクリティカルなアプリケーションでの使用は推奨しません。
+
+## 最大独立集合（MIS）問題
 
 無向グラフ $G=(V,E)$ の独立集合とは、$S$ 内のどの2頂点も $E$ の辺で接続されていないような頂点の部分集合 $S\subseteq V$ のことです。
 最大独立集合（MIS）問題は、要素数が最大の独立集合を求める問題です。
@@ -44,7 +64,7 @@ $$
 ペナルティ係数 $2$ は、集合サイズの増加よりも実行可能性を優先するのに十分です。
 
 ## MIS問題のPyQBPPプログラム
-上記のMIS問題のQUBO定式化に基づき、以下のPyQBPPプログラムは16ノードのインスタンスを解きます:
+上記のMIS問題のQUBO定式化に基づき、以下のPyQBPPプログラムは16ノードのインスタンスを解きます。辺は `edges` に格納されています:
 ```python
 import pyqbpp as qbpp
 
@@ -55,7 +75,7 @@ edges = [
     (6, 14), (7, 14), (8, 9),  (9, 10), (9, 12), (10, 11),
     (10, 12),(11, 13),(12, 14),(13, 15),(14, 15)]
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = -qbpp.sum(x)
 constraint = qbpp.expr()
@@ -76,18 +96,20 @@ for i in range(N):
         print(f" {i}", end="")
 print()
 ```
-`N = 16` 個のバイナリ変数のベクトル `x` に対して、上記のQUBO定式化に従って式 `objective`、`constraint`、`f` が構築されます。
-次にExhaustive Solverを使用して `f` の最適解を求め、`sol` に格納します。`sol` における `objective` と `constraint` の評価値が表示されます。
+`qbpp.var("x", shape=N)` によって生成された `N = 16` 個のバイナリ変数のベクトル `x` に対して、上記のQUBO定式化に従って式 `objective`、`constraint`、`f` が構築されます。ここで `qbpp.expr()` はゼロ式を生成し、辺に関するペナルティ和のアキュムレータとして機能し、`qbpp.sum(x)` は `x` のすべての要素の和を計算します。続いて `f.simplify_as_binary()` により、バイナリ(0/1)ルールに基づく同類項のマージなどの簡約が in-place に適用されます。
+
+次にExhaustive Solverを使用して `f` の最適解を求め、`sol` に格納します。`sol(objective)` と `sol(constraint)` によって `sol` における `objective` と `constraint` の評価値が得られ、表示されます。最後に、インデックス `i` をループし、`sol(x[i]) == 1` を判定することで解におけるバイナリ変数 `x[i]` の値を評価し、選択されたノードの一覧を出力します。
 
 このプログラムは以下の出力を生成します:
 ```
 objective = -7
 constraint = 0
+Selected nodes: 0 4 5 9 11 13 14
 ```
 これは、得られた解が7個のノードを選択し、すべての制約を満たしていることを意味します。
 
-## matplotlibによる可視化
-以下のコードは、`matplotlib` と `networkx` を使用してMISの解を可視化します:
+## matplotlib と networkx による可視化
+以下のコードは、`matplotlib` と `networkx` を使用して MIS の解を可視化します。上記のプログラムの末尾に追加し、`edges`、`N`、`x`、`sol` が有効な状態で実行してください:
 ```python
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -105,4 +127,32 @@ plt.savefig("mis.png", dpi=150, bbox_inches="tight")
 plt.show()
 ```
 
-選択されたノードは赤色で、選択されていないノードは灰色で表示されます。
+`networkx.Graph` オブジェクト `G` を作成し、`add_nodes_from()` と `add_edges_from()` でノードと辺を追加します。レイアウト位置 `pos` は spring-layout アルゴリズム（再現性のために固定シードを指定）で計算します。
+
+ソルバの解に基づき、色リスト `colors` を構築します。選択されたノード（`sol(x[i]) == 1`）は赤色（`#e74c3c`）で、選択されていないノードは薄灰色（`#d5dbdb`）で描画されます。`nx.draw()` がノードラベル付きでグラフを描画し、`plt.savefig()` で結果の画像を `mis.png` に書き出します。出力フォーマットはファイル拡張子によって決まるため、`"mis.png"` の代わりに `"mis.svg"` や `"mis.pdf"` を渡せば対応するフォーマットで出力できます。
+
+描画される画像は以下と同等です（以下の画像はC++版の `qbpp::graph::GraphDrawer` で生成されたものです）。なお、`networkx.spring_layout` は力学的配置アルゴリズムを使用するのに対し、C++ 版は Graphviz の `neato` を使うため、ノードの正確な配置は異なる場合があります:
+
+<p align="center">
+  <img src="../../images/mis.svg" alt="MIS問題の解" width="80%">
+</p>
+
+## C++ グラフライブラリとの対応
+
+下表は、C++ のグラフ描画 API と Python エコシステムとの対応関係をまとめたものです:
+
+| C++（`qbpp/graph.hpp`）         | Python での対応                                            |
+|---------------------------------|-----------------------------------------------------------|
+| `qbpp::graph::Node(i)`          | `networkx.Graph` の `G.add_node(i)`                        |
+| `Node::color(int)` / `color(str)` | `nx.draw()` の `node_color=[...]` 引数                   |
+| `Node::position(x, y)`          | `nx.draw()` に渡す `pos` 辞書のエントリ                    |
+| `Node::penwidth(f)`             | `nx.draw()` の `linewidths=...` 引数                       |
+| `qbpp::graph::Edge(u, v)`       | `networkx.Graph` の `G.add_edge(u, v)`                     |
+| `Edge::directed()`              | `Graph` の代わりに `networkx.DiGraph` を使用              |
+| `Edge::color(...)`              | `nx.draw()` の `edge_color=[...]` 引数                     |
+| `Edge::penwidth(f)`             | `nx.draw()` の `width=...` 引数                            |
+| `GraphDrawer::add_node/edge`    | `G.add_node` / `G.add_edge`                               |
+| `GraphDrawer::write("f.svg")`   | `plt.savefig("f.svg")`（`.png` / `.pdf` / `.jpg` も可）   |
+
+> **注釈**: PyQBPP では、C++ のグラフ描画ヘルパーを意図的に再実装していません。
+> `networkx` + `matplotlib` は豊富で十分メンテナンスされた Python のエコシステムであり、QUBO 定式化のソルバ出力を可視化するという目的では C++ 版と同等の結果が得られます。

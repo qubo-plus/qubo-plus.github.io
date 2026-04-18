@@ -92,10 +92,10 @@ int main() {
   auto x = qbpp::var("x", n);
 
   // NAE constraint: penalty if all-true or all-false
-  auto constraint = qbpp::Expr(0);
+  auto constraint = qbpp::toExpr(0);
   for (const auto& clause : clauses) {
-    auto all_true = qbpp::Expr(1);
-    auto all_false = qbpp::Expr(1);
+    auto all_true = qbpp::toExpr(1);
+    auto all_false = qbpp::toExpr(1);
     for (int idx : clause) {
       all_true *= x[idx];
       all_false *= ~x[idx];
@@ -112,7 +112,7 @@ int main() {
   auto f = (objective + penalty_weight * constraint).simplify_as_binary();
 
   // Solve
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 1}});
 
   // Print results

@@ -270,7 +270,7 @@ int main() {
   auto g = qbpp::replace(f, ml);
   f.simplify_as_binary();
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
 
   auto sol = solver.search();
 
@@ -346,5 +346,5 @@ Vehicle 2 : load = 288 / 300 : 0 -> 7(10) -> 9(83) -> 1(44) -> 3(94) -> 2(57) ->
 
 
 <p align="center">
-  <img src="images/cvrp.svg" alt="CVRPインスタンスの解" width="80%">
+  <img src="../images/cvrp.svg" alt="CVRPインスタンスの解" width="80%">
 </p>

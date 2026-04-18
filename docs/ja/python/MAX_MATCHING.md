@@ -53,7 +53,7 @@ edges = [
     (11, 13),(11, 15),(12, 14),(12, 15),(13, 15),(14, 15)]
 M = len(edges)
 
-x = qbpp.var("x", M)
+x = qbpp.var("x", shape=M)
 
 objective = qbpp.sum(x)
 

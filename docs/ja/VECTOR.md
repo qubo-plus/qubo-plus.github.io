@@ -40,9 +40,9 @@ int main() {
 f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```
 
-> **NOTE**
-> **`qbpp::var(name, size)`** は `qbpp::Var` 型の `size` 個の要素を含む **`qbpp::Array<1, qbpp::Var>`** オブジェクトを返します。
-> **`qbpp::Array<Dim, T>`** クラスは型 `T` の要素に対する要素ごとの演算をサポートするオーバーロードされた演算子を提供します。
+> **注意**
+> **`qbpp::var(name, size)`** は `qbpp::Var` 型の `size` 個の要素を含む1次元の変数の配列を返します。
+> 配列の型は、要素に対する要素ごとの演算をサポートするオーバーロードされた演算子を提供します。
 
 ## sum 関数
 配列ユーティリティ関数 **`qbpp::sum()`** を使用すると、2値変数の配列の合計を取得できます。
@@ -80,7 +80,7 @@ int main() {
   auto x = qbpp::var("x", 5);
   auto f = qbpp::sqr(qbpp::sum(x) - 1);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }

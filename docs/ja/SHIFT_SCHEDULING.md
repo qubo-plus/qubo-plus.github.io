@@ -100,7 +100,7 @@ $$
 
 int main() {
   const size_t days = 31;
-  const auto worker_cost = qbpp::int_array({13, 13, 12, 12, 11, 10});
+  const auto worker_cost = qbpp::array({13, 13, 12, 12, 11, 10});
   const size_t workers = worker_cost.size();
 
   auto x = qbpp::var("x", workers, days + 2);
@@ -161,7 +161,7 @@ int main() {
   g.simplify_as_binary();
   workers_working_days.replace(ml);
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 0}});
   for (size_t i = 0; i < workers; ++i) {
     std::cout << "Worker " << i << ": " << sol(workers_working_days[i])

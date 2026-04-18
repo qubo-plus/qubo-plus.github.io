@@ -25,7 +25,7 @@ $$
 This condition is satisfied if and only if $S$ constitute a maximal matching. To ensure that $S$ is a maximal matching, the following cases cover all possibilities:
 
 <p align="center">
-  <img src="images/min_max_matching.svg" alt="The solution of the maximum matching problem." width="80%">
+  <img src="../images/min_max_matching.svg" alt="The solution of the maximum matching problem." width="80%">
 </p>
 
 We can formulate the minimum maximal matching problem as finding a subset $S$ that satisfies the above condition and has minimum cardinality.
@@ -108,7 +108,7 @@ int main() {
   auto f = objective + constraint;
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -147,7 +147,7 @@ constraint = 0
 Thus, $S$ contains 6 edges.
 The resulting graph stored in `minmaxmatching.svg` is shown below:
 <p align="center">
-  <img src="images/minmaxmatching.svg" alt="The solution of the minimum maximum matching problem." width="80%">
+  <img src="../images/minmaxmatching.svg" alt="The solution of the minimum maximum matching problem." width="80%">
 </p>
 In this graph, the selected edges in $S$ and all nodes incident to these edges are highlighted.
 We can see that no more edge can be added, and the maximality condition is satisfied.

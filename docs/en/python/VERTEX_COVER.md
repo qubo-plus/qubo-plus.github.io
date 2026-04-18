@@ -27,6 +27,16 @@ $$
 \end{aligned}
 $$
 
+For an edge $(i,j)$, the product $\overline{x}_i\,\overline{x}_j$ equals 1 only when neither endpoint is selected, meaning the edge is uncovered. Therefore, the sum counts the number of uncovered edges.
+
+Equivalently, since the condition $1\leq x_i+x_j\leq 2$ means that one or both endpoints are selected, we can write a QUBO++-style formulation as:
+
+$$
+\begin{aligned}
+\text{constraint'} &= \sum_{(i,j)\in E} (1\leq x_i+x_j\leq 2)
+\end{aligned}
+$$
+
 The objective is to minimize the number of selected vertices:
 
 $$
@@ -39,11 +49,16 @@ Finally, the QUBO expression $f$ is given by:
 
 $$
 \begin{aligned}
-f &= \text{objective} + 2\times \text{constraint}
+f &= \text{objective} + 2\times \text{constraint}, \text{or}\\
+  &= \text{objective} + \text{constraint'}
 \end{aligned}
 $$
 
+The penalty coefficient 2 is used to prioritize satisfying the constraint over minimizing the objective.
+
 ## PyQBPP program for the minimum vertex cover problem
+The following PyQBPP program solves the minimum vertex cover problem for a graph with $N=16$ nodes:
+
 ```python
 import pyqbpp as qbpp
 
@@ -54,7 +69,7 @@ edges = [
     (6, 14), (7, 14), (8, 9),  (9, 10), (9, 12), (10, 11),
     (10, 12),(11, 13),(12, 14),(13, 15),(14, 15)]
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = qbpp.sum(x)
 constraint = qbpp.sum([~x[u] * ~x[v] for u, v in edges])
@@ -83,7 +98,7 @@ constraint = 0
 An optimal solution with objective value 9 and constraint value 0 is obtained.
 
 ## Visualization using matplotlib
-The following code visualizes the Vertex Cover solution:
+The following code visualizes the Vertex Cover solution and saves it as `vertex_cover.png`:
 ```python
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -101,4 +116,4 @@ plt.savefig("vertex_cover.png", dpi=150, bbox_inches="tight")
 plt.show()
 ```
 
-Cover vertices are shown in red. Every edge has at least one red endpoint.
+Cover vertices are shown in red. Every edge has at least one red endpoint, confirming that the selected subset is a valid vertex cover.

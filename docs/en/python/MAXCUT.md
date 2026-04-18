@@ -19,7 +19,7 @@ Then, the number of edges crossing the cut $(S,\overline{S})$ is given by
 
 $$
 \begin{aligned}
-\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i(1-x_j) + (1-x_i)x_j\Bigr).
+\text{objective} &= \sum_{(i,j)\in E}\Bigl(x_i\overline{x_j} + \overline{x_i}x_j\Bigr).
 \end{aligned}
 $$
 
@@ -44,7 +44,7 @@ edges = [
     (6, 14), (7, 14), (8, 9),  (9, 10), (9, 12), (10, 11),(10, 12),
     (11, 13),(11, 15),(12, 14),(12, 15),(13, 15),(14, 15)]
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = 0
 for u, v in edges:

@@ -56,7 +56,7 @@ $$
 import pyqbpp as qbpp
 
 # 5つのブール変数
-x = qbpp.var("x", 5)
+x = qbpp.var("x", shape=5)
 
 # 規約: True=0, False=1
 # 正リテラル x_i: x_i=1 のとき偽 -> x[i] を使用
@@ -98,7 +98,7 @@ constraint = c0 + c1 + c2 + c3 + c4 + c5
 
 constraint.simplify_as_binary()
 solver = qbpp.EasySolver(constraint)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 # 結果の出力
 print(f"Energy = {sol.energy}")

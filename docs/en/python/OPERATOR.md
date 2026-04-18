@@ -11,12 +11,16 @@ hreflang_lang: "ja"
 # Basic Operators and Functions
 
 ## Unary and Binary Operators
-PyQBPP supports the following basic operators for constructing expressions:
+PyQBPP supports the following basic binary operators for constructing expressions:
 - **`+`**: Returns the sum of the operands.
 - **`-`**: Returns the difference of the operands.
 - **`*`**: Returns the product of the operands.
-- **`/`**: Returns the quotient of the operands (integer division; all coefficients must be divisible).
+- **`/`**: Returns the quotient of the operands.
+The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor.
 - unary **`-`**: Returns the negation of the operand.
+- unary **`~`**: Returns the negated literal of a variable (i.e., `~x` represents $1-x$ for a binary variable `x`).
+
+Because Python's operator overloading mirrors C++ for arithmetic operators, the operator precedence of `+`, `-`, `*`, and `/` follows the standard Python operator precedence rules, which are equivalent to those of C++ for these operators.
 
 The following program demonstrates how to construct expressions using these operators:
 ```python
@@ -36,14 +40,17 @@ f = 6 -6*x*y +6*x -6*y
 g = 2 -2*x*y +2*x -2*y
 ```
 
+> **NOTE**
+> Unlike C++ where `qbpp::Expr` is a distinct type, in PyQBPP the `+`, `-`, `*`, `/` Python operators are overloaded on the `Var`, `Term`, and `Expr` classes. The result is always an expression.
+
 ## Compound operators
-The following compound operators are supported for updating `Expr` objects:
+The following compound operators for updating expressions are also supported:
 - **`+=`**: Adds the right-hand side operand to the left-hand side.
 - **`-=`**: Subtracts the right-hand side operand from the left-hand side.
-- **`*=`**: Multiplies the left-hand side by the right-hand side.
-- **`/=`**: Divides the left-hand side by the right-hand side (integer division).
+- **`*=`**: Multiplies the right-hand side operand to the left-hand side.
+- **`/=`**: Divides the left-hand side operand by the right-hand side. The right-hand side operand must be an integer, and the constant term and all coefficients of the left-hand side must be divisible by it.
 
-The following program demonstrates these compound operators:
+The following program demonstrates how to update expressions using these compound operators:
 ```python
 import pyqbpp as qbpp
 
@@ -72,10 +79,10 @@ f = 6*x*y +3*y*y -8*y
 ```
 
 ## Square function
-PyQBPP provides both a global function **`sqr()`** and a member function **`sqr()`** of the `Expr` class to compute the square of an expression.
+PyQBPP provides both a global function **`qbpp.sqr()`** and a member function **`sqr()`** of the `Expr` class to compute the square of an expression.
 
-The global function **`sqr(f)`** returns a new `Expr` object representing the square of `f` without modifying `f`,
-whereas the member function **`f.sqr()`** updates `f` in place.
+In the following program, for an expression `f`, the global function **`qbpp.sqr(f)`** returns a new expression representing the square of `f` without modifying `f`,
+whereas the member function **`f.sqr()`** updates `f` in place by replacing it with its square.
 
 ```python
 import pyqbpp as qbpp
@@ -83,7 +90,7 @@ import pyqbpp as qbpp
 x = qbpp.var("x")
 f = x + 1
 
-print("qbpp.sqr(f) =", qbpp.sqr(f))
+print("f =", qbpp.sqr(f))
 print("f =", f)
 
 f.sqr()
@@ -91,22 +98,25 @@ print("f =", f)
 ```
 This program produces the following output:
 ```
-sqr(f) = 1 +x*x +x +x
+f = 1 +x*x +x +x
 f = 1 +x
 f = 1 +x*x +x +x
 ```
 
 ## Simplify functions
-After operators or functions are applied, expressions are automatically expanded but not simplified.
-To simplify the resulting expressions, simplify functions must be explicitly called.
+After operators or functions are applied to expressions, expressions are automatically expanded.
+To sort terms and simplify the resulting expressions, simplify functions must be explicitly called.
 
 PyQBPP provides the following three **global simplify functions**:
-- **`simplify(f)`**: Returns a simplified expression by merging coefficients of identical terms.
-- **`simplify_as_binary(f)`**: Returns a simplified expression under the assumption that all variables take binary values $0/1$ (i.e., $x^2=x$).
-- **`simplify_as_spin(f)`**: Returns a simplified expression under the assumption that all variables take spin values $-1/+1$ (i.e., $x^2=1$).
+- **`qbpp.simplify()`**:
+Returns a simplified expression by merging coefficients of identical terms.
+- **`qbpp.simplify_as_binary()`**:
+Returns a simplified expression under the assumption that all variables take binary values $0/1$,
+i.e., the identity $x^2=x$ holds.
+- **`qbpp.simplify_as_spin()`**:
+Returns a simplified expression under the assumption that all variables take spin values $-1/+1$, i.e., the identity $x^2=1$ holds.
 
-**Member function** versions are also available. They update the object in place.
-
+The following program demonstrates the behavior of these simplify functions:
 ```python
 import pyqbpp as qbpp
 
@@ -114,17 +124,34 @@ x = qbpp.var("x")
 f = qbpp.sqr(x - 1)
 
 print("f =", f)
-print("qbpp.simplify(f) =", qbpp.simplify(f))
-print("qbpp.simplify_as_binary(f) =", qbpp.simplify_as_binary(f))
-print("qbpp.simplify_as_spin(f) =", qbpp.simplify_as_spin(f))
+print("simplified(f) =", qbpp.simplify(f))
+print("simplified_as_binary(f) =", qbpp.simplify_as_binary(f))
+print("simplified_as_spin(f) =", qbpp.simplify_as_spin(f))
 ```
 This program produces the following output:
 ```
 f = 1 +x*x -x -x
-simplify(f) = 1 -2*x +x*x
-simplify_as_binary(f) = 1 -x
-simplify_as_spin(f) = 2 -2*x
+simplified(f) = 1 -2*x +x*x
+simplified_as_binary(f) = 1 -x
+simplified_as_spin(f) = 2 -2*x
+```
+
+**Member function** versions of these simplify functions are also provided for expressions, and they update the expression in place with the simplified result.
+
+For example, the following program updates `f` by applying **`simplify()`**:
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+f = qbpp.sqr(x - 1)
+
+f.simplify()
+print("f =", f)
+```
+This program prints the following output:
+```
+f = 1 -2*x +x*x
 ```
 
 > **NOTE**
-> In PyQBPP, **member functions** update the object in place, whereas **global functions** return a new value without modifying the original object.
+> In PyQBPP, **member functions** (e.g., `f.simplify()`, `f.sqr()`) update the object in place, whereas **global functions** (e.g., `qbpp.simplify(f)`, `qbpp.sqr(f)`) return a new object without modifying the original.

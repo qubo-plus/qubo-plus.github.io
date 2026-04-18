@@ -2,7 +2,7 @@
 layout: default
 nav_exclude: true
 title: "QR: Solutions"
-nav_order: 32
+nav_order: 33
 lang: en
 hreflang_alt: "ja/QR_SOLUTION"
 hreflang_lang: "ja"
@@ -95,7 +95,7 @@ and provide additional information via **`info()`**.
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | Key-value pairs of solver information |
 | `sol.sols()` | `const std::vector<Sol>&` | All collected solutions |
-| `sol.size()` | `size_t` | Number of collected solutions |
+| `sol.size` | `size_t` | Number of collected solutions |
 | `sol[i]` | `const Sol&` | Access the $i$-th solution |
 
 The `info()` object contains solver metadata as string key-value pairs.

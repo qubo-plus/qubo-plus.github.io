@@ -52,11 +52,11 @@ import pyqbpp as qbpp
 
 c = 2
 s = 10**10
-x = qbpp.between(qbpp.var_int("x"), s, c * s)
-f = x * x == c * s * s
+x = qbpp.var("x", between=(s, c * s))
+f = qbpp.constrain(x * x, equal=c * s * s)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 print(f"Energy = {sol.energy}")
 print(f"x = {sol(x)}")
 ```

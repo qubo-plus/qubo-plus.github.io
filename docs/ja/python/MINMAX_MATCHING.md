@@ -10,25 +10,36 @@ hreflang_lang: "en"
 
 # 最小極大マッチング問題
 
-無向グラフにおける**マッチング**とは、共通の端点を持たない辺の集合のことです。
-**極大マッチング**とは、マッチング条件を違反せずにはこれ以上辺を追加できないマッチングのことです。
-無向グラフ $G=(V,E)$ が与えられたとき、最小極大マッチング問題は、辺の数が最小となる極大マッチング $S \subseteq E$ を求めます。
+無向グラフにおける**マッチング**とは、どの2辺も共通の端点を持たない辺の集合です。
+**極大マッチング**とは、マッチング条件を崩さずにこれ以上辺を追加できないマッチングのことです。
+無向グラフ $G=(V,E)$ が与えられたとき、最小極大マッチング問題は、辺数が最小の極大マッチング $S \subseteq E$ を求める問題です。
 
-マッチングの極大性条件はコンパクトに記述できます。
-ノード $u\in V$ に対して、$N(u)$ を $u$ に接続する $S$ 内の辺の集合とします。
-すると、$S$ が極大マッチングであるための必要十分条件は、すべての辺 $(u,v)\in E$ に対して以下の条件が成り立つことです：
+マッチングの極大性条件は、次のようにコンパクトに記述できます。
+頂点 $u\in V$ に対して、$N(u)$ を $u$ に接続する $S$ 中の辺の集合とします。
+このとき、$S$ が極大マッチングであるための必要十分条件は、すべての辺 $(u,v)\in E$ に対して以下が成り立つことです:
 
 $$
  1 \leq |N(u)|+|N(v)| \leq 2
 $$
+
+この条件は $S$ が極大マッチングを構成する場合にのみ満たされます。$S$ が極大マッチングであることを保証するために、以下のケースがすべての場合を網羅します:
+
+<p align="center">
+  <img src="../../images/min_max_matching.svg" alt="最大マッチング問題の解" width="80%">
+</p>
+
+最小極大マッチング問題は、上記の条件を満たし、かつ要素数が最小の部分集合 $S$ を見つける問題として定式化できます。
+
+厳密な証明については、以下の論文を参照してください:
 
 > **参考文献**:
 > Nakahara, Y., Tsukiyama, S., Nakano, K., Parque, V., & Ito, Y. (2025). **A penalty-free QUBO formulation for the minimum maximal matching problem**. International Journal of Parallel, Emergent and Distributed Systems, 1--19. https://doi.org/10.1080/17445760.2025.2579546
 
 
 ## 最小極大マッチングの QUBO 定式化
-$m$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{m-1}$ を導入し、$x_i=1$ は辺 $i$ が選択されている場合にのみ成り立ちます。
-目的は選択された辺の数を最小化することです：
+グラフが $n$ 個の頂点と $m$ 本の辺を持ち、辺に $0,1,\ldots,m-1$ のラベルが付いているとします。
+$m$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{m-1}$ を導入し、$x_i=1$ は辺 $i$ が選択されている（すなわち $S$ に属する）場合とします。
+目的関数は、選択された辺の数を最小化することです:
 
 $$
 \begin{aligned}
@@ -36,7 +47,7 @@ $$
 \end{aligned}
 $$
 
-極大性条件を課すために：
+極大性条件を課すために、以下の制約を使用します:
 
 $$
 \begin{aligned}
@@ -44,7 +55,16 @@ $$
 \end{aligned}
 $$
 
+目的関数と制約を組み合わせて、QUBO 式 $f$ を次のように構成します:
+
+$$
+\begin{aligned}
+f &= \text{objective} + \text{constraint}.
+\end{aligned}
+$$
+
 ## PyQBPP プログラム
+以下の PyQBPP プログラムは、$N=16$ 頂点、$M=27$ 辺の固定された無向グラフの最小極大マッチングを求めます:
 ```python
 import pyqbpp as qbpp
 
@@ -61,7 +81,7 @@ for i in range(M):
     adj[edges[i][0]].append(i)
     adj[edges[i][1]].append(i)
 
-x = qbpp.var("x", M)
+x = qbpp.var("x", shape=M)
 
 objective = qbpp.sum(x)
 
@@ -72,7 +92,7 @@ for u, v in edges:
         t += x[idx]
     for idx in adj[v]:
         t += x[idx]
-    constraint += qbpp.between(t, 1, 2)
+    constraint += qbpp.constrain(t, between=(1, 2))
 
 f = objective + constraint
 
@@ -88,24 +108,19 @@ for i in range(M):
         print(f" {edges[i]}", end="")
 print()
 ```
-まず `M` 個のバイナリ変数のベクトル `x` を定義し、次に上記の定式化に基づいて `objective`、`constraint`、`f` を定義します。
+まず `M` 個のバイナリ変数のベクトル `x` を定義し、上記の定式化に基づいて `objective`、`constraint`、`f` を定義します。
 Exhaustive Solver を用いて `f` の最適解を求めます。
+目的関数値と制約値、および選択された辺の一覧が出力されます。
 
-このプログラムは以下の出力を生成します：
+このプログラムは以下の出力を生成します:
 ```
 objective = 6
 constraint = 0
 ```
 したがって、$S$ は6本の辺を含み、最小極大マッチングを形成しています。
 
-### C++ QUBO++ との比較
-
-| C++ QUBO++                   | PyQBPP                              |
-|------------------------------|---------------------------------------|
-| `1 <= t <= 2`                | `between(t, 1, 2)`                   |
-
 ## matplotlib による可視化
-以下のコードは、最小極大マッチングの解を可視化します：
+以下のコードは、最小極大マッチングの解を可視化します。$S$ 中の選択された辺と、それらの辺に接続するすべての頂点が赤でハイライトされます:
 ```python
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -131,4 +146,5 @@ plt.savefig("minmax_matching.png", dpi=150, bbox_inches="tight")
 plt.show()
 ```
 
-マッチングに選択された辺とその端点は赤で表示されます。
+結果の図では、$S$ 中の選択された辺と、それらの辺に接続するすべての頂点が赤でハイライトされます。
+これ以上辺を追加できないことが確認でき、極大性条件が満たされています。

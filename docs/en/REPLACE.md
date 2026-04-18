@@ -34,7 +34,7 @@ The complete QUBO++ program is shown below:
 #include <qbpp/exhaustive_solver.hpp>
 
 int main() {
-  auto w = qbpp::int_array({64, 27, 47, 74, 12, 83, 63, 40});
+  auto w = qbpp::array({64, 27, 47, 74, 12, 83, 63, 40});
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::sum(w * x);
   auto q = qbpp::sum(w * ~x);
@@ -44,7 +44,7 @@ int main() {
   qbpp::MapList ml({{x[0], 1}, {x[1], 0}});
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(g);
+  auto solver = qbpp::ExhaustiveSolver(g);
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
@@ -108,7 +108,7 @@ The following C++ program implements this idea:
   qbpp::MapList ml({{x[0], ~x[1]}});
   auto g = qbpp::replace(f, ml);
   g.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(g);
+  auto solver = qbpp::ExhaustiveSolver(g);
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol, ml);
@@ -182,7 +182,7 @@ int main() {
   g.simplify_as_binary();
   std::cout << "g = " << g << std::endl;
 
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);

@@ -41,36 +41,38 @@ $$
 
 ## PyQBPPプログラム
 以下のPyQBPPプログラムですべての解を求めます：
+{% raw %}
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 1, 9)
-y = qbpp.between(qbpp.var_int("y"), 0, 9)
-t = qbpp.between(qbpp.var_int("t"), 0, 4)
+x = qbpp.var("x", between=(1, 9))
+y = qbpp.var("y", between=(0, 9))
+t = qbpp.var("t", between=(0, 4))
 z = 2 * t + 1
 v = x * 100 + y * 10 + z
 
-f = x * y * z == 252
+f = qbpp.constrain(x * y * z, equal=252)
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search({"best_energy_sols": 0})
-results = set()
-for sol in result.sols():
-    results.add(sol(v))
-for val in sorted(results):
+result = solver.search(best_energy_sols=0)
+s = set()
+for sol in result.sols:
+    s.add(sol(v))
+for val in sorted(s):
     print(val, end=" ")
 print()
 ```
+{% endraw %}
 このプログラムでは、**`x`**、**`y`**、**`t`** を上記の範囲の整数変数として定義します。
 次に **`z`**、**`v`**、**`f`** を式として定義します。
-`f` に対するExhaustive Solverインスタンスを作成し、すべての最適解を `sols` に格納します。
+`f` に対するExhaustive Solverインスタンスを作成し、すべての最適解を `result.sols` に格納します。
 
 `x`、`y`、`t` は複数のバイナリ変数でエンコードされるため、異なるバイナリ割り当てが同じ整数値を表す場合があります。
-その結果、同じ数字の組 (`x`,`y`,`z`) が `sols` に複数回現れる可能性があります。
-そのため、結果の整数値 `v` のみを集めることで `set` を使って重複を除去しています。
+その結果、同じ数字の組 (`x`,`y`,`z`) が `result.sols` に複数回現れる可能性があります。
+そのため、結果の整数値 `v` のみを収集する Python 組み込みの `set` 型 `s` を使って重複を除去しています。
 
-出力される整数は以下の通りです：
+`s` 内の整数は以下のように出力されます：
 ```
 479 497 667 749 947
 ```

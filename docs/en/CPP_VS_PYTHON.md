@@ -34,19 +34,19 @@ To use arbitrary-precision integers, define `INTEGER_TYPE_CPP_INT` before includ
 
 Alternatively, you can pass `-DINTEGER_TYPE_CPP_INT` as a compiler option.
 
-In Python, **arbitrary-precision integers are used by default** (`import pyqbpp`).
-For better performance, you can choose a fixed-precision type by importing a submodule:
+In Python, **32-bit coefficients and 64-bit energy (`c32e64`) are used by default** (`import pyqbpp`).
+For arbitrary precision, you can import the cppint submodule:
 
 ```python
-import pyqbpp as qbpp              # Default: arbitrary precision (cpp_int)
-import pyqbpp.c32e64 as qbpp      # 32-bit coefficients, 64-bit energy (fastest)
+import pyqbpp as qbpp              # Default: c32e64 (32-bit coeff, 64-bit energy)
+import pyqbpp.cppint as qbpp       # Arbitrary precision (cpp_int)
 ```
 
 | | C++ | Python |
 |---|---|---|
-| **Default coefficient** | `int32_t` (32-bit) | Arbitrary precision (unlimited) |
-| **Default energy** | `int64_t` (64-bit) | Arbitrary precision (unlimited) |
-| **Changing precision** | `#define INTEGER_TYPE_CPP_INT` etc. | `import pyqbpp.c32e64` at import time |
+| **Default coefficient** | `int32_t` (32-bit) | `int32_t` (32-bit) |
+| **Default energy** | `int64_t` (64-bit) | `int64_t` (64-bit) |
+| **Changing precision** | `#define INTEGER_TYPE_CPP_INT` etc. | `import pyqbpp.cppint` at import time |
 | **Details** | [C++ Data Types](VAREXPR) | [Python Data Types](python/VAREXPR) |
 
 ### Large Integer Constants
@@ -68,11 +68,11 @@ int main() {
 }
 ```
 
-**Python**: Large integers work naturally with no special handling, since Python has built-in
-arbitrary-precision integers and `import pyqbpp` uses `cpp_int` by default:
+**Python**: For large integer constants beyond `int64_t`, import the `cppint` submodule
+which uses `cpp_int` (arbitrary-precision integers):
 
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x")
 f = x * 123456789012345678901234567890
@@ -96,7 +96,7 @@ You must explicitly create an `Expr`:
 
 ```cpp
 auto x = qbpp::var("x");
-auto f = qbpp::Expr(2);  // Must be Expr, not int
+auto f = qbpp::toExpr(2);  // Must be Expr, not int
 f += x;                   // f is now Expr representing 2 + x
 ```
 
@@ -108,6 +108,26 @@ f = 2          # Just an int — no problem
 f += x         # f automatically becomes an Expr representing 2 + x
 ```
 
+## Immutability of `VarInt` and `ExprExpr`
+
+`qbpp::VarInt` / `qbpp::ExprExpr` (and the corresponding `pyqbpp.VarInt` / `pyqbpp.ExprExpr`) are **immutable in both languages**. In-place modification is forbidden, but **the way the error surfaces differs by language**:
+
+| Operation | C++ | Python |
+|---|---|---|
+| `vi += 1`, `ee += 1` (compound assignment) | **Compile error** (`= delete`) | **Silent rebind** — `vi` / `ee` is rebound to a fresh `Expr` (matches Python's idiom for immutable types `Decimal` / `Fraction` / `str`). The VarInt metadata / ExprExpr body is discarded. |
+| `vi.sqr()`, `vi.replace(ml)` | **Compile error** (`= delete`) | **`TypeError`** (use: `qbpp.sqr(vi)` etc.) |
+| `ee.replace(ml)` | **Compile error** | **`TypeError`** (use: `qbpp.replace(ee, ml)`) |
+| `vi.simplify_as_binary()` etc. simplify methods | **In-place** | **In-place** (same as C++) |
+
+**Why**: C++ catches type mismatches at compile time, so `= delete` is the natural form. Python, by contrast, treats type-changing compound assignment (`f = 1; f += x`) as routine — the immutable built-in types follow the same idiom — so silent rebinding for `vi += 1` is the most natural Python behavior. Mutator methods, however, have no rebinding fallback, so they raise `TypeError`. The simplify methods are in-place in both languages — simplification is meaning-preserving canonicalization, so it updates the internal state without breaking immutability.
+
+Common to both languages:
+- **Overwriting requires the same type**: `vi = other_vi`, `ee = other_ee` are OK.
+- **Implicit decay to `Expr`**: arithmetic such as `vi + 1`, `ee + ee2` returns a fresh `Expr`.
+- **Use the global free functions to apply transformations**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — the original object is unchanged; a fresh `Expr` is returned.
+
+See the quick reference [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT) for the full table.
+
 ## Syntax Differences
 
 The following table shows the main syntax differences between C++ and Python.
@@ -116,19 +136,13 @@ The following table shows the main syntax differences between C++ and Python.
 |---|---|---|
 | **Include / Import** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
 | **Variable** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
-| **Variable vector** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", n)` |
-| **Negated literal** | `~x` | `~x` |
-| **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.between(qbpp.var_int("x"), 0, 10)` |
-| **Equality** | `auto f = (expr == 3);` | `f = (expr == 3)` |
-| **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.between(expr, 1, 5)` |
-| **Body of ExprExpr** | `*f` | `f.body` |
-| **Simplify** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
-| **Easy Solver** | `qbpp::easy_solver::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
-| **Exhaustive Solver** | `qbpp::exhaustive_solver::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
-| **ABS3 Solver** | `qbpp::abs3_solver::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
+| **Variable array** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
+| **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
+| **Equality** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
+| **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
+| **Body of a constraint** | `*f` | `f.body` |
 | **Search** | `auto sol = solver.search();` | `sol = solver.search()` |
-| **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search({"time_limit": 10, "target_energy": 0})` |
-| **Solution value** | `sol(x)` | `sol(x)` |
+| **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **Output** | `std::cout << sol << std::endl;` | `print(sol)` |
 
 ### Quick Start Example
@@ -145,7 +159,7 @@ int main() {
   auto y = 0 <= qbpp::var_int("y") <= 10;
   auto h = (x + y == 10) + (2 * x + 4 * y == 28);
   h.simplify_as_binary();
-  auto sol = qbpp::exhaustive_solver::ExhaustiveSolver(h).search();
+  auto sol = qbpp::ExhaustiveSolver(h).search();
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
 }
 ```
@@ -154,9 +168,9 @@ int main() {
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
-h = (x + y == 10) + (2 * x + 4 * y == 28)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+h = qbpp.constrain(x + y, equal=10) + qbpp.constrain(2 * x + 4 * y, equal=28)
 h.simplify_as_binary()
 sol = qbpp.ExhaustiveSolver(h).search()
 print(f"x = {sol(x)}, y = {sol(y)}")
@@ -169,13 +183,13 @@ Both output: `x = 6, y = 4`
 ### C++ (QUBO++) — Strengths
 
 - **Faster expression building**: Building large expressions with millions of terms is significantly faster in native C++. The solver execution time is the same in both languages, but the time to construct the model can differ substantially for large problems.
-- **Fine-grained type control**: You can choose smaller coefficient types (e.g., `int32_t`, `int64_t`) when arbitrary precision is not needed. Fixed-width integers are much faster than arbitrary-precision integers, which can make a noticeable difference in both expression building and solver performance. When overflow-free computation is needed, you can switch to `cpp_int` for arbitrary-precision integers at the cost of speed — giving you the flexibility to trade performance for correctness on a per-project basis.
 - **Mathematical range syntax**: Range constraints use the natural notation `l <= f <= u`, which reads like a mathematical formula.
+- **Integration with existing C++ projects**: Can be embedded directly into existing C++ applications.
 
 ### Python (PyQBPP) — Strengths
 
 - **No compilation**: Write and run immediately. Ideal for interactive exploration with Jupyter notebooks and the Python REPL.
-- **No overflow worries by default**: Arbitrary-precision integers are used by default. For performance, fixed-precision types are also available via `import pyqbpp.c32e64`.
+- **Fixed-precision by default**: 32-bit coefficients and 64-bit energy (`c32e64`) are used by default for speed. For arbitrary precision, use `import pyqbpp.cppint`.
 - **Simpler syntax**: Less boilerplate — no `#include`, `#define`, `main()`, `auto`, or namespace qualifiers.
 - **Easy installation**: `pip install pyqbpp` in a virtual environment, no `sudo` required.
 - **Data science ecosystem**: Seamless integration with NumPy, pandas, matplotlib, and other Python libraries for data preparation and result analysis.
@@ -186,8 +200,7 @@ Both output: `x = 6, y = 4`
 |---|---|---|
 | **Expression building speed** | Fast (native) | Slower (ctypes overhead) |
 | **Solver speed** | Same | Same |
-| **Type control** | Fine-grained (int16 ~ cpp_int) | Same (default: cpp_int) |
 | **Ease of use** | Moderate | Easy |
 | **Interactive use** | No | Yes (Jupyter, REPL) |
 
-**Recommendation**: Start with **PyQBPP (Python)** for prototyping and learning. Switch to **C++ (QUBO++)** if you need faster expression building for large-scale problems or fine-grained type control for performance.
+**Recommendation**: Start with **PyQBPP (Python)** for prototyping and learning. Switch to **C++ (QUBO++)** if you need faster expression building for large-scale problems.

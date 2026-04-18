@@ -17,7 +17,7 @@ $o$（キャリー出力）および $s$（和）を持ちます。
 
 リプルキャリー加算器は、以下に示すように複数の全加算器をカスケード接続することで、2つの多ビット整数の和を計算します:
 <p align="center">
- <img src="images/adder.svg" alt="4-bit ripple carry adder" width="50%">
+ <img src="../images/adder.svg" alt="4-bit ripple carry adder" width="50%">
 </p>
 
 このリプルキャリー加算器は、4つの全加算器を使って2つの4ビット整数 $x_3x_2x_1x_0$ と $y_3y_2y_1y_0$ の和を計算し、4ビットの和 $z_3z_2z_1z_0$ を出力します。
@@ -47,7 +47,7 @@ int main() {
   auto s = qbpp::var("s");
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(fa);
+  auto solver = qbpp::ExhaustiveSolver(fa);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -69,12 +69,14 @@ int main() {
 {% endraw %}
 
 一部のビットを固定すると、残りのビットの有効な値を導出できます。
-例えば、3つの入力ビットを `replace()` 関数で固定できます:
+例えば、`qbpp::replace()` 関数で3つの入力ビットを固定します（`ExprExpr::replace()` はサポート外なので、グローバル関数を使います）:
 {% raw %}
 ```cpp
-  fa.replace({{a, 1}, {b, 1}, {i, 0}});
+  auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
+この場合、`qbpp::ExhaustiveSolver(fa2)` で解を探索します。
 
 
 プログラムは以下の出力を生成します:
@@ -88,7 +90,8 @@ int main() {
 逆に、2つの出力ビットを固定した場合:
 {% raw %}
 ```cpp
-  fa.replace({{o, 1}, {s, 0}});
+  auto fa2 = qbpp::replace(fa, {{o, 1}, {s, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
 プログラムは入力ビットのすべての有効な組み合わせを出力します:
@@ -129,7 +132,7 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -173,7 +176,7 @@ int main() {
   auto fa3 = fa(x[3], y[3], c[3], c[4], z[3]);
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }

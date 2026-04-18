@@ -51,7 +51,7 @@ import pyqbpp as qbpp
 
 w = [64, 27, 47, 74, 12, 83, 63, 40]
 
-x = qbpp.var("x", len(w))
+x = qbpp.var("x", shape=len(w))
 p = qbpp.expr()
 q = qbpp.expr()
 for i in range(len(w)):
@@ -83,13 +83,13 @@ print()
 
 In this program, **`w`** is a Python list with 8 numbers.
 An array **`x`** of `len(w)=8` binary variables is defined.
-Two `Expr` objects **`p`** and **`q`** are defined, and the expressions for $P(x)$ and $Q(x)$
+Two expressions **`p`** and **`q`** are defined, and the expressions for $P(x)$ and $Q(x)$
 are constructed in the for-loop.
 Here, **`~x[i]`** denotes the negated literal $\overline{x_i}$ of `x[i]`.
-An `Expr` object **`f`** stores the expression for $f(x)$.
+An expression **`f`** stores the expression for $f(x)$.
 
 An Exhaustive Solver object **`solver`** for `f` is created
-and the solution **`sol`** (a `Sol` object) is obtained by calling its `search()` method.
+and the solution **`sol`** is obtained by calling its `search()` method.
 
 The values of $f(x)$, $P(x)$, and $Q(x)$ are evaluated by calling **`sol(f)`**, **`sol(p)`** and **`sol(q)`**, respectively.
 The numbers in the sets $L$ and $\overline{L}$ are displayed using the for loops.
@@ -98,7 +98,7 @@ In these loops, **`sol(x[i])`** returns the value of `x[i]` in `sol`.
 This program outputs:
 ```
 f = 168100 -88576*x[0] ...
-Solution: Sol(energy=0, x[0]=0, x[1]=0, x[2]=1, x[3]=0, x[4]=1, x[5]=1, x[6]=1, x[7]=0)
+Solution: Sol(energy=0, {x[0]: 0, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 1, x[7]: 0})
 f(sol) = 0
 p(sol) = 205
 q(sol) = 205
@@ -107,8 +107,8 @@ Q : 64 27 74 40
 ```
 
 > **NOTE**
-> For an `Expr` object `f` and a `Sol` object `sol`, both **`f(sol)`** and **`sol(f)`** return the resulting value of `f` evaluated on `sol`.
-> Likewise, for a `Var` object `a`, both **`a(sol)`** and **`sol(a)`** return the value of `a` in the solution `sol`.
+> For an expression `f` and a solution `sol`, both **`f(sol)`** and **`sol(f)`** return the resulting value of `f` evaluated on `sol`.
+> Likewise, for a variable `a`, both **`a(sol)`** and **`sol(a)`** return the value of `a` in the solution `sol`.
 > The form **`f(sol)`** is natural from a **mathematical perspective**, as it corresponds to evaluating a function at a point.
 > In contrast, **`sol(f)`** is natural from an **object-oriented programming perspective**, where the solution object evaluates an expression.
 > You may use either form according to your preference.
@@ -117,17 +117,17 @@ Q : 64 27 74 40
 PyQBPP has rich array operations that can simplify the code.
 
 In the following code, `w` is a plain Python list of integers.
-When a Python list is multiplied by an `Array` (e.g., `w * x`), PyQBPP's `__rmul__` automatically performs element-wise multiplication.
+When a Python list is multiplied by an array (e.g., `w * x`), PyQBPP's `__rmul__` automatically performs element-wise multiplication.
 Since the overloaded operator `*` performs element-wise multiplication,
-**`qbpp.sum(w * x)`** returns the `Expr` object representing $P(L)$.
-The `~` operator applied to an `Array` of variables returns an array of their negated literals.
-Thus, **`qbpp.sum(w * ~x)`** returns an `Expr` object storing $Q(L)$.
+**`qbpp.sum(w * x)`** returns the expression representing $P(L)$.
+The `~` operator applied to an array of variables returns an array of their negated literals.
+Thus, **`qbpp.sum(w * ~x)`** returns an expression storing $Q(L)$.
 
 ```python
 import pyqbpp as qbpp
 
 w = [64, 27, 47, 74, 12, 83, 63, 40]
-x = qbpp.var("x", len(w))
+x = qbpp.var("x", shape=len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)
 f = qbpp.sqr(p - q)
@@ -136,6 +136,6 @@ f = qbpp.sqr(p - q)
 PyQBPP programs can be simplified by using these array operations.
 
 > **NOTE**
-> The operators `+`, `-`, and `*` are overloaded both for two `Array` objects and for a scalar and an `Array` object.
-> For two `Array` objects, the overloaded operators perform element-wise operations.
-> For a scalar and an `Array` object, the overloaded operators apply the scalar operation to each element of the array.
+> The operators `+`, `-`, and `*` are overloaded both for two arrays and for a scalar and an array.
+> For two arrays, the overloaded operators perform element-wise operations.
+> For a scalar and an array, the overloaded operators apply the scalar operation to each element of the array.

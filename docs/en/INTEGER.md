@@ -119,10 +119,10 @@ int main() {
 
   auto f = x + y == 10;
   auto g = 2 * x + 4 * y == 28;
-  auto h = f + g;
+  auto h = f + g;            // h is Expr (ExprExpr decays to penalty)
   h.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(h);
+  auto solver = qbpp::EasySolver(h);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;
@@ -134,6 +134,30 @@ int main() {
   std::cout << "*g = " << *g << " = " << sol(*g) << std::endl;
 }
 ```
+
+> **NOTE — `qbpp::VarInt` and `qbpp::ExprExpr` are immutable**
+> `qbpp::var_int(...)` produces a `qbpp::VarInt`, and any constraint expression like
+> `x + y == 10` produces a `qbpp::ExprExpr`. **Both types do not support in-place
+> modification.** Operations such as `vi += 1`, `ee.replace(ml)`,
+> `ee.sqr()` are compile-time errors (`ee.simplify_as_binary()` is supported in-place). The only way to overwrite a `VarInt`
+> or `ExprExpr` variable is to assign another `VarInt` / `ExprExpr` to it
+> (`vi = other_vi`, `ee = other_ee`).
+>
+> When you want to use a `VarInt` or `ExprExpr` in further arithmetic, mix it
+> into a normal `qbpp::Expr` expression — both types implicitly decay to `Expr`
+> (the penalty for `ExprExpr`, the binary expansion for `VarInt`). The result
+> is an `Expr` and can be mutated freely:
+>
+> ```cpp
+> auto h = f + g;            // h is Expr (f, g are ExprExpr, both decay)
+> h.simplify_as_binary();    // OK — Expr supports in-place
+>
+> auto e = qbpp::sqr(vi - 3);          // VarInt → Expr via subtraction → sqr
+> auto e2 = qbpp::simplify_as_binary(ee);  // free-function form
+> ```
+>
+> The original `ExprExpr` constraints `f` and `g` are still intact so you can
+> inspect them via `*f` / `*g` after solving.
 {% endraw %}
 First, `qbpp::VarInt` objects **`x`** and **`y`** are defined with the range $[0,10]$.
 A `qbpp::Expr` object **`f`** is created to represent the constraint **`x + y == 10`**.
@@ -145,7 +169,7 @@ Calling `search()` returns a `qbpp::Sol` object sol that stores the optimal assi
 Finally, the program prints the values of `sol`, `sol(x)`, `sol(y)`, `sol(f)`, `sol(g)`, `sol(*f)`, and `sol(*g)`.
 Here,
 - **`f`**: The penalty expression enforcing `x + y = 10`. Thus `sol(f) = 0` if and only if the equation is satisfied.
-- **`*f`**: The linear expression `x + y`. Thus `sol(*f)` returns the actual evaluated value of `x + y`
+- **`*f`**: The linear expression `x + y`. Thus `sol(*f)` returns the actual evaluated value of `x + y`.
 
 The same applies to **`g`** and **`*g`**.
 

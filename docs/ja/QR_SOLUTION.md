@@ -2,7 +2,7 @@
 layout: default
 nav_exclude: true
 title: "QR: Solutions"
-nav_order: 32
+nav_order: 33
 lang: ja
 hreflang_alt: "en/QR_SOLUTION"
 hreflang_lang: "en"
@@ -95,7 +95,7 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | ソルバー情報のキーバリューペア |
 | `sol.sols()` | `const std::vector<Sol>&` | 収集された全解 |
-| `sol.size()` | `size_t` | 収集された解の数 |
+| `sol.size` | `size_t` | 収集された解の数 |
 | `sol[i]` | `const Sol&` | $i$ 番目の解にアクセス |
 
 `info()` オブジェクトはソルバーのメタデータを文字列のキーバリューペアとして格納しています。

@@ -28,7 +28,7 @@ This expression $g$ takes the minimum value 0 exactly when $f=a$.
 Since $a$ can take any integer value in $[l,u]$, the expression
 $g$ achieves 0 if and only if $f$ itself takes an integer value within the same range.
 
-Using this auxiliary-variable technique, PyQBPP implements range constraints via the **`between()`** function.
+Using this auxiliary-variable technique, PyQBPP implements range constraints via the **`constrain()`** function.
 
 ## Solving Integer Linear Programming
 An instance of **integer linear programming** consists of an **objective function** and multiple **linear constraints**.
@@ -48,16 +48,16 @@ The following PyQBPP program finds this optimal solution using the Easy Solver:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 10)
-y = qbpp.between(qbpp.var_int("y"), 0, 10)
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
 f = 5 * x + 4 * y
-c1 = qbpp.between(2 * x + 3 * y, 0, 24)
-c2 = qbpp.between(7 * x + 5 * y, 0, 54)
+c1 = qbpp.constrain(2 * x + 3 * y, between=(0, 24))
+c2 = qbpp.constrain(7 * x + 5 * y, between=(0, 54))
 g = -f + 100 * (c1 + c2)
 g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"x = {sol(x)}, y = {sol(y)}")
 print(f"f = {sol(f)}")
@@ -67,7 +67,7 @@ print(f"2x+3y = {sol(c1.body)}, 7x+5y = {sol(c2.body)}")
 
 In this program,
 - **`f`** represents the objective function,
-- **`c1`** and **`c2`** represent the range constraints created using **`between()`**, and
+- **`c1`** and **`c2`** represent the range constraints created using **`constrain()`**, and
 - **`g`** combines them into a single optimization expression.
 
 Since the goal is maximization, the objective is negated as `-f`.

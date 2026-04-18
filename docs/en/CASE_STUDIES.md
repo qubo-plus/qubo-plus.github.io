@@ -37,6 +37,7 @@ This section provides examples of solving optimization, mathematical, and graph 
 
 
 ## Combinatorial optimization problems
+1. [QUBO Problem](QUBO) (Easy)
 1. [Knapsack Problem](KNAPSACK) (Medium)
 2. [Shift Scheduling Problem](SHIFT_SCHEDULING) (Hard)
 3. [LABS problem](LABS) (Medium)

@@ -10,7 +10,7 @@ hreflang_lang: "en"
 
 # ABS3 Solverの使い方
 ABS3 Solverを使用して式 `f` を解くには、以下の3つのステップで行います：
-1. 式 `f` に対してABS3 Solver（**`qbpp::abs3_solver::ABS3Solver`**）オブジェクトを作成します。
+1. 式 `f` に対してABS3 Solver（**`qbpp::ABS3Solver`**）オブジェクトを作成します。
 2. **`search()`**メンバ関数を呼び出します。パラメータは初期化子リストとして渡します。得られた解が返されます。
 
 ## ABS3 SolverによるLABS問題の求解
@@ -33,7 +33,7 @@ int main() {
   }
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3_solver::ABS3Solver(f);
+  auto solver = qbpp::ABS3Solver(f);
 
   auto sol = solver.search({{"time_limit", 10.0}, {"enable_default_callback", 1}});
   std::cout << sol.energy() << ": ";
@@ -64,12 +64,12 @@ TTS = 4.364s Energy = 834
 ```
 
 ## ABS3 Solverオブジェクト
-ABS3 Solver（`qbpp::abs3_solver::ABS3Solver`）オブジェクトは与えられた式に対して作成されます。
+ABS3 Solver（`qbpp::ABS3Solver`）オブジェクトは与えられた式に対して作成されます。
 ソルバーオブジェクトが構築されると、式は内部データフォーマットに変換され、GPUメモリにロードされます。
 オプションの第2引数 `gpu` でGPUの使用を制御します：
-- **`qbpp::abs3_solver::ABS3Solver(expression)`**: 利用可能なすべてのGPUを自動的に使用します。GPUが利用できない場合はCPUのみモードにフォールバックします。
-- **`qbpp::abs3_solver::ABS3Solver(expression, 0)`**: CPUのみモードを強制します（GPUは使用されません）。
-- **`qbpp::abs3_solver::ABS3Solver(expression, n)`**: `n` 個のGPUを使用します。
+- **`qbpp::ABS3Solver(expression)`**: 利用可能なすべてのGPUを自動的に使用します。GPUが利用できない場合はCPUのみモードにフォールバックします。
+- **`qbpp::ABS3Solver(expression, 0)`**: CPUのみモードを強制します（GPUは使用されません）。
+- **`qbpp::ABS3Solver(expression, n)`**: `n` 個のGPUを使用します。
 
 探索パラメータは `search()` に初期化子リストとして直接渡します。
 上記の例では：
@@ -142,7 +142,7 @@ auto result = solver.search({{"best_energy_sols", 100}});  // 最大100個を収
 ```cpp
 auto result = solver.search(params);
 
-std::cout << "Best energy: " << result.energy() << std::endl;
+std::cout << "Best energy: " << result.energy << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
 for (const auto& sol : result.sols()) {
@@ -170,7 +170,7 @@ for (const auto& sol : result.sols()) {
 | `CallbackEvent::Timer` | 設定可能な間隔で定期的に呼び出されます |
 
 コールバック内では、以下のメソッドが利用可能です：
-- **`best_sol()`** — 現在の最良解への `const qbpp::Sol&` を返します。`.energy()`、`.tts()`、`.get(var)` などが使用できます。
+- **`best_sol()`** — 現在の最良解への `const qbpp::Sol&` を返します。`.energy`、`.tts`、`.get(var)` などが使用できます。
 - **`event()`** — このコールバックをトリガーしたイベントを返します
 - **`hint(sol)`** — 探索中にソルバーにヒント解を提供します（[Solution Hint](#solution-hint)を参照）
 
@@ -191,17 +191,17 @@ for (const auto& sol : result.sols()) {
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
-class MySolver : public qbpp::abs3_solver::ABS3Solver {
+class MySolver : public qbpp::ABS3Solver {
  public:
   using ABS3Solver::ABS3Solver;
 
   void callback() const override {
-    if (event() == qbpp::abs3_solver::CallbackEvent::Start) {
+    if (event() == qbpp::CallbackEvent::Start) {
       timer(1.0);  // 1秒ごとのタイマーコールバックを有効化
     }
-    if (event() == qbpp::abs3_solver::CallbackEvent::BestUpdated) {
-      std::cout << "New best: energy=" << best_sol().energy()
-                << " TTS=" << best_sol().tts() << "s" << std::endl;
+    if (event() == qbpp::CallbackEvent::BestUpdated) {
+      std::cout << "New best: energy=" << best_sol().energy
+                << " TTS=" << best_sol().tts << "s" << std::endl;
     }
   }
 };
@@ -249,20 +249,20 @@ int main() {
   auto f = p * q == 899 * 997;
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3_solver::ABS3Solver(f);
+  auto solver = qbpp::ABS3Solver(f);
 
   // 実行1: 通常の探索
   const auto sol1 = solver.search({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   std::cout << "Run 1: p=" << sol1(p) << " q=" << sol1(q)
-            << " energy=" << sol1.energy() << std::endl;
+            << " energy=" << sol1.energy << std::endl;
 
   // 実行2: 前回の解をヒントとして提供
   qbpp::abs3_solver::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   params2.hint(sol1);
   const auto sol2 = solver.search(params2);
   std::cout << "Run 2: p=" << sol2(p) << " q=" << sol2(q)
-            << " energy=" << sol2.energy()
-            << " TTS=" << sol2.tts() << "s" << std::endl;
+            << " energy=" << sol2.energy
+            << " TTS=" << sol2.tts << "s" << std::endl;
 }
 ```
 {% endraw %}

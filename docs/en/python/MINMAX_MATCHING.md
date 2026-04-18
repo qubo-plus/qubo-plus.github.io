@@ -22,12 +22,23 @@ $$
  1 \leq |N(u)|+|N(v)| \leq 2
 $$
 
+This condition is satisfied if and only if $S$ constitutes a maximal matching. To ensure that $S$ is a maximal matching, the following cases cover all possibilities:
+
+<p align="center">
+  <img src="../../images/min_max_matching.svg" alt="The solution of the maximum matching problem." width="80%">
+</p>
+
+We can formulate the minimum maximal matching problem as finding a subset $S$ that satisfies the above condition and has minimum cardinality.
+
+For a formal proof, see the following paper:
+
 > **Reference**:
 > Nakahara, Y., Tsukiyama, S., Nakano, K., Parque, V., & Ito, Y. (2025). **A penalty-free QUBO formulation for the minimum maximal matching problem**. International Journal of Parallel, Emergent and Distributed Systems, 1--19. https://doi.org/10.1080/17445760.2025.2579546
 
 
 ## QUBO formulation for the minimum maximal matching
-We introduce $m$ binary variables $x_0, x_1, \ldots, x_{m-1}$, where $x_i=1$ if and only if edge $i$ is selected.
+Assume that the graph has $n$ vertices and $m$ edges, and that the edges are labeled $0,1,\ldots,m-1$.
+We introduce $m$ binary variables $x_0, x_1, \ldots, x_{m-1}$, where $x_i=1$ if and only if edge $i$ is selected (i.e., belongs to $S$).
 The objective is to minimize the number of selected edges:
 
 $$
@@ -36,7 +47,7 @@ $$
 \end{aligned}
 $$
 
-To enforce the maximality condition:
+To enforce the maximality condition, we use the following constraint:
 
 $$
 \begin{aligned}
@@ -44,7 +55,16 @@ $$
 \end{aligned}
 $$
 
+We construct a QUBO expression $f$ by combining the objective and the constraint as follows:
+
+$$
+\begin{aligned}
+f &= \text{objective} + \text{constraint}.
+\end{aligned}
+$$
+
 ## PyQBPP program
+The following PyQBPP program finds a minimum maximal matching of a fixed undirected graph with $N=16$ nodes and $M=27$ edges:
 ```python
 import pyqbpp as qbpp
 
@@ -61,7 +81,7 @@ for i in range(M):
     adj[edges[i][0]].append(i)
     adj[edges[i][1]].append(i)
 
-x = qbpp.var("x", M)
+x = qbpp.var("x", shape=M)
 
 objective = qbpp.sum(x)
 
@@ -72,7 +92,7 @@ for u, v in edges:
         t += x[idx]
     for idx in adj[v]:
         t += x[idx]
-    constraint += qbpp.between(t, 1, 2)
+    constraint += qbpp.constrain(t, between=(1, 2))
 
 f = objective + constraint
 
@@ -90,6 +110,7 @@ print()
 ```
 We first define a vector `x` of `M` binary variables, and then define `objective`, `constraint`, and `f` based on the formulation above.
 The Exhaustive Solver is used to find an optimal solution of `f`.
+The values of objective and constraint are printed, along with the list of selected edges.
 
 This program produces the following output:
 ```
@@ -98,14 +119,8 @@ constraint = 0
 ```
 Thus, $S$ contains 6 edges, forming a minimum maximal matching.
 
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                   | PyQBPP                              |
-|------------------------------|---------------------------------------|
-| `1 <= t <= 2`                | `between(t, 1, 2)`                   |
-
 ## Visualization using matplotlib
-The following code visualizes the Min-Max Matching solution:
+The following code visualizes the Min-Max Matching solution. Selected edges in $S$ and all nodes incident to these edges are highlighted in red:
 ```python
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -131,4 +146,5 @@ plt.savefig("minmax_matching.png", dpi=150, bbox_inches="tight")
 plt.show()
 ```
 
-Matched edges and their endpoints are shown in red.
+In the resulting figure, the selected edges in $S$ and all nodes incident to these edges are highlighted in red.
+We can see that no more edge can be added, and the maximality condition is satisfied.

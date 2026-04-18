@@ -88,7 +88,7 @@ int main() {
   auto f = objective + constraint * 2;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -119,7 +119,7 @@ constraint = 0
 This implies that the obtained solution selects 7 nodes and satisfies all constraints. The rendered image is saved as `mis.svg`:
 
 <p align="center">
-  <img src="images/mis.svg" alt="The solution of the MIS problem." width="80%">
+  <img src="../images/mis.svg" alt="The solution of the MIS problem." width="80%">
 </p>
 
 ## API of the QUBO++ Simple Graph Drawing Library

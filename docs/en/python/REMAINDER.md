@@ -48,18 +48,18 @@ The following program finds a solution $x$ for this remainder problem:
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.between(qbpp.var_int("x"), 0, 3 * 5 * 7 - 1)
-d3 = qbpp.between(qbpp.var_int("d3"), 0, 5 * 7 - 1)
-d5 = qbpp.between(qbpp.var_int("d5"), 0, 3 * 7 - 1)
-d7 = qbpp.between(qbpp.var_int("d7"), 0, 3 * 5 - 1)
-c3 = x - 3 * d3 == 2
-c5 = x - 5 * d5 == 3
-c7 = x - 7 * d7 == 5
+x = qbpp.var("x", between=(0, 3 * 5 * 7 - 1))
+d3 = qbpp.var("d3", between=(0, 5 * 7 - 1))
+d5 = qbpp.var("d5", between=(0, 3 * 7 - 1))
+d7 = qbpp.var("d7", between=(0, 3 * 5 - 1))
+c3 = qbpp.constrain(x - 3 * d3, equal=2)
+c5 = qbpp.constrain(x - 5 * d5, equal=3)
+c7 = qbpp.constrain(x - 7 * d7, equal=5)
 f = x + 1000 * (c3 + c5 + c7)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"time_limit": 1.0})
+sol = solver.search(time_limit=1.0)
 
 print(f"x = {sol(x)}")
 print(f"{sol(x)} - 3 * {sol(d3)} = {sol(c3.body)}")
@@ -72,7 +72,7 @@ Each of them is converted into a QUBO penalty term that becomes 0 when the corre
 
 We then minimize `x` with a large penalty weight (1000) so that satisfying the constraints is prioritized over reducing `x`.
 
-Finally, the Easy Solver searches for a low-energy solution of f within the time limit (1.0 second) specified in the parameter dictionary, and the obtained values are printed as follows:
+Finally, the Easy Solver searches for a low-energy solution of f within the time limit (1.0 second) specified as a keyword argument, and the obtained values are printed as follows:
 ```
 x = 68
 68 - 3 * 22 = 2

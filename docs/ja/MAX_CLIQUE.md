@@ -72,7 +72,7 @@ int main() {
 
   auto objective = qbpp::sum(x);
 
-  auto constraint = qbpp::Expr(0);
+  auto constraint = qbpp::toExpr(0);
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = i + 1; j < N; ++j) {
       if (!adj[i][j]) {
@@ -84,7 +84,7 @@ int main() {
   auto f = -objective + N * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -120,5 +120,5 @@ constraint = 0
 結果は以下のように `maxclique.svg` で可視化されます：
 
 <p align="center">
-  <img src="images/maxclique.svg" alt="最大クリーク問題の解" width="80%">
+  <img src="../images/maxclique.svg" alt="最大クリーク問題の解" width="80%">
 </p>

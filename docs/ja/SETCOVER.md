@@ -78,7 +78,7 @@ int main() {
   std::vector<std::vector<size_t>> cover = {
       {0, 1, 2}, {2, 3, 4},       {4, 5, 6},    {6, 7, 8},
       {9, 0, 1}, {1, 3, 5, 7, 9}, {0, 3, 6, 9}, {1, 4, 7, 8}};
-  auto cost = qbpp::int_array({3, 4, 3, 2, 3, 4, 3, 3});
+  auto cost = qbpp::array({3, 4, 3, 2, 3, 4, 3, 3});
   auto m = cover.size();
 
   auto x = qbpp::var("x", m);
@@ -86,7 +86,7 @@ int main() {
   auto c = qbpp::expr(n) + 1;  // initialize all elements to 1
   for (size_t i = 0; i < m; ++i) {
     for (size_t j : cover[i]) {
-      c.at(j) *= ~x[i];
+      c[j] *= ~x[i];
     }
   }
 
@@ -97,7 +97,7 @@ int main() {
   auto f = objective + 1000 * constraint;
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
 
   auto sol = solver.search();
 
@@ -179,7 +179,7 @@ $$
 ```
 このプログラムでは、すべての `j` に対して式 `1 <= c[j] <= +qbpp::inf` が作成され、その和が `constraint` に格納されます。
 
-> **備考**.
+> **注意**.
 > 項 `1 <= c[j] <= +qbpp::inf` は内部的に補助バイナリ変数を導入する場合があります。
 > その結果、最終的な式はQUBOソルバーで扱うことができ、
 > 被覆制約の意味は保持されます。

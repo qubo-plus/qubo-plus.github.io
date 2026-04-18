@@ -56,11 +56,11 @@ The following QUBO++ program constructs a HUBO expression based on the above ide
 
 int main() {
   const int c = 2;
-  auto s = qbpp::cpp_int("10000000000");
+  auto s = qbpp::integer("10000000000");
   auto x = s <= qbpp::var_int("x") <= c * s;
   auto f = x * x == c * s * s;
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "Energy = " << sol.energy() << std::endl;
   std::cout << "x = " << x << "\n = " << sol(x) << std::endl;

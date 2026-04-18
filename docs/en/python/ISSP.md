@@ -36,7 +36,7 @@ $$
 
 ## HUBO formulation of the ISSP
 An integer variable can be represented by multiple binary variables using a binary encoding.
-In PyQBPP, such integer variables can be defined easily using `var_int`.
+In PyQBPP, such integer variables can be defined easily using `var()` with the `between=` keyword.
 
 Let $v_i$ $(0\leq i\leq n-1)$ be an integer variable that can take a value in $[l_i, u_i]$.
 We also introduce a binary variable $s_i$  $(0\leq i\leq n-1)$ such that $s_i=1$ if and only if
@@ -100,16 +100,16 @@ upper = [19, 17, 22, 19, 20, 16, 15, 25]
 T = 100
 n = len(lower)
 
-v = [qbpp.between(qbpp.var_int(f"v{i}"), lower[i], upper[i]) for i in range(n)]
-s = qbpp.var("s", n)
+v = [qbpp.var(f"v{i}", between=(lower[i], upper[i])) for i in range(n)]
+s = qbpp.var("s", shape=n)
 
 total = qbpp.sum(v * s)
-constraint = qbpp.between(total, 0, T)
+constraint = qbpp.constrain(total, between=(0, T))
 f = -total + 1000 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": -T})
+sol = solver.search(target_energy=-T)
 for i in range(n):
     if sol(s[i]) == 1:
         print(f"Interval {i}: val = {sol(v[i])}")
@@ -122,7 +122,7 @@ We also define an array `s` of binary variables, where `s[i] = 1` means
 interval `i` is selected.
 The expression `total` represents $\sum_i v_i s_i$.
 
-The inequality constraint `between(total, 0, T)` is stored in `constraint`. In PyQBPP, such a constraint
+The inequality constraint `constrain(total, between=(0, T))` is stored in `constraint`. In PyQBPP, such a constraint
 is internally converted into a nonnegative penalty term that becomes zero when the constraint is satisfied.
 
 Finally, we construct the HUBO objective function `f` as
@@ -227,8 +227,8 @@ upper = [19, 17, 22, 19, 20, 16, 15, 25]
 T = 100
 n = len(lower)
 
-a = [qbpp.between(qbpp.var_int(f"a{i}"), 0, upper[i] - lower[i]) for i in range(n)]
-s = qbpp.var("s", n)
+a = [qbpp.var(f"a{i}", between=(0, upper[i] - lower[i])) for i in range(n)]
+s = qbpp.var("s", shape=n)
 v = [s[i] * lower[i] + a[i] for i in range(n)]
 
 total = 0
@@ -239,12 +239,12 @@ constraint1 = 0
 for i in range(n):
     constraint1 += ~s[i] * a[i]
 
-constraint2 = qbpp.between(total, 0, T)
+constraint2 = qbpp.constrain(total, between=(0, T))
 f = -total + 1000 * (constraint1 + constraint2)
 f.simplify_as_binary()
 
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": -T})
+sol = solver.search(target_energy=-T)
 for i in range(n):
     if sol(s[i]) == 1:
         print(f"Interval {i}: val = {sol(v[i])}")
@@ -258,10 +258,10 @@ Using `a` and `s`, we construct `v[i] = s[i] * lower[i] + a[i]`, which correspon
 $v_i = s_i l_i + a_i$.
 The expression `constraint1 += ~s[i] * a[i]` penalizes any solution with `a[i] > 0` when `s[i] = 0`,
 thereby enforcing `v[i] = 0` for unselected intervals.
-The inequality constraint `constraint2 = between(total, 0, T)`
+The inequality constraint `constraint2 = constrain(total, between=(0, T))`
 ensures that the total selected sum does not exceed `T`.
 
 Finally, we minimize `f = -total + P * (constraint1 + constraint2)` with a sufficiently large penalty constant `P`.
-As in the previous example, passing `{"target_energy": -T}` to `search()` allows the solver to stop early if it finds a feasible solution achieving `total = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
+As in the previous example, passing `target_energy=-T` to `search()` allows the solver to stop early if it finds a feasible solution achieving `total = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
 
 This produces the same result as the HUBO formulation.

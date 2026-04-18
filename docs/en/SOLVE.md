@@ -29,7 +29,7 @@ QUBO++ provides three solvers for QUBO/HUBO expressions:
   - If no GPU is available, falls back to CPU-only mode.
 
 The Easy Solver and Exhaustive Solver are used in the following steps:
-1. Create a solver object, **`qbpp::easy_solver::EasySolver`** or **`qbpp::exhaustive_solver::ExhaustiveSolver`**.
+1. Create a solver object, **`qbpp::EasySolver`** or **`qbpp::ExhaustiveSolver`**.
 2. Call the **`search()`** member function on the solver object, optionally passing parameters as an initializer list. It returns a **`qbpp::Sol`** object that stores the obtained solution.
 
 ## Easy Solver
@@ -50,7 +50,7 @@ Therefore, it has two optimal solutions, $(a,b,c,d)=(0,1,1,0)$ and $(1,0,0,1)$.
 
 In the following program, expression `f` is created using the symbolic computation.
 Note that the function **`qbpp::sqr()`** returns the square of the argument.
-We then construct an instance of the class `qbpp::easy_solver::EasySolver`
+We then construct an instance of the class `qbpp::EasySolver`
 by passing `f` to its constructor.
 Before doing so, `f` must be simplified for binary variables by calling **`simplify_as_binary()`**.
 The constructor returns an `EasySolver` object named **`solver`**.
@@ -70,7 +70,7 @@ int main() {
   auto d = qbpp::var("d");
   auto f = qbpp::sqr(a + 2 * b + 3 * c + 4 * d - 5);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
   std::cout << sol << std::endl;
 }
@@ -90,7 +90,7 @@ One of the optimal solutions is correctly output.
 To use the **Exhaustive Solver**, include the header file **`qbpp/exhaustive_solver.hpp`**.
 It is defined in the namespace **`qbpp::exhaustive_solver`**.
 
-We construct an instance **`solver`** of the class **`qbpp::exhaustive_solver::ExhaustiveSolver`**
+We construct an instance **`solver`** of the class **`qbpp::ExhaustiveSolver`**
 by passing `f` to its constructor.
 Calling the **`search()`** member function on `solver` returns a solution instance **`sol`** of
 class **`qbpp::Sol`**, which is printed using `std::cout`.
@@ -108,7 +108,7 @@ int main() {
   auto d = qbpp::var("d");
   auto f = qbpp::sqr(a + 2 * b + 3 * c + 4 * d - 5);
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
   std::cout << sol << std::endl;
 }
@@ -122,7 +122,7 @@ The output of this program is as follows:
 All optimal solutions can be obtained by setting the `best_energy_sols` parameter as follows:
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"best_energy_sols", 1}});
 ```
 {% endraw %}
@@ -136,7 +136,7 @@ The output is as follows:
 Furthermore, all solutions including non-optimal ones can be obtained by setting the `all_sols` parameter as follows:
 {% raw %}
 ```cpp
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
 ```
 {% endraw %}

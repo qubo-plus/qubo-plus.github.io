@@ -37,7 +37,7 @@ In this QUBO++ program, the variables `a`, `b`, and `c` are objects of class **`
 
 Assuming the header and library paths are properly set up, this program (saved as **`test.cpp`**) can be compiled with `g++` as follows:
 ```bash
-g++ test.cpp -o test -std=c++17 -lqbpp -ldl
+g++ test.cpp -o test -std=c++17 -ldl -pthread
 ```
 Running the executable prints the expanded expression:
 ```bash

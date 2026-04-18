@@ -17,7 +17,7 @@ The sum of the three input bits is represented using these two output bits.
 
 A ripple-carry adder computes the sum of two multi-bit integers by cascading multiple full adders, as illustrated below:
 <p align="center">
- <img src="images/adder.svg" alt="4-bit ripple carry adder" width="50%">
+ <img src="../images/adder.svg" alt="4-bit ripple carry adder" width="50%">
 </p>
 
 This ripple-carry adder computes the sum of two 4-bit integers $x_3x_2x_1x_0$ and $y_3y_2y_1y_0$
@@ -48,7 +48,7 @@ int main() {
   auto s = qbpp::var("s");
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(fa);
+  auto solver = qbpp::ExhaustiveSolver(fa);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -70,12 +70,14 @@ The program produces the following output, confirming that the expression correc
 {% endraw %}
 
 If some bits are fixed, the valid values of the remaining bits can be derived.
-For example, the three input bits can be fixed using the `replace()` function:
+For example, the three input bits can be fixed using the global `qbpp::replace()` function (`ExprExpr::replace()` is not supported, so we use the free function):
 {% raw %}
 ```cpp
-  fa.replace({{a, 1}, {b, 1}, {i, 0}});
+  auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
+Then solve with `qbpp::ExhaustiveSolver(fa2)`.
 
 
 The program then produces the following output:
@@ -89,7 +91,8 @@ The program then produces the following output:
 Conversely, if the two output bits are fixed:
 {% raw %}
 ```cpp
-  fa.replace({{o, 1}, {s, 0}});
+  auto fa2 = qbpp::replace(fa, {{o, 1}, {s, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
 the program produces all valid combinations of the input bits:
@@ -130,7 +133,7 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }
@@ -174,7 +177,7 @@ int main() {
   auto fa3 = fa(x[3], y[3], c[3], c[4], z[3]);
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(adder);
+  auto solver = qbpp::ExhaustiveSolver(adder);
   auto sol = solver.search({{"best_energy_sols", 1}});
   std::cout << sol << std::endl;
 }

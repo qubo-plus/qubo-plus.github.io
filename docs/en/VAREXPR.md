@@ -133,47 +133,72 @@ The following types can be specified:
 
 | Type | Range | Large constant syntax |
 |------|-------|-----------------------|
-| `int16_t` | ±3.3×10⁴ | `1234` (integer literal) |
 | `int32_t` | ±2.1×10⁹ | `12345` (integer literal) |
 | `int64_t` | ±9.2×10¹⁸ | `1234567890123456789LL` |
-| `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::int128_t("12345678901234567890")` |
-| `qbpp::cpp_int` | unlimited | `qbpp::cpp_int("...")` |
+| `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::integer("12345678901234567890")` |
+| `qbpp::cpp_int` | unlimited | `qbpp::integer("...")` |
 
 The type **`qbpp::cpp_int`** represents an integer with an arbitrary number of digits.
+The helper function **`qbpp::integer("...")`** parses a decimal string into the current `coeff_t` type,
+so the same source code works unchanged for any build from `int32_t` through `cpp_int`.
 
 By default, `coeff_t` is `int32_t` and `energy_t` is `int64_t`.
 To use a different type, define one of the following macros before including the header (or pass as a compiler flag `-D...`):
 
-| Macro | `coeff_t` | `energy_t` | Library |
-|---|---|---|---|
-| `INTEGER_TYPE_C16E32` | `int16_t` | `int32_t` | `libqbpp_c16e32.so` |
-| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` | `libqbpp_c32e32.so` |
-| (default) | `int32_t` | `int64_t` | `libqbpp_c32e64.so` |
-| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` | `libqbpp_c64e64.so` |
-| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` | `libqbpp_c64e128.so` |
-| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` | `libqbpp_c128e128.so` |
-| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` | `libqbpp_cppint.so` |
+| Macro | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-Example:
+### VarArray Mode
+
+The `MAXDEG` macro controls how variables within each term are stored internally.
+Fixed-length modes eliminate heap allocation and improve performance when the maximum degree is known:
+
+| Macro | Max degree | Description |
+|---|---|---|
+| `MAXDEG0` (default) | unlimited | Variable-length (heap allocation for degree 3+) |
+| `MAXDEG2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
+| `MAXDEG4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
+| `MAXDEG6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
+
+Example — selecting both type and VarArray mode:
 ```cpp
-#define INTEGER_TYPE_CPP_INT
-#include <qbpp/easy_solver.hpp>
+#define INTEGER_TYPE_C32E32
+#define MAXDEG2
+#include <qbpp/qbpp.hpp>
 ```
 
-The appropriate library is automatically loaded at runtime based on the specified types; no explicit linking is required.
+The appropriate library is automatically loaded at runtime based on the specified macros.
 
-### String constructors
+### Large constants: qbpp::integer()
+Constant values that exceed the 64-bit integer range are specified by passing a decimal string
+to the helper function **`qbpp::integer("...")`**.
+It parses the string into the current `coeff_t` type (`int32_t` through `cpp_int`),
+so the same source code works for every build.
+If the value does not fit in `coeff_t`, `std::out_of_range` is thrown.
 
-For `qbpp::int128_t` and `qbpp::cpp_int`,
-constant values that exceed the 64-bit integer range can be specified using **string constructors**.
-The string is parsed as a decimal number at runtime.
+Small values such as `qbpp::integer("0")` and `qbpp::integer("-1")` are accepted as well.
+However, the string-to-value conversion happens **at runtime**, so for values that fit in
+`int64_t` (±9.2×10¹⁸) it is more efficient to use ordinary integer literals (e.g., `12345`,
+`1234567890123456789LL`).
+When the same string appears inside a hot loop, bind it once to a variable to avoid repeated
+parse overhead:
+```cpp
+const auto K = qbpp::integer("1000000000000");  // parsed once
+for (int i = 0; i < n; ++i) f += K * x[i];
+```
 
 > **Note**:
 > Standard integer literals (e.g., `12345`) and 64-bit literals with the `LL` suffix can be used directly
 > with any type via implicit conversion.
-> String constructors are only needed when the value exceeds the `int64_t` range (±9.2×10¹⁸).
+> `qbpp::integer()` is only needed when the value exceeds the `int64_t` range.
 
-### Example with qbpp::int128_t
+### Example with 128-bit integers
 
 The following program creates a `qbpp::Expr` object with coefficients exceeding 64-bit range:
 ```cpp
@@ -184,8 +209,8 @@ The following program creates a `qbpp::Expr` object with coefficients exceeding 
 int main() {
   auto x = qbpp::var("x");
   auto y = qbpp::var("y");
-  auto f = qbpp::int128_t("12345678901234567890") * x +
-           qbpp::int128_t("98765432109876543210") * y;
+  auto f = qbpp::integer("12345678901234567890") * x +
+           qbpp::integer("98765432109876543210") * y;
   std::cout << "f = " << f << std::endl;
 }
 ```
@@ -194,7 +219,7 @@ This program produces the following output:
 f = 12345678901234567890*x +98765432109876543210*y
 ```
 
-### Example with qbpp::cpp_int
+### Example with arbitrary-precision integers (cpp_int)
 
 The following program creates a `qbpp::Expr` object with very large coefficient and constant terms:
 ```cpp
@@ -204,8 +229,8 @@ The following program creates a `qbpp::Expr` object with very large coefficient 
 
 int main() {
   auto x = qbpp::var("x");
-  auto f = qbpp::cpp_int("123456789012345678901234567890") * x +
-           qbpp::cpp_int("987654321098765432109876543210");
+  auto f = qbpp::integer("123456789012345678901234567890") * x +
+           qbpp::integer("987654321098765432109876543210");
   std::cout << "f = " << f << std::endl;
 }
 ```

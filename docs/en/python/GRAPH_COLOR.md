@@ -56,9 +56,9 @@ edges = [
     (10, 15),(11, 13),(12, 14),(13, 15),(14, 15)]
 m = 4
 
-x = qbpp.var("x", n, m)
+x = qbpp.var("x", shape=(n, m))
 
-onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
+onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 different = 0
 for u, v in edges:
     different += qbpp.sum(x[u] * x[v])
@@ -67,7 +67,7 @@ f = onehot + different
 
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search({"target_energy": 0})
+sol = solver.search(target_energy=0)
 
 print(f"onehot = {sol(onehot)}")
 print(f"different = {sol(different)}")
@@ -80,7 +80,7 @@ for i in range(n):
             break
 ```
 In this program, we first define an $n\times m$ matrix `x` of binary variables, and then construct the expressions `onehot`, `different`, and `f`.
-We solve the resulting QUBO using the Easy Solver by passing `{"target_energy": 0}` to `search()`.
+We solve the resulting QUBO using the Easy Solver by passing `target_energy=0` to `search()`.
 
 ### Result for $m=4$
 This program produces the following output:

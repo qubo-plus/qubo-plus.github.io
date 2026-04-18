@@ -105,7 +105,7 @@ int main() {
   auto f = qbpp::sqr(x + 2 * y + 3 * z - 4);
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "sol = " << sol << std::endl;

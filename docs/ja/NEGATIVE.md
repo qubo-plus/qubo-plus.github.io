@@ -36,7 +36,7 @@ QUBO++では `~` 演算子で否定リテラルを表現します。
 
 int main() {
   auto x = qbpp::var("x", 4);
-  auto f = qbpp::Expr(1);
+  auto f = qbpp::toExpr(1);
   for (size_t i = 0; i < x.size(); ++i) {
     f *= ~x[i];
   }

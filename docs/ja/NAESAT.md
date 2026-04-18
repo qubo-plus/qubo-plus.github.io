@@ -92,10 +92,10 @@ int main() {
   auto x = qbpp::var("x", n);
 
   // NAE 制約: 全 True または全 False のときペナルティ
-  auto constraint = qbpp::Expr(0);
+  auto constraint = qbpp::toExpr(0);
   for (const auto& clause : clauses) {
-    auto all_true = qbpp::Expr(1);
-    auto all_false = qbpp::Expr(1);
+    auto all_true = qbpp::toExpr(1);
+    auto all_false = qbpp::toExpr(1);
     for (int idx : clause) {
       all_true *= x[idx];
       all_false *= ~x[idx];
@@ -112,7 +112,7 @@ int main() {
   auto f = (objective + penalty_weight * constraint).simplify_as_binary();
 
   // 求解
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   // n=5 は奇数なので最良バランスで (2*s-n)^2 = 1
   auto sol = solver.search({{"target_energy", 1}});
 

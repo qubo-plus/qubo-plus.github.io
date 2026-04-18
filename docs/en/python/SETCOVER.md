@@ -37,7 +37,11 @@ c_i &=\prod_{j: i\in S_j}\bar{x}_j && (0\leq i\leq n-1)
 \end{aligned}
 $$
 
-The following **constraint** becomes 0 if and only if all elements are covered:
+If none of the selected subsets contains $i$, then $i$ is not covered.
+In that case, $x_j=0$ holds for all $j$ such that $i\in S_j$
+and hence $c_i=1$.
+On the other hand, if at least one selected subset contains $i$, then $x_j$=1 for some $j$ with $i\in S$, and the factor $\bar{x}_j$ becomes 0, so $c_i=0$.
+Therefore, the following **constraint** becomes 0 if and only if all elements are covered:
 
 $$
 \begin{aligned}
@@ -53,7 +57,19 @@ $$
 \end{aligned}
 $$
 
+We can now construct a HUBO objective function for the weighted minimum set cover problem as:
+
+$$
+\begin{aligned}
+f &= \text{objective}+P\times\text{constraint},
+\end{aligned}
+$$
+
+where $P$ is a sufficiently large positive constant to prioritize feasibility over the objective.
+
 ## PyQBPP program for the minimum set cover problem
+The following PyQBPP program constructs a HUBO expression for a weighted minimum set cover instance with $n=10$ elements and $m=8$ subsets:
+{% raw %}
 ```python
 import pyqbpp as qbpp
 
@@ -64,25 +80,22 @@ cover = [
 cost = [3, 4, 3, 2, 3, 4, 3, 3]
 m = len(cover)
 
-x = qbpp.var("x", m)
+x = qbpp.var("x", shape=m)
 
-c = [1 for _ in range(n)]
+c = [1 for _ in range(n)]  # initialize all elements to 1
 for i in range(m):
     for j in cover[i]:
         c[j] *= ~x[i]
 
-objective = 0
-for i in range(m):
-    objective += cost[i] * x[i]
+objective = qbpp.sum(cost * x)
 
-constraint = 0
-for j in range(n):
-    constraint += c[j]
+constraint = qbpp.sum(c)
 
 f = objective + 1000 * constraint
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)
+
 sol = solver.search()
 
 print(f"objective = {sol(objective)}")
@@ -90,47 +103,78 @@ print(f"constraint = {sol(constraint)}")
 
 for i in range(m):
     if sol(x[i]) == 1:
-        print(f"Set {i}: {cover[i]} cost = {cost[i]}")
+        sep = ",".join(str(k) for k in cover[i])
+        print(f"Set {i}: {{{sep}}} cost = {cost[i]}")
 ```
-This program defines a vector `x` of $m=8$ binary variables and constructs a list `c` of $n=10$ expressions.
+{% endraw %}
+This program defines an array **`x`** of $m=8$ **binary variables** and constructs a list **`c`** of $n=10$ **expressions**.
 Each expression `c[j]` corresponds to an element $j\in U$ and is initialized to 1.
 For every subset $S_i$, and for every element $j\in S_i$, we multiply `c[j]` by
-`(1 − x[i])`.
+`~x[i]`.
+As a result, `c[j]` becomes 0 if at least one selected subset covers element `j`, and remains 1 otherwise.
 
-The Exhaustive Solver is then used to find an optimal solution. For example, the output is:
+The **`constraint`** is defined as the sum of all entries in `c`, and it becomes 0 if and only if all elements are covered.
+The weighted **`objective`** is defined as the sum of `cost[i] * x[i]`.
+They are combined into the HUBO expression:
+
+$$
+\begin{aligned}
+f &= \text{objective} + 1000\times\text{constraint},
+\end{aligned}
+$$
+
+where the penalty constant 1000 is chosen sufficiently large to prioritize feasibility.
+
+The Exhaustive Solver is then used to find an optimal solution `sol`.
+The program prints the values of `objective` and `constraint`, and finally lists all selected subsets. For example, the output is:
 ```
 objective = 11
 constraint = 0
-Set 0: [0, 1, 2] cost = 3
-Set 2: [4, 5, 6] cost = 3
-Set 3: [6, 7, 8] cost = 2
-Set 6: [0, 3, 6, 9] cost = 3
+Set 0: {0,1,2} cost = 3
+Set 2: {4,5,6} cost = 3
+Set 3: {6,7,8} cost = 2
+Set 6: {0,3,6,9} cost = 3
 ```
 This output indicates that a feasible set cover with total cost 11 is obtained.
 
 ## QUBO formulation for the minimum set cover problem
+The HUBO formulation above may contain terms of degree three or higher, and therefore it is not necessarily a QUBO expression.
 To obtain a QUBO formulation, we rewrite the covering constraint.
-For each element $i\in U$, define $c_i =\sum_{j: i\in S_j} x_j$.
-If $c_i\geq 1$, then at least one selected subset covers $i$.
 
-The constraint in PyQBPP can be modified as follows:
+For each element $i\in U$, define
+
+$$
+\begin{aligned}
+c_i &=\sum_{j: i\in S_j} x_j && (0\leq i\leq n-1)
+\end{aligned}
+$$
+
+If $c_i\geq 1$, then at least one selected subset $S_j$ covers $i$.
+If $c_i=0$, then no selected subset covers $i$.
+Thus, we can express the covering constraint in the PyQBPP style as:
+
+$$
+\begin{aligned}
+\text{constraint} &= \sum_{i=0}^{n-1} (c_i\geq 1)
+\end{aligned}
+$$
+
+This constraint takes the minimum value 0 if and only if all elements are covered.
+Based on this formulation, the PyQBPP program can be modified as follows:
 ```python
-import pyqbpp as qbpp
-
 c = [0 for _ in range(n)]
 for i in range(m):
     for j in cover[i]:
         c[j] += x[i]
 
-constraint = 0
-for j in range(n):
-    constraint += qbpp.between(c[j], 1, m)
+constraint = qbpp.sum(qbpp.constrain(c[j], between=(1, m)) for j in range(n))
 ```
+In this program, the constraint expressions `qbpp.constrain(c[j], between=(1, m))` are created for all
+`j`, and their sum is stored in `constraint`.
 
-### Comparison with C++ QUBO++
-
-| C++ QUBO++                   | PyQBPP                              |
-|------------------------------|---------------------------------------|
-| `1 <= c[j] <= +qbpp::inf`   | `between(c[j], 1, m)`                |
+> **Remark**.
+> The expression `qbpp.constrain(c[j], between=(1, m))` may introduce auxiliary binary variables
+> internally. As a result, the final expression can be handled by a QUBO solver,
+> while preserving the intended meaning of the coverage constraint.
 
 With this modification, the program produces the same optimal solution as the HUBO version.

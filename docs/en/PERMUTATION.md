@@ -18,7 +18,7 @@ Let $X=(x_{i,j})$ ($0\leq i,j\leq n-1$) is a matrix of $n\times n$ binary values
 The matrix $X$ is called a **permutation matrix** if and only if every row and every column has exactly one entry equal to 1, as shown below.
 
 <p align="center">
-  <img src="images/matrix.svg" alt="Permutation matrix" width="50%">
+  <img src="../images/matrix.svg" alt="Permutation matrix" width="50%">
 </p>
 
 A **permutation matrix** represents a permutation of $n$ numbers $(0,1,\ldots,n-1)$, where $x_{i,j} = 1$ if and only if the $i$-th element is $j$.
@@ -63,7 +63,7 @@ int main() {
   }
 
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols[k];
@@ -73,8 +73,8 @@ int main() {
 ```
 {% endraw %}
 
-In this program, **`qbpp::var("x",4,4)`** returns a `qbpp::Array<2, qbpp::Var>` object
-of shape $\{4, 4\}$ named **`x`**.
+In this program, **`qbpp::var("x",4,4)`** returns a $4\times 4$ array of `Var`
+named **`x`**.
 For a `qbpp::Expr` object **`f`**, two double for-loops adds
 formulas for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.
@@ -110,9 +110,8 @@ Solution 23 : {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}
 ```
 {% endraw %}
 > **NOTE**
-> A matrix of binary variables is implemented as a multi-dimensional array using `qbpp::Array` class.
-> For example, `qbpp::var("x",4,4)` returns a `qbpp::Array<2, qbpp::Var>` object with shape {4,4}.
-> Each `qbpp::Var` object is represented as `x[i][j]` and the value of `x[i][j]` for `sol` can be obtained by either `sol(x[i][j])` or `x[i][j](sol)`.
+> `qbpp::var("x",4,4)` creates a $4\times 4$ array of binary variables.
+> Each element is accessed as `x[i][j]`, and its value in a solution `sol` can be obtained by either `sol(x[i][j])` or `x[i][j](sol)`.
 
 
 ## QUBO formulation for a permutation matrix using array functions and operations
@@ -141,7 +140,7 @@ int main() {
   auto f = qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 1) - 1)) +
            qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 0) - 1));
   f.simplify_as_binary();
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols[k];
@@ -220,7 +219,7 @@ Here, $P$ is a sufficiently large positive constant that prioritizes the permuta
 
 ## QUBO++ program for the assignment problem
 We are now ready to design a QUBO++ program for the assignment problem.
-In this program, a fixed matrix $C$ of size $4\times4$ is given as a `qbpp::Array`.
+In this program, a fixed matrix $C$ of size $4\times4$ is given as an array of integer constants.
 The formulas for $f(X)$ and $g(X)$ are defined using array functions and operations.
 Here, `qbpp::vector_sum(x, 1) == 1` returns a QUBO expression that takes the minimum value 0 if the equality is satisfied.
 In fact, it returns the same QUBO expression as `qbpp::sqr(qbpp::vector_sum(x, 1) - 1)`.
@@ -233,7 +232,7 @@ and therefore `qbpp::sum(c * x)` returns `g(X)`.
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto c = qbpp::int_array({{58, 73, 91, 44}, {62, 15, 87, 39}, {78, 56, 23, 94}, {11, 85, 68, 72}});
+  auto c = qbpp::array({{58, 73, 91, 44}, {62, 15, 87, 39}, {78, 56, 23, 94}, {11, 85, 68, 72}});
   auto x = qbpp::var("x", 4, 4);
   auto f = qbpp::sum(qbpp::vector_sum(x, 1) == 1) +
            qbpp::sum(qbpp::vector_sum(x, 0) == 1);
@@ -241,7 +240,7 @@ int main() {
   auto h = 1000 * f + g;
   h.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(h);
+  auto solver = qbpp::EasySolver(h);
   auto sol = solver.search({{"time_limit", 1.0}});
   std::cout << "sol = " << sol << std::endl;
   auto result = qbpp::onehot_to_int(x(sol), 1);

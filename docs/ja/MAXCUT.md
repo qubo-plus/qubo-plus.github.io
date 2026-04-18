@@ -60,7 +60,7 @@ int main() {
   auto f = -objective;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -91,5 +91,5 @@ objective = 22
 結果のグラフは描画され、ファイル `maxcut.svg` に保存されます：
 
 <p align="center">
-  <img src="images/maxcut.svg" alt="最大カット問題の解" width="80%">
+  <img src="../images/maxcut.svg" alt="最大カット問題の解" width="80%">
 </p>

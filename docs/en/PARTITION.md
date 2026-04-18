@@ -63,7 +63,7 @@ int main() {
   auto f = qbpp::sqr(p - q);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "Solution: " << sol << std::endl;
@@ -124,14 +124,14 @@ Q : 64 27 74 40
 
 ## QUBO++ program using array operations
 QUBO++ has rich array operations that can simplify the code.
-In the following code, **`w`** is defined using **`qbpp::int_array()`**, and **`x`** is an array of binary variables created by `qbpp::var()`.
-Since the overloaded operator `*` for `qbpp::Array` returns the element-wise product,
+In the following code, **`w`** is defined using **`qbpp::array()`**, and **`x`** is an array of binary variables created by `qbpp::var()`.
+Since the overloaded operator `*` for arrays returns the element-wise product,
 **`qbpp::sum(w * x)`** returns the `qbpp::Expr` object representing $P(L)$.
 The `~` operator applied to an array of variables returns an array of their negated literals.
 Thus, **`qbpp::sum(w * ~x)`** returns a `qbpp::Expr` object storing $Q(L)$.
 
 ```cpp
-  auto w = qbpp::int_array({64, 27, 47, 74, 12, 83, 63, 40});
+  auto w = qbpp::array({64, 27, 47, 74, 12, 83, 63, 40});
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::sum(w * x);
   auto q = qbpp::sum(w * ~x);
@@ -142,6 +142,6 @@ QUBO++ programs can be simplified by using these array operations.
 In addition, since array operations for large arrays are parallelized by multithreading, they can accelerate the process of creating QUBO models.
 
 > **NOTE**
-> The operators `+`, `-`, and `*` are overloaded both for two `qbpp::Array` objects and for a scalar and a `qbpp::Array` object.
-> For two `qbpp::Array` objects, the overloaded operators perform element-wise operations.
-> For a scalar and a `qbpp::Array` object, the overloaded operators apply the scalar operation to each element of the array.
+> The operators `+`, `-`, and `*` are overloaded both for two array objects and for a scalar and an array object.
+> For two array objects, the overloaded operators perform element-wise operations.
+> For a scalar and an array object, the overloaded operators apply the scalar operation to each element of the array.

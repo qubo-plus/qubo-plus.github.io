@@ -99,8 +99,8 @@ $$
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
-  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
+  auto lower = qbpp::array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto v = lower <= qbpp::var_int("v", lower.size()) <= upper;
@@ -111,7 +111,7 @@ int main() {
   auto f = -sum + 1000 * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
@@ -223,8 +223,8 @@ $$
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
-  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
+  auto lower = qbpp::array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto a = 0 <= qbpp::var_int("a", lower.size()) <= (upper - lower);
@@ -237,7 +237,7 @@ int main() {
   auto f = -sum + 1000 * (constraint1 + constraint2);
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", std::to_string(-T)}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {

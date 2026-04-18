@@ -81,7 +81,7 @@ int main() {
   auto f = -objective + 2 * constraint;
   f.simplify_as_binary();
 
-  auto solver = qbpp::exhaustive_solver::ExhaustiveSolver(f);
+  auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search();
 
   std::cout << "objective = " << objective(sol) << std::endl;
@@ -108,5 +108,5 @@ In this visualization, selected edges in $S$ (i.e., edges $i$ with $x_i=1$) are 
 The resulting graph is rendered and stored in the file `maxmatching.svg`:
 
 <p align="center">
-  <img src="images/maxmatching.svg" alt="The solution of the maximum matching problem." width="80%">
+  <img src="../images/maxmatching.svg" alt="The solution of the maximum matching problem." width="80%">
 </p>

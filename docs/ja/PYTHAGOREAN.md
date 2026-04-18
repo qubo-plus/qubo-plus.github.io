@@ -35,7 +35,7 @@ int main() {
   auto c = 1 <= y - x <= +qbpp::inf;
   auto g = f + c;
   g.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(g);
+  auto solver = qbpp::EasySolver(g);
   auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 10}});
   for (const auto& sol : sols) {
     std::cout << "x=" << sol(x) << ", y=" << sol(y) << ", z=" << sol(z)

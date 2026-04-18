@@ -66,7 +66,7 @@ int main() {
   auto x = qbpp::var("x", n, m);
 
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
-  auto different = qbpp::Expr(0);
+  auto different = qbpp::toExpr(0);
   for (const auto& e : edges) {
     different += qbpp::sum(qbpp::row(x, e.first) * qbpp::row(x, e.second));
   }
@@ -74,7 +74,7 @@ int main() {
   auto f = onehot + different;
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "onehot = " << sol(onehot) << std::endl;
@@ -111,7 +111,7 @@ different = 0
 ```
 したがって、有効な 4-彩色が見つかりました：
 <p align="center">
-  <img src="images/graph_color.svg" alt="グラフ彩色問題の解" width="80%">
+  <img src="../images/graph_color.svg" alt="グラフ彩色問題の解" width="80%">
 </p>
 
 ### $m=3$ の結果
@@ -123,5 +123,5 @@ different = 0
 この出力は、ソルバーがちょうど1つのノードに色を割り当てられなかったことを示しています（つまり、1つの行がワンホットではありません）。結果のグラフでは、ノード 7 が未彩色のままです：
 
 <p align="center">
-  <img src="images/graph_color_m3.svg" alt="$m=3$色でのグラフ彩色問題の解" width="80%">
+  <img src="../images/graph_color_m3.svg" alt="$m=3$色でのグラフ彩色問題の解" width="80%">
 </p>

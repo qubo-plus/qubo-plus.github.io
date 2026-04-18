@@ -68,7 +68,7 @@ int main() {
   auto x = qbpp::var("x", n, m);
 
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
-  auto different = qbpp::Expr(0);
+  auto different = qbpp::toExpr(0);
   for (const auto& e : edges) {
     different += qbpp::sum(qbpp::row(x, e.first) * qbpp::row(x, e.second));
   }
@@ -76,7 +76,7 @@ int main() {
   auto f = onehot + different;
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "onehot = " << sol(onehot) << std::endl;
@@ -114,7 +114,7 @@ different = 0
 ```
 Therefore, a valid 4-coloring is found:
 <p align="center">
-  <img src="images/graph_color.svg" alt="The solution of the graph coloring problem." width="80%">
+  <img src="../images/graph_color.svg" alt="The solution of the graph coloring problem." width="80%">
 </p>
 
 ### Result for $m=3$
@@ -128,5 +128,5 @@ different = 0
 This output indicates that the solver failed to assign a color to exactly one node (i.e., one row is not one-hot). The resulting graph shows that node 7 is left uncolored:
 
 <p align="center">
-  <img src="images/graph_color_m3.svg" alt="The solution of the graph coloring problem with $m=3$ colors." width="80%">
+  <img src="../images/graph_color_m3.svg" alt="The solution of the graph coloring problem with $m=3$ colors." width="80%">
 </p>

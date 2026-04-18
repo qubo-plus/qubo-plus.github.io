@@ -43,6 +43,34 @@ which is internally represented by three binary variables:
 
 corresponding to the binary encoding of integers in the specified range.
 
+## Integer constant arrays (`qbpp::array`)
+
+**`qbpp::array`** is a factory function that creates arrays of integer constants:
+
+| Call form | Return type | Description |
+|---|---|---|
+| `qbpp::array({v1, v2, ...})` | 1-D integer constant array | 1-D integer constant array |
+| `qbpp::array({% raw %}{{a,b},{c,d}}{% endraw %})` | 2-D integer constant array | 2-D integer constant array |
+| `qbpp::array(s1, s2, ...)` | multi-dimensional integer array | Zero-initialized integer array (shape specified) |
+
+Integer constant arrays can be used in element-wise operations with variable arrays. The following program computes the sum of the element-wise product of a $2\times 2$ integer constant matrix `c` and a binary variable matrix `x`:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto c = qbpp::array({{1, 2}, {3, 4}});
+  auto x = qbpp::var("x", 2, 2);
+  auto f = qbpp::sum(c * x);
+  std::cout << "f = " << f << std::endl;
+}
+```
+{% endraw %}
+`c * x` returns an element-wise product as a 2D array of terms, and `qbpp::sum` sums all elements into a single `Expr`. The output of this program is:
+```
+f = x[0][0] +2*x[0][1] +3*x[1][0] +4*x[1][1]
+```
+
 ## Creating integer variable arrays with individual ranges
 
 When defining a multi-dimensional array of integer variables, all elements created by `l <= qbpp::var_int("name", s1, s2, ...) <= u` share the same range $[l, u]$.
@@ -54,7 +82,7 @@ In such cases, you can first create a **placeholder array** using **`qbpp::var_i
 #include <qbpp/qbpp.hpp>
 
 int main() {
-  auto max_vals = qbpp::int_array({3, 7, 15, 5});
+  auto max_vals = qbpp::array({3, 7, 15, 5});
   auto x = qbpp::var_int("x", max_vals.size()) == 0;
   for (size_t i = 0; i < max_vals.size(); ++i) {
     x[i] = 0 <= qbpp::var_int() <= max_vals[i];
@@ -152,26 +180,31 @@ f[1][1] = -1 +2*x[1][1]
 f[1][2] = -1 +2*x[1][2]
 ```
 
-## The `qbpp::Array` class
-**`qbpp::Array`** is a multi-dimensional array class that supports arrays of any dimension, including 1D.
-It provides multi-dimensional indexing via `operator[]` chaining (e.g., `x[i][j][k]`) and element-wise arithmetic operations.
-The element type (Var, Expr, integer, etc.) is determined internally and does not need to be specified as a template parameter.
+## Arrays
+QUBO++ provides a multi-dimensional array type whose number of dimensions and element type (`qbpp::Var`, `qbpp::Expr`, `qbpp::Term`, `qbpp::VarInt`, or the integer coefficient type) are fixed at compile time.
+In practice you rarely need to spell out the array type by hand: the factory functions and `auto` type deduction pick the right instantiation, and the compiler checks that operations (element-wise `+`, `-`, `*`, assignment, …) are consistent with the declared element type.
+Arrays provide multi-dimensional indexing via `operator[]` chaining (e.g., `x[i][j][k]`) and element-wise arithmetic operations.
 
 Arrays are created using the following factory functions:
-- **`qbpp::var("name", s1, s2, ...)`**: Array of binary variables.
-- **`qbpp::expr(s1, s2, ...)`**: Array of zero-initialized expressions.
-- **`qbpp::int_array({v1, v2, ...})`**: Array of integer constants.
-- **`qbpp::int_array(s1, s2, ...)`**: Zero-initialized integer array with given shape.
+- **`qbpp::var("name", s1, s2, ...)`**: multi-dimensional array of binary variables.
+- **`qbpp::expr(s1, s2, ...)`**: multi-dimensional array of zero-initialized expressions.
+- **`qbpp::array({v1, v2, ...})`**: 1D array of integer constants.
+- **`qbpp::array(s1, s2, ...)`**: zero-initialized multi-dimensional integer array with given shape.
+- **`l <= qbpp::var_int("name", s1, s2, ...) <= u`**: multi-dimensional array of integer variables.
 
-The `qbpp::Array` class provides the following member functions:
+Arrays provide the following member functions:
 - **`size()`**: Returns the size of the outermost dimension.
 - **`total()`**: Returns the total number of elements.
-- **`ndim()`**: Returns the number of dimensions.
+- **`ndim()`**: Returns the number of dimensions (equal to `Dim`).
+- **`shape(d)`**: Returns the size of dimension `d`.
 - **`empty()`**: Returns `true` if the array has no elements.
-- **`operator[]`**: Returns an element (1D) or a sub-array proxy (multi-dimensional).
+- **`operator[]`**: Returns an element (when `Dim == 1`) or a sub-array (when `Dim > 1`).
 - **`begin()`** / **`end()`**: Iterators for range-based `for` loops.
 
-In addition, `qbpp::Array` supports the following operators for element-wise operations:
+> **NOTE — element type and arithmetic results**
+> Arithmetic promotes the element type the same way scalar expressions do: a variable array plus `1` produces an expression array, the element-wise product of two variable arrays produces an array of terms, and so on. Compound assignments such as `+=`, `-=`, `*=` keep the left-hand side's element type fixed, so adding `1` to a variable array with `+=` is a compile-time error — use `auto f = x + 1;` to obtain an expression array instead.
+
+In addition, arrays support the following operators for element-wise operations:
 - **`+`**: Element-wise addition of two arrays, or an array and a scalar.
 - **`-`**: Element-wise subtraction of two arrays, or an array and a scalar.
 - **`*`**: Element-wise multiplication of two arrays, or an array and a scalar.

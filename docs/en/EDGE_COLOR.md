@@ -98,7 +98,7 @@ int main() {
   auto x = qbpp::var("x", s, m);
 
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
-  auto different = qbpp::Expr(0);
+  auto different = qbpp::toExpr(0);
   for (size_t i = 0; i < n; ++i) {
     for (auto u : adj[i]) {
       for (auto v : adj[i]) {
@@ -112,7 +112,7 @@ int main() {
   auto f = onehot + different;
 
   f.simplify_as_binary();
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
 
   std::cout << "colors = " << m << std::endl;
@@ -159,5 +159,5 @@ different = 0
 ```
 Therefore, a valid edge coloring using `m = 6` colors is found:
 <p align="center">
-  <img src="images/edge_color.svg" alt="The solution of the graph coloring problem." width="80%">
+  <img src="../images/edge_color.svg" alt="The solution of the graph coloring problem." width="80%">
 </p>

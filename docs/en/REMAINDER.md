@@ -61,7 +61,7 @@ int main() {
   auto f = x + 1000 * (c3 + c5 + c7);
   f.simplify_as_binary();
 
-  auto solver = qbpp::easy_solver::EasySolver(f);
+  auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "x = " << sol(x) << std::endl;

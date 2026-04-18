@@ -232,7 +232,7 @@ $2^d$ where $d$ is the maximum degree of all terms, so that all coefficients bec
 As with `spin_to_binary()`, both global and member function variants of `binary_to_spin()` are provided.
 
 ## Slice Functions: `slice()`, `head()`, `tail()`, `row()`, `col()`
-The slice functions extract sub-arrays from a `qbpp::Array`.
+The slice functions extract sub-arrays from an array.
 
 ### Range Slice: `slice()`, `head()`, `tail()`
 
@@ -300,4 +300,63 @@ The scalar is implicitly converted to `qbpp::Expr`.
 auto x = qbpp::var("x", 4);
 auto diff = qbpp::concat(1, x) - qbpp::concat(x, 0);
 // diff = {1-x[0], x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-0}
+```
+
+## Term Member Functions
+
+The following member functions of `qbpp::Term` provide read-only access to the internal structure of a term.
+
+| Expression | Return Type | Description |
+|------------|-------------|-------------|
+| `t.coeff()` | `coeff_t` | Return the coefficient |
+| `t.degree()` | `uint32_t` | Return the degree (number of variables) |
+| `t.var(i)` | `qbpp::Var` | Return the `i`-th variable |
+| `t.has(v)` | `bool` | Return `true` if `Var` `v` appears in the term |
+
+### Example
+```cpp
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+auto z = qbpp::var("z");
+qbpp::Term t = 3 * x * y;
+
+t.coeff();    // 3
+t.degree();   // 2
+t.var(0);     // x
+t.var(1);     // y
+t.has(x);     // true
+t.has(z);     // false
+```
+
+## Expr Member Functions
+
+The following member functions of `qbpp::Expr` provide read-only access to the internal structure of an expression.
+
+| Expression | Return Type | Description |
+|------------|-------------|-------------|
+| `f.constant` | `energy_t` | Return the constant term |
+| `f.term_count()` | `size_t` | Return the number of terms (excluding the constant) |
+| `f.term_count(d)` | `size_t` | Return the number of terms of degree `d` |
+| `f.term(i)` | `qbpp::Term` | Return a copy of the `i`-th term |
+| `f.max_degree` | `uint32_t` | Return the maximum degree of all terms |
+| `f.has(v)` | `bool` | Return `true` if `Var` `v` appears in the expression |
+| `f.has(vi)` | `bool` | Return `true` if all variables of `VarInt` `vi` appear in the expression |
+
+### Example
+```cpp
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = qbpp::simplify(3 * x + 2 * x * y + 5);
+// f = 5 + 3*x + 2*x*y
+
+f.constant;          // 5
+f.term_count();        // 2
+f.term(0);             // 3*x
+f.term(1);             // 2*x*y
+f.term(1).coeff();     // 2
+f.term(1).var(0);      // x
+f.term(1).var(1);      // y
+f.max_degree;        // 2
+f.has(x);              // true
+f.has(y);              // true
 ```
