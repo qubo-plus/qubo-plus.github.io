@@ -86,7 +86,7 @@ clauses = [
 ]
 
 # バイナリ変数の作成
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 
 # NAE 制約: 全 True または全 False のときペナルティ
 constraint = 0

@@ -99,8 +99,8 @@ The lower and upper bounds $[l_i,u_i]$ are stored in the arrays `lower` and `upp
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
-  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
+  auto lower = qbpp::array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto v = lower <= qbpp::var_int("v", lower.size()) <= upper;
@@ -230,8 +230,8 @@ The following QUBO++ program solves the same ISSP instance using the QUBO formul
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto lower = qbpp::int_array({18, 17, 21, 18, 20, 14, 14, 23});
-  auto upper = qbpp::int_array({19, 17, 22, 19, 20, 16, 15, 25});
+  auto lower = qbpp::array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::array({19, 17, 22, 19, 20, 16, 15, 25});
   const int T = 100;
 
   auto a = 0 <= qbpp::var_int("a", lower.size()) <= (upper - lower);

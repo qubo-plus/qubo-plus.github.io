@@ -86,7 +86,7 @@ clauses = [
 ]
 
 # Create binary variables
-x = qbpp.var("x", n)
+x = qbpp.var("x", shape=n)
 
 # NAE constraint: penalty if all-true or all-false
 constraint = 0

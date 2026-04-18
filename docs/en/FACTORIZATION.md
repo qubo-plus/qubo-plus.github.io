@@ -48,7 +48,8 @@ int main() {
   auto q = 6 <= qbpp::var_int("q") <= 17;
 
   auto f = p * q == 35;
-  std::cout << "f = " << f.simplify_as_binary() << std::endl;
+  f.simplify_as_binary();
+  std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
@@ -60,7 +61,8 @@ int main() {
 ```
 {% endraw %}
 
-In this program, the expression `p * q == 35` is automatically converted into `qbpp::sqr(p * q - 35)`, which achieves an energy value of 0 when the equality is satisfied.
+In this program, the expression `p * q == 35` is automatically converted into `qbpp::sqr(p * q - 35)`, which achieves an energy value of 0 when the equality is satisfied. `f` is a `qbpp::ExprExpr` (a constraint object holding both the penalty and the original body `*f`); `f.simplify_as_binary()` simplifies the penalty and the body together in place.
+
 The output of this program is as follows:
 
 {% raw %}
@@ -93,7 +95,8 @@ int main() {
   auto q = 2 <= qbpp::var_int("q") <= qbpp::integer("2000000");
 
   auto f = p * q == qbpp::integer("1000039") * qbpp::integer("1000079");
-  std::cout << "f = " << f.simplify_as_binary() << std::endl;
+  f.simplify_as_binary();
+  std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});

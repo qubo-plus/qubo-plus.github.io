@@ -58,15 +58,13 @@ For example, an object `obj` in QUBO++ can be printed to `std::cout` as follows:
 ```cpp
 std::cout << obj << std::endl;
 ```
-This invokes either `obj.str()` or `str(obj)`, which returns a std::string
-containing a textual representation of obj.
 This design allows easy inspection of internal states without relying on a debugger.
 
 
 ## Variable classes
 - **`qbpp::Var`**:
   A class that holds a unique 32-bit integer ID.
-  The variable name is stored in a global registry and can be retrieved via `x.str()`.
+  The variable name is stored in a global registry and can be inspected via `std::cout << x`.
 
 
 > **NOTE**
@@ -81,28 +79,22 @@ The following functions are provided to create variables:
   Creates a `qbpp::Var` object with the given name `"name"`.
 
 - **`qbpp::var("name", s1)`**:
-  Creates a one-dimensional array of `qbpp::Var` objects with the base name `"name"`.
+  Creates a 1-dimensional variable array with the base name `"name"`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Array<1, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2)`**:
-  Creates a two-dimensional array (matrix) of `qbpp::Var` objects with the base name `"name"`.
+  Creates a 2-dimensional variable array (matrix) with the base name `"name"`.
   Each element is represented as `name[i][j]`.
-  The resulting type is `qbpp::Array<2, qbpp::Var>`.
 
 - **`qbpp::var("name", s1, s2, ...)`**:
-  Creates a higher-dimensional array of `qbpp::Var` objects with the base name `"name"`.
+  Creates an N-dimensional variable array with the base name `"name"`, where `N` is the number of dimensions.
   Each element is represented as `name[i][j]...`.
-  The resulting type is `qbpp::Array<N, qbpp::Var>` where `N` is the number of dimensions.
 
 > **NOTE**
 > If `"name"` is omitted, numbered names such as `"{0}"`, `"{1}"`, ... are automatically assigned in creation order.
 
 ## `qbpp::Var` member functions
 For a `qbpp::Var` instance `x`, the following member functions are available:
-
-- **`std::string x.str()`**:
-  Returns the name of `x`.
 
 - **`uint32_t x.index()`**:
   Returns the unique integer ID of `x`.
@@ -127,20 +119,16 @@ The following functions are provided to create integer variables:
   Internally, this also creates `qbpp::Var` objects used in the underlying expression.
 
 - **`l <= qbpp::var_int("name", s1) <= u`**:
-  Creates a one-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
+  Creates a 1-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  The resulting type is `qbpp::Array<1, qbpp::VarInt>`.
-  Higher-dimensional arrays (e.g., `qbpp::Array<2, qbpp::VarInt>`) can be created in the same way as `qbpp::Var` objects.
+  Higher-dimensional arrays of `qbpp::VarInt` can be created in the same way as `qbpp::Var` objects.
 
 ### Integer variable member functions
 For a `qbpp::VarInt` instance `x`, the following member functions are available:
 
 - **`std::string x.name()`**:
   Returns the name of `x`.
-
-- **`std::string x.str()`**:
-  Returns the string representation of the underlying expression.
 
 - **`energy_t x.min_val`**:
   Returns the minimum value `l` of `x`.

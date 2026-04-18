@@ -55,9 +55,12 @@ $\text{SEND}$、$\text{MORE}$、$\text{MONEY}$ の値は以下のように表現
 
 $$
 \begin{aligned}
-\text{SEND} &= \sum_{k=0}^9k(1000x_{I(S),k}+100x_{I(E),k}+10x_{I(N),k}+x_{I(D),k})\\
-\text{MORE} &= \sum_{k=0}^9k(1000x_{I(M),k}+100x_{I(O),k}+10x_{I(R),k}+x_{I(E),k})\\
-\text{MONEY} &= \sum_{k=0}^9k(10000x_{I(M),k}+ 1000x_{I(O),k}+100x_{I(N),k}+10x_{I(E),k}+x_{I(Y),k})
+\text{SEND} &= 1000\sum_{k=0}^9 kx_{I(S),k}+ 100\sum_{k=0}^9 kx_{I(E),k}+ 10\sum_{k=0}^9 kx_{I(N),k}+\sum_{k=0}^9 kx_{I(D),k}\\
+       &= \sum_{k=0}^9k(1000x_{I(S),k}+100x_{I(E),k}+10x_{I(N),k}+x_{I(D),k})\\
+\text{MORE} &= 1000\sum_{k=0}^9 kx_{I(M),k}+ 100\sum_{k=0}^9 kx_{I(O),k}+ 10\sum_{k=0}^9 kx_{I(R),k}+\sum_{k=0}^9 kx_{I(E),k}\\
+       &= \sum_{k=0}^9k(1000x_{I(M),k}+100x_{I(O),k}+10x_{I(R),k}+x_{I(E),k})\\
+\text{MONEY} &= 10000\sum_{k=0}^9 kx_{I(M),k}+1000\sum_{k=0}^9 kx_{I(O),k}+ 100\sum_{k=0}^9 kx_{I(N),k}+ 10\sum_{k=0}^9 kx_{I(E),k}+\sum_{k=0}^9 kx_{I(Y),k}\\
+       &= \sum_{k=0}^9k(10000x_{I(M),k}+ 1000x_{I(O),k}+100x_{I(N),k}+10x_{I(E),k}+x_{I(Y),k})
 \end{aligned}
 $$
 
@@ -81,6 +84,12 @@ f & = P\cdot (\text{onehot}+\text{different})+\text{equal}
 $$
 
 ここで `P` は実行可能性（`onehot` と `different`）を優先するための十分に大きな定数です。
+原理的には、すべての項が非負であり、各項がその制約が成り立つときにちょうど0になるならば、$f=0$ となる任意の解はすべての制約を満たします。
+実際には、より大きな `P` を選ぶことがヒューリスティックソルバーに有効なことが多いです。
+
+この場合、優先順位をつける必要はなく $P=1$ と設定できます。
+なぜなら $\text{equal}\geq 0$ が常に成り立ち、$f$ は $\text{onehot}=\text{different}=\text{equal}=0$ のときにのみ最小値0を取るからです。
+ただし、大きな定数 $P$ はソルバーが最適解を見つけるのに役立ちます。
 
 最後に、$\text{S}$ と $\text{M}$ は 0 であってはならないため、バイナリ変数を以下のように固定します:
 $$
@@ -89,6 +98,7 @@ $$
 
 ## SEND+MORE=MONEY の PyQBPP プログラム
 以下の PyQBPP プログラムは上記の QUBO 定式化を実装し、EasySolver を用いて解を求めます:
+{% raw %}
 ```python
 import pyqbpp as qbpp
 
@@ -98,7 +108,7 @@ L = len(LETTERS)
 def I(c):
     return LETTERS.index(c)
 
-x = qbpp.var("x", L, 10)
+x = qbpp.var("x", shape=(L, 10))
 
 onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 
@@ -144,16 +154,17 @@ print(f"{digit_str(val[I('S')])}{digit_str(val[I('E')])}{digit_str(val[I('N')])}
       f"{digit_str(val[I('M')])}{digit_str(val[I('O')])}{digit_str(val[I('R')])}{digit_str(val[I('E')])} = "
       f"{digit_str(val[I('M')])}{digit_str(val[I('O')])}{digit_str(val[I('N')])}{digit_str(val[I('E')])}{digit_str(val[I('Y')])}")
 ```
+{% endraw %}
 このプログラムでは、`LETTERS` が `"SENDMORY"` の各文字に整数インデックスを割り当て、$I(\alpha)$ を実装しています。
 `L`$\times$`10` のバイナリ変数行列 `x` を定義します（ここで $L=8$）。
 式 `onehot`、`different`、`equal` は定式化に従って計算され、ペナルティ重み `P` とともに1つの目的関数 `f` にまとめられます。
 
 辞書 `ml` を使って `x[I('S')][0]` と `x[I('M')][0]` を 0 に固定し、この置換を適用して縮約された式 `g` を作成します。
-ソルバーは `g` に対して実行され、得られた割り当て `sol` は固定値 `ml` と統合されて、元の目的関数 `f` に対する `full_sol` が生成されます。
+ソルバーは `g` に対して実行され、得られた割り当て `sol` は固定値 `ml` と `qbpp.Sol(f).set([sol, ml])` によって統合され、元の目的関数 `f` に対する `full_sol` が生成されます。
 
-最後に、one-hot行を数字にデコードし、得られた解を出力します。
+最後に、`full_sol(x)` の各one-hot行を走査して値が1となるインデックス `k` を抽出（見つからない場合は `-1`）して数字にデコードし、得られた解を出力します。
 
-> **注:** C++版とは異なり、Pythonは任意精度の整数を持つため、`COEFF_TYPE=qbpp::int128_t` を指定する必要はありません。
+> **注意:** C++版とは異なり、Pythonは任意精度の整数を持つため、`INTEGER_TYPE_C128E128` を指定する必要はありません。
 
 このプログラムは以下の出力を生成します:
 ```

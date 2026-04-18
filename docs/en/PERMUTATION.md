@@ -73,8 +73,8 @@ int main() {
 ```
 {% endraw %}
 
-In this program, **`qbpp::var("x",4,4)`** returns a `qbpp::Array<2, qbpp::Var>` object
-of shape $\{4, 4\}$ named **`x`**.
+In this program, **`qbpp::var("x",4,4)`** returns a $4\times 4$ array of `Var`
+named **`x`**.
 For a `qbpp::Expr` object **`f`**, two double for-loops adds
 formulas for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.
@@ -110,9 +110,8 @@ Solution 23 : {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}
 ```
 {% endraw %}
 > **NOTE**
-> A matrix of binary variables is implemented as a multi-dimensional array using `qbpp::Array` class.
-> For example, `qbpp::var("x",4,4)` returns a `qbpp::Array<2, qbpp::Var>` object with shape {4,4}.
-> Each `qbpp::Var` object is represented as `x[i][j]` and the value of `x[i][j]` for `sol` can be obtained by either `sol(x[i][j])` or `x[i][j](sol)`.
+> `qbpp::var("x",4,4)` creates a $4\times 4$ array of binary variables.
+> Each element is accessed as `x[i][j]`, and its value in a solution `sol` can be obtained by either `sol(x[i][j])` or `x[i][j](sol)`.
 
 
 ## QUBO formulation for a permutation matrix using array functions and operations
@@ -220,7 +219,7 @@ Here, $P$ is a sufficiently large positive constant that prioritizes the permuta
 
 ## QUBO++ program for the assignment problem
 We are now ready to design a QUBO++ program for the assignment problem.
-In this program, a fixed matrix $C$ of size $4\times4$ is given as a `qbpp::Array`.
+In this program, a fixed matrix $C$ of size $4\times4$ is given as an array of integer constants.
 The formulas for $f(X)$ and $g(X)$ are defined using array functions and operations.
 Here, `qbpp::vector_sum(x, 1) == 1` returns a QUBO expression that takes the minimum value 0 if the equality is satisfied.
 In fact, it returns the same QUBO expression as `qbpp::sqr(qbpp::vector_sum(x, 1) - 1)`.
@@ -233,7 +232,7 @@ and therefore `qbpp::sum(c * x)` returns `g(X)`.
 #include <qbpp/easy_solver.hpp>
 
 int main() {
-  auto c = qbpp::int_array({{58, 73, 91, 44}, {62, 15, 87, 39}, {78, 56, 23, 94}, {11, 85, 68, 72}});
+  auto c = qbpp::array({{58, 73, 91, 44}, {62, 15, 87, 39}, {78, 56, 23, 94}, {11, 85, 68, 72}});
   auto x = qbpp::var("x", 4, 4);
   auto f = qbpp::sum(qbpp::vector_sum(x, 1) == 1) +
            qbpp::sum(qbpp::vector_sum(x, 0) == 1);

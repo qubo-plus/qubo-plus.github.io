@@ -20,7 +20,7 @@ When accumulating terms in a loop, always use the compound assignment operator `
 
 ```python
 x = qbpp.var("x", shape=n)
-f = qbpp.Expr()
+f = qbpp.expr()
 
 # ❌ Slow: O(N²) — clones the entire expression on every iteration
 for i in range(n):
@@ -64,7 +64,7 @@ memory needed, avoiding all intermediate reallocations.
 x = qbpp.var("x", shape=n)
 
 # ❌ Slower: builds the expression incrementally, crossing the Python/C boundary each time
-f = qbpp.Expr()
+f = qbpp.expr()
 for i in range(n):
     f += x[i]
 
@@ -147,7 +147,7 @@ dramatically faster. For example:
 
 ```python
 x = qbpp.var("x")
-f = qbpp.Expr()
+f = qbpp.expr()
 for i in range(1, 100):
     f += i * x
 

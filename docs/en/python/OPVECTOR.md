@@ -9,14 +9,19 @@ hreflang_lang: "ja"
 ---
 
 # Basic Operators and Functions for Arrays
-Operators and functions for arrays operate element-wise.
+Basically, operators and functions for arrays operate element-wise.
+
 
 ## Basic operators for arrays
 The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for arrays of variables and expressions.
-These operators are applied element-wise.
 
-### Array--Scalar Operations
+In QUBO++, these operators are applied element-wise.
+
+### Array-Scalar Operations
 When you combine an array and a scalar, the scalar is applied to each element of the array.
+For example, if `x` is an array of size 3, then:
+- `2 * x` produces `{2*x[0], 2*x[1], 2*x[2]}`
+- `x + 1` produces `{x[0] + 1, x[1] + 1, x[2] + 1}`
 
 The following program illustrates this behavior:
 ```python
@@ -29,6 +34,9 @@ print("f =", f)
 for i in range(len(f)):
     print(f"f[{i}] =", f[i])
 ```
+This program creates an array `x = {x[0], x[1], x[2]}` of binary variables.
+Then `2 * x` multiplies each element by `2`, and `+ 1` adds `1` to each element, so `f` becomes:
+`{1 + 2*x[0], 1 + 2*x[1], 1 + 2*x[2]}`.
 This program produces the following output:
 ```
 f = {1 +2*x[0],1 +2*x[1],1 +2*x[2]}
@@ -37,9 +45,10 @@ f[1] = 1 +2*x[1]
 f[2] = 1 +2*x[2]
 ```
 
-### Array--Array Operations
-When you combine two arrays of the same size, the operation is performed element-wise.
+### Array-Array Operations
+When you combine two arrays of the same size, the operation is performed element-wise at each index.
 
+The following example uses two arrays `x` and `y`, both of size 3:
 ```python
 import pyqbpp as qbpp
 
@@ -51,16 +60,63 @@ print("f =", f)
 for i in range(len(f)):
     print(f"f[{i}] =", f[i])
 ```
-This program produces the following output:
+Here:
+- `2 * x` becomes `{2*x[0], 2*x[1], 2*x[2]}`
+- `3 * y` becomes `{3*y[0], 3*y[1], 3*y[2]}`
+- adding them is element-wise, so the `i`-th element is `2*x[i] + 3*y[i]`
+- `+ 1` is again applied element-wise
+
+Therefore, `f` becomes: `{1 + 2*x[0] + 3*y[0], 1 + 2*x[1] + 3*y[1], 1 + 2*x[2] + 3*y[2]}`
+which matches the output:
 ```
 f = {1 +2*x[0] +3*y[0],1 +2*x[1] +3*y[1],1 +2*x[2] +3*y[2]}
 f[0] = 1 +2*x[0] +3*y[0]
 f[1] = 1 +2*x[1] +3*y[1]
 f[2] = 1 +2*x[2] +3*y[2]
 ```
+Array-array operations require the same array size.
+
+The next example demonstrates a more complex element-wise expression involving array-scalar operations, array-array operations, unary minus, and parentheses:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", shape=3)
+y = qbpp.var("y", shape=3)
+f = 6 * -(x + 1) * (y - 1)
+g = f / 3
+
+print("f =", f)
+for i in range(len(x)):
+    print(f"f[{i}] =", f[i])
+
+print("g =", g)
+for i in range(len(x)):
+    print(f"g[{i}] =", g[i])
+```
+In this example, all operations are still applied element-wise.
+
+- First, `x + 1` and `y - 1` add/subtract the scalar to/from each element, producing two arrays
+`{x[i]+1}` and `{y[i]-1}`.
+- The unary minus -(x + 1) also works element-wise, so it becomes `{-(x[i]+1)}`.
+- The multiplication `6 * -(x + 1) * (y - 1)` is then performed element-wise as well, so for each index `i`, `f[i]=6*(-(x[i]+1))*(y[i]-1)`.
+Expanding this expression yields `f[i]=6-6x[i]y[i]+6x[i]-6y[i]`, which matches the printed form in the output.
+- Finally, `g = f / 3` divides each element by 3, so `g[i]=f[i]/3=2-2x[i]y[i]+2x[i]-2y[i]`,
+again matching the output.
+```
+f = {6 -6*x[0]*y[0] +6*x[0] -6*y[0],6 -6*x[1]*y[1] +6*x[1] -6*y[1],6 -6*x[2]*y[2] +6*x[2] -6*y[2]}
+f[0] = 6 -6*x[0]*y[0] +6*x[0] -6*y[0]
+f[1] = 6 -6*x[1]*y[1] +6*x[1] -6*y[1]
+f[2] = 6 -6*x[2]*y[2] +6*x[2] -6*y[2]
+g = {2 -2*x[0]*y[0] +2*x[0] -2*y[0],2 -2*x[1]*y[1] +2*x[1] -2*y[1],2 -2*x[2]*y[2] +2*x[2] -2*y[2]}
+g[0] = 2 -2*x[0]*y[0] +2*x[0] -2*y[0]
+g[1] = 2 -2*x[1]*y[1] +2*x[1] -2*y[1]
+g[2] = 2 -2*x[2]*y[2] +2*x[2] -2*y[2]
+```
 
 ## Compound operators for arrays
-The compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** also work element-wise for arrays:
+Similarly, the compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** work for arrays of variables and expressions.
+The following example demonstrates how these operators work for an array of size 3:
 ```python
 import pyqbpp as qbpp
 
@@ -85,52 +141,45 @@ f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[
 f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
 ```
 
-## Square function for arrays
-The square function also works element-wise for arrays:
+## Square functions for arrays
+Square functions also work for arrays, as demonstrated below:
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=3)
-f = qbpp.sqr(x + 1)
+f = x + 1
 
+print("f =", qbpp.sqr(f))
+print("f =", f)
+f.sqr()
 print("f =", f)
 ```
 This program produces the following output:
 ```
 f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
+f = {1 +x[0],1 +x[1],1 +x[2]}
+f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
 ```
 
 ## Simplify functions for arrays
-Simplify functions also work element-wise for arrays:
+Simplify functions also work for arrays, as demonstrated below:
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=3)
 f = qbpp.sqr(x - 1)
 print("f =", f)
-print("qbpp.simplify(f) =", qbpp.simplify(f))
-print("qbpp.simplify_as_binary(f) =", qbpp.simplify_as_binary(f))
-print("qbpp.simplify_as_spin(f) =", qbpp.simplify_as_spin(f))
+print("simplified(f) =", qbpp.simplify(f))
+print("simplified_as_binary(f) =", qbpp.simplify_as_binary(f))
+print("simplified_as_spin(f) =", qbpp.simplify_as_spin(f))
 ```
 This program produces the following output:
 ```
 f = {1 +x[0]*x[0] -x[0] -x[0],1 +x[1]*x[1] -x[1] -x[1],1 +x[2]*x[2] -x[2] -x[2]}
-simplify(f) = {1 -2*x[0] +x[0]*x[0],1 -2*x[1] +x[1]*x[1],1 -2*x[2] +x[2]*x[2]}
-simplify_as_binary(f) = {1 -x[0],1 -x[1],1 -x[2]}
-simplify_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
+simplified(f) = {1 -2*x[0] +x[0]*x[0],1 -2*x[1] +x[1]*x[1],1 -2*x[2] +x[2]*x[2]}
+simplified_as_binary(f) = {1 -x[0],1 -x[1],1 -x[2]}
+simplified_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}
 ```
 
 > **NOTE**
 > These operators and functions also work for **multi-dimensional arrays**.
-
-## Axis-wise Sum: **`sum(axis)`**
-The method **`sum(axis)`** sums elements along the specified axis, reducing the dimension by one.
-Calling **`sum()`** with no argument sums all elements to a scalar `Expr`:
-```python
-import pyqbpp as qbpp
-
-x = qbpp.var("x", shape=(3, 4))
-col_sums = x.sum(0)          # shape (4,)
-e = col_sums.sum()           # scalar Expr (sum of all elements)
-print("e =", e)
-```

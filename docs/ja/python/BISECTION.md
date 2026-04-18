@@ -69,7 +69,7 @@ edges = [
 ]
 M = len(edges)
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 # 目的関数: カットを横断する辺の数
 objective = 0
@@ -101,3 +101,30 @@ constraint = 0
 ```
 
 ソルバーは横断辺が 6 本のみの均等分割を見つけます。
+
+## matplotlib による可視化
+
+以下のコードは `matplotlib` と `networkx` を用いて最小グラフ二分割の解を可視化します：
+
+```python
+import matplotlib.pyplot as plt
+import networkx as nx
+
+G = nx.Graph()
+G.add_nodes_from(range(N))
+G.add_edges_from(edges)
+pos = nx.spring_layout(G, seed=42)
+
+colors = ["#e74c3c" if sol(x[i]) == 1 else "#3498db" for i in range(N)]
+edge_colors = ["#e74c3c" if sol(x[u]) != sol(x[v]) else "#cccccc"
+               for u, v in edges]
+edge_widths = [2.5 if sol(x[u]) != sol(x[v]) else 1.0
+               for u, v in edges]
+nx.draw(G, pos, with_labels=True, node_color=colors, node_size=400,
+        font_size=9, edge_color=edge_colors, width=edge_widths)
+plt.title("Minimum Graph Bisection")
+plt.savefig("bisection.png", dpi=150, bbox_inches="tight")
+plt.show()
+```
+
+2つの均等な分割は赤と青で表示されます。カット辺（分割を横切る辺）は赤でハイライトされます。

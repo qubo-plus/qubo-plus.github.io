@@ -14,19 +14,18 @@ PyQBPP supports arrays of variables and array operations.
 
 ## Defining array of variables
 An array of binary variables can be created using the **`var()`** function.
-- **`var("name", shape=size)`** returns an `Array` of `size` variables with the given `name`.
+- **`var("name", shape=size)`** returns an array of `size` variables with the given `name`.
 
 The following program defines an array of 5 variables with the name **`x`**.
 By printing `x`, we can confirm that it contains the 5 variables **`x[0]`**, **`x[1]`**, **`x[2]`**, **`x[3]`**, and **`x[4]`**.
-Next, using the **`expr()`** function, we create an **`Expr`** object **`f`** whose initial value is `0`.
-In the for-loop from `i = 0` to `4`, each variable `x[i]` is added to `f` using the compound operator **`+=`**.
+Next, we start with `f = 0` and in the for-loop from `i = 0` to `4`, each variable `x[i]` is added to `f` using the compound operator **`+=`**.
 Finally, `f` is simplified and printed.
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=5)
 print(x)
-f = qbpp.expr()
+f = 0
 for i in range(5):
     f += x[i]
 print("f =", f.simplify_as_binary())
@@ -36,10 +35,6 @@ The output of this program is as follows:
 [x[0], x[1], x[2], x[3], x[4]]
 f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```
-
-> **NOTE**
-> **`var(name, shape=size)`** returns an **`Array`** object that contains `size` elements of type `Var`.
-> The **`Array`** class provides overloaded operators that support element-wise operations.
 
 ## Sum function
 Using the utility function **`sum()`**, you can obtain the sum of an array of binary variables.

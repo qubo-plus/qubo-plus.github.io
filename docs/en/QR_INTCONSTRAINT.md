@@ -27,8 +27,7 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 | Syntax | Result |
 |---|---|
 | `l <= qbpp::var_int("x") <= u` | `VarInt` (range `[l, u]`) |
-| `l <= qbpp::var_int("x", s1, s2, ...) <= u` | `Array<Dim, VarInt>` |
-| `qbpp::between(qbpp::var_int("x"), l, u)` | `VarInt` (function form) |
+| `l <= qbpp::var_int("x", s1, s2, ...) <= u` | multi-dimensional `VarInt` array |
 
 ### Allowed operations / functions
 
@@ -43,7 +42,8 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 | Metadata members | `vi.name()`, `vi.min_val()`, `vi.max_val()` | various | read-only |
 | Structure members | `vi.var_count()`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | various | read-only |
 | Array accessors | `vi.vars()`, `vi.coeffs()` | `Array<1, ...>` | read-only |
-| Expr access | `vi.expr()`, `vi.str()` | `Expr` / `string` | clones |
+| Expr access | `Expr(vi)` (decay) | `Expr` | clones |
+| In-place simplify | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()` | `VarInt&` | Expr part only (metadata unchanged) |
 | Assignment | `vi = other_vi` | `VarInt&` | same type only |
 
 ### Disallowed operations / functions
@@ -51,11 +51,9 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 | Category | Example | Result |
 |---|---|---|
 | Compound assignment | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi /= 2` | **compile error** (`= delete`) |
-| In-place mutator methods | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()`, `vi.sqr()` | **compile error** (`= delete`) |
+| Square | `vi.sqr()` | **compile error** (`= delete`; use `qbpp::sqr(vi)`) |
 | Replace | `vi.replace(ml)` | **error** |
 | Expr assignment | `vi = some_expr` | **compile error** (type mismatch) |
-
-→ Use the **global functions** (`qbpp::simplify_as_binary(vi)` etc.) instead.
 
 ---
 
@@ -67,7 +65,6 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 |---|---|---|
 | `f == n` | `ExprExpr` | penalty = `sqr(f - n)`, body = `f` |
 | `l <= f <= u` | `ExprExpr` | penalty = `(f-a)(f-(a+1))` (a is slack), body = `f` |
-| `qbpp::between(f, l, u)` | `ExprExpr` | same as above (function form) |
 
 `f` is any non-integer `ExprType` (`Var`, `Term`, `Expr`, `VarInt`).
 
@@ -79,8 +76,9 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 | Arithmetic (RHS Expr-like) | `ee + 1`, `ee * 2`, `ee + x` | `Expr` | decay → Expr op |
 | Arithmetic (RHS ExprExpr) | `ee1 + ee2`, `ee * ee` | `Expr` | Both sides decay (penalty + penalty) |
 | Global functions | `qbpp::sqr(ee)`, `qbpp::simplify_as_binary(ee)`, `qbpp::replace(ee, ml)` | `Expr` | applied to penalty, returns new `Expr` |
-| Member accessors | `ee.penalty()`, `ee.body()`, `ee.str()` | `Expr` / `string` | clones |
-| Evaluation by Sol | `sol(ee)` (evaluate penalty), `sol(ee.body())` (evaluate body) | `coeff_t` | for constraint verification |
+| Member accessors | `*ee` (body), `Expr(ee)` (penalty) | `Expr` | clones |
+| Evaluation by Sol | `sol(ee)` (evaluate penalty), `sol(*ee)` (evaluate body) | `coeff_t` | for constraint verification |
+| In-place simplify | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()` | `ExprExpr&` | simplifies penalty and body together |
 | Assignment | `ee = other_ee` | `ExprExpr&` | same type only |
 
 ### Disallowed operations / functions
@@ -88,13 +86,11 @@ Integer variables (`qbpp::VarInt`) and constraints (`qbpp::ExprExpr`) are **two 
 | Category | Example | Result |
 |---|---|---|
 | Compound assignment | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee /= 2` | **compile error** (`= delete`) |
-| In-place mutator methods | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()`, `ee.sqr()` | **compile error** (`= delete`) |
-| Replace | `ee.replace(ml)` | **compile error** (`= delete`) |
+| Square | `ee.sqr()` | **compile error** (`= delete`; use `qbpp::sqr(ee)`) |
+| Replace | `ee.replace(ml)` | **compile error** (`= delete`; use `qbpp::replace(ee, ml)`) |
 | Expr assignment | `ee = some_expr` | **compile error** (type mismatch) |
 
-→ Use the **global functions** instead (`qbpp::simplify_as_binary(ee)` etc. return an `Expr`, leaving `ee` untouched).
-
-> **Note on Python**: Python instead silent-rebinds for `+=` (the variable becomes `Expr`) and raises `TypeError` for methods. See [Differences between QUBO++ (C++) and PyQBPP (Python)](CPP_VS_PYTHON) for details.
+> **Note on Python**: Python instead silent-rebinds for `+=` (the variable becomes `Expr`). See [Differences between QUBO++ (C++) and PyQBPP (Python)](CPP_VS_PYTHON) for details.
 
 ---
 
@@ -109,7 +105,6 @@ The principal global functions that accept `VarInt` / `ExprExpr`. **All return a
 | `qbpp::simplify_as_binary(x)` | `Expr` | binary (0/1) simplification |
 | `qbpp::simplify_as_spin(x)` | `Expr` | spin (±1) simplification |
 | `qbpp::replace(x, ml)` | `Expr` | variable substitution |
-| `qbpp::between(x, l, u)` | `ExprExpr` | range constraint (same as `l <= x <= u`) |
 
 The argument `x` may be `Var`, `Term`, `Expr`, `VarInt`, or `ExprExpr` (decays internally to `Expr`).
 
@@ -117,9 +112,9 @@ The argument `x` may be `Var`, `Term`, `Expr`, `VarInt`, or `ExprExpr` (decays i
 
 ## 4. Array variants
 
-`qbpp::Array<Dim, VarInt>` and `qbpp::Array<Dim, ExprExpr>` follow the same rules:
+Multi-dimensional arrays of `VarInt` and `ExprExpr` follow the same rules:
 - **Each element is immutable**
-- **Arithmetic decays each element to `Expr`** → result is `Array<Dim, Expr>`
+- **Arithmetic decays each element to `Expr`** → result is an array of `Expr`
 - **No in-place mutators**, use global functions instead
 
 ```cpp
@@ -134,7 +129,7 @@ auto onehot = (rows == 1);                     // Array<1, ExprExpr>
 auto penalty = qbpp::sum(onehot);              // Expr (sum of all constraint penalties)
 ```
 
-Per-element `body` access: `arr[i].body()`.
+Per-element `body` access: `*arr[i]`.
 
 ---
 

@@ -130,16 +130,16 @@ int main() {
   std::cout << "y = " << y << " = " << sol(y) << std::endl;
   std::cout << "f = " << f << " = " << sol(f) << std::endl;
   std::cout << "g = " << g << " = " << sol(g) << std::endl;
-  std::cout << "f.body() = " << f.body() << " = " << sol(f.body()) << std::endl;
-  std::cout << "g.body() = " << g.body() << " = " << sol(g.body()) << std::endl;
+  std::cout << "*f = " << *f << " = " << sol(*f) << std::endl;
+  std::cout << "*g = " << *g << " = " << sol(*g) << std::endl;
 }
 ```
 
 > **NOTE — `qbpp::VarInt` and `qbpp::ExprExpr` are immutable**
 > `qbpp::var_int(...)` produces a `qbpp::VarInt`, and any constraint expression like
 > `x + y == 10` produces a `qbpp::ExprExpr`. **Both types do not support in-place
-> modification.** Operations such as `vi += 1`, `ee.simplify_as_binary()`,
-> `ee.replace(ml)` are compile-time errors. The only way to overwrite a `VarInt`
+> modification.** Operations such as `vi += 1`, `ee.replace(ml)`,
+> `ee.sqr()` are compile-time errors (`ee.simplify_as_binary()` is supported in-place). The only way to overwrite a `VarInt`
 > or `ExprExpr` variable is to assign another `VarInt` / `ExprExpr` to it
 > (`vi = other_vi`, `ee = other_ee`).
 >
@@ -157,7 +157,7 @@ int main() {
 > ```
 >
 > The original `ExprExpr` constraints `f` and `g` are still intact so you can
-> inspect them via `f.body()` / `g.body()` after solving.
+> inspect them via `*f` / `*g` after solving.
 {% endraw %}
 First, `qbpp::VarInt` objects **`x`** and **`y`** are defined with the range $[0,10]$.
 A `qbpp::Expr` object **`f`** is created to represent the constraint **`x + y == 10`**.
@@ -166,12 +166,12 @@ Similarly, **`g`** represents the constraint **`2 * x + 4 * y == 28`**.
 The combined expression **`h = f + g`** encodes both equations.
 An Easy Solver instance is created with `h`, and the target energy is set to `0`, since the optimal solution satisfies all constraints.
 Calling `search()` returns a `qbpp::Sol` object sol that stores the optimal assignment of all binary variables.
-Finally, the program prints the values of `sol`, `sol(x)`, `sol(y)`, `sol(f)`, `sol(g)`, `sol(f.body())`, and `sol(g.body())`.
+Finally, the program prints the values of `sol`, `sol(x)`, `sol(y)`, `sol(f)`, `sol(g)`, `sol(*f)`, and `sol(*g)`.
 Here,
 - **`f`**: The penalty expression enforcing `x + y = 10`. Thus `sol(f) = 0` if and only if the equation is satisfied.
-- **`f.body()`**: The linear expression `x + y`. Thus `sol(f.body())` returns the actual evaluated value of `x + y`.
+- **`*f`**: The linear expression `x + y`. Thus `sol(*f)` returns the actual evaluated value of `x + y`.
 
-The same applies to **`g`** and **`g.body()`**.
+The same applies to **`g`** and **`*g`**.
 
 The program outputs the following result:
 
@@ -182,12 +182,12 @@ x = x[0] +2*x[1] +4*x[2] +3*x[3] = 6
 y = y[0] +2*y[1] +4*y[2] +3*y[3] = 4
 f = 100 -19*x[0] -36*x[1] -64*x[2] -51*x[3] -19*y[0] -36*y[1] -64*y[2] -51*y[3] +4*x[0]*x[1] +8*x[0]*x[2] +6*x[0]*x[3] +2*x[0]*y[0] +4*x[0]*y[1] +8*x[0]*y[2] +6*x[0]*y[3] +16*x[1]*x[2] +12*x[1]*x[3] +4*x[1]*y[0] +8*x[1]*y[1] +16*x[1]*y[2] +12*x[1]*y[3] +24*x[2]*x[3] +8*x[2]*y[0] +16*x[2]*y[1] +32*x[2]*y[2] +24*x[2]*y[3] +6*x[3]*y[0] +12*x[3]*y[1] +24*x[3]*y[2] +18*x[3]*y[3] +4*y[0]*y[1] +8*y[0]*y[2] +6*y[0]*y[3] +16*y[1]*y[2] +12*y[1]*y[3] +24*y[2]*y[3] = 0
 g = 784 -108*x[0] -208*x[1] -384*x[2] -300*x[3] -208*y[0] -384*y[1] -640*y[2] -528*y[3] +16*x[0]*x[1] +32*x[0]*x[2] +24*x[0]*x[3] +16*x[0]*y[0] +32*x[0]*y[1] +64*x[0]*y[2] +48*x[0]*y[3] +64*x[1]*x[2] +48*x[1]*x[3] +32*x[1]*y[0] +64*x[1]*y[1] +128*x[1]*y[2] +96*x[1]*y[3] +96*x[2]*x[3] +64*x[2]*y[0] +128*x[2]*y[1] +256*x[2]*y[2] +192*x[2]*y[3] +48*x[3]*y[0] +96*x[3]*y[1] +192*x[3]*y[2] +144*x[3]*y[3] +64*y[0]*y[1] +128*y[0]*y[2] +96*y[0]*y[3] +256*y[1]*y[2] +192*y[1]*y[3] +384*y[2]*y[3] = 0
-f.body() = x[0] +2*x[1] +4*x[2] +3*x[3] +y[0] +2*y[1] +4*y[2] +3*y[3] = 10
-g.body() = 2*x[0] +4*x[1] +8*x[2] +6*x[3] +4*y[0] +8*y[1] +16*y[2] +12*y[3] = 28
+*f = x[0] +2*x[1] +4*x[2] +3*x[3] +y[0] +2*y[1] +4*y[2] +3*y[3] = 10
+*g = 2*x[0] +4*x[1] +8*x[2] +6*x[3] +4*y[0] +8*y[1] +16*y[2] +12*y[3] = 28
 ```
 {% endraw %}
 
-Thus, we can confirm that the values of `x`, `y`, and the constraint expressions `f`, `g`, `f.body()`, and `g.body()` are consistent with the solution.
+Thus, we can confirm that the values of `x`, `y`, and the constraint expressions `f`, `g`, `*f`, and `*g` are consistent with the solution.
 
 > **WARNING**
 > QUBO++ supports the `==` operator only when the left-hand side is an expression and the right-hand side is an integer.

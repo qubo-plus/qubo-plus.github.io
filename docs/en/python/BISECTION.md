@@ -69,7 +69,7 @@ edges = [
 ]
 M = len(edges)
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 # Objective: number of edges crossing the cut
 objective = 0
@@ -101,3 +101,30 @@ constraint = 0
 ```
 
 The solver finds a balanced partition with only 6 edges crossing the cut.
+
+## Visualization using matplotlib
+
+The following code visualizes the Minimum Graph Bisection solution using `matplotlib` and `networkx`:
+
+```python
+import matplotlib.pyplot as plt
+import networkx as nx
+
+G = nx.Graph()
+G.add_nodes_from(range(N))
+G.add_edges_from(edges)
+pos = nx.spring_layout(G, seed=42)
+
+colors = ["#e74c3c" if sol(x[i]) == 1 else "#3498db" for i in range(N)]
+edge_colors = ["#e74c3c" if sol(x[u]) != sol(x[v]) else "#cccccc"
+               for u, v in edges]
+edge_widths = [2.5 if sol(x[u]) != sol(x[v]) else 1.0
+               for u, v in edges]
+nx.draw(G, pos, with_labels=True, node_color=colors, node_size=400,
+        font_size=9, edge_color=edge_colors, width=edge_widths)
+plt.title("Minimum Graph Bisection")
+plt.savefig("bisection.png", dpi=150, bbox_inches="tight")
+plt.show()
+```
+
+The two balanced partitions are shown in red and blue. Cut edges (crossing the partition) are highlighted in red.

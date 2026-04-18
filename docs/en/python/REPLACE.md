@@ -11,90 +11,146 @@ hreflang_lang: "ja"
 # Replace Functions
 
 PyQBPP provides the following replace function, which can be used to fix variable values in an expression:
-- **`replace(f, ml)`**: Returns a new expression in which variables are replaced according to the dict `ml`.
-- **`f.replace(ml)`**: Replaces variables in expression `f` in place.
+- **`qbpp.replace(f, ml)`**: Returns a new expression in which the variables in `f` are replaced according to the mapping `ml`.
+- **`f.replace(ml)`**: Replaces variables in expression `f` in place (mutates `f`).
 
-Here, `ml` is a Python dict mapping variables to expressions, where the expression can also be an integer value, e.g., `{x: 0, y: ~z}`.
+Here, `ml` is either a Python dict `{var: value, ...}` or a list of `(var, value)` tuples. The values may be integers, `Var`, `Term`, or `Expr`, e.g., `{x: 0, y: ~z}` or `[(x, 0), (y, ~z)]`.
 
 ## Using the replace function to fix variable values
-We explain the `replace()` function using the
-[partitioning problem](PARTITION).
-This program finds a partition of the numbers in a list into two subsets $P$ and $Q$ such that the difference between their sums is minimized.
+We explain the **`qbpp.replace()`** function using the
+[PyQBPP program for partitioning problem](PARTITION).
+This program finds a partition of the numbers in the following list **`w`** into two subsets $P$ and $Q$ ($=\overline{P}$) such that the difference between their sums is minimized:
+```python
+w = [64, 27, 47, 74, 12, 83, 63, 40]
+```
+We modify this partitioning problem so that 64 must belong to $P$ and 27 must belong to $Q$, ensuring that they are placed in distinct subsets.
 
-We modify this problem so that 64 must belong to $P$ and 27 must belong to $Q$:
+To enforce this constraint, the values of `x[0]` and `x[1]` are fixed to 1 and 0, respectively, using the `qbpp.replace()` function.
+
+The complete PyQBPP program is shown below:
 
 ```python
 import pyqbpp as qbpp
 
 w = [64, 27, 47, 74, 12, 83, 63, 40]
-x = qbpp.var("x", len(w))
-p = qbpp.sum([w[i] * x[i] for i in range(len(w))])
-q = qbpp.sum([w[i] * ~x[i] for i in range(len(w))])
+x = qbpp.var("x", shape=len(w))
+p = qbpp.sum(w * x)
+q = qbpp.sum(w * ~x)
 f = qbpp.sqr(p - q)
 f.simplify_as_binary()
 
 ml = {x[0]: 1, x[1]: 0}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
-
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set([sol, ml])
 
-print("energy =", full_sol.comp_energy())
-P = [w[i] for i in range(len(w)) if full_sol(x[i]) == 1]
-Q = [w[i] for i in range(len(w)) if full_sol(x[i]) == 0]
+print("sol =", sol)
+print("ml =", ml)
+print("full_sol =", full_sol)
+print("f(full_sol) =", f(full_sol))
+print("p(full_sol) =", p(full_sol))
+print("q(full_sol) =", q(full_sol))
+P = [w[i] for i in range(len(w)) if x[i](full_sol) == 1]
+Q = [w[i] for i in range(len(w)) if x[i](full_sol) == 0]
 print("P:", P)
 print("Q:", Q)
 ```
-In this program, a dict **`ml`** fixes `x[0]=1` (64 in $P$) and `x[1]=0` (27 in $Q$).
-The `replace()` function substitutes these values into `f`, and the Exhaustive Solver finds the optimal partition for the remaining variables.
 
-This program produces the following output:
+First, a dict **`ml`** is defined, which specifies fixed values for the variables `x[0]` and `x[1]`.
+Given the original expression `f` for the partitioning problem and the dict `ml`, the **`qbpp.replace()`** function is used to replace `x[0]` and `x[1]` in `f` with the constants 1 and 0, respectively.
+The resulting expression is stored in **`g`**.
+
+The Exhaustive Solver is then applied to `g` to find an optimal solution, which is stored in `sol`.
+Note that the expression `g` no longer contains the variables `x[0]` and `x[1]`, and consequently, `sol` also does not include assignments for these variables.
+
+To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set([sol, ml])`.
+
+From the output below, we can confirm that 64 is placed in $P$ and 27 is placed in $Q$, as intended:
+{% raw %}
 ```
-energy = 4
+sol = 4:{{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+ml = {x[0]: 1, x[1]: 0}
+full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+f(full_sol) = 4
+p(full_sol) = 206
+q(full_sol) = 204
 P: [64, 47, 12, 83]
 Q: [27, 74, 63, 40]
 ```
+{% endraw %}
 
 ## Using the replace function to replace variables with expressions
-The `replace()` function can also replace a variable with an expression.
+The `replace()` function can also replace a variable with an expression, not only with a constant value.
 
-For example, to ensure that 64 and 27 are placed in distinct subsets,
-we replace `x[0]` with `~x[1]` so they always take opposite values:
+Here, we present a more sophisticated way to ensure that 64 and 27 are placed in distinct subsets in the partitioning problem introduced above.
+The key idea is to replace the variable `x[0]` in the expression `f` with the negated literal `~x[1]`.
+This enforces the constraint that `x[0]` and `x[1]` always take opposite values, guaranteeing that the corresponding elements (64 and 27) belong to different subsets.
 
+The following PyQBPP program implements this idea:
 ```python
 ml = {x[0]: ~x[1]}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
-
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set([sol, ml])
+```
+In this program, a dict `ml` is defined so that the variable `x[0]` is replaced by the negated literal `~x[1]`.
 
-print("energy =", full_sol.comp_energy())
-P = [w[i] for i in range(len(w)) if full_sol(x[i]) == 1]
-Q = [w[i] for i in range(len(w)) if full_sol(x[i]) == 0]
-print("P:", P)
-print("Q:", Q)
-```
+The `qbpp.replace()` function applies this substitution to the original expression `f`, and the resulting expression is stored in `g`.
+As a result, `g` no longer contains the variable `x[0]`; instead, all occurrences of `x[0]` are replaced by `~x[1]`.
+
+The Exhaustive Solver is then used to find an optimal solution for `g`, which is stored in `sol`.
+Since `x[0]` does not appear in `g`, the solution `sol` also does not include an assignment for `x[0]`.
+
+To construct a complete solution over the original variables in `f`, we start with a zero-initialized solution via `qbpp.Sol(f)` and then populate it by calling `set([sol, ml])`.
+Note that `sol` and `ml` must be passed to `set()` together (as a list), because the mapping in `ml` (e.g., `x[0] = ~x[1]`) may depend on variable values contained in `sol`.
+
 This program produces the following output:
+{% raw %}
 ```
-energy = 4
+sol = 4:{{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+ml = {x[0]: ~x[1]}
+full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+f(full_sol) = 4
+p(full_sol) = 206
+q(full_sol) = 204
 P: [64, 47, 12, 83]
 Q: [27, 74, 63, 40]
 ```
+{% endraw %}
+We can confirm that:
+- the solution `sol` does not include `x[0]`,
+- `x[0]` and `x[1]` take opposite values, and
+- 64 and 27 are placed in distinct subsets, as intended.
 
-## Replace functions for integer variables
-Integer variables can be replaced with fixed integer values using the `replace()` function.
+## Replace Functions for Integer Variables
+Integer variables (`VarInt`) can be replaced with fixed integer values using the `replace()` function.
+When an integer variable is used as a key in the mapping, PyQBPP automatically expands it into its internal binary variables.
 
-Here, we demonstrate this feature using a simple **multiplication/factorization** example.
-Let $p$, $q$, and $r$ be integer variables with the constraint $p\times q - r = 0$.
+Here, we demonstrate this feature using a simple **multiplication expression**.
+Let $p$, $q$, and $r$ be integer variables, and consider the following constraint:
+
+$$
+\begin{aligned}
+p\times q - r &=0
+\end{aligned}
+$$
+
+This expression can be interpreted in several ways, leading to different types of problems:
+- **Multiplication**: For fixed values of $p$ and $q$, find $r$ that satisfies the expression.
+- **Factorization**: For a fixed value of $r$, find $p$ and $q$ that satisfy the expression.
+- **Division**: For fixed values of $p$ and $r$, find $q$ that satisfies the expression.
+
+Using the **`qbpp.replace()`** function, integer variables can be fixed to constant values.
+We demonstrate PyQBPP programs that solve these problems using `qbpp.replace()`.
 
 ### Multiplication
-Fix $p=5$ and $q=7$ to find $r=35$:
+The following program fixes $p=5$ and $q=7$ and finds the product $r=35$:
 ```python
 import pyqbpp as qbpp
 
@@ -107,6 +163,7 @@ f.simplify_as_binary()
 ml = {p: 5, q: 7}
 g = qbpp.replace(f, ml)
 g.simplify_as_binary()
+print("g =", g)
 
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
@@ -114,44 +171,84 @@ sol = solver.search(target_energy=0)
 full_sol = qbpp.Sol(f).set([sol, ml])
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
 ```
-This program produces the following output:
+In this program, a dict `ml` is used to fix the values of the integer variables
+`p` and `q` in the original expression `f`.
+By applying `qbpp.replace(f, ml)`, the variables `p` and `q` in `f` are replaced with the constants 5 and 7, respectively.
+The resulting expression is stored in `g`, which now contains only the variable `r`.
+The Easy Solver is then applied to `g`, and the resulting solution is stored in `sol`.
+To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set([sol, ml])`.
+Finally, the values of `p`, `q`, and `r` are printed.
+
+This program produces the following output, confirming that the multiplication result is obtained correctly:
 ```
+g = 1089 -65*r[0] -128*r[1] -248*r[2] -464*r[3] -800*r[4] -413*r[5] +4*r[0]*r[1] +8*r[0]*r[2] +16*r[0]*r[3] +32*r[0]*r[4] +14*r[0]*r[5] +16*r[1]*r[2] +32*r[1]*r[3] +64*r[1]*r[4] +28*r[1]*r[5] +64*r[2]*r[3] +128*r[2]*r[4] +56*r[2]*r[5] +256*r[3]*r[4] +112*r[3]*r[5] +224*r[4]*r[5]
 p=5, q=7, r=35
 ```
 
 ### Factorization
-Fix $r=35$ to find $p$ and $q$:
+For the factorization of $r=35$, the dict `ml` in the PyQBPP program is modified as follows:
 ```python
 ml = {r: 35}
-g = qbpp.replace(f, ml)
-g.simplify_as_binary()
-# ... same solver setup ...
+```
+By fixing the value of $r$, the solver searches for integer values of $p$ and $q$ that satisfy the constraint
+
+$$
+\begin{aligned}
+p\times q&=35
+\end{aligned}
+$$
+
+This program produces the following output:
+```
+g = 961 -120*p[0] -232*p[1] -336*p[2] -120*q[0] -232*q[1] -336*q[2] +16*p[0]*p[1] +24*p[0]*p[2] -45*p[0]*q[0] -80*p[0]*q[1] -105*p[0]*q[2] +48*p[1]*p[2] -80*p[1]*q[0] -136*p[1]*q[1] -168*p[1]*q[2] -105*p[2]*q[0] -168*p[2]*q[1] -189*p[2]*q[2] +16*q[0]*q[1] +24*q[0]*q[2] +48*q[1]*q[2] +20*p[0]*p[1]*q[0] +48*p[0]*p[1]*q[1] +84*p[0]*p[1]*q[2] +30*p[0]*p[2]*q[0] +72*p[0]*p[2]*q[1] +126*p[0]*p[2]*q[2] +20*p[0]*q[0]*q[1] +30*p[0]*q[0]*q[2] +60*p[0]*q[1]*q[2] +60*p[1]*p[2]*q[0] +144*p[1]*p[2]*q[1] +252*p[1]*p[2]*q[2] +48*p[1]*q[0]*q[1] +72*p[1]*q[0]*q[2] +144*p[1]*q[1]*q[2] +84*p[2]*q[0]*q[1] +126*p[2]*q[0]*q[2] +252*p[2]*q[1]*q[2] +16*p[0]*p[1]*q[0]*q[1] +24*p[0]*p[1]*q[0]*q[2] +48*p[0]*p[1]*q[1]*q[2] +24*p[0]*p[2]*q[0]*q[1] +36*p[0]*p[2]*q[0]*q[2] +72*p[0]*p[2]*q[1]*q[2] +48*p[1]*p[2]*q[0]*q[1] +72*p[1]*p[2]*q[0]*q[2] +144*p[1]*p[2]*q[1]*q[2]
+p=5, q=7, r=35
 ```
 
 ### Division
-Fix $p=5$ and $r=35$ to find $q=7$:
+To compute the division $r/p$ with $r=35$ and $p=5$, the dict `ml` in the PyQBPP program is modified as follows:
 ```python
 ml = {p: 5, r: 35}
-g = qbpp.replace(f, ml)
-g.simplify_as_binary()
-# ... same solver setup ...
 ```
+This program produces the following output:
+```
+g = 625 -225*q[0] -400*q[1] -525*q[2] +100*q[0]*q[1] +150*q[0]*q[2] +300*q[1]*q[2]
+p=5, q=7, r=35
+```
+This confirms that the division result $q=r/p=7$ is correctly obtained.
 
 > **NOTE**
-> - **`f.replace(ml)`** updates the expression `f` in place.
-> - **`replace(f, ml)`** returns a new expression without modifying the original.
+> PyQBPP also provides a member function version of `replace()` for expressions.
+> In other words:
+> - **`f.replace(ml)`** updates the expression `f` in place by applying the replacements specified in `ml`.
+> - **`qbpp.replace(f, ml)`** returns a new expression in which the replacements have been applied, without modifying the original expression `f`.
+> Use `f.replace(ml)` when you want to permanently modify an existing expression, and use `qbpp.replace(f, ml)` when you want to keep the original expression unchanged.
 
 > **NOTE: Using `replace()` with Terms**
-> Both `replace(t, ml)` and `t.replace(ml)` work with `Term` objects.
-> The `Term` is promoted to an `Expr`, and a new `Expr` is returned:
+> Both `qbpp.replace(t, ml)` and `t.replace(ml)` work with terms.
+> The term is promoted to an expression, and a new expression is returned:
 > ```python
 > t = ~a * b * ~c * ~d  # Term
 > e = t.replace({~a: 1 - a, ~c: 1 - c, d: 1 - d})  # returns Expr
 > ```
 
+> **NOTE: `replace()` on constraint expressions**
+> The member function `replace()` is **not** available on constraint expressions.
+> Use the free function form instead:
+> ```python
+> ee2 = qbpp.replace(ee, {x: 0, y: 1})  # works with a constraint expression
+> ```
+
+> **NOTE: Mapping as a list of tuples**
+> The mapping `ml` can also be supplied as a list of `(var, value)` tuples
+> instead of a dict:
+> ```python
+> ml = [(x[0], 1), (x[1], 0)]
+> g = qbpp.replace(f, ml)
+> ```
+
 > **NOTE: Negated literals and `replace()`**
 > The `replace()` function treats `x` and `~x` as independent keys.
-> Specifying `x: 0` in the dict does **not** automatically replace `~x` with `1`.
+> Specifying `{x: 0}` in the dict does **not** automatically replace `~x` with `1`.
 > If the expression contains negated literals such as `~x`, you should explicitly include both mappings:
 > ```python
 > ml = {x: 0, ~x: 1}

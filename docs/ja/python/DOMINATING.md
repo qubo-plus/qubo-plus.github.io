@@ -9,10 +9,10 @@ hreflang_lang: "en"
 ---
 
 # 最小支配集合問題
-無向グラフ $G=(V,E)$ の支配集合とは、すべてのノード $u\in V$ が $S$ に含まれるか、$S$ 内の頂点に隣接しているような部分集合 $S\subseteq V$ のことです。
+無向グラフ $G=(V,E)$ の支配集合とは、すべての頂点 $u\in V$ が $S$ に含まれるか、$S$ 中の頂点に隣接しているような部分集合 $S\subseteq V$ のことです。
 
-$N(u)=\lbrace v\in V\mid (u,v)\in E\rbrace$ を $u\in V$ の隣接ノード集合、$N[u]=\lbrace u\rbrace\cup N(u)$ を $u$ の閉近傍とします。
-このとき、$S$ が支配集合であることは以下と同値です：
+$N(u)=\lbrace v\in V\mid (u,v)\in E\rbrace$ を $u\in V$ の隣接頂点の集合、$N[u]=\lbrace u\rbrace\cup N(u)$ を $u$ の閉近傍とします。
+このとき、$S$ が支配集合であるための必要十分条件は
 
 $$
 \begin{aligned}
@@ -20,16 +20,22 @@ V = \bigcup_{u\in V} N[u].
 \end{aligned}
 $$
 
-最小支配集合問題は、最小の要素数を持つ支配集合を求める問題です。
+です。
+
+最小支配集合問題は、要素数が最小の支配集合を求める問題です。
+$n$ 頂点のグラフ $G=(V,E)$（頂点に $0,1,\ldots,n-1$ のラベルが付いている）に対して、$n$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{n-1}$ を導入します。ここで $x_i=1$ は頂点 $i$ が支配集合 $S$ に含まれる場合です。
+否定リテラル $\overline{x}_i$（$\overline{x}_i=1$ は $x_i=0$ のとき）を用いると、以下に示すようにHUBO制約の定式化が簡潔になります。
 
 ここでは2つの定式化を示します：
 - **HUBO定式化**: 高次の項を含む式を使用します。
 - **QUBO定式化**: 二次式ですが、補助変数を使用します。
 
 ## 最小支配集合問題のHUBO定式化
+各頂点 $i\in V$ に対して、以下の条件が満たされなければなりません:
+- ある $j\in N[i]$ に対して $x_j=1$（すなわち頂点 $i$ が支配されている）。
 
-各ノード $i\in V$ について、ノード $i$ が支配されていないのは $j\in N[i]$ のすべてについて $x_j=0$ のとき、すなわち $\prod_{j\in N[i]}\overline{x}_j=1$ のときのみです。
-したがって、制約を以下のように定義します：
+頂点 $i$ が支配されていないのは、すべての $j\in N[i]$ に対して $x_j=0$ のとき、すなわち $\prod_{j\in N[i]}\overline{x}_j=1$ のときのみです。
+したがって、制約を次のように定義します：
 
 $$
 \begin{aligned}
@@ -37,7 +43,9 @@ $$
 \end{aligned}
 $$
 
-目的関数は、選択されたノード数の最小化です：
+頂点 $i$ に対する項の次数は $\lvert N[i] \rvert$ であるため、制約は2次にならない場合があります。
+
+目的関数は、選択された頂点の数を最小化することです：
 
 $$
 \begin{aligned}
@@ -45,7 +53,7 @@ $$
 \end{aligned}
 $$
 
-最終的な式 $f$ は以下のとおりです：
+最終的に、式 $f$ は次のようになります：
 
 $$
 \begin{aligned}
@@ -53,7 +61,10 @@ f &= \text{objective} + (n+1)\times \text{constraint}
 \end{aligned}
 $$
 
+ペナルティ係数 $n+1$ は、目的関数の最小化よりも支配集合制約の充足を優先するための安全な値です。
+
 ## HUBO定式化のPyQBPPプログラム
+以下のPyQBPPプログラムは、$N=16$ 頂点のグラフに対する解を求めます：
 ```python
 import pyqbpp as qbpp
 
@@ -69,7 +80,7 @@ for u, v in edges:
     adj[u].append(v)
     adj[v].append(u)
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = qbpp.sum(x)
 
@@ -94,8 +105,10 @@ for i in range(N):
         print(f" {i}", end="")
 print()
 ```
-このプログラムは、まず辺リスト `edges` から隣接リスト `adj` を構築します。
-次に、HUBO定式化に従って `constraint`、`objective`、`f` を構築します。
+このプログラムは、まず辺リスト `edges` から隣接リスト `adj` を構築します。各 `adj[i]` には頂点 `i` の隣接頂点が格納されます。
+次に、HUBO定式化に従って `constraint`、`objective`、`f` を構成します。
+Easy Solver を `f` に適用して解 `sol` を求めます。
+`sol` に対する `objective` と `constraint` の値が出力され、続いて支配集合を構成する選択された頂点のリストが出力されます。
 
 このプログラムの出力は以下のとおりです：
 ```
@@ -104,8 +117,8 @@ constraint = 0
 ```
 
 ## QUBO定式化とPyQBPPプログラム
-ノード $i$ が支配されているとは、$N[i]\cap S$ が空でないことを意味します。
-この条件は以下の不等式と同値です：
+頂点 $i$ が支配されているとは、$N[i]\cap S$ が空でないことです。
+バイナリ変数 $x_i$（$x_j=1$ は頂点 $j$ が $S$ に含まれることを意味する）を用いると、この条件は以下の不等式と同値です：
 
 $$
 \begin{aligned}
@@ -113,10 +126,18 @@ $$
 \end{aligned}
 $$
 
-この制約はPyQBPPで以下のように記述できます：
-```python
-import pyqbpp as qbpp
+PyQBPPの記法では、ペナルティ式の和として支配集合制約を表現できます：
 
+$$
+\begin{aligned}
+\text{constraint} &= \sum_{i=0}^{n-1} \bigl(\sum_{j\in N[i]}x_j \geq 1\bigr)
+\end{aligned}
+$$
+
+目的関数と `f` はHUBO定式化と同様に定義できます。
+
+上記の制約はPyQBPPプログラムとして次のように記述できます：
+```python
 constraint = 0
 for i in range(N):
     t = x[i]
@@ -124,14 +145,22 @@ for i in range(N):
         t += x[j]
     constraint += qbpp.constrain(t, between=(1, len(adj[i]) + 1))
 ```
-このコードでは、`t` は式 $\sum_{j\in N[i]}x_j$ を格納し、`constrain()` 関数は $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$ のペナルティ式を生成します。この式は不等式が満たされている場合にのみ最小値0をとります。
+このコードでは、`t` に式
 
-### C++ QUBO++との比較
+$$
+\sum_{j\in N[i]}x_j
+$$
 
-| C++ QUBO++                  | PyQBPP                                |
-|-----------------------------|----------------------------------------|
-| `~x[i]`                    | `~x[i]`                               |
-| `1 <= t <= +qbpp::inf`     | `between(t, 1, upper_bound)`          |
+が格納され、`qbpp.constrain()` により
+
+$$
+1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1,
+$$
+
+に対するペナルティ式が生成されます。この式は不等式が満たされるときにのみ最小値0をとります。
+`f` を最小化することで、プログラムは最小支配集合を求めます。
+
+なお、PyQBPPの `between` には有限の上限値を明示的に指定する必要があります（C++版では `+qbpp::inf` を使用できます）。$\sum_{j\in N[i]}x_j$ は $|N[i]|$ を超えないため、$|N[i]|+1$ を上限とすれば十分です。
 
 ## matplotlibによる可視化
 以下のコードは支配集合の解を可視化します：

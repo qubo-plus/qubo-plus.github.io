@@ -44,11 +44,13 @@ def fa(a, b, i, o, s):
     return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
 ```
 The function `fa` returns an expression that enforces consistency between the input and output bits of a full adder.
+`qbpp.constrain(expr, equal=0)` returns a QUBO expression whose minimum value is 0 exactly when `expr == 0` holds, i.e., when the full adder is consistent.
 
 ### Adder
 Assume that lists `a`, `b`, and `s` represent integers.
 We assume that `a` and `b` each have `N` elements representing `N`-bit integers, while `s` has `N + 1` elements representing an `(N + 1)`-bit integer.
-The following function `adder` returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds:
+The following function `adder` returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds.
+Because `a`, `b`, and `s` may be containers of different element types (binary variables, expressions, or integer constants), no explicit type annotation is needed — Python's dynamic typing lets each call site pass whichever list or array it has:
 ```python
 def adder(a, b, s):
     N = len(a)
@@ -60,11 +62,14 @@ def adder(a, b, s):
     return qbpp.replace(f, ml)
 ```
 In this function, `c` is a vector of `N + 1` variables used to connect the carry-out and carry-in signals of the `fa` blocks, forming an `N`-bit ripple-carry adder.
+`qbpp.var(shape=N + 1)` creates an auto-named array of `N + 1` fresh binary variables (the name is generated internally so that repeated calls from different adder stages never collide).
+The final `qbpp.replace(f, ml)` pins `c[0]` to 0 (no carry-in) and binds `c[N]` to `s[N]` (the top bit of the sum is the final carry-out).
 
 ### Multiplier
 Assume that lists `x`, `y`, and `z` represent integers.
 We assume that `x` and `y` each have `N` elements and that `z` has `2 * N` elements.
 The following function `multiplier` returns a QUBO expression whose minimum value is 0 if and only if `x * y == z` holds.
+As with `adder`, the caller may pass any combination of variable arrays, expression lists, or integer constants — Python's dynamic typing handles the mixed element types transparently.
 ```python
 def multiplier(x, y, z):
     N = len(x)
@@ -91,14 +96,18 @@ def multiplier(x, y, z):
     f.simplify_as_binary()
     return f
 ```
-This function uses an `(N−1)×(N+1)` matrix `c` of variables to connect the `N−1` adders of `N` bits.
-Since each bit of `z` corresponds to one element of `c`, their correspondence is defined in the dict `ml`, and the replacements are performed using `replace()`.
+This function uses an `(N−1)×(N+1)` matrix `c` of binary variables (created by `qbpp.var("c", shape=(N - 1, N + 1))`) to connect the `N−1` adders of `N` bits.
+Each row `c[i]` carries the `(N+1)`-bit sum produced by the `i`-th adder stage, and that sum either feeds into the next adder stage as the `a` operand or is mapped to a bit of the final product `z`.
+Since each bit of `z` corresponds to one element of `c`, their correspondence is defined in the dict `ml`, and the replacements are performed in one pass with `qbpp.replace(f, ml)`.
+The extra term `z[0] - x[0] * y[0] == 0` accounts for the lowest bit of the product, which is not produced by any adder stage.
+The final call to `f.simplify_as_binary()` reduces the expression in place under the binary (0/1) rule (it modifies `f` and returns `None`).
 
 ## PyQBPP program for factorization
 Using the function `multiplier`, we can factor a composite integer into two factors.
-The following program constructs a 4-bit multiplier where
-`x` and `y` are 4 binary variables each, and
-`z` is a list of constants `[1, 1, 1, 1, 0, 0, 0, 1]` representing the 8-bit integer `10001111` (143):
+The following program constructs a 4-bit multiplier with
+- `x`: 4 binary variables,
+- `y`: 4 binary variables,
+- `z`: a list of constants `[1, 1, 1, 1, 0, 0, 0, 1]`, representing the 8-bit integer `10001111` `(143)`, and stores the resulting expression in `f`:
 
 ```python
 import pyqbpp as qbpp
@@ -154,8 +163,9 @@ y_bits = "".join(str(sol(y[j])) for j in reversed(range(4)))
 z_bits = "".join(str(z[j]) for j in reversed(range(8)))
 print(f"{x_bits} * {y_bits} = {z_bits}")
 ```
-The Easy Solver is executed on `f`, and the obtained solution is stored in `sol`.
-The resulting values of `x` and `y` are printed as:
+The Easy Solver is executed on `f` with `target_energy=0` (so the solver stops as soon as it finds a ground state where `x * y == z` holds), and the obtained solution is stored in `sol`.
+Each variable value is retrieved by calling `sol(x[j])` / `sol(y[j])`, which returns the 0/1 assignment for that variable.
+The bits are concatenated in reverse order (most significant bit first) to form the printed binary literals:
 ```
 1011 * 1101 = 10001111
 ```

@@ -41,8 +41,8 @@ f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```
 
 > **NOTE**
-> **`qbpp::var(name, size)`** returns a **`qbpp::Array<1, qbpp::Var>`** object that contains `size` elements of type `qbpp::Var`.
-> The **`qbpp::Array<Dim, T>`** class provides overloaded operators that support element-wise operations for elements of type `T`.
+> **`qbpp::var(name, size)`** returns a 1D array containing `size` elements of type `qbpp::Var`.
+> The array type provides overloaded operators that support element-wise operations for its elements.
 
 ## Sum function
 Using the array utility function **`qbpp::sum()`**, you can obtain the sum of an array of binary variables.

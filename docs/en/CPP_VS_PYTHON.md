@@ -96,7 +96,7 @@ You must explicitly create an `Expr`:
 
 ```cpp
 auto x = qbpp::var("x");
-auto f = qbpp::Expr(2);  // Must be Expr, not int
+auto f = qbpp::toExpr(2);  // Must be Expr, not int
 f += x;                   // f is now Expr representing 2 + x
 ```
 
@@ -115,10 +115,11 @@ f += x         # f automatically becomes an Expr representing 2 + x
 | Operation | C++ | Python |
 |---|---|---|
 | `vi += 1`, `ee += 1` (compound assignment) | **Compile error** (`= delete`) | **Silent rebind** — `vi` / `ee` is rebound to a fresh `Expr` (matches Python's idiom for immutable types `Decimal` / `Fraction` / `str`). The VarInt metadata / ExprExpr body is discarded. |
-| `vi.simplify_as_binary()` etc. mutator methods | **Compile error** | **`TypeError`** (the message names the global-form replacement `qbpp.simplify_as_binary(vi)`) |
+| `vi.sqr()`, `vi.replace(ml)` | **Compile error** (`= delete`) | **`TypeError`** (use: `qbpp.sqr(vi)` etc.) |
 | `ee.replace(ml)` | **Compile error** | **`TypeError`** (use: `qbpp.replace(ee, ml)`) |
+| `vi.simplify_as_binary()` etc. simplify methods | **In-place** | **In-place** (same as C++) |
 
-**Why**: C++ catches type mismatches at compile time, so `= delete` is the natural form. Python, by contrast, treats type-changing compound assignment (`f = 1; f += x`) as routine — the immutable built-in types follow the same idiom — so silent rebinding for `vi += 1` is the most natural Python behavior. Mutator methods, however, have no rebinding fallback, so they raise `TypeError`.
+**Why**: C++ catches type mismatches at compile time, so `= delete` is the natural form. Python, by contrast, treats type-changing compound assignment (`f = 1; f += x`) as routine — the immutable built-in types follow the same idiom — so silent rebinding for `vi += 1` is the most natural Python behavior. Mutator methods, however, have no rebinding fallback, so they raise `TypeError`. The simplify methods are in-place in both languages — simplification is meaning-preserving canonicalization, so it updates the internal state without breaking immutability.
 
 Common to both languages:
 - **Overwriting requires the same type**: `vi = other_vi`, `ee = other_ee` are OK.
@@ -136,20 +137,12 @@ The following table shows the main syntax differences between C++ and Python.
 | **Include / Import** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
 | **Variable** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
 | **Variable array** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
-| **Negated literal** | `~x` | `~x` |
 | **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
 | **Equality** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **Body of ExprExpr** | `f.body()` | `f.body` |
-| **Penalty of ExprExpr** | `f.penalty()` or `Expr(f)` (decay) | `f.penalty` or `Expr` context decay |
-| **Expr part of VarInt** | `vi.expr()` or `Expr(vi)` (decay) | `vi._expr()` / `vi.to_expr()` |
-| **Simplify** | `expr.simplify_as_binary();` | `expr.simplify_as_binary()` |
-| **Easy Solver** | `qbpp::EasySolver(expr)` | `qbpp.EasySolver(expr)` |
-| **Exhaustive Solver** | `qbpp::ExhaustiveSolver(expr)` | `qbpp.ExhaustiveSolver(expr)` |
-| **ABS3 Solver** | `qbpp::ABS3Solver(expr)` | `qbpp.ABS3Solver(expr)` |
+| **Body of a constraint** | `*f` | `f.body` |
 | **Search** | `auto sol = solver.search();` | `sol = solver.search()` |
 | **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
-| **Solution value** | `sol(x)` | `sol(x)` |
 | **Output** | `std::cout << sol << std::endl;` | `print(sol)` |
 
 ### Quick Start Example

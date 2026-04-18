@@ -59,8 +59,8 @@ The following QUBO++ program solves a knapsack problem with 10 items using the E
 #include <qbpp/exhaustive_solver.hpp>
 
 int main() {
-  auto w = qbpp::int_array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
-  auto v = qbpp::int_array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
   int capacity = 50;
 
   auto x = qbpp::var("x", w.size());

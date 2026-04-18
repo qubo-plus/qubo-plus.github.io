@@ -51,7 +51,7 @@ The function `fa` returns an expression that enforces consistency between the in
 Assume that arrays `a`, `b`, and `s` represent integers.
 We assume that `a` and `b` each have `N` elements representing `N`-bit integers, while `s` has `N + 1` elements representing an `(N + 1)`-bit integer.
 The following function `adder` returns a QUBO expression whose minimum value is 0 if and only if `a + b == s` holds.
-Because `a`, `b` and `s` may be arrays of different element types (`qbpp::Var`, `qbpp::Expr`, or integer constants from `qbpp::int_array`), the function is written as a template so that each call site can pass whichever array type it has:
+Because `a`, `b` and `s` may be arrays of different element types (`qbpp::Var`, `qbpp::Expr`, or integer constants from `qbpp::array`), the function is written as a template so that each call site can pass whichever array type it has:
 {% raw %}
 ```cpp
 template <typename A, typename B, typename S>
@@ -60,9 +60,9 @@ qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::expr();
   for (size_t j = 0; j < N; ++j) {
-    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
+    f += fa(qbpp::toExpr(a[j]), qbpp::toExpr(b[j]), qbpp::toExpr(c[j]), qbpp::toExpr(c[j + 1]), qbpp::toExpr(s[j]));
   }
-  f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
+  f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::toExpr(s[N])}});
   return f;
 }
 ```
@@ -73,7 +73,7 @@ In this function, `c` is an array of `N + 1` variables used to connect the carry
 Assume that arrays `x`, `y`, and `z` represent integers.
 We assume that `x` and `y` each have `N` elements and that `z` has `2 * N` elements.
 The following function `multiplier` returns a QUBO expression whose minimum value is 0 if and only if `x * y == z` holds.
-It is written as a template for the same reason as `adder` — the caller may pass `Array<1, qbpp::Var>`, `Array<1, qbpp::Expr>`, or `Array<1, coeff_t>` in any combination.
+It is written as a template for the same reason as `adder` — the caller may pass a 1D variable array, a 1D expression array, or a 1D array of integer constants in any combination.
 ```cpp
 template <typename X, typename Y, typename Z>
 qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
@@ -85,35 +85,35 @@ qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b[j] = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
+      b[j] = qbpp::toExpr(x[i + 1]) * qbpp::toExpr(y[j]);
     }
 
     auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a[j] = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
+        a[j] = qbpp::toExpr(x[0]) * qbpp::toExpr(y[j + 1]);
       }
       a[N - 1] = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a[j] = qbpp::Expr(c[i - 1][j + 1]);
+        a[j] = qbpp::toExpr(c[i - 1][j + 1]);
       }
     }
 
     auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s[j] = qbpp::Expr(c[i][j]);
+      s[j] = qbpp::toExpr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
+  f += qbpp::toExpr(z[0]) - qbpp::toExpr(x[0]) * qbpp::toExpr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::toExpr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::toExpr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -143,9 +143,9 @@ qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto c = qbpp::var("_c", N + 1);
   auto f = qbpp::expr();
   for (size_t j = 0; j < N; ++j) {
-    f += fa(qbpp::Expr(a[j]), qbpp::Expr(b[j]), qbpp::Expr(c[j]), qbpp::Expr(c[j + 1]), qbpp::Expr(s[j]));
+    f += fa(qbpp::toExpr(a[j]), qbpp::toExpr(b[j]), qbpp::toExpr(c[j]), qbpp::toExpr(c[j + 1]), qbpp::toExpr(s[j]));
   }
-  return f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::Expr(s[N])}});
+  return f.replace({{qbpp::Var(c[0]), 0}, {qbpp::Var(c[N]), qbpp::toExpr(s[N])}});
 }
 
 template <typename X, typename Y, typename Z>
@@ -158,35 +158,35 @@ qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);
     for (size_t j = 0; j < N; ++j) {
-      b[j] = qbpp::Expr(x[i + 1]) * qbpp::Expr(y[j]);
+      b[j] = qbpp::toExpr(x[i + 1]) * qbpp::toExpr(y[j]);
     }
 
     auto a = qbpp::expr(N);
     if (i == 0) {
       for (size_t j = 0; j < N - 1; ++j) {
-        a[j] = qbpp::Expr(x[0]) * qbpp::Expr(y[j + 1]);
+        a[j] = qbpp::toExpr(x[0]) * qbpp::toExpr(y[j + 1]);
       }
       a[N - 1] = 0;
     } else {
       for (size_t j = 0; j < N; ++j) {
-        a[j] = qbpp::Expr(c[i - 1][j + 1]);
+        a[j] = qbpp::toExpr(c[i - 1][j + 1]);
       }
     }
 
     auto s = qbpp::expr(N + 1);
     for (size_t j = 0; j < N + 1; ++j) {
-      s[j] = qbpp::Expr(c[i][j]);
+      s[j] = qbpp::toExpr(c[i][j]);
     }
     f += adder(a, b, s);
   }
-  f += qbpp::Expr(z[0]) - qbpp::Expr(x[0]) * qbpp::Expr(y[0]) == 0;
+  f += qbpp::toExpr(z[0]) - qbpp::toExpr(x[0]) * qbpp::toExpr(y[0]) == 0;
 
   qbpp::MapList ml;
   for (size_t i = 0; i < N - 2; ++i) {
-    ml.push_back({qbpp::Var(c[i][0]), qbpp::Expr(z[i + 1])});
+    ml.push_back({qbpp::Var(c[i][0]), qbpp::toExpr(z[i + 1])});
   }
   for (size_t i = 0; i < N + 1; ++i) {
-    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::Expr(z[N + i - 1])});
+    ml.push_back({qbpp::Var(c[N - 2][i]), qbpp::toExpr(z[N + i - 1])});
   }
   return f.replace(ml).simplify_as_binary();
 }
@@ -194,7 +194,7 @@ qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
 int main() {
   auto x = qbpp::var("x", 4);
   auto y = qbpp::var("y", 4);
-  auto z = qbpp::int_array({1, 1, 1, 1, 0, 0, 0, 1});
+  auto z = qbpp::array({1, 1, 1, 1, 0, 0, 0, 1});
   auto f = multiplier(x, y, z).simplify_as_binary();
 
   auto solver = qbpp::EasySolver(f);

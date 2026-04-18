@@ -34,7 +34,7 @@ The complete QUBO++ program is shown below:
 #include <qbpp/exhaustive_solver.hpp>
 
 int main() {
-  auto w = qbpp::int_array({64, 27, 47, 74, 12, 83, 63, 40});
+  auto w = qbpp::array({64, 27, 47, 74, 12, 83, 63, 40});
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::sum(w * x);
   auto q = qbpp::sum(w * ~x);

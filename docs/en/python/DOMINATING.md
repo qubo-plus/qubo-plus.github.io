@@ -23,14 +23,18 @@ V = \bigcup_{u\in V} N[u].
 $$
 
 The minimum dominating set problem aims to find the dominating set with the minimum cardinality.
+On an $n$-node graph $G=(V,E)$ with nodes labeled $0,1,\ldots,n-1$, we introduce $n$ binary variables $x_0, x_1, \ldots, x_{n-1}$ where $x_i=1$ if and only if node $i$ is included in the dominating set $S$.
+Using negated literals $\overline{x}_i$ (where $\overline{x}_i=1$ iff $x_i=0$) simplifies the HUBO constraint formulation, as shown below.
 
 We will show two formulations:
 - **HUBO formulation**: the expression may include higher-degree terms.
 - **QUBO formulation**: the expression is quadratic, but auxiliary variables are used.
 
 ## HUBO formulation of the minimum dominating set problem
+For each node $i\in V$, the following condition must be satisfied:
+- $x_j=1$ for some $j\in N[i]$ (i.e., node $i$ is dominated).
 
-For each node $i\in V$, node $i$ is NOT dominated only when $x_j=0$ for all $j\in N[i]$, i.e., $\prod_{j\in N[i]}\overline{x}_j=1$.
+Node $i$ is NOT dominated only when $x_j=0$ for all $j\in N[i]$, i.e., $\prod_{j\in N[i]}\overline{x}_j=1$.
 Thus, we define the constraint as:
 
 $$
@@ -38,6 +42,8 @@ $$
 \text{constraint} = \sum_{i=0}^{n-1} \prod_{j\in N[i]}\overline{x}_j
 \end{aligned}
 $$
+
+The degree of the term for node $i$ is $\lvert N[i] \rvert$, so the constraint may not be quadratic.
 
 The objective is to minimize the number of selected nodes:
 
@@ -55,7 +61,10 @@ f &= \text{objective} + (n+1)\times \text{constraint}
 \end{aligned}
 $$
 
+The penalty coefficient $n+1$ is a safe choice to prioritize satisfying the dominating-set constraints over minimizing the objective.
+
 ## PyQBPP program for the HUBO formulation
+The following PyQBPP program finds a solution for a graph with $N=16$ nodes:
 ```python
 import pyqbpp as qbpp
 
@@ -71,7 +80,7 @@ for u, v in edges:
     adj[u].append(v)
     adj[v].append(u)
 
-x = qbpp.var("x", N)
+x = qbpp.var("x", shape=N)
 
 objective = qbpp.sum(x)
 
@@ -96,8 +105,10 @@ for i in range(N):
         print(f" {i}", end="")
 print()
 ```
-This program first builds the adjacency list `adj` from the edge list `edges`.
+This program first builds the adjacency list `adj` from the edge list `edges`, where each `adj[i]` stores the neighbors of vertex `i`.
 It then constructs `constraint`, `objective`, and `f` according to the HUBO formulation.
+The Easy Solver is applied to `f` to obtain a solution `sol`.
+The values of `objective` and `constraint` for `sol` are printed, followed by the list of selected vertices that form the dominating set.
 
 This program produces the following output:
 ```
@@ -107,7 +118,7 @@ constraint = 0
 
 ## QUBO formulation and the PyQBPP program
 A node $i$ is dominated if $N[i]\cap S$ is not empty.
-This condition is equivalent to the following inequality:
+Using binary variables $x_i$ (where $x_j=1$ means node $j$ is in $S$), this condition is equivalent to the following inequality:
 
 $$
 \begin{aligned}
@@ -115,10 +126,18 @@ $$
 \end{aligned}
 $$
 
-The constraint can be described in PyQBPP as follows:
-```python
-import pyqbpp as qbpp
+In PyQBPP notation, we can express the dominating-set constraints by summing the penalty expressions:
 
+$$
+\begin{aligned}
+\text{constraint} &= \sum_{i=0}^{n-1} \bigl(\sum_{j\in N[i]}x_j \geq 1\bigr)
+\end{aligned}
+$$
+
+The objective and `f` can be defined in the same way as the HUBO formulation.
+
+The constraint above can be described as a PyQBPP program as follows:
+```python
 constraint = 0
 for i in range(N):
     t = x[i]
@@ -126,7 +145,22 @@ for i in range(N):
         t += x[j]
     constraint += qbpp.constrain(t, between=(1, len(adj[i]) + 1))
 ```
-In this code, `t` stores the expression $\sum_{j\in N[i]}x_j$ and the `constrain()` function creates a penalty expression for $1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1$, which takes the minimum value 0 if and only if the inequality is satisfied.
+In this code, `t` stores the expression
+
+$$
+\sum_{j\in N[i]}x_j
+$$
+
+and `qbpp.constrain()` creates a penalty expression for
+
+$$
+1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1,
+$$
+
+which takes the minimum value 0 if and only if the inequality is satisfied.
+By minimizing `f`, the program finds a minimum dominating set.
+
+Note that PyQBPP requires an explicit finite upper bound for `between`, whereas the C++ version allows `+qbpp::inf`. Using $|N[i]|+1$ is sufficient because $\sum_{j\in N[i]}x_j$ cannot exceed $|N[i]|$.
 
 ## Visualization using matplotlib
 The following code visualizes the Dominating Set solution:

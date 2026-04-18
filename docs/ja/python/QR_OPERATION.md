@@ -52,8 +52,8 @@ hreflang_lang: "en"
 | スピン → バイナリ変換    | `f.spin_to_binary()`                              | In-place | 式              | —                      |
 | バイナリ → スピン変換    | `qbpp.binary_to_spin(f)`                          | Global   | 式              | 式                     |
 | バイナリ → スピン変換    | `f.binary_to_spin()`                              | In-place | 式              | —                      |
-| スライス                | `v[from:to]`, `v[:, from:to]`                     | Global   | `Array`         | `Array`                |
-| 連結                   | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | `Array`         | `Array`, 整数・変数・式 |
+| スライス                | `v[from:to]`, `v[:, from:to]`                     | Global   | array         | array                |
+| 連結                   | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | array         | array, 整数・変数・式 |
 
 ## 代入: `g = f` と `g = qbpp.copy(f)`
 Python の `=` は**名前の束縛**であって値のコピーではありません。
@@ -83,13 +83,13 @@ print(f)                 # 2*x +3*y       ← f は不変
 print(g)                 # 100 +2*x +3*y
 ```
 
-> **NOTE**
+> **注意**
 > 右辺が `f + 1`, `2 * f`, `-f` などの**二項・単項演算**の場合は、
 > 演算子がそのたびに新しい式を返すので、結果は自動的に `f` と独立したオブジェクトになります。
 > 注意が必要なのは「`g = f` の後に `g` を in-place で書き換える」パターンだけです。
 > 独立したコピーが欲しいときは **`qbpp.copy(f)`** を使ってください。
 
-> **NOTE**
+> **注意**
 > 右辺が **in-place メンバ呼び出しだけ** の場合にも同じ罠があります。
 > In-place メンバは「`f` 自身を処理結果で上書きして `self` を返す」ので、
 > `g = f.sqr()` は「新しい式を `g` に代入」ではなく「`f` を2乗して書き換え、その `f` を `g` にも別名として付ける」結果になります。
@@ -104,7 +104,7 @@ print(g)                 # 100 +2*x +3*y
 > 「`f` を保ったまま2乗結果を得たい」ときは **グローバル形 `qbpp.sqr(f)`** を使うのが最も自然です。
 > 他の in-place メンバ（`simplify_as_binary`, `replace`, `spin_to_binary` など）にも同じルールが当てはまります。
 
-> **NOTE**
+> **注意**
 > `qbpp.copy()` は整数・変数に対しても安全に呼び出せます。
 > これらは**イミュータブル**なので共有されても書き換えで影響を受けず、
 > `copy()` は元のオブジェクトをそのまま返します。
@@ -133,9 +133,8 @@ import pyqbpp as qbpp
 x = qbpp.var("x")
 y = qbpp.var("y")
 f = 6 * x + 4 * y + 2
-g = f / 2          # g = 3*x + 2*y + 1
-f = qbpp.Expr(f)
-f /= 2             # f = 3*x + 2*y + 1
+g = f / 2          # g = 3*x + 2*y + 1 (新しい Expr)
+f /= 2             # f = 3*x + 2*y + 1 (in-place)
 ```
 
 ## 等価・範囲制約: `constrain()`
@@ -167,8 +166,8 @@ g = qbpp.constrain(f, between=(None, u)) # f <= u のペナルティ式（下限
 - **`pyqbpp.sqr(f)`** (グローバル関数): `f * f` を計算して返します。
 引数 `f` は整数・変数・式のいずれでも構いません。
 
-`pyqbpp.Array` オブジェクト `v` に対して:
-- **`pyqbpp.sqr(v)`**: 各要素を二乗した新しい `pyqbpp.Array` を返します。
+配列 `v` に対して:
+- **`pyqbpp.sqr(v)`**: 各要素を二乗した新しい配列を返します。
 
 ### 例
 ```python
@@ -202,12 +201,12 @@ print(qbpp.gcd(f))     # 2
 print(f)               # 2 +6*x +4*y
 
 # 約分: f を更新したい場合は /= と組み合わせる
-g = qbpp.Expr(f)
+g = qbpp.copy(f)
 g /= qbpp.gcd(g)       # g = 1 +3*x +2*y
 print(g)
 
 # In-place: f を GCD の定数式で上書き
-h = qbpp.Expr(f)
+h = qbpp.copy(f)
 h.gcd()                # h = 2 (定数式)
 print(h)
 ```
@@ -240,10 +239,10 @@ print(h)
 import pyqbpp as qbpp
 
 x = qbpp.var("x")
-f = qbpp.Expr(x * x + x)
+f = x * x + x
 f.simplify_as_binary()  # 2*x (since x^2 = x)
 
-g = qbpp.Expr(x * x + x)
+g = x * x + x
 g.simplify_as_spin()    # 1 + x (since x^2 = 1)
 ```
 
@@ -279,7 +278,7 @@ print(f({x: 1, y: 0}))  # 4  (= 3*1 + 2*0 + 1)
 import pyqbpp as qbpp
 
 ml = {x: 0, y: 1}                    # {変数: 式} の辞書
-ml = {x: 0, y: qbpp.Expr(z)}         # 式には整数値も指定可能
+ml = {x: 0, y: z}                    # 値には変数も指定可能
 ```
 
 ### 例
@@ -329,7 +328,7 @@ k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 
 
 ## スライス関数: `v[from:to]`
 
-Pythonのスライス記法で `Array` から部分範囲を抽出します。スライスは新しい `Array` を返します。
+Pythonのスライス記法で array から部分範囲を抽出します。スライスは新しい array を返します。
 
 - **`v[from:to]`**: 最外次元の `[from, to)` の要素。
 - **`v[:n]`**: 先頭 `n` 個。C++ の `head(v, n)` に相当。
@@ -359,7 +358,7 @@ print(x[1:3, 2:4])  # 1-2行, 2-3列
 - **`qbpp.concat(scalar, v, dim)`**: `dim=0` でスカラーで埋めた行を追加、`dim=1` で各行の先頭にスカラーを追加。
 - **`qbpp.concat(v, scalar, dim)`**: `dim=0` で行を追加、`dim=1` で各行の末尾に追加。
 
-スカラーは整数・変数・式のいずれでも受け付け、要素型の異なる `Array` 同士を連結する場合は自動的に式の `Array` に昇格されます。
+スカラーは整数・変数・式のいずれでも受け付け、要素型の異なる array 同士を連結する場合は自動的に式の array に昇格されます。
 
 ### 例
 ```python

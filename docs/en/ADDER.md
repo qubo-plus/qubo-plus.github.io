@@ -70,12 +70,14 @@ The program produces the following output, confirming that the expression correc
 {% endraw %}
 
 If some bits are fixed, the valid values of the remaining bits can be derived.
-For example, the three input bits can be fixed using the `replace()` function:
+For example, the three input bits can be fixed using the global `qbpp::replace()` function (`ExprExpr::replace()` is not supported, so we use the free function):
 {% raw %}
 ```cpp
-  fa.replace({{a, 1}, {b, 1}, {i, 0}});
+  auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
+Then solve with `qbpp::ExhaustiveSolver(fa2)`.
 
 
 The program then produces the following output:
@@ -89,7 +91,8 @@ The program then produces the following output:
 Conversely, if the two output bits are fixed:
 {% raw %}
 ```cpp
-  fa.replace({{o, 1}, {s, 0}});
+  auto fa2 = qbpp::replace(fa, {{o, 1}, {s, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
 the program produces all valid combinations of the input bits:

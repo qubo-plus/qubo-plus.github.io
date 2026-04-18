@@ -232,7 +232,7 @@ $2^d$ where $d$ is the maximum degree of all terms, so that all coefficients bec
 As with `spin_to_binary()`, both global and member function variants of `binary_to_spin()` are provided.
 
 ## Slice Functions: `slice()`, `head()`, `tail()`, `row()`, `col()`
-The slice functions extract sub-arrays from a `qbpp::Array`.
+The slice functions extract sub-arrays from an array.
 
 ### Range Slice: `slice()`, `head()`, `tail()`
 

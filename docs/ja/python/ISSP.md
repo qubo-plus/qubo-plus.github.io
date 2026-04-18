@@ -102,7 +102,7 @@ T = 100
 n = len(lower)
 
 v = [qbpp.var(f"v{i}", between=(lower[i], upper[i])) for i in range(n)]
-s = qbpp.var("s", n)
+s = qbpp.var("s", shape=n)
 
 total = qbpp.sum(v * s)
 constraint = qbpp.constrain(total, between=(0, T))
@@ -222,7 +222,7 @@ T = 100
 n = len(lower)
 
 a = [qbpp.var(f"a{i}", between=(0, upper[i] - lower[i])) for i in range(n)]
-s = qbpp.var("s", n)
+s = qbpp.var("s", shape=n)
 v = [s[i] * lower[i] + a[i] for i in range(n)]
 
 total = 0

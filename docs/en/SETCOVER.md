@@ -80,7 +80,7 @@ int main() {
   std::vector<std::vector<size_t>> cover = {
       {0, 1, 2}, {2, 3, 4},       {4, 5, 6},    {6, 7, 8},
       {9, 0, 1}, {1, 3, 5, 7, 9}, {0, 3, 6, 9}, {1, 4, 7, 8}};
-  auto cost = qbpp::int_array({3, 4, 3, 2, 3, 4, 3, 3});
+  auto cost = qbpp::array({3, 4, 3, 2, 3, 4, 3, 3});
   auto m = cover.size();
 
   auto x = qbpp::var("x", m);
@@ -88,7 +88,7 @@ int main() {
   auto c = qbpp::expr(n) + 1;  // initialize all elements to 1
   for (size_t i = 0; i < m; ++i) {
     for (size_t j : cover[i]) {
-      c.at(j) *= ~x[i];
+      c[j] *= ~x[i];
     }
   }
 

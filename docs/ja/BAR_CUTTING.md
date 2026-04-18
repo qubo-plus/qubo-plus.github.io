@@ -54,8 +54,8 @@ $$
 
 int main() {
   const int L = 60;
-  const auto l = qbpp::int_array({13, 23, 8, 11});
-  const auto c = qbpp::int_array({10, 4, 8, 6});
+  const auto l = qbpp::array({13, 23, 8, 11});
+  const auto c = qbpp::array({10, 4, 8, 6});
   const size_t N = l.size();
   const size_t M = 6;
 

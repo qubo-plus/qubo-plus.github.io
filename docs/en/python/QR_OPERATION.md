@@ -54,8 +54,8 @@ For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` wi
 | Spin → binary          | `f.spin_to_binary()`                              | In-place | expression                        | —                          |
 | Binary → spin          | `qbpp.binary_to_spin(f)`                          | Global   | expression                        | expression                 |
 | Binary → spin          | `f.binary_to_spin()`                              | In-place | expression                        | —                          |
-| Slice                  | `v[from:to]`, `v[:, from:to]`                     | Global   | `Array`                           | `Array`                    |
-| Concatenation          | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | `Array`                           | `Array`, integer / variable / expression |
+| Slice                  | `v[from:to]`, `v[:, from:to]`                     | Global   | array                           | array                    |
+| Concatenation          | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | array                           | array, integer / variable / expression |
 
 ## Assignment: `g = f` vs. `g = qbpp.copy(f)`
 Python's `=` is **name binding**, not value copying.
@@ -137,9 +137,8 @@ import pyqbpp as qbpp
 x = qbpp.var("x")
 y = qbpp.var("y")
 f = 6 * x + 4 * y + 2
-g = f / 2          # g = 3*x + 2*y + 1
-f = qbpp.Expr(f)
-f /= 2             # f = 3*x + 2*y + 1
+g = f / 2          # g = 3*x + 2*y + 1 (new Expr)
+f /= 2             # f = 3*x + 2*y + 1 (in-place)
 ```
 
 ## Equality and range constraints: `constrain()`
@@ -171,8 +170,8 @@ For an expression `f`:
 - **`pyqbpp.sqr(f)`** (global function): Returns `f * f`.
 The argument `f` may be an integer, a variable, or an expression.
 
-For a `pyqbpp.Array` object `v`:
-- **`pyqbpp.sqr(v)`**: Returns a new `pyqbpp.Array` with each element squared.
+For an array `v`:
+- **`pyqbpp.sqr(v)`**: Returns a new array with each element squared.
 
 ### Example
 ```python
@@ -206,12 +205,12 @@ print(qbpp.gcd(f))     # 2
 print(f)               # 2 +6*x +4*y
 
 # To reduce f, combine the global with /=
-g = qbpp.Expr(f)
+g = qbpp.copy(f)
 g /= qbpp.gcd(g)       # g = 1 +3*x +2*y
 print(g)
 
 # In-place: overwrite f with the GCD as a constant expression
-h = qbpp.Expr(f)
+h = qbpp.copy(f)
 h.gcd()                # h = 2 (constant expression)
 print(h)
 ```
@@ -246,10 +245,10 @@ Both variants are available as member functions and global functions:
 import pyqbpp as qbpp
 
 x = qbpp.var("x")
-f = qbpp.Expr(x * x + x)
+f = x * x + x
 f.simplify_as_binary()  # 2*x (since x^2 = x)
 
-g = qbpp.Expr(x * x + x)
+g = x * x + x
 g.simplify_as_spin()    # 1 + x (since x^2 = 1)
 ```
 
@@ -285,7 +284,7 @@ Replaces variables in `f` according to the mappings in `ml` in place and returns
 import pyqbpp as qbpp
 
 ml = {x: 0, y: 1}                    # Dict mapping variables to expressions
-ml = {x: 0, y: qbpp.Expr(z)}         # Expressions can also be integer values
+ml = {x: 0, y: z}                    # Values may be variables too
 ```
 
 ### Example
@@ -337,7 +336,7 @@ k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 
 
 ## Slice functions: `v[from:to]`
 
-Python slice notation extracts a sub-range from an `Array`. Slicing returns a new `Array`.
+Python slice notation extracts a sub-range from an array. Slicing returns a new array.
 
 - **`v[from:to]`**: Elements in `[from, to)` along the outermost dimension.
 - **`v[:n]`**: First `n` elements. Equivalent to C++ `head(v, n)`.
@@ -367,7 +366,7 @@ The `concat()` function joins arrays or prepends/appends scalars.
 - **`qbpp.concat(scalar, v, dim)`**: `dim=0` prepends a row filled with the scalar; `dim=1` prepends the scalar to each row.
 - **`qbpp.concat(v, scalar, dim)`**: `dim=0` appends a row; `dim=1` appends to each row.
 
-Scalars can be an integer, a variable, or an expression. When the two sides have different element types, the result is automatically promoted to an `Array` of expressions.
+Scalars can be an integer, a variable, or an expression. When the two sides have different element types, the result is automatically promoted to an array of expressions.
 
 ### Example
 ```python

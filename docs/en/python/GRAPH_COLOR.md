@@ -56,7 +56,7 @@ edges = [
     (10, 15),(11, 13),(12, 14),(13, 15),(14, 15)]
 m = 4
 
-x = qbpp.var("x", n, m)
+x = qbpp.var("x", shape=(n, m))
 
 onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 different = 0

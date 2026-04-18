@@ -20,7 +20,7 @@ When accumulating terms in a loop, always use the compound assignment operator `
 
 ```cpp
 auto x = qbpp::var("x", n);
-auto f = qbpp::Expr();
+auto f = qbpp::toExpr(0);
 
 // ❌ Slow: O(N²) — clones the entire expression on every iteration
 for (int i = 0; i < n; ++i)
@@ -62,7 +62,7 @@ memory needed, avoiding all intermediate reallocations.
 auto x = qbpp::var("x", n);
 
 // ❌ Slower: builds the expression incrementally from the C++ side
-auto f = qbpp::Expr();
+auto f = qbpp::toExpr(0);
 for (int i = 0; i < n; ++i)
     f += x[i];
 
@@ -149,7 +149,7 @@ dramatically faster. For example:
 
 ```cpp
 auto x = qbpp::var("x");
-auto f = qbpp::Expr();
+auto f = qbpp::toExpr(0);
 for (size_t i = 1; i < 100; ++i)
     f += i * x;
 

@@ -101,7 +101,7 @@ The shift scheduling problem defined above can be formulated and solved using QU
 
 int main() {
   const size_t days = 31;
-  const auto worker_cost = qbpp::int_array({13, 13, 12, 12, 11, 10});
+  const auto worker_cost = qbpp::array({13, 13, 12, 12, 11, 10});
   const size_t workers = worker_cost.size();
 
   auto x = qbpp::var("x", workers, days + 2);

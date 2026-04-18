@@ -25,9 +25,22 @@ $$
 where $W$ is the weight capacity of the knapsack.
 
 ## QUBO formulation
-We introduce $n$ binary variables $x_i\in\lbrace 0,1\rbrace$ ($0\leq i\leq n-1$),
+To formulate this problem as a QUBO, we introduce a set
+$X$ of $n$ binary variables $x_i\in\lbrace 0,1\rbrace$ ($0\leq i\leq n-1$),
 where item $i$ is selected if and only if $x_i=1$.
-The QUBO objective function is:
+
+The above formulation can be rewritten as:
+
+$$
+\begin{aligned}
+\text{Maximize:} & \sum_{i=0}^{n-1} v_ix_i \\
+\text{Subject to:} & \sum_{i=0}^{n-1} w_ix_i \leq W
+\end{aligned}
+$$
+
+## PyQBPP program
+The constraint can be expressed using **the range operator** provided by PyQBPP through `qbpp.constrain(..., between=(lo, hi))`.
+The resulting QUBO objective function is defined as:
 
 $$
 \begin{aligned}
@@ -35,7 +48,10 @@ f(X) &= -\sum_{i=0}^{n-1} v_ix_i + P\times (0\leq \sum_{i=0}^{n-1} w_ix_i \leq W
 \end{aligned}
 $$
 
-## PyQBPP program
+Since QUBO solvers minimize the objective function, the original maximization objective is negated.
+The constant $P$ is a sufficiently large penalty parameter to enforce the constraint.
+
+The following PyQBPP program solves a knapsack problem with 10 items using the Exhaustive Solver:
 ```python
 import pyqbpp as qbpp
 
@@ -43,7 +59,7 @@ w = [10, 20, 30, 5, 8, 15, 12, 7, 17, 18]
 v = [60, 100, 120, 60, 80, 150, 110, 70, 150, 160]
 capacity = 50
 
-x = qbpp.var("x", len(w))
+x = qbpp.var("x", shape=len(w))
 
 constraint = qbpp.constrain(qbpp.sum(w * x), between=(0, capacity))
 objective = qbpp.sum(v * x)
@@ -62,10 +78,11 @@ for idx, sol in enumerate(result.sols):
         if sol(x[j]) == 1:
             print(f"Item {j}: weight = {w[j]}, value = {v[j]}")
 ```
-The expressions `constraint` and `objective` are constructed separately and combined into the final QUBO expression `f`.
-The Exhaustive Solver is then applied to enumerate all optimal solutions.
 
-The following output shows the optimal solutions:
+In this program, the expressions `constraint` and `objective` are constructed separately and combined into the final QUBO expression `f` using a penalty coefficient of `1000`.
+The Exhaustive Solver is then applied to `f` to enumerate all optimal solutions.
+
+The following output shows the optimal solutions, including the energy, constraint value, and objective value:
 ```
 [Solution 0]
 Energy = -480
@@ -85,3 +102,4 @@ Item 6: weight = 12, value = 110
 Item 7: weight = 7, value = 70
 Item 9: weight = 18, value = 160
 ```
+We can observe that this instance has two optimal solutions, both achieving a total value of `480` while exactly satisfying the capacity constraint.

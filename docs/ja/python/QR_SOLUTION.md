@@ -23,10 +23,10 @@ hreflang_lang: "en"
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `sol[x]` | `int` | `Var` `x` の値を取得（0 または 1） |
-| `sol[vi]` | `int` | `VarInt` `vi` の整数値を取得 |
-| `sol(t)` | `int` | `Term` `t` を評価 |
-| `sol(f)` | `int` | `Expr` `f` を評価 |
+| `sol[x]` | `int` | 変数 `x` の値を取得（0 または 1） |
+| `sol[vi]` | `int` | 整数変数 `vi` の整数値を取得 |
+| `sol(t)` | `int` | 項 `t` を評価 |
+| `sol(f)` | `int` | 式 `f` を評価 |
 
 配列の場合は要素ごとにアクセスします:
 ```python
@@ -39,8 +39,8 @@ for i in range(n):
 | 式 | 説明 |
 |------------|-------------|
 | `sol[x] = value` | 変数 `x` を `value`（0 または 1）に設定 |
-| `sol[vi] = value` | `VarInt` `vi` を整数値 `value` に設定 |
-| `sol.set(other_sol)` | 別の `Sol` からすべての変数値をコピー |
+| `sol[vi] = value` | 整数変数 `vi` を整数値 `value` に設定 |
+| `sol.set(other_sol)` | 別の解からすべての変数値をコピー |
 
 ```python
 sol[x[0]] = 1
@@ -75,8 +75,8 @@ full_sol[x[0]] = 1
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `qbpp.onehot_to_int(sol(x))` | `Array` | 最後の軸に沿ってワンホットをデコード（デフォルト） |
-| `qbpp.onehot_to_int(sol(x), k)` | `Array` | 軸 $k$ に沿ってワンホットをデコード |
+| `qbpp.onehot_to_int(sol(x))` | array | 最後の軸に沿ってワンホットをデコード（デフォルト） |
+| `qbpp.onehot_to_int(sol(x), k)` | array | 軸 $k$ に沿ってワンホットをデコード |
 
 指定された軸に沿ってデコードし、次元が1つ少ない配列を返します。
 出力形状は入力形状から軸 $k$ を除いたもので、各要素はその軸に沿った1のインデックスです。

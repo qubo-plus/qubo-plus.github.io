@@ -29,7 +29,7 @@ f = qbpp.expr()
 for i in range(3):
     for j in range(3):
         f += w[i][j] * x[i] * x[j]
-f = qbpp.simplify_as_binary(f)
+f.simplify_as_binary()
 print("f =", f)
 
 solver = qbpp.EasySolver(f)
@@ -38,7 +38,7 @@ print("sol =", sol)
 ```
 
 This program demonstrates an example with $n = 3$.
-A $3 \times 3$ list `w` is defined, and the expression `f` is constructed from it.
+A $3 \times 3$ Python list `w` is defined, and the expression `f` is constructed from it.
 After applying `simplify_as_binary()` to simplify the expression using the binary variable rule ($x_i^2 = x_i$), the EasySolver searches for the optimal solution.
 Running this program produces the following output:
 

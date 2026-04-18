@@ -93,7 +93,7 @@ int main() {
   auto x = qbpp::var("x", s, m);
 
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
-  auto different = qbpp::Expr(0);
+  auto different = qbpp::toExpr(0);
   for (size_t i = 0; i < n; ++i) {
     for (auto u : adj[i]) {
       for (auto v : adj[i]) {

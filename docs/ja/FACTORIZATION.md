@@ -46,7 +46,8 @@ int main() {
   auto q = 6 <= qbpp::var_int("q") <= 17;
 
   auto f = p * q == 35;
-  std::cout << "f = " << f.simplify_as_binary() << std::endl;
+  f.simplify_as_binary();
+  std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
@@ -58,7 +59,8 @@ int main() {
 ```
 {% endraw %}
 
-このプログラムでは、式 `p * q == 35` が自動的に `qbpp::sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値0を達成します。
+このプログラムでは、式 `p * q == 35` が自動的に `qbpp::sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値0を達成します。`f` は `qbpp::ExprExpr`（penalty と元の本体 `*f` を一緒に保持する制約オブジェクト）で、`f.simplify_as_binary()` は penalty と body の両方を同時に簡約します。
+
 このプログラムの出力は以下の通りです:
 
 {% raw %}
@@ -91,7 +93,8 @@ int main() {
   auto q = 2 <= qbpp::var_int("q") <= qbpp::integer("2000000");
 
   auto f = p * q == qbpp::integer("1000039") * qbpp::integer("1000079");
-  std::cout << "f = " << f.simplify_as_binary() << std::endl;
+  f.simplify_as_binary();
+  std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});

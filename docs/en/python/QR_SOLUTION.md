@@ -23,10 +23,10 @@ It stores variable assignments along with the energy value and time-to-solution.
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `sol[x]` | `int` | Get value of `Var` `x` (returns 0 or 1) |
-| `sol[vi]` | `int` | Get value of `VarInt` `vi` |
-| `sol(t)` | `int` | Evaluate `Term` `t` |
-| `sol(f)` | `int` | Evaluate `Expr` `f` |
+| `sol[x]` | `int` | Get value of variable `x` (returns 0 or 1) |
+| `sol[vi]` | `int` | Get value of integer variable `vi` |
+| `sol(t)` | `int` | Evaluate term `t` |
+| `sol(f)` | `int` | Evaluate expression `f` |
 
 For arrays, use element-wise access:
 ```python
@@ -39,8 +39,8 @@ for i in range(n):
 | Expression | Description |
 |------------|-------------|
 | `sol[x] = value` | Set variable `x` to `value` (0 or 1) |
-| `sol[vi] = value` | Set `VarInt` `vi` to `value` |
-| `sol.set(other_sol)` | Copy all variable values from another `Sol` |
+| `sol[vi] = value` | Set integer variable `vi` to `value` |
+| `sol.set(other_sol)` | Copy all variable values from another solution |
 
 ```python
 sol[x[0]] = 1
@@ -69,8 +69,8 @@ If the energy is already valid, `comp_energy()` returns the cached value without
 
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `qbpp.onehot_to_int(sol(x))` | `Array` | Decode one-hot along last axis (default) |
-| `qbpp.onehot_to_int(sol(x), k)` | `Array` | Decode one-hot along axis $k$ |
+| `qbpp.onehot_to_int(sol(x))` | array | Decode one-hot along last axis (default) |
+| `qbpp.onehot_to_int(sol(x), k)` | array | Decode one-hot along axis $k$ |
 
 Decodes along the specified axis and returns an array with one fewer dimension.
 The output shape is the input shape with axis $k$ removed, and each element is the index of the 1 along that axis.

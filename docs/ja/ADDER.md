@@ -69,12 +69,14 @@ int main() {
 {% endraw %}
 
 一部のビットを固定すると、残りのビットの有効な値を導出できます。
-例えば、3つの入力ビットを `replace()` 関数で固定できます:
+例えば、`qbpp::replace()` 関数で3つの入力ビットを固定します（`ExprExpr::replace()` はサポート外なので、グローバル関数を使います）:
 {% raw %}
 ```cpp
-  fa.replace({{a, 1}, {b, 1}, {i, 0}});
+  auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
+この場合、`qbpp::ExhaustiveSolver(fa2)` で解を探索します。
 
 
 プログラムは以下の出力を生成します:
@@ -88,7 +90,8 @@ int main() {
 逆に、2つの出力ビットを固定した場合:
 {% raw %}
 ```cpp
-  fa.replace({{o, 1}, {s, 0}});
+  auto fa2 = qbpp::replace(fa, {{o, 1}, {s, 0}});
+  fa2.simplify_as_binary();
 ```
 {% endraw %}
 プログラムは入力ビットのすべての有効な組み合わせを出力します:

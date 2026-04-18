@@ -57,6 +57,6 @@ hreflang_lang: "en"
 1. [加算器シミュレーション](ADDER) (Medium)
 2. [乗算器シミュレーションと因数分解](MULTIPLIER) (Hard)
 
-> **NOTE**
+> **注意**
 > グラフのケーススタディには`matplotlib`と`networkx`を使用した可視化コードが含まれています。
 > 次のコマンドでインストールしてください: `pip install matplotlib networkx`

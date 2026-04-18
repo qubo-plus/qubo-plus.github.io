@@ -28,7 +28,6 @@ hreflang_lang: "en"
 |---|---|
 | `l <= qbpp::var_int("x") <= u` | `VarInt` (範囲 `[l, u]`) |
 | `l <= qbpp::var_int("x", s1, s2, ...) <= u` | `Array<Dim, VarInt>` |
-| `qbpp::between(qbpp::var_int("x"), l, u)` | `VarInt` (関数形式) |
 
 ### 使える演算・関数
 
@@ -43,7 +42,8 @@ hreflang_lang: "en"
 | メタ情報メンバ | `vi.name()`, `vi.min_val()`, `vi.max_val()` | 各種 | 不変 (read-only) |
 | 構造メンバ | `vi.var_count()`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
 | 配列アクセス | `vi.vars()`, `vi.coeffs()` | `Array<1, ...>` | read-only |
-| Expr 取得 | `vi.expr()`, `vi.str()` | `Expr` / `string` | clone |
+| Expr 取得 | `Expr(vi)` (decay) | `Expr` | clone |
+| in-place 簡約 | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()` | `VarInt&` | Expr 部分のみ簡約（メタデータ不変） |
 | 代入 | `vi = other_vi` | `VarInt&` | 同じ型のみ |
 
 ### 使えない演算・関数
@@ -51,11 +51,9 @@ hreflang_lang: "en"
 | カテゴリ | 例 | 結果 |
 |---|---|---|
 | 複合代入 | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi /= 2` | **コンパイルエラー** (`= delete`) |
-| in-place mutator メソッド | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()`, `vi.sqr()` | **コンパイルエラー** (`= delete`) |
+| 二乗 | `vi.sqr()` | **コンパイルエラー** (`= delete`、`qbpp::sqr(vi)` を使用) |
 | 置換 | `vi.replace(ml)` | **エラー** |
 | Expr の代入 | `vi = some_expr` | **コンパイルエラー** (型不一致) |
-
-→ いずれも **グローバル関数 (`qbpp::simplify_as_binary(vi)` など) で代用**してください。
 
 ---
 
@@ -67,7 +65,6 @@ hreflang_lang: "en"
 |---|---|---|
 | `f == n` | `ExprExpr` | penalty = `sqr(f - n)`, body = `f` |
 | `l <= f <= u` | `ExprExpr` | penalty = `(f-a)(f-(a+1))` (a は slack), body = `f` |
-| `qbpp::between(f, l, u)` | `ExprExpr` | 上と同じ (関数形式) |
 
 ここで `f` は非整数の `ExprType` (`Var`, `Term`, `Expr`, `VarInt`)。
 
@@ -79,8 +76,9 @@ hreflang_lang: "en"
 | 算術 (右辺 Expr) | `ee + 1`, `ee * 2`, `ee + x` | `Expr` | decay → Expr 演算 |
 | 算術 (右辺 ExprExpr) | `ee1 + ee2`, `ee * ee` | `Expr` | 両辺 decay (penalty 同士) |
 | グローバル関数 | `qbpp::sqr(ee)`, `qbpp::simplify_as_binary(ee)`, `qbpp::replace(ee, ml)` | `Expr` | penalty に適用、新 `Expr` を返す |
-| メンバ取得 | `ee.penalty()`, `ee.body()`, `ee.str()` | `Expr` / `string` | clone |
-| 解での評価 | `sol(ee)` (penalty を評価), `sol(ee.body())` (body を評価) | `coeff_t` | 制約満足度の検証に使用 |
+| メンバ取得 | `*ee` (body), `Expr(ee)` (penalty) | `Expr` | clone |
+| 解での評価 | `sol(ee)` (penalty を評価), `sol(*ee)` (body を評価) | `coeff_t` | 制約満足度の検証に使用 |
+| in-place 簡約 | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()` | `ExprExpr&` | penalty と body を同時に簡約 |
 | 代入 | `ee = other_ee` | `ExprExpr&` | 同じ型のみ |
 
 ### 使えない演算・関数
@@ -88,13 +86,11 @@ hreflang_lang: "en"
 | カテゴリ | 例 | 結果 |
 |---|---|---|
 | 複合代入 | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee /= 2` | **コンパイルエラー** (`= delete`) |
-| in-place mutator メソッド | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()`, `ee.sqr()` | **コンパイルエラー** (`= delete`) |
-| 置換 | `ee.replace(ml)` | **コンパイルエラー** (`= delete`) |
+| 二乗 | `ee.sqr()` | **コンパイルエラー** (`= delete`、`qbpp::sqr(ee)` を使用) |
+| 置換 | `ee.replace(ml)` | **コンパイルエラー** (`= delete`、`qbpp::replace(ee, ml)` を使用) |
 | Expr の代入 | `ee = some_expr` | **コンパイルエラー** (型不一致) |
 
-→ いずれも **グローバル関数で代用**してください (`qbpp::simplify_as_binary(ee)` 等は `Expr` を返し、元の `ee` は変更されません)。
-
-> **Python との挙動の違い**: Python では `+=` 等の複合代入は silent rebind (新しい `Expr` に再束縛)、メソッド呼出は `TypeError`。詳細は [QUBO++ (C++) と PyQBPP (Python) の違い](CPP_VS_PYTHON) を参照。
+> **Python との挙動の違い**: Python では `+=` 等の複合代入は silent rebind (新しい `Expr` に再束縛)。詳細は [QUBO++ (C++) と PyQBPP (Python) の違い](CPP_VS_PYTHON) を参照。
 
 ---
 
@@ -109,7 +105,6 @@ hreflang_lang: "en"
 | `qbpp::simplify_as_binary(x)` | `Expr` | binary (0/1) ルールで簡約 |
 | `qbpp::simplify_as_spin(x)` | `Expr` | spin (±1) ルールで簡約 |
 | `qbpp::replace(x, ml)` | `Expr` | 変数置換 |
-| `qbpp::between(x, l, u)` | `ExprExpr` | 範囲制約 (`l <= x <= u` と同じ) |
 
 引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に decay)。
 
@@ -117,7 +112,7 @@ hreflang_lang: "en"
 
 ## 4. 配列版
 
-`qbpp::Array<Dim, VarInt>` および `qbpp::Array<Dim, ExprExpr>` も同じ性質:
+`VarInt` の配列および `ExprExpr` の配列も同じ性質:
 - **要素ごとに immutable**
 - **算術では各要素が `Expr` に decay** → 結果は `Array<Dim, Expr>`
 - **in-place mutator は不可**、グローバル関数で代用
@@ -134,7 +129,7 @@ auto onehot = (rows == 1);                     // Array<1, ExprExpr>
 auto penalty = qbpp::sum(onehot);              // Expr (全制約の合計)
 ```
 
-要素ごとの `body` アクセスは `arr[i].body()`。
+要素ごとの `body` アクセスは `*arr[i]`。
 
 ---
 

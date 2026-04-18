@@ -71,19 +71,16 @@ The following functions are provided to create variables:
   Creates a `pyqbpp.Var` object with the given name `"name"`.
 
 - **`pyqbpp.var("name", shape=s1)`**:
-  Creates a one-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
+  Creates a one-dimensional array of binary variables with the base name `"name"`.
   Each element is represented as `name[i]`.
-  The resulting type is `pyqbpp.Array`.
 
 - **`pyqbpp.var("name", shape=(s1, s2))`**:
-  Creates a two-dimensional array (matrix) of `pyqbpp.Var` objects with the base name `"name"`.
+  Creates a two-dimensional array (matrix) of binary variables with the base name `"name"`.
   Each element is represented as `name[i][j]`.
-  The resulting type is a nested `pyqbpp.Array`.
 
 - **`pyqbpp.var("name", shape=(s1, s2, ...))`**:
-  Creates a higher-dimensional array of `pyqbpp.Var` objects with the base name `"name"`.
+  Creates a higher-dimensional array of binary variables with the base name `"name"`.
   Each element is represented as `name[i][j]...`.
-  The resulting type is a nested `pyqbpp.Array`.
 
 > **NOTE**
 > If `"name"` is omitted, numbered names such as `"{0}"`, `"{1}"`, ... are automatically assigned in creation order.
@@ -119,11 +116,10 @@ The following functions are provided to create integer variables:
   Internally, this also creates `pyqbpp.Var` objects used in the underlying expression.
 
 - **`pyqbpp.var("name", shape=s1, between=(l, u))`**:
-  Creates a one-dimensional array of `pyqbpp.VarInt` objects with the base name `"name"`
+  Creates a one-dimensional array of integer variables with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  The resulting type is `pyqbpp.Array`.
-  Higher-dimensional arrays of `pyqbpp.VarInt` objects can be created in the same way as `pyqbpp.Var` objects.
+  Higher-dimensional arrays of integer variables can be created in the same way as binary variables.
 
 ### Examples
 ```python

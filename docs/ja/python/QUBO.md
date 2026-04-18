@@ -29,7 +29,7 @@ f = qbpp.expr()
 for i in range(3):
     for j in range(3):
         f += w[i][j] * x[i] * x[j]
-f = qbpp.simplify_as_binary(f)
+f.simplify_as_binary()
 print("f =", f)
 
 solver = qbpp.EasySolver(f)
@@ -38,7 +38,7 @@ print("sol =", sol)
 ```
 
 このプログラムは $n = 3$ の例です．
-$3 \times 3$ のリスト `w` を定義し，それをもとに式 `f` を構築しています．
+$3 \times 3$ の Python リスト `w` を定義し，それをもとに式 `f` を構築しています．
 `simplify_as_binary()` で二値変数のルール（$x_i^2 = x_i$）を適用して式を整理した後，EasySolver で解探索を行います．
 このプログラムを実行すると，次の出力が得られます．
 

@@ -72,7 +72,7 @@ int main() {
 
   auto objective = qbpp::sum(x);
 
-  auto constraint = qbpp::Expr(0);
+  auto constraint = qbpp::toExpr(0);
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = i + 1; j < N; ++j) {
       if (!adj[i][j]) {
