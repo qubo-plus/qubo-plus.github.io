@@ -118,7 +118,7 @@ int main() {
 
   auto f = x + y == 10;
   auto g = 2 * x + 4 * y == 28;
-  auto h = f + g;            // h は Expr（ExprExpr は penalty に decay）
+  auto h = f + g;
   h.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(h);
@@ -145,7 +145,7 @@ int main() {
 > `VarInt` は二進展開された Expr）、結果は `Expr` 型になり自由に変更できます:
 >
 > ```cpp
-> auto h = f + g;            // h は Expr (f, g は ExprExpr で decay)
+> auto h = f + g;
 > h.simplify_as_binary();    // OK — Expr は in-place 可能
 >
 > auto e  = qbpp::sqr(vi - 3);             // VarInt → Expr → sqr

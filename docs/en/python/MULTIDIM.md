@@ -27,6 +27,27 @@ print("x =", x)
 Each variable in **`x`** can be accessed as **`x[i][j][k]`**.
 {% endraw %}
 
+## Array properties
+
+PyQBPP arrays provide properties similar to NumPy.
+
+| Property | Returns | Description |
+|---|---|---|
+| `a.shape` | tuple | Size of each dimension (e.g. `(2, 3, 4)`) |
+| `a.ndim` | int | Number of dimensions |
+| `a.size` | int | Total number of elements (product of all dimensions) |
+| `len(a)` | int | Size of the outermost dimension (same as `a.shape[0]`) |
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", shape=(2, 3, 4))
+print("shape:", x.shape)   # (2, 3, 4)
+print("ndim:", x.ndim)     # 3
+print("size:", x.size)     # 24
+print("len:", len(x))      # 2
+```
+
 ## Arrays of constants, variables, and expressions
 
 Passing a Python list to **`qbpp.array(list)`** creates an array whose element type is automatically deduced from the first element (equivalent to `qbpp::array()` in C++):
@@ -253,8 +274,8 @@ With the array `w`, `2 * w` produces an **element-wise multiplication** (each el
 | **`sum()`** | Sum of all elements as an expression | Python built-in sum |
 | **`sqr()`** | Element-wise squaring | Not available |
 | **`append()`, `pop()`** | Not available | Available |
-| **Slicing** | `slice()`, `head()`, `tail()` | `x[1:3]` |
+| **Slicing** | `x[1:3]`, `x[:n]`, `x[-n:]` | `x[1:3]` |
 
 > **NOTE**
 > An array is a fixed-size, opaque container. Python list operations such as `append()`, `pop()`, `insert()`, and slice assignment are **not** supported.
-> Use QUBO++ functions like `slice()`, `head()`, `tail()` for extracting sub-arrays.
+> Use Python slice syntax (`x[1:3]`, `x[:n]`, etc.) for extracting sub-arrays.

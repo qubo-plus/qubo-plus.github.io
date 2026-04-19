@@ -58,9 +58,9 @@ The returned solution provides `sol.energy` (energy value), `sol(x)` (variable v
 When `topk_sols`, `best_energy_sols`, or `all_sols` is set, the returned solution also carries the collected solutions.
 They can be retrieved via the following properties and operations:
 - **`sol.sols`**: A list of solutions sorted in increasing order of energy.
-- **`sol.size`** (or `len(sol)`): The number of stored solutions.
-- Iteration: `for s in sol:` yields each stored solution in energy order.
-- Indexing: `sol[i]` returns the `i`-th stored solution (for integer `i`).
+- **`sol.sols`**: A list of stored solutions (sorted by ascending energy).
+- **`sol.sols[i]`**: Returns the `i`-th stored solution.
+- **`len(sol.sols)`**: The number of stored solutions.
 
 ## Program Example
 The following program searches for a solution to the

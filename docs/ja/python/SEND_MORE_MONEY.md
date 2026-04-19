@@ -138,7 +138,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 print(f"onehot = {full_sol(onehot)}")
 print(f"different = {full_sol(different)}")
@@ -160,7 +160,7 @@ print(f"{digit_str(val[I('S')])}{digit_str(val[I('E')])}{digit_str(val[I('N')])}
 式 `onehot`、`different`、`equal` は定式化に従って計算され、ペナルティ重み `P` とともに1つの目的関数 `f` にまとめられます。
 
 辞書 `ml` を使って `x[I('S')][0]` と `x[I('M')][0]` を 0 に固定し、この置換を適用して縮約された式 `g` を作成します。
-ソルバーは `g` に対して実行され、得られた割り当て `sol` は固定値 `ml` と `qbpp.Sol(f).set([sol, ml])` によって統合され、元の目的関数 `f` に対する `full_sol` が生成されます。
+ソルバーは `g` に対して実行され、得られた割り当て `sol` は固定値 `ml` と `qbpp.Sol(f).set(sol, ml)` によって統合され、元の目的関数 `f` に対する `full_sol` が生成されます。
 
 最後に、`full_sol(x)` の各one-hot行を走査して値が1となるインデックス `k` を抽出（見つからない場合は `-1`）して数字にデコードし、得られた解を出力します。
 

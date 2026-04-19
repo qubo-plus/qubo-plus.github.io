@@ -140,42 +140,68 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 | **等式制約** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
 | **制約の本体** | `*f` | `f.body` |
+| **配列スライス** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
+| **配列連結** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
 | **探索** | `auto sol = solver.search();` | `sol = solver.search()` |
 | **パラメータ付き探索** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **出力** | `std::cout << sol << std::endl;` | `print(sol)` |
+| **配列の出力形式** | `{x[0], x[1], x[2]}` (中括弧) | `[x[0], x[1], x[2]]` (角括弧) |
 
 ### Quick Start の例
 
-同じ問題を両方の言語で解く例：
+同じ問題を両方の言語で解く例 (式 $f = (a + 2b + 3c - 4)^2$ を `EasySolver` で最小化):
 
 **C++:**
+{% raw %}
 ```cpp
+#include <qbpp/easy_solver.hpp>
 #include <qbpp/qbpp.hpp>
-#include <qbpp/exhaustive_solver.hpp>
 
 int main() {
-  auto x = 0 <= qbpp::var_int("x") <= 10;
-  auto y = 0 <= qbpp::var_int("y") <= 10;
-  auto h = (x + y == 10) + (2 * x + 4 * y == 28);
-  h.simplify_as_binary();
-  auto sol = qbpp::ExhaustiveSolver(h).search();
-  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  auto a = qbpp::var("a");
+  auto b = qbpp::var("b");
+  auto c = qbpp::var("c");
+  auto f = qbpp::sqr(a + 2 * b + 3 * c - 4);
+  f.simplify_as_binary();
+
+  std::cout << "f = " << f << std::endl;
+
+  auto solver = qbpp::EasySolver(f);
+  auto sol = solver.search({{"time_limit", 10}, {"target_energy", 0}});
+  std::cout << "sol = " << sol << std::endl;
 }
 ```
+{% endraw %}
 
 **Python:**
 ```python
 import pyqbpp as qbpp
 
-x = qbpp.var("x", between=(0, 10))
-y = qbpp.var("y", between=(0, 10))
-h = qbpp.constrain(x + y, equal=10) + qbpp.constrain(2 * x + 4 * y, equal=28)
-h.simplify_as_binary()
-sol = qbpp.ExhaustiveSolver(h).search()
-print(f"x = {sol(x)}, y = {sol(y)}")
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.sqr(a + 2 * b + 3 * c - 4)
+f = qbpp.simplify_as_binary(f)
+print("f =", f)
+
+solver = qbpp.EasySolver(f)
+sol = solver.search(time_limit=10, target_energy=0)
+print("sol =", sol)
 ```
 
-どちらも出力: `x = 6, y = 4`
+出力 (C++):
+{% raw %}
+```
+f = 16 -7*a -12*b -15*c +4*a*b +6*a*c +12*b*c
+sol = 0:{{a,1},{b,0},{c,1}}
+```
+{% endraw %}
+
+出力 (Python):
+```
+f = 16 -7*a -12*b -15*c +4*a*b +6*a*c +12*b*c
+sol = Sol(energy=0, {a: 1, b: 0, c: 1})
+```
 
 ## どちらを使うべきか？
 

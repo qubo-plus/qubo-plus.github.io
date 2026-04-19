@@ -33,8 +33,7 @@ hreflang_lang: "en"
 | 置換                          | `replace()`                                            | メンバ         | `qbpp::Expr`     | `qbpp::MapList`                |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | メンバ         | `qbpp::Expr`     | -                      |
-| 範囲スライス                     | `slice()`, `head()`, `tail()`                            | グローバル     | `Array`          | `Array`                  |
-| 軸固定スライス                   | `row()`, `col()`, `slice()`                              | グローバル     | `Array`          | `Array`                  |
+| スライス（タプルインデックス）     | `operator()`                                             | メンバ         | `Array`          | -                        |
 | 連結                            | `concat()`                                               | グローバル     | `Array`          | `Array`-`Array`     |
 | 連結（スカラー付き）              | `concat()`                                               | グローバル     | `Array`          | `Expr`-`Array`         |
 
@@ -228,49 +227,38 @@ $f(s)$をスピン変数$s$の関数とします。
 
 `spin_to_binary()`と同様に、`binary_to_spin()`にもグローバル関数とメンバ関数の両方のバリアントが提供されています。
 
-## スライス関数: `slice()`, `head()`, `tail()`, `row()`, `col()`
-スライス関数は配列からサブ配列を取り出します。
+## タプルインデックス `a(...)`
 
-### 範囲スライス: `slice()`, `head()`, `tail()`
+`Array` の `operator()` で Python タプルインデックス風のサブ配列取得ができます。各引数は軸ごとに以下のいずれか:
 
-次元に沿った連続する部分範囲を取り出します。
+| 引数 | 意味 | 次元変化 |
+|---|---|---|
+| 整数 `i` | その軸を `i` に固定 | 軸が削除される |
+| `qbpp::all` | 全範囲 `:` | 軸を保持 |
+| `qbpp::slice(from, to)` | 範囲 `[from, to)` | 軸を保持 |
+| `qbpp::end` / `qbpp::end - n` | 軸サイズから計算される位置 | 固定または範囲端 |
 
-**メンバ関数**（in-place、配列を更新）:
-- **`v.slice(dim, from, to)`**: 次元 `dim` の `[from, to)` の範囲の要素を残します。
-- **`v.head(n)`**: 先頭の `n` 個の要素を残します。
-- **`v.tail(n)`**: 末尾の `n` 個の要素を残します。
+指定しなかった末尾の軸は自動的に `qbpp::all` とみなされます。
 
-**グローバル関数**（非破壊、新しい配列を返す）:
-- **`qbpp::slice(v, dim, from, to)`**
-- **`qbpp::head(v, n)`**、**`qbpp::head(v, n, dim)`**
-- **`qbpp::tail(v, n)`**、**`qbpp::tail(v, n, dim)`**
+出力は C ABI `view` を 1 回呼び出して構築するため、結果サイズに比例した **O(output_size)** のコピーコストになります。
 
-### 軸固定スライス: `row()`, `col()`, `slice()`
+### 使用例
 
-特定の軸をインデックスで固定してサブ配列を取り出します。
-
-**メンバ関数**（in-place）:
-- **`v.row(i)`**: axis 0 をインデックス `i` に固定。
-- **`v.col(j)`**: axis 1 をインデックス `j` に固定。
-- **`v.slice({% raw %}{{axis, index}, ...}{% endraw %})`**: 複数の軸を同時に固定。
-
-**グローバル関数**（非破壊）:
-- **`qbpp::row(v, i)`**
-- **`qbpp::col(v, j)`**
-- **`qbpp::slice(v, {% raw %}{{axis, index}, ...}{% endraw %})`**
-
-### 例: 隣接差分
 ```cpp
-auto x = qbpp::var("x", 5);
-auto diff = qbpp::head(x, 4) - qbpp::tail(x, 4);
-// diff = {x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-x[4]}
-```
-
-### 例: 行演算
-```cpp
+// 2D 配列
 auto x = qbpp::var("x", 3, 4);
-auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // 行同士の要素毎積
-auto s = qbpp::sum(prod);
+auto row0 = x(0);                        // axis 0 を 0 に固定 → 1D (4,)
+auto col2 = x(qbpp::all, 2);             // axis 1 を 2 に固定 → 1D (3,)
+auto sub  = x(qbpp::slice(0, 2), qbpp::slice(1, 3));  // 2D (2, 2)
+
+// 3D 配列
+auto y = qbpp::var("y", 2, 3, 4);
+auto s  = y(1, qbpp::all, 3);            // axis 0,2 を固定 → 1D (3,)
+auto v  = y(1, 2, 3);                    // 全軸固定 → Var
+
+// end キーワード（MATLAB 風）
+auto last5 = x(qbpp::slice(qbpp::end - 5, qbpp::end));  // 末尾 5 要素
+auto mid   = x(qbpp::all, qbpp::slice(1, qbpp::end - 1));  // 内側のみ
 ```
 
 詳細と例については **[スライス関数と連結関数](SLICE_CONCAT)** を参照してください。

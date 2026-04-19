@@ -147,9 +147,9 @@ To enable this feature, set the `topk_sols` parameter.
 Once this parameter is set, the solution returned by `search()` also carries the stored top-k solutions.
 They can be retrieved via the following properties and operations:
 - **`sol.sols`**: A list of solutions sorted in increasing order of energy.
-- **`sol.size`** (or `len(sol)`): The number of stored solutions.
-- Iteration: `for s in sol:` yields each stored solution in energy order.
-- Indexing: `sol[i]` returns the `i`-th stored solution (for `int i`).
+- **`sol.sols`**: A list of stored solutions (sorted by ascending energy).
+- **`sol.sols[i]`**: Returns the `i`-th stored solution.
+- **`len(sol.sols)`**: The number of stored solutions.
 
 The following program solves the LABS problem using the Easy Solver.
 Since `topk_sols` is set to `20`, the solver keeps **up to 20 top-k solutions**.

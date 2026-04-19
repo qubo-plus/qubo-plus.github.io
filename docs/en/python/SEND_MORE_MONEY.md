@@ -142,7 +142,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 print(f"onehot = {full_sol(onehot)}")
 print(f"different = {full_sol(different)}")
@@ -164,7 +164,7 @@ We define an `L`$\times$`10` matrix `x` of binary variables (here $L=8$).
 The expressions `onehot`, `different`, and `equal` are computed according to the formulation and combined into a single objective `f` with a penalty weight `P`.
 
 We use a dict `ml` to fix `x[I('S')][0]` and `x[I('M')][0]` to 0, and create a reduced expression `g` by applying this replacement.
-The solver is run on `g`, and the resulting assignment `sol` is merged with the fixed assignments `ml` via `qbpp.Sol(f).set([sol, ml])` to produce `full_sol` for the original objective `f`.
+The solver is run on `g`, and the resulting assignment `sol` is merged with the fixed assignments `ml` via `qbpp.Sol(f).set(sol, ml)` to produce `full_sol` for the original objective `f`.
 
 Finally, the one-hot rows of `full_sol(x)` are decoded into digits by scanning each row for the index `k` with value 1 (or `-1` if none is found), and the program prints the obtained solution.
 

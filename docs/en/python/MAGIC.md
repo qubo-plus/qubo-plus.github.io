@@ -192,7 +192,7 @@ g.simplify_as_binary()
 
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 for i in range(3):
     for j in range(3):

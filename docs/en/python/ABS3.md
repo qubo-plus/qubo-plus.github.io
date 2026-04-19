@@ -143,10 +143,9 @@ The returned object supports:
 - **`sol.energy`** — the best solution's energy
 - **`sol.tts`** — time in seconds at which the best solution was found
 - **`sol.sols`** — list of collected solutions (sorted by ascending energy)
-- **`len(sol)`** — number of collected solutions
-- **`sol[i]`** — access the i-th solution
+- **`sol.sols[i]`** — access the i-th solution
+- **`len(sol.sols)`** — number of collected solutions
 - **`sol.info`** — dict of solver info strings
-- Iteration via `for s in sol: ...`
 
 ## Custom Callback
 

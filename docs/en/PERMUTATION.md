@@ -66,7 +66,7 @@ int main() {
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
-    const auto& sol = sols[k];
+    const auto& sol = sols.sols[k];
     std::cout << "Solution " << k << " : " << sol(x) << std::endl;
   }
 }
@@ -143,7 +143,7 @@ int main() {
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t k = 0; k < sols.size(); k++) {
-    const auto& sol = sols[k];
+    const auto& sol = sols.sols[k];
     const auto& row = qbpp::onehot_to_int(x(sol), 1);
     const auto& column = qbpp::onehot_to_int(x(sol), 0);
     std::cout << "Solution " << k << ": " << row << ", " << column << std::endl;

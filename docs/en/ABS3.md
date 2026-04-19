@@ -146,14 +146,14 @@ auto result = solver.search(params);
 std::cout << "Best energy: " << result.energy << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
-for (const auto& sol : result.sols()) {
+for (const auto& sol : result.sols) {
   std::cout << "Energy = " << sol.energy() << " TTS = " << sol.tts() << "s" << std::endl;
 }
 ```
 
 The `ABS3Sols` object supports:
 - **`size()`** — number of collected solutions
-- **`sols()`** / **`sols()`** — access the solution vector
+- **`sols`** — access the solution vector
 - **`operator[](i)`** — access the i-th solution
 - Range-based for loop iteration
 

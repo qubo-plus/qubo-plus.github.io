@@ -89,7 +89,7 @@ for i in range(n):
     for u in adj[i]:
         for v in adj[i]:
             if u < v:
-                different += qbpp.sum(qbpp.row(x, u) * qbpp.row(x, v))
+                different += qbpp.sum(x[u] * x[v])
 
 f = onehot + different
 
@@ -113,7 +113,7 @@ for i in range(s):
 そして、`s`$\times$`m` のバイナリ変数行列 `x` を定義します。`x[i][j]=1` は辺 `i` に色 `j` が割り当てられることを意味します。
 式 `onehot`、`different`、`f` を以下のように構築します：
 - `onehot` は各辺にちょうど1つの色が割り当てられることを強制します。`qbpp.vector_sum(x)` で各行の総和を取り、`qbpp.constrain(..., equal=1)` で各行に対する制約を作成します。
-- `different` は端点を共有し同じ色が割り当てられた辺のペアにペナルティを課します。`qbpp.row(x, u) * qbpp.row(x, v)` で2つの行の要素積を取り、`qbpp.sum()` で `m` 個の色の列にわたって和を取ります。
+- `different` は端点を共有し同じ色が割り当てられた辺のペアにペナルティを課します。`x[u] * x[v]` で2つの行の要素積を取り、`qbpp.sum()` で `m` 個の色の列にわたって和を取ります。
 - `f = onehot + different` は QUBO 目的関数であり、有効な `m`-辺彩色が見つかった場合にのみ最小値 0 を達成します。
 
 得られた QUBO を `target_energy=0` で Easy Solver を用いて解き、解を `sol` に格納します。次に、`sol` における `onehot` と `different` の値を出力します。

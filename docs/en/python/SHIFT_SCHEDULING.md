@@ -153,7 +153,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(time_limit=5.0, target_energy=0)
 
-full_sol = qbpp.Sol(f).set([ml, sol])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 for i in range(workers):
     wd = full_sol(workers_working_days[i])
@@ -186,7 +186,7 @@ Applying `qbpp.replace()` to `f` with `ml` yields a new expression `g`.
 
 The Easy Solver is then applied to `g`, and the resulting solution is stored in `sol`.
 To evaluate the original expressions (which still refer to the fixed variables), we build
-`full_sol = qbpp.Sol(f).set([ml, sol])`, which combines the fixed values in `ml` with the
+`full_sol = qbpp.Sol(f).set(sol, ml)`, which combines the fixed values in `ml` with the
 values in `sol`.
 
 The obtained solution is as follows:

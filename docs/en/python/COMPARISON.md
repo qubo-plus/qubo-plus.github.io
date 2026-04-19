@@ -1,23 +1,23 @@
 ---
 layout: default
 nav_exclude: true
-title: "Comparison Operators"
+title: "Comparison Constraints"
 nav_order: 14
 lang: en
 hreflang_alt: "ja/python/COMPARISON"
 hreflang_lang: "ja"
 ---
 
-# Comparison Operators
-PyQBPP supports two types of operators for creating constraints:
+# Comparison Constraints
+PyQBPP supports two types of constraints:
 
-- **Equality operator**: `qbpp.constrain(f, equal=n)`, where `f` is an expression and `n` is an integer.
-- **Range operator**: `qbpp.constrain(f, between=(l, u))`, where `f` is an expression and `l`, `u` ($l\leq u$) are integers.
+- **Equality constraint**: `qbpp.constrain(f, equal=n)`, where `f` is an expression and `n` is an integer.
+- **Range constraint**: `qbpp.constrain(f, between=(l, u))`, where `f` is an expression and `l`, `u` ($l\leq u$) are integers.
 
-These operators return a constraint expression whose value **takes the minimum value 0 if and only if the corresponding constraint is satisfied**.
+Both return a constraint expression whose value **takes the minimum value 0 if and only if the corresponding constraint is satisfied**.
 
-## Equality Operator
-The equality operator `qbpp.constrain(f, equal=n)` creates the following expression:
+## Equality Constraint
+The equality constraint `qbpp.constrain(f, equal=n)` creates the following expression:
 
 $$
 (f-n)^2
@@ -60,7 +60,7 @@ a=1, b=1, c=0, f=0, body=3
 These results confirm that two optimal solutions attain `f = 0` and satisfy `body = 3`.
 
 ## Notes on Supported Equality Forms
-PyQBPP supports the equality operator only in the following form:
+PyQBPP supports the equality constraint only in the following form:
 - **`qbpp.constrain(expression, equal=integer)`**
 
 The form `expression1 == expression2` is not directly supported.
@@ -70,8 +70,8 @@ Instead of `expression1 == expression2`, you can rewrite the constraint as:
 which is fully supported.
 
 
-## Range Operator
-The range operator `qbpp.constrain(f, between=(l, u))` ($l\leq u$) creates an expression that attains the minimum value of 0 if and only if the constraint is satisfied.
+## Range Constraint
+The range constraint `qbpp.constrain(f, between=(l, u))` ($l\leq u$) creates an expression that attains the minimum value of 0 if and only if the constraint is satisfied.
 
 We consider the following cases depending on the values of $l$ and $u$.
 - **Case 1**: **$u=l$**
@@ -81,7 +81,7 @@ We consider the following cases depending on the values of $l$ and $u$.
 
 ### Case 1: $u=l$
 If $u=l$, the range constraint reduces to the equality constraint $f=l$,
-which can be implemented directly using the equality operator.
+which can be implemented directly using the equality constraint.
 
 ### Case 2: $u=l+1$
 If $u=l+1$, the following expression is created:
@@ -241,8 +241,8 @@ f_4 &= (f-(2x_{1,0}+x_{1,1}+1))(f-(2x_{1,0}+x_{1,1}+2))
 \end{aligned}
 $$
 
-### PyQBPP Program Using the Range Operator
-The following program demonstrates the use of the range operator in PyQBPP:
+### PyQBPP Program Using the Range Constraint
+The following program demonstrates the use of the range constraint in PyQBPP:
 {% raw %}
 ```python
 import pyqbpp as qbpp
@@ -277,13 +277,13 @@ a=1, b=1, c=0, f=0, body=13, sol=0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{
 ```
 {% endraw %}
 
-## Lower and Upper Bound Operators
-PyQBPP does not directly support the following **one-sided bound operators** with standalone syntax.
+## Lower and Upper Bound Constraints
+PyQBPP does not directly support the following **one-sided bound constraints** with standalone syntax.
 Instead, PyQBPP supports them by setting one end of `between` to `None`:
-- **Lower-bound operator**: `between=(l, None)` → $l\leq f\leq +\infty$
-- **Upper-bound operator**: `between=(None, u)` → $-\infty \leq f\leq u$
+- **Lower-bound constraint**: `between=(l, None)` → $l\leq f\leq +\infty$
+- **Upper-bound constraint**: `between=(None, u)` → $-\infty \leq f\leq u$
 
-Since the range operator internally introduces auxiliary variables,
+Since the range constraint internally introduces auxiliary variables,
 true infinite values cannot be represented explicitly.
 Therefore, PyQBPP estimates **finite maximum and minimum values** of the expression
 $f$ and substitutes them for $+\infty$ and $-\infty$, respectively.
@@ -307,10 +307,10 @@ when constructing the corresponding range constraints.
 > $f\leq u$ meaning $0\leq f\leq u$) and **QUBO-style interpretations** (e.g., $f\leq u$ meaning $-\infty\leq f\leq u$),
 > which could otherwise lead to subtle modeling errors.
 
-### PyQBPP Programs for Lower and Upper Bound Operators
+### PyQBPP Programs for Lower and Upper Bound Constraints
 In PyQBPP, an infinite value is represented by `None` on the corresponding side of `between`.
 
-The following program demonstrates **the lower-bound operator**:
+The following program demonstrates **the lower-bound constraint**:
 {% raw %}
 ```python
 import pyqbpp as qbpp
@@ -340,7 +340,7 @@ a=1, b=1, c=1, f=0, body=24, sol=0:{{a,1},{b,1},{c,1},{{s0}[0],1},{{s0}[1],1},{{
 ```
 {% endraw %}
 
-The following program demonstrates **the upper-bound operator**:
+The following program demonstrates **the upper-bound constraint**:
 {% raw %}
 ```python
 import pyqbpp as qbpp

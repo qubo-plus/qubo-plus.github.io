@@ -40,12 +40,25 @@ for i in range(n):
 |------------|-------------|
 | `sol[x] = value` | Set variable `x` to `value` (0 or 1) |
 | `sol[vi] = value` | Set integer variable `vi` to `value` |
+| `sol.set(x, value)` | Set variable `x` to `value` (0 or 1) |
 | `sol.set(other_sol)` | Copy all variable values from another solution |
+| `sol.set({x: val, ...})` | Set variable values from a dict |
+| `sol.set([(x, val), ...])` | Set variable values from a list of tuples |
+| `sol.set(other_sol, {x: val, ...})` | Copy from another solution, then apply dict |
+| `sol.set(other_sol, [(x, val), ...])` | Copy from another solution, then apply list |
 
 ```python
 sol[x[0]] = 1
 sol[x[1]] = 0
 sol[vi] = 5
+
+# Set multiple values at once with a dict
+sol.set({x[0]: 1, x[1]: 0, vi: 5})
+```
+
+The `set` method returns `self`, enabling chaining:
+```python
+full_sol = Sol(f).set(sol).set({x[0]: 1})
 ```
 
 ## Energy and Evaluation
@@ -89,7 +102,7 @@ and provide additional information via **`info`**.
 | `sol.info` | `dict` | Key-value pairs of solver information |
 | `sol.sols` | `list[Sol]` | All collected solutions |
 | `sol.size` | `int` | Number of collected solutions |
-| `sol[i]` | `Sol` | Access the $i$-th solution |
+| `sol.sols[i]` | `Sol` | Access the $i$-th solution |
 
 The `info` dictionary contains solver metadata as string key-value pairs.
 Representative keys include:

@@ -113,7 +113,7 @@ y = qbpp.var("y", between=(0, 10))
 
 f = qbpp.constrain(x + y, equal=10)
 g = qbpp.constrain(2 * x + 4 * y, equal=28)
-h = f + g                  # h は Expr（ExprExpr は penalty に decay）
+h = f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
@@ -139,7 +139,7 @@ print("g.body =", g.body, "=", sol(g.body))
 > 結果は `Expr` 型になり自由に変更できます。
 >
 > ```python
-> h = f + g                   # h は Expr (f, g は ExprExpr で decay)
+> h = f + g
 > h.simplify_as_binary()      # OK — Expr は in-place 可能
 >
 > e  = qbpp.sqr(vi - 3)                    # VarInt → Expr → sqr
@@ -183,4 +183,4 @@ g.body = 2*x[0] +4*x[1] +8*x[2] +6*x[3] +4*y[0] +8*y[1] +16*y[2] +12*y[3] = 28
 > **注意**
 > PyQBPPの `qbpp.constrain(expr, equal=n)` は、`expr` が式で `n` が整数の場合にのみサポートされています。
 > `式 == 式` の形式の等価制約は直接サポートされていません。`qbpp.constrain(expr1 - expr2, equal=0)` と書き換えてください。
-> 詳細は[**比較演算子**](COMPARISON)で説明しています。
+> 詳細は[**比較制約**](COMPARISON)で説明しています。

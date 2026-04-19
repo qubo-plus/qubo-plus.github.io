@@ -119,7 +119,7 @@ int main() {
 
   auto f = x + y == 10;
   auto g = 2 * x + 4 * y == 28;
-  auto h = f + g;            // h is Expr (ExprExpr decays to penalty)
+  auto h = f + g;
   h.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(h);
@@ -149,7 +149,7 @@ int main() {
 > is an `Expr` and can be mutated freely:
 >
 > ```cpp
-> auto h = f + g;            // h is Expr (f, g are ExprExpr, both decay)
+> auto h = f + g;
 > h.simplify_as_binary();    // OK — Expr supports in-place
 >
 > auto e = qbpp::sqr(vi - 3);          // VarInt → Expr via subtraction → sqr

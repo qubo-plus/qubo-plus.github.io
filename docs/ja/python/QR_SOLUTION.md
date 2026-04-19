@@ -40,18 +40,25 @@ for i in range(n):
 |------------|-------------|
 | `sol[x] = value` | 変数 `x` を `value`（0 または 1）に設定 |
 | `sol[vi] = value` | 整数変数 `vi` を整数値 `value` に設定 |
+| `sol.set(x, value)` | 変数 `x` を `value`（0 または 1）に設定 |
 | `sol.set(other_sol)` | 別の解からすべての変数値をコピー |
+| `sol.set({x: val, ...})` | 辞書で変数値を一括設定 |
+| `sol.set([(x, val), ...])` | タプルリストで変数値を一括設定 |
+| `sol.set(other_sol, {x: val, ...})` | 別の解からコピーし、辞書で上書き |
+| `sol.set(other_sol, [(x, val), ...])` | 別の解からコピーし、タプルリストで上書き |
 
 ```python
 sol[x[0]] = 1
 sol[x[1]] = 0
 sol[vi] = 5
+
+# 辞書で一括設定
+sol.set({x[0]: 1, x[1]: 0, vi: 5})
 ```
 
 `set` メソッドは `self` を返すため、チェーンが可能です:
 ```python
-full_sol = Sol(f).set(sol)
-full_sol[x[0]] = 1
+full_sol = Sol(f).set(sol).set({x[0]: 1})
 ```
 
 ## エネルギーと評価
@@ -95,7 +102,7 @@ full_sol[x[0]] = 1
 | `sol.info` | `dict` | ソルバー情報のキーバリューペア |
 | `sol.sols` | `list[Sol]` | 収集された全解 |
 | `sol.size` | `int` | 収集された解の数 |
-| `sol[i]` | `Sol` | $i$ 番目の解にアクセス |
+| `sol.sols[i]` | `Sol` | $i$ 番目の解にアクセス |
 
 `info` 辞書はソルバーのメタデータを文字列のキーバリューペアとして格納しています。
 代表的なキー:

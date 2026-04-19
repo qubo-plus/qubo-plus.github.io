@@ -94,9 +94,9 @@ and provide additional information via **`info()`**.
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | Key-value pairs of solver information |
-| `sol.sols()` | `const std::vector<Sol>&` | All collected solutions |
+| `sol.sols` | `const std::vector<Sol>&` | All collected solutions |
 | `sol.size` | `size_t` | Number of collected solutions |
-| `sol[i]` | `const Sol&` | Access the $i$-th solution |
+| `sol.sols[i]` | `const Sol&` | Access the $i$-th solution |
 
 The `info()` object contains solver metadata as string key-value pairs.
 Representative keys include:

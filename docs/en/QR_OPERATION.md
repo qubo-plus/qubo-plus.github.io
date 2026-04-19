@@ -33,8 +33,7 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Replace                       | `replace()`                                            | Member        | `qbpp::Expr`     | `qbpp::MapList`                |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Global        | `qbpp::Expr`     | `ExprType`               |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Member        | `qbpp::Expr`     | -                      |
-| Range Slice                   | `slice()`, `head()`, `tail()`                            | Global        | `Array`          | `Array`                  |
-| Axis-fixing Slice             | `row()`, `col()`, `slice()`                              | Global        | `Array`          | `Array`                  |
+| Slice (tuple indexing)        | `operator()`                                             | Member        | `Array`          | -                        |
 | Concatenation                 | `concat()`                                               | Global        | `Array`          | `Array`-`Array`     |
 | Concatenation (with scalar)   | `concat()`                                               | Global        | `Array`          | `Expr`-`Array`         |
 
@@ -231,49 +230,38 @@ $2^d$ where $d$ is the maximum degree of all terms, so that all coefficients bec
 
 As with `spin_to_binary()`, both global and member function variants of `binary_to_spin()` are provided.
 
-## Slice Functions: `slice()`, `head()`, `tail()`, `row()`, `col()`
-The slice functions extract sub-arrays from an array.
+## Tuple indexing `a(...)`
 
-### Range Slice: `slice()`, `head()`, `tail()`
+`Array::operator()` provides Python-like tuple indexing to extract sub-arrays. Each argument specifies one axis:
 
-Extract a contiguous sub-range along a dimension.
+| Argument | Meaning | Dimension change |
+|---|---|---|
+| integer `i` | Fix the axis at `i` | Axis removed |
+| `qbpp::all` | Full range `:` | Axis kept |
+| `qbpp::slice(from, to)` | Range `[from, to)` | Axis kept |
+| `qbpp::end` / `qbpp::end - n` | Position computed from the axis size | Fix or range endpoint |
 
-**Member functions** (in-place, modify the array):
-- **`v.slice(dim, from, to)`**: Keeps elements in the range `[from, to)` along dimension `dim`.
-- **`v.head(n)`**: Keeps the first `n` elements.
-- **`v.tail(n)`**: Keeps the last `n` elements.
+Trailing axes not given are implicitly `qbpp::all`.
 
-**Global functions** (non-destructive, return a new array):
-- **`qbpp::slice(v, dim, from, to)`**
-- **`qbpp::head(v, n)`**, **`qbpp::head(v, n, dim)`**
-- **`qbpp::tail(v, n)`**, **`qbpp::tail(v, n, dim)`**
+The output is built with a single call to the unified `view` C ABI, so the copy cost is **O(output_size)**, independent of the input size.
 
-### Axis-fixing Slice: `row()`, `col()`, `slice()`
+### Examples
 
-Extract a sub-array by fixing specific axes at given indices.
-
-**Member functions** (in-place):
-- **`v.row(i)`**: Fix axis 0 at index `i`.
-- **`v.col(j)`**: Fix axis 1 at index `j`.
-- **`v.slice({% raw %}{{axis, index}, ...}{% endraw %})`**: Fix multiple axes simultaneously.
-
-**Global functions** (non-destructive):
-- **`qbpp::row(v, i)`**
-- **`qbpp::col(v, j)`**
-- **`qbpp::slice(v, {% raw %}{{axis, index}, ...}{% endraw %})`**
-
-### Example: Adjacent Difference
 ```cpp
-auto x = qbpp::var("x", 5);
-auto diff = qbpp::head(x, 4) - qbpp::tail(x, 4);
-// diff = {x[0]-x[1], x[1]-x[2], x[2]-x[3], x[3]-x[4]}
-```
-
-### Example: Row Operations
-```cpp
+// 2D array
 auto x = qbpp::var("x", 3, 4);
-auto prod = qbpp::row(x, 0) * qbpp::row(x, 1);  // element-wise product of rows
-auto s = qbpp::sum(prod);
+auto row0 = x(0);                        // fix axis 0 to 0 → 1D (4,)
+auto col2 = x(qbpp::all, 2);             // fix axis 1 to 2 → 1D (3,)
+auto sub  = x(qbpp::slice(0, 2), qbpp::slice(1, 3));  // 2D (2, 2)
+
+// 3D array
+auto y = qbpp::var("y", 2, 3, 4);
+auto s  = y(1, qbpp::all, 3);            // fix axes 0 and 2 → 1D (3,)
+auto v  = y(1, 2, 3);                    // all axes fixed → Var
+
+// end (MATLAB-like)
+auto last5 = x(qbpp::slice(qbpp::end - 5, qbpp::end));  // last 5 elements
+auto mid   = x(qbpp::all, qbpp::slice(1, qbpp::end - 1));  // interior only
 ```
 
 For more details and examples, see **[Slice and Concat Functions](SLICE_CONCAT)**.

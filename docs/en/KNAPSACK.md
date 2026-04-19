@@ -74,7 +74,7 @@ int main() {
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (size_t i = 0; i < sols.size(); ++i) {
-    const auto sol = sols[i];
+    const auto& sol = sols.sols[i];
     std::cout << "[Solution " << i << "]" << std::endl;
     std::cout << "Energy = " << sol.energy() << std::endl;
     std::cout << "Constraint  = " << sol(*constraint) << std::endl;

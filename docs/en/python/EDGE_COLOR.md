@@ -94,7 +94,7 @@ for i in range(n):
     for u in adj[i]:
         for v in adj[i]:
             if u < v:
-                different += qbpp.sum(qbpp.row(x, u) * qbpp.row(x, v))
+                different += qbpp.sum(x[u] * x[v])
 
 f = onehot + different
 
@@ -118,7 +118,7 @@ We then compute the maximum degree $\Delta$ and set `m=`$\Delta$.
 Next, we define an `s`$\times$`m` matrix `x` of binary variables, where `x[i][j]=1` means that edge `i` is assigned color `j`.
 We construct the expressions `onehot`, `different`, and `f` as follows:
 - `onehot` enforces that each edge is assigned exactly one color, using `qbpp.constrain(..., equal=1)` on each row via `qbpp.vector_sum(x)`.
-- `different` penalizes pairs of edges that share an endpoint and are assigned the same color, using `qbpp.row(x, u) * qbpp.row(x, v)` to form the elementwise product of the two rows and `qbpp.sum()` to sum across the `m` color columns.
+- `different` penalizes pairs of edges that share an endpoint and are assigned the same color, using `x[u] * x[v]` to form the elementwise product of the two rows and `qbpp.sum()` to sum across the `m` color columns.
 - `f = onehot + different` is the QUBO objective, which attains the minimum value 0 if and only if a valid `m`-edge-coloring is found.
 
 We solve the resulting QUBO using the Easy Solver with `target_energy=0`, and store the solution in `sol`. We then print the values of `onehot` and `different` evaluated at `sol`.

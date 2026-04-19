@@ -54,7 +54,7 @@ We then construct an instance of the class `qbpp.EasySolver`
 by passing `f` to its constructor.
 Before doing so, `f` must be simplified for binary variables by calling **`simplify_as_binary()`**.
 The constructor returns an `EasySolver` object named **`solver`**.
-Since we know that the optimal value is $f=0$, we pass `target_energy` as a keyword argument to `search()`.
+Since we know that the optimal value is $f=0$, we pass `target_energy=0` as a keyword argument to `search()`. This tells the solver to stop as soon as it finds a solution with energy at most 0.
 Calling the **`search()`** method on `solver` returns a solution named **`sol`**, which is printed using `print()`.
 
 ```python
@@ -180,4 +180,4 @@ The output of this program is as follows:
 Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 ```
 
-For details on parameters, callbacks, multiple solution collection, and solution hints, see **[ABS3 Solver](ABS3)**.
+For details on parameters, callbacks, multiple solution collection, and solution hints, see **[Easy Solver](EASYSOLVER)**, **[Exhaustive Solver](EXHAUSTIVE)**, and **[ABS3 Solver](ABS3)**.

@@ -145,5 +145,5 @@ C++ raises a compile-time error for `+=` etc. on these types, while Python silen
 ## See also
 
 - [Integer Variables and Solving Simultaneous Equations](INTEGER) — examples using `qbpp.var(..., between=...)` and `qbpp.constrain(...)`
-- [Comparison Operators](COMPARISON) — `qbpp.constrain(f, equal=n)` constraint creation
+- [Comparison Constraints](COMPARISON) — `qbpp.constrain(f, equal=n)` constraint creation
 - [Replace](REPLACE) — `qbpp.replace(...)` usage

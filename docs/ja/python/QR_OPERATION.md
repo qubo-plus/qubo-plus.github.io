@@ -53,7 +53,7 @@ hreflang_lang: "en"
 | バイナリ → スピン変換    | `qbpp.binary_to_spin(f)`                          | Global   | 式              | 式                     |
 | バイナリ → スピン変換    | `f.binary_to_spin()`                              | In-place | 式              | —                      |
 | スライス                | `v[from:to]`, `v[:, from:to]`                     | Global   | array         | array                |
-| 連結                   | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | array         | array, 整数・変数・式 |
+| 連結                   | `qbpp.concat([a, b, ...], axis=0)`                | Global   | array         | array/スカラーのリスト |
 
 ## 代入: `g = f` と `g = qbpp.copy(f)`
 Python の `=` は**名前の束縛**であって値のコピーではありません。
@@ -350,26 +350,22 @@ print(x[1:3, 2:4])  # 1-2行, 2-3列
 
 ## 連結関数: `concat()`
 
-`concat()` 関数は配列の連結やスカラーの追加を行います。
+`concat()` 関数は配列とスカラーのリストを指定した軸で連結します。
 
-- **`qbpp.concat(a, b)`**: 最外次元に沿って2つの配列を連結。
-- **`qbpp.concat(scalar, v)`**: 先頭にスカラーを追加（`Expr` に変換）。
-- **`qbpp.concat(v, scalar)`**: 末尾にスカラーを追加。
-- **`qbpp.concat(scalar, v, dim)`**: `dim=0` でスカラーで埋めた行を追加、`dim=1` で各行の先頭にスカラーを追加。
-- **`qbpp.concat(v, scalar, dim)`**: `dim=0` で行を追加、`dim=1` で各行の末尾に追加。
-
-スカラーは整数・変数・式のいずれでも受け付け、要素型の異なる array 同士を連結する場合は自動的に式の array に昇格されます。
+- **`qbpp.concat([a, b, c, ...], axis=0)`**: 軸 `axis` に沿ってリスト内の各要素を連結。
+- リスト要素は array とスカラー（整数・変数・式）の混在が可能。スカラーは他の配列の形状に合わせて軸方向にブロードキャストされます。
+- 要素型の異なる array 同士を連結する場合は自動的に式の array に昇格されます。
 
 ### 例
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=4)
-y = qbpp.concat(1, qbpp.concat(x, 0))
+y = qbpp.concat([1, x, 0])
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
 z = qbpp.var("z", shape=(3, 4))
-zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
+zg = qbpp.concat([1, z, 0], axis=1)
 # 各行: [1, z[i][0], ..., z[i][3], 0]
 ```
 

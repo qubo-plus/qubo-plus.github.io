@@ -153,7 +153,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(time_limit=5.0, target_energy=0)
 
-full_sol = qbpp.Sol(f).set([ml, sol])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 for i in range(workers):
     wd = full_sol(workers_working_days[i])
@@ -185,7 +185,7 @@ Pythonの `dict` オブジェクト `ml` は、0日目と32日目に対応する
 
 次に、Easy Solver が `g` に適用され、得られた解が `sol` に格納されます。
 固定された変数を参照する元の式を評価するために、
-`full_sol = qbpp.Sol(f).set([ml, sol])` を構築します。これは `ml` の固定値と `sol` の値を統合したものです。
+`full_sol = qbpp.Sol(f).set(sol, ml)` を構築します。これは `ml` の固定値と `sol` の値を統合したものです。
 
 得られた解は以下のとおりです：
 ```

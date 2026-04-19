@@ -114,7 +114,7 @@ y = qbpp.var("y", between=(0, 10))
 
 f = qbpp.constrain(x + y, equal=10)
 g = qbpp.constrain(2 * x + 4 * y, equal=28)
-h = f + g                  # h is Expr (ExprExpr decays to penalty)
+h = f + g
 h.simplify_as_binary()
 
 solver = qbpp.EasySolver(h)
@@ -143,7 +143,7 @@ print("g.body =", g.body, "=", sol(g.body))
 > is an `Expr` and can be mutated freely:
 >
 > ```python
-> h = f + g                    # h is Expr (f, g are ExprExpr, both decay)
+> h = f + g
 > h.simplify_as_binary()       # OK — Expr supports in-place
 >
 > e  = qbpp.sqr(vi - 3)                    # VarInt → Expr via subtraction → sqr
@@ -187,4 +187,4 @@ Thus, we can confirm that the values of `x`, `y`, and the constraint expressions
 > **WARNING**
 > PyQBPP supports the `qbpp.constrain(expr, equal=n)` form only when `expr` is an expression and `n` is an integer.
 > Equality constraints of the form `expression == expression` are not supported directly; use `qbpp.constrain(expr1 - expr2, equal=0)` instead.
-> Details are explained in [**Comparison Operators**](COMPARISON).
+> Details are explained in [**Comparison Constraints**](COMPARISON).

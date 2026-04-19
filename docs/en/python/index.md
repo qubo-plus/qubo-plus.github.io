@@ -40,7 +40,7 @@ usage patterns, and, where appropriate, internal implementations.
 2. [Basic Operators and Functions](OPERATOR)
 3. [Basic Operators and Functions for Arrays](OPVECTOR)
 4. [Multi-dimensional Variables and Expressions](MULTIDIM)
-5. [Comparison Operators](COMPARISON)
+5. [Comparison Constraints](COMPARISON)
 6. [Expression Classes](EXPRESSION)
 7. [Evaluating Expressions](EVAL)
 8. [Replace Functions](REPLACE)

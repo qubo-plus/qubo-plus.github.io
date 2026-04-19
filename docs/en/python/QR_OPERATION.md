@@ -55,7 +55,7 @@ For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` wi
 | Binary → spin          | `qbpp.binary_to_spin(f)`                          | Global   | expression                        | expression                 |
 | Binary → spin          | `f.binary_to_spin()`                              | In-place | expression                        | —                          |
 | Slice                  | `v[from:to]`, `v[:, from:to]`                     | Global   | array                           | array                    |
-| Concatenation          | `qbpp.concat(a, b)`, `qbpp.concat(a, b, dim)`     | Global   | array                           | array, integer / variable / expression |
+| Concatenation          | `qbpp.concat([a, b, ...], axis=0)`                | Global   | array                           | list of arrays/scalars |
 
 ## Assignment: `g = f` vs. `g = qbpp.copy(f)`
 Python's `=` is **name binding**, not value copying.
@@ -358,26 +358,22 @@ print(x[1:3, 2:4])  # rows 1-2, columns 2-3
 
 ## Concatenation function: `concat()`
 
-The `concat()` function joins arrays or prepends/appends scalars.
+The `concat()` function concatenates a list of arrays and scalars along the given axis.
 
-- **`qbpp.concat(a, b)`**: Concatenates two arrays along the outermost dimension.
-- **`qbpp.concat(scalar, v)`**: Prepends a scalar (converted to `Expr`).
-- **`qbpp.concat(v, scalar)`**: Appends a scalar.
-- **`qbpp.concat(scalar, v, dim)`**: `dim=0` prepends a row filled with the scalar; `dim=1` prepends the scalar to each row.
-- **`qbpp.concat(v, scalar, dim)`**: `dim=0` appends a row; `dim=1` appends to each row.
-
-Scalars can be an integer, a variable, or an expression. When the two sides have different element types, the result is automatically promoted to an array of expressions.
+- **`qbpp.concat([a, b, c, ...], axis=0)`**: Concatenates the items along the specified `axis`.
+- List items may be arrays or scalars (integer, variable, or expression). Scalars are broadcast to match the other arrays' shape along the specified axis.
+- When items have different element types, the result is automatically promoted to an array of expressions.
 
 ### Example
 ```python
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=4)
-y = qbpp.concat(1, qbpp.concat(x, 0))
+y = qbpp.concat([1, x, 0])
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
 z = qbpp.var("z", shape=(3, 4))
-zg = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)
+zg = qbpp.concat([1, z, 0], axis=1)
 # each row: [1, z[i][0], ..., z[i][3], 0]
 ```
 

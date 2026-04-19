@@ -16,7 +16,7 @@ hreflang_lang: "en"
 > - **`simplify()` / `simplify_as_binary()` / `simplify_as_spin()` は in-place 対応**: VarInt は Expr 部分を、ExprExpr は penalty と body の両方を同時に簡約
 > - **`sqr()`, `replace()` はエラー** → `TypeError`。代替はグローバル関数 (`qbpp.sqr(vi)` 等)
 > - **複合代入 (`vi += 1` など) は silent rebind**: Python の immutable 型 (Decimal, Fraction, str) と同じ挙動で、`vi` は新しい `Expr` に再束縛されます (元の VarInt の metadata / ExprExpr の body は破棄)
-> - **算術文脈では `Expr` に decay**: 一旦 `Expr` になれば in-place 変更も自由
+> - **算術文脈では `Expr` として扱われる**: 一旦 `Expr` になれば in-place 変更も自由
 
 ---
 
@@ -40,11 +40,11 @@ hreflang_lang: "en"
 | 算術 (右辺 VarInt) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | 両辺 `_expr()` |
 | 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | 制約生成 |
 | 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | 範囲制約 |
-| グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | decay → Expr に適用 |
+| グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | `Expr` に変換して適用 |
 | メタ情報プロパティ | `vi.name`, `vi.min_val`, `vi.max_val` | 各種 | read-only |
 | 構造プロパティ・メソッド | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
 | 配列プロパティ | `vi.vars`, `vi.coeffs` | `list` | read-only |
-| Expr 取得 | `Expr(vi)` (decay), `str(vi)` | `Expr` / `str` | clone |
+| Expr 取得 | `Expr(vi)`, `str(vi)` | `Expr` / `str` | clone |
 | in-place 簡約 | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()` | `VarInt` | Expr 部分のみ簡約（メタデータ不変） |
 | 代入 | `vi = other_vi` | (再束縛) | Python の通常の代入 |
 | 複合代入 (silent rebind) | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi //= 2`, `vi /= 2` | (`vi` が `Expr` に変わる) | `vi = vi + 1` と等価。VarInt metadata は破棄 |
@@ -79,7 +79,7 @@ hreflang_lang: "en"
 | 算術 (右辺 Expr 系) | `ee + 1`, `ee * 2`, `ee + x` | `Expr` | Expr 継承 |
 | 算術 (右辺 ExprExpr) | `ee1 + ee2` | `Expr` | 両辺 penalty |
 | グローバル関数 | `qbpp.sqr(ee)`, `qbpp.simplify_as_binary(ee)`, `qbpp.replace(ee, ml)` | `Expr` | penalty に適用、新 `Expr` を返す |
-| プロパティ | `ee.body`, `str(ee)` | `Expr` / `str` | clone (penalty は `Expr(ee)` で decay) |
+| プロパティ | `ee.body`, `str(ee)` | `Expr` / `str` | clone (penalty は `Expr(ee)` で取得) |
 | 解での評価 | `sol(ee)` (penalty を評価), `sol(ee.body)` (body を評価) | `coeff_t` | 制約満足度の検証 |
 | 代入 | `ee = other_ee` | (再束縛) | Python の通常の代入 |
 | in-place 簡約 | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()` | `ExprExpr` | penalty と body を同時に簡約 |
@@ -108,7 +108,7 @@ hreflang_lang: "en"
 | `qbpp.constrain(f, equal=n)` | `ExprExpr` | 等値制約 |
 | `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約 |
 
-引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に decay)。
+引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に変換)。
 
 ---
 
@@ -116,7 +116,7 @@ hreflang_lang: "en"
 
 `VarInt` / `ExprExpr` の配列も同じ規則:
 - **要素ごとに immutable**
-- **算術では各要素が `Expr` に decay** → 結果は `Expr` 配列
+- **算術では各要素が `Expr` に変換** → 結果は `Expr` 配列
 - **in-place mutator は不可**、グローバル関数で代用
 
 ```python
@@ -145,5 +145,5 @@ C++ では `+=` 等の複合代入はコンパイルエラー、Python では si
 ## 関連ページ
 
 - [整数変数と連立方程式の求解](INTEGER) — `qbpp.var(..., between=...)` と `qbpp.constrain(...)` を使った例
-- [比較演算子](COMPARISON) — `qbpp.constrain(f, equal=n)` による制約生成
+- [比較制約](COMPARISON) — `qbpp.constrain(f, equal=n)` による制約生成
 - [置換関数](REPLACE) — `qbpp.replace(...)` の使用例

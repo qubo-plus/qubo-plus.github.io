@@ -132,7 +132,7 @@ int main() {
   auto different = qbpp::toExpr(0);
   for (size_t i = 0; i < L - 1; ++i) {
     for (size_t j = i + 1; j < L; ++j) {
-      different += qbpp::sum(qbpp::row(x, i) * qbpp::row(x, j));
+      different += qbpp::sum(x(i) * x(j));
     }
   }
 

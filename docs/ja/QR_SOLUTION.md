@@ -94,9 +94,9 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | ソルバー情報のキーバリューペア |
-| `sol.sols()` | `const std::vector<Sol>&` | 収集された全解 |
+| `sol.sols` | `const std::vector<Sol>&` | 収集された全解 |
 | `sol.size` | `size_t` | 収集された解の数 |
-| `sol[i]` | `const Sol&` | $i$ 番目の解にアクセス |
+| `sol.sols[i]` | `const Sol&` | $i$ 番目の解にアクセス |
 
 `info()` オブジェクトはソルバーのメタデータを文字列のキーバリューペアとして格納しています。
 代表的なキー:

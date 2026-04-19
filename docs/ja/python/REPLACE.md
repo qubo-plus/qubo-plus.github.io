@@ -44,7 +44,7 @@ g.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 print("sol =", sol)
 print("ml =", ml)
@@ -65,7 +65,7 @@ print("Q:", Q)
 次に、Exhaustive Solverを `g` に適用して最適解を求め、`sol` に格納します。
 式 `g` にはもはや変数 `x[0]` と `x[1]` が含まれていないため、`sol` にもこれらの変数の割り当ては含まれません。
 
-全ての変数を含む完全な解を構築するために、`f` に対するゼロ初期化された解を `qbpp.Sol` で作成し、`set([sol, ml])` でバイナリ値を設定します。
+全ての変数を含む完全な解を構築するために、`f` に対するゼロ初期化された解を `qbpp.Sol` で作成し、`set(sol, ml)` でバイナリ値を設定します。
 
 以下の出力から、意図した通り64が $P$ に、27が $Q$ に配置されていることが確認できます：
 {% raw %}
@@ -96,7 +96,7 @@ g.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 ```
 このプログラムでは、変数 `x[0]` が否定リテラル `~x[1]` に置換されるように辞書 `ml` を定義しています。
 
@@ -106,7 +106,7 @@ full_sol = qbpp.Sol(f).set([sol, ml])
 次に、Exhaustive Solverを使用して `g` の最適解を求め、`sol` に格納します。
 `x[0]` は `g` に現れないため、解 `sol` にも `x[0]` の割り当ては含まれません。
 
-`f` の元の変数に対する完全な解を構築するために、ゼロ初期化された解を `qbpp.Sol(f)` で作成し、`set([sol, ml])` を呼び出して値を設定します。
+`f` の元の変数に対する完全な解を構築するために、ゼロ初期化された解を `qbpp.Sol(f)` で作成し、`set(sol, ml)` を呼び出して値を設定します。
 `sol` と `ml` は `set()` に一緒にリストで渡す必要があることに注意してください。これは `ml` のマッピング（例: `x[0] = ~x[1]`）が `sol` に含まれる変数値に依存する場合があるためです。
 
 このプログラムは以下の出力を生成します：
@@ -167,14 +167,14 @@ print("g =", g)
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
 ```
 このプログラムでは、辞書 `ml` を使用して、元の式 `f` 中の整数変数 `p` と `q` の値を固定しています。
 `qbpp.replace(f, ml)` を適用することで、`f` 中の変数 `p` と `q` がそれぞれ定数5と7に置き換えられます。
 結果の式は `g` に格納され、変数 `r` のみを含みます。
 次にEasy Solverを `g` に適用し、結果の解を `sol` に格納します。
-全ての変数を含む完全な解を構築するために、`f` に対するゼロ初期化された解を `qbpp.Sol` で作成し、`set([sol, ml])` でバイナリ値を設定します。
+全ての変数を含む完全な解を構築するために、`f` に対するゼロ初期化された解を `qbpp.Sol` で作成し、`set(sol, ml)` でバイナリ値を設定します。
 最後に、`p`、`q`、`r` の値を出力します。
 
 このプログラムは以下の出力を生成し、乗算結果が正しく得られたことが確認できます：

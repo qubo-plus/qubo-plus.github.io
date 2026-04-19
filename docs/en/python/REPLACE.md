@@ -45,7 +45,7 @@ g.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 print("sol =", sol)
 print("ml =", ml)
@@ -66,7 +66,7 @@ The resulting expression is stored in **`g`**.
 The Exhaustive Solver is then applied to `g` to find an optimal solution, which is stored in `sol`.
 Note that the expression `g` no longer contains the variables `x[0]` and `x[1]`, and consequently, `sol` also does not include assignments for these variables.
 
-To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set([sol, ml])`.
+To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set(sol, ml)`.
 
 From the output below, we can confirm that 64 is placed in $P$ and 27 is placed in $Q$, as intended:
 {% raw %}
@@ -97,7 +97,7 @@ g.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 ```
 In this program, a dict `ml` is defined so that the variable `x[0]` is replaced by the negated literal `~x[1]`.
 
@@ -107,7 +107,7 @@ As a result, `g` no longer contains the variable `x[0]`; instead, all occurrence
 The Exhaustive Solver is then used to find an optimal solution for `g`, which is stored in `sol`.
 Since `x[0]` does not appear in `g`, the solution `sol` also does not include an assignment for `x[0]`.
 
-To construct a complete solution over the original variables in `f`, we start with a zero-initialized solution via `qbpp.Sol(f)` and then populate it by calling `set([sol, ml])`.
+To construct a complete solution over the original variables in `f`, we start with a zero-initialized solution via `qbpp.Sol(f)` and then populate it by calling `set(sol, ml)`.
 Note that `sol` and `ml` must be passed to `set()` together (as a list), because the mapping in `ml` (e.g., `x[0] = ~x[1]`) may depend on variable values contained in `sol`.
 
 This program produces the following output:
@@ -168,7 +168,7 @@ print("g =", g)
 solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
 ```
 In this program, a dict `ml` is used to fix the values of the integer variables
@@ -176,7 +176,7 @@ In this program, a dict `ml` is used to fix the values of the integer variables
 By applying `qbpp.replace(f, ml)`, the variables `p` and `q` in `f` are replaced with the constants 5 and 7, respectively.
 The resulting expression is stored in `g`, which now contains only the variable `r`.
 The Easy Solver is then applied to `g`, and the resulting solution is stored in `sol`.
-To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set([sol, ml])`.
+To construct a complete solution that includes all variables, we create a zero-initialized solution for `f` via `qbpp.Sol` and then set the binary values using `set(sol, ml)`.
 Finally, the values of `p`, `q`, and `r` are printed.
 
 This program produces the following output, confirming that the multiplication result is obtained correctly:

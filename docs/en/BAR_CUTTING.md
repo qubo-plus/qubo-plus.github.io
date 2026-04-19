@@ -73,7 +73,7 @@ int main() {
 
   auto bar_length_used = qbpp::expr(M);
   for (size_t i = 0; i < M; i++) {
-    bar_length_used[i] = qbpp::sum(qbpp::row(x, i) * l);
+    bar_length_used[i] = qbpp::sum(x(i) * l);
   }
   auto bar_constraint = 0 <= bar_length_used <= L;
 

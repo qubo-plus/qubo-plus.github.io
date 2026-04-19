@@ -249,5 +249,5 @@ This program outputs:
 
 ## Sub-array access and operations
 
-To extract a sub-array (e.g., a row or column) from a multi-dimensional array, use the `row()`, `col()`, and `slice()` methods.
+To extract a sub-array (e.g., a row or column) from a multi-dimensional array, use tuple indexing via `Array::operator()`.
 For slicing along arbitrary axes and concatenation, see **[Slice and Concat Functions](SLICE_CONCAT)**.

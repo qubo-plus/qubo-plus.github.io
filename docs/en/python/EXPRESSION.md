@@ -190,4 +190,4 @@ Like `VarInt`, an `ExprExpr` **decays to `Expr`** (its penalty part) in arithmet
 f = c1 + c2 + qbpp.sqr(x - 4)        # mixing ExprExpr and Expr freely
 f.simplify_as_binary()
 ```
-Use `c.body` to access the unevaluated expression (for example, to inspect `sol(c.body)` after solving). Details and the list of supported comparison forms are in [Comparison Operators](COMPARISON).
+Use `c.body` to access the unevaluated expression (for example, to inspect `sol(c.body)` after solving). Details and the list of supported comparison forms are in [Comparison Constraints](COMPARISON).

@@ -143,7 +143,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(time_limit=1.0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 # 置換行列から巡回路（頂点番号のリスト）を抽出
 tour = []
@@ -162,7 +162,7 @@ print(f"Tour: {tour}")
 結果の式は `g` に格納され、簡約化されます。
 
 次に、`g` に対するソルバーを作成して解 `sol` を得ます。
-`sol` は縮小された問題に対応するため、`f` に対する `qbpp.Sol` オブジェクトを作成し、ソルバーの出力 `sol` と固定割り当て `ml` の両方を `set([sol, ml])` で設定します。
+`sol` は縮小された問題に対応するため、`f` に対する `qbpp.Sol` オブジェクトを作成し、ソルバーの出力 `sol` と固定割り当て `ml` の両方を `set(sol, ml)` で設定します。
 結果の `full_sol` は `x` のすべての変数に対する完全な割り当てを格納します。
 
 最後に、`full_sol(x)` で表される置換行列を各行の走査により順列に変換し、出力します。

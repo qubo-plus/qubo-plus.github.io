@@ -38,13 +38,12 @@ x = qbpp.var("x", shape=(2, 3, 4))
 print(x[:, :, :2]) # 3次元目の先頭2要素
 ```
 
-グローバル関数 `qbpp.slice()`、`qbpp.head()`、`qbpp.tail()` を使うと、
-指定した次元に沿って範囲スライスを行えます（次元数は保持されます）:
+Python のスライス構文で、指定した次元に沿って範囲スライスを行えます（次元数は保持されます）:
 
 ```python
-qbpp.slice(x, 1, 3, dim=0)   # axis 0 の 1-2 行
-qbpp.head(x, 3)              # axis 0 の先頭3つ
-qbpp.tail(x, 2, dim=1)       # axis 1 の末尾2つ
+x[1:3]         # axis 0 の 1-2 行
+x[:3]          # axis 0 の先頭3つ
+x[:, -2:]      # axis 1 の末尾2つ
 ```
 
 ## 連結 (concat)
@@ -56,14 +55,14 @@ import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=4)
 
-# 1D: スカラー + 配列、配列 + スカラー
-y = qbpp.concat(1, qbpp.concat(x, 0))
+# 1D: スカラーと配列を混在したリストを渡す
+y = qbpp.concat([1, x, 0])
 # y = [1, x[0], x[1], x[2], x[3], 0]
 
-# 2D: dimパラメータ付き
+# 2D: axis パラメータ付き
 z = qbpp.var("z", shape=(3, 4))
-zg0 = qbpp.concat(1, qbpp.concat(z, 0, 0), 0)  # dim=0: ガード行 -> 5 x 4
-zg1 = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)  # dim=1: ガードビット -> 3 x 6
+zg0 = qbpp.concat([1, z, 0], axis=0)   # 軸 0: ガード行 -> 5 x 4
+zg1 = qbpp.concat([1, z, 0], axis=1)   # 軸 1: ガードビット -> 3 x 6
 ```
 
 ### `*`（アンパック演算子）によるPythonic な代替
@@ -71,20 +70,20 @@ zg1 = qbpp.concat(1, qbpp.concat(z, 0, 1), 1)  # dim=1: ガードビット -> 3 
 Pythonのアンパック演算子 `*` を使えば、`Array()` コンストラクタ内で `concat()` を置き換えられます:
 
 ```python
-# 1D: concat(1, concat(x, 0)) と等価
+# 1D: concat([1, x, 0]) と等価
 y = qbpp.array([1, *x, 0])
 
-# 2D dim=0: concat(1, concat(z, 0, 0), 0) と等価
+# 2D axis=0: concat([1, z, 0], axis=0) と等価
 ones = qbpp.array([1] * 4)
 zeros = qbpp.array([0] * 4)
 zg0 = qbpp.array([ones, *z, zeros])
 
-# 2D dim=1: concat(1, concat(z, 0, 1), 1) と等価
+# 2D axis=1: concat([1, z, 0], axis=1) と等価
 zg1 = qbpp.array([qbpp.array([1, *row, 0]) for row in z])
 ```
 
 最外次元ではアンパックの方が明快です。
-内側の次元では `concat(scalar, x, dim)` の方がネストを避けられます。
+内側の次元では `concat([...], axis=)` の方がネストを避けられます。
 
 ## ドメインウォール符号化
 
@@ -106,7 +105,7 @@ n = 8
 x = qbpp.var("x", shape=n)
 
 # y = (1, x[0], ..., x[n-1], 0)
-y = qbpp.concat(1, qbpp.concat(x, 0))
+y = qbpp.concat([1, x, 0])
 
 # 隣接差分
 diff = y[:n+1] - y[-(n+1):]
@@ -148,7 +147,6 @@ $$
 $$
 
 これは C++ の `head(y, n+1) - tail(y, n+1)` イディオムに対応する Python 記法です。
-`qbpp.head(y, n+1) - qbpp.tail(y, n+1)` でも同じ結果が得られます。
 
 **ステップ 3: `sqr` と `sum` によるペナルティ**
 
@@ -193,13 +191,13 @@ n = 6
 x = qbpp.var("x", shape=(n - 1, n))  # (n-1) x n
 y = qbpp.var("y", shape=(n, n - 1))  # n x (n-1)
 
-# x: dim=0 でガード行追加 -> (n+1) x n、差分 -> n x n（各列one-hot）
-xg = qbpp.concat(1, qbpp.concat(x, 0, 0), 0)
+# x: axis=0 でガード行追加 -> (n+1) x n、差分 -> n x n（各列one-hot）
+xg = qbpp.concat([1, x, 0], axis=0)
 x_oh = xg[:n] - xg[-n:]
 x_dw = qbpp.sum(qbpp.sqr(x_oh))
 
-# y: dim=1 でガードビット追加 -> n x (n+1)、差分 -> n x n（各行one-hot）
-yg = qbpp.concat(1, qbpp.concat(y, 0, 1), 1)
+# y: axis=1 でガードビット追加 -> n x (n+1)、差分 -> n x n（各行one-hot）
+yg = qbpp.concat([1, y, 0], axis=1)
 y_oh = yg[:, :n] - yg[:, -n:]
 y_dw = qbpp.sum(qbpp.sqr(y_oh))
 
@@ -238,7 +236,7 @@ for i in range(n):
 
 ### 主要な操作
 
-- **`x[:n]` / `x[-n:]`**: Pythonスライスで C++ の `head()` / `tail()` に相当。
+- **`x[:n]` / `x[-n:]`**: Python スライスで先頭/末尾の要素を取得。
 - **`x[:, :n]` / `x[:, -n:]`**: タプルインデックスで内側の次元をスライス。
 - **`concat(1, x, 0)`**（`dim=0`）: 全1のガード行を上に追加。
 - **`concat(1, x, 1)`**（`dim=1`）: 各行の先頭に1を追加。
@@ -265,48 +263,34 @@ y (6x5)  y_oh (6x6)
 
 最適エネルギーは $2n = 12$ です。`x_oh` と `y_oh` は一致し、有効な $6 \times 6$ の置換行列を形成しています。
 
-## 軸固定スライス（`slice_axes`, `row`, `col`）
+## 軸固定スライス（タプルインデックス）
 
-多次元配列から特定の軸を固定してサブ配列を取得するには、`qbpp.row()`、`qbpp.col()`、`qbpp.slice_axes()` を使います。
-これらは**グローバル関数のみ**で、元の配列を**変更せず**新しいサブ配列を返します。次元数は固定する軸の数だけ**減少**します。
-
-### `row(i)` と `col(j)`
-
-`row(i)` は axis 0 を index `i` に固定、`col(j)` は axis 1 を index `j` に固定します:
+多次元配列から特定の軸を**固定値**で指定してサブ配列を取得するには、Python のタプルインデックスを使います。整数インデックスはその軸を固定し（**次元が減少**）、スライス `:` はその軸を保持します:
 
 ```python
 x = qbpp.var("x", shape=(3, 4))  # 3x4
 
-row0 = qbpp.row(x, 0)  # {x[0][0], x[0][1], x[0][2], x[0][3]}
-col2 = qbpp.col(x, 2)  # {x[0][2], x[1][2], x[2][2]}
-# row(), col() はグローバル関数のみ（メンバ関数版はありません）
+row0 = x[0]         # axis 0 を 0 に固定 → (4,)
+col2 = x[:, 2]      # axis 1 を 2 に固定 → (3,)
 ```
 
-行同士の要素毎積を取る例:
+行同士の要素毎積:
 
 ```python
-prod = qbpp.row(x, 0) * qbpp.row(x, 1)  # 1次元 Array of Term（4要素）
-s = qbpp.sum(prod)                        # Expr
+prod = x[0] * x[1]   # 1次元 Array of Term（4要素）
+s = qbpp.sum(prod)    # Expr
 ```
 
-### `slice_axes`
-
-`slice_axes` は複数の軸を同時に固定できます。軸インデックスから固定値への辞書を渡します:
+複数の軸を同時に固定することもできます:
 
 ```python
 z = qbpp.var("z", shape=(2, 3, 4))  # 2x3x4
 
-s1 = qbpp.slice_axes(z, {0: 1})         # axis 0 を 1 に固定 -> 3x4
-s2 = qbpp.slice_axes(z, {0: 1, 2: 3})   # axis 0=1, axis 2=3 に固定 -> 3要素
-# slice_axes() はグローバル関数のみ（メンバ関数版はありません）
+s1 = z[1]            # axis 0 を 1 に固定 → 3x4
+s2 = z[1, :, 3]      # axis 0=1, axis 2=3 に固定 → (3,)
+v  = z[1, 2, 3]      # 全軸を固定 → Var（スカラー）
 ```
 
-範囲外のインデックスや重複する軸を指定した場合は実行時エラーになります。
-
 > **注釈**
-> `operator[]` / `x[i]` は全次元を指定してスカラー値を取得するためのもので、途中の次元で止めてサブ配列を取得することはできません。
-> サブ配列が必要な場合は、NumPyスタイルのタプルスライス（例 `x[:, :3]`）、
-> `qbpp.row()`、`qbpp.col()`、`qbpp.slice_axes()` を使用してください。
->
-> また、`qbpp.slice()`、`qbpp.head()`、`qbpp.tail()` は**範囲ベース**のスライスで次元数を保持するのに対し、
-> `qbpp.row()`、`qbpp.col()`、`qbpp.slice_axes()` は**軸固定**スライスで次元数が減少します。
+> Python スライス（例 `x[1:3]`、`x[:n]`）は**範囲ベース**のスライスで次元数を保持するのに対し、
+> 整数インデックス（例 `x[0]`、`z[1, :, 3]`）は**軸固定**スライスで次元数が減少します。

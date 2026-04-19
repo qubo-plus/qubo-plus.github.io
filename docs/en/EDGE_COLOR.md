@@ -103,7 +103,7 @@ int main() {
     for (auto u : adj[i]) {
       for (auto v : adj[i]) {
         if (u < v) {
-          different += qbpp::sum(qbpp::row(x, u) * qbpp::row(x, v));
+          different += qbpp::sum(x(u) * x(v));
         }
       }
     }

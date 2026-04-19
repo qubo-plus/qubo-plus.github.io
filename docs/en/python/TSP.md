@@ -144,7 +144,7 @@ g.simplify_as_binary()
 solver = qbpp.EasySolver(g)
 sol = solver.search(time_limit=1.0)
 
-full_sol = qbpp.Sol(f).set([sol, ml])
+full_sol = qbpp.Sol(f).set(sol, ml)
 
 # Convert the permutation matrix into a tour (list of node indices)
 tour = []
@@ -163,7 +163,7 @@ Next, we call `qbpp.replace(f, ml)`, which returns a new expression obtained by 
 The resulting expression is stored in `g` and simplified.
 
 We then create a solver for `g` and obtain a solution `sol`.
-Since `sol` corresponds to the reduced problem, we create a `qbpp.Sol` object for `f` and set both the solver output `sol` and the fixed assignments `ml` via `set([sol, ml])`.
+Since `sol` corresponds to the reduced problem, we create a `qbpp.Sol` object for `f` and set both the solver output `sol` and the fixed assignments `ml` via `set(sol, ml)`.
 The resulting `full_sol` stores the complete assignment for all variables in `x`.
 
 Finally, the permutation matrix represented by `full_sol(x)` is converted into a permutation by scanning each row and printed.

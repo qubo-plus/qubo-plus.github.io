@@ -68,7 +68,7 @@ int main() {
   auto onehot = qbpp::sum(qbpp::vector_sum(x) == 1);
   auto different = qbpp::toExpr(0);
   for (const auto& e : edges) {
-    different += qbpp::sum(qbpp::row(x, e.first) * qbpp::row(x, e.second));
+    different += qbpp::sum(x(e.first) * x(e.second));
   }
 
   auto f = onehot + different;

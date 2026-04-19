@@ -40,7 +40,7 @@ PyQBPPを使った求解方法を学ぶことができます。
 2. [基本演算子と関数](OPERATOR)
 3. [配列用の基本演算子と関数](OPVECTOR)
 4. [多次元変数と式](MULTIDIM)
-5. [比較演算子](COMPARISON)
+5. [比較制約](COMPARISON)
 6. [式のクラス](EXPRESSION)
 7. [式の評価](EVAL)
 8. [置換関数](REPLACE)
