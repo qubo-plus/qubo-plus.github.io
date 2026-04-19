@@ -50,7 +50,7 @@ print(f"y = {y} uses {y.var_count} variables.")
 ```
 
 整数変数は **`between=`** キーワード引数を使って定義し、変数がとりうる整数範囲を指定します。
-**`qbpp.var("name", between=(min, max))`** は、指定された `name` を持つ **`VarInt`** オブジェクトを作成し、バイナリ変数でエンコードされた線形式を表現します。
+**`qbpp.var("name", between=(min, max))`** は、指定された `name` を持つ整数変数 **`Expr`** オブジェクトを作成し、バイナリ変数でエンコードされた線形式を表現します。
 プログラムの出力は以下の通りです。
 ```
 x = 1 +x[0] +2*x[1] +4*x[2] uses 3 variables.
@@ -128,27 +128,6 @@ print("f.body =", f.body, "=", sol(f.body))
 print("g.body =", g.body, "=", sol(g.body))
 ```
 
-> **注意 — `VarInt` と `ExprExpr` は immutable**
-> `qbpp.var(..., between=...)` は `VarInt` を、
-> `qbpp.constrain(x + y, equal=10)` のような制約式は `ExprExpr` を生成します。
-> **両方とも in-place 変更はできません。**
-> `vi += 1`、`ee.replace(ml)`、`ee.sqr()` 等は `TypeError` になります
-> （`ee.simplify_as_binary()` のみ in-place 対応済みで、penalty と body の両方に適用されます）。
-> `VarInt` / `ExprExpr` を式の中で使うときは、普通の `Expr` 演算に混ぜてください — どちらも
-> `Expr` への暗黙変換を持ち（`ExprExpr` は penalty、`VarInt` は二進展開された Expr）、
-> 結果は `Expr` 型になり自由に変更できます。
->
-> ```python
-> h = f + g
-> h.simplify_as_binary()      # OK — Expr は in-place 可能
->
-> e  = qbpp.sqr(vi - 3)                    # VarInt → Expr → sqr
-> e2 = qbpp.simplify_as_binary(ee)         # 自由関数の形（新しい Expr を返す）
-> e3 = qbpp.replace(f, {x: 1})             # ExprExpr の replace は自由関数で（新しい Expr を返す）
-> ```
->
-> 元の `ExprExpr` 制約 `f`, `g` はそのまま残っているので、解の検査時に
-> `f.body` / `g.body` で参照できます。
 {% endraw %}
 まず、整数変数 **`x`** と **`y`** を範囲 $[0,10]$ で定義します。
 式 **`f`** は制約 **`qbpp.constrain(x + y, equal=10)`** を表すために作成されます。

@@ -70,7 +70,7 @@ int main() {
   std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
   std::cout << "f = " << sol(f) << std::endl;
   std::cout << "c1 = " << sol(c1) << ", c2 = " << sol(c2) << std::endl;
-  std::cout << "*c1 = " << sol(*c1) << ", *c2 = " << sol(*c2) << std::endl;
+  std::cout << "c1.body(sol) = " << c1.body(sol) << ", c2.body(sol) = " << c2.body(sol) << std::endl;
 }
 ```
 {% endraw %}
@@ -84,17 +84,17 @@ Since the goal is maximization, the objective is negated as `-f`.
 The constraints `c1` and `c2` are penalized with a weight of 100 to ensure they are satisfied with high priority.
 
 An Easy Solver instance is created for `g`, and a search is performed with a time limit of 1.0 seconds.
-After obtaining the optimal solution `sol`, the program prints the values of `x`, `y`, `f`, `c1`, `c2`, `*c1`, and `*c2`.
+After obtaining the optimal solution `sol`, the program prints the values of `x`, `y`, `f`, `c1`, `c2`, `c1.body(sol)`, and `c2.body(sol)`.
 
 The program outputs:
 ```
 x = 4, y = 5
 f = 40
 c1 = 0, c2 = 0
-*c1 = 23, *c2 = 53
+c1.body(sol) = 23, c2.body(sol) = 53
 ```
 Here,
-- **`c1`** is the expression for the constraint `0 <= 2 x + 3 y <= 24`, and
-- **`*c1`** represents the linear expression  `2 x + 3 y`.
+- **`c1`** is the constraint-expression penalty for `0 <= 2 x + 3 y <= 24` (zero when the constraint is satisfied), and
+- **`c1.body()`** returns the linear expression `2 x + 3 y`, and `c1.body(sol)` evaluates that body at `sol`.
 
 We can confirm that the solver correctly finds the optimal solution.

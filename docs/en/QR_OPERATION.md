@@ -21,8 +21,8 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Division                      | `/`                                                  | Global        | `qbpp::Expr`     | `ExprType`-`Int`           |
 | Compound Division             | `/=`                                                 | Member        | `qbpp::Expr`     | `Int`                    |
 | Unary Operators               | `+`, `-`                                             | Global        | `qbpp::Expr`     | `ExprType`               |
-| Comparison (Equality)         | `==`                                                 | Global        | `qbpp::ExprExpr` | `ExprType`-`Int`           |
-| Comparison (Range Comparison) | `<= <=`                                              | Global        | `qbpp::ExprExpr` | `IntInf`-`ExprType`-`IntInf` |
+| Comparison (Equality)         | `==`                                                 | Global        | `qbpp::Expr` (constraint) | `ExprType`-`Int`           |
+| Comparison (Range Comparison) | `<= <=`                                              | Global        | `qbpp::Expr` (constraint) | `IntInf`-`ExprType`-`IntInf` |
 | Square                        | `sqr()`                                                | Global        | `qbpp::Expr`     | `ExprType`               |
 | Square                        | `sqr()`                                                | Member        | `qbpp::Expr`     | -                      |
 | GCD                           | `gcd()`                                                | Global        | `Int`            | `ExprType`               |
@@ -114,12 +114,12 @@ More specifically, for a non-integer `ExprType` object `f` and an integer `n`, t
 
 For the returned object `g`:
 - **`g`** represents the constraint expression `qbpp::sqr(f - n)`, and
-- **`*g`** returns the underlying expression `f`.
+- **`g.body()`** returns the underlying expression `f`.
 
-### `qbpp::ExprExpr` class
+### Constraint-expression `qbpp::Expr`
 
-Here, `g` is a **`qbpp::ExprExpr`** object, which is a derived class of `qbpp::Expr`.
-Dereferencing `g` using the `*` operator returns the associated underlying qbpp::Expr object.
+Here, `g` is a constraint-expression `qbpp::Expr` (a plain `qbpp::Expr` carrying penalty + body metadata).
+Calling `g.body()` returns the associated underlying `qbpp::Expr` object.
 
 ## Comparison (Range Comparison): `<= <=`
 The **range comparison operator** is written in the form:
@@ -137,9 +137,9 @@ More specifically, an auxiliary integer variable `a` with unit gaps, taking valu
 (f - a)(f - (a + 1))
 ```
 
-For the returned `qbpp::ExprExpr` object `g`:
+For the returned constraint-expression `qbpp::Expr` object `g`:
 - **`g`** represents the constraint expression `(f - a)(f - (a + 1))`, and
-- **`*g`** returns the underlying expression `f`.
+- **`g.body()`** returns the underlying expression `f`.
 
 ## Square functions: `sqr()`
 For a qbpp::Expr object `f`:
@@ -328,7 +328,7 @@ The following member functions of `qbpp::Expr` provide read-only access to the i
 | `f.term(i)` | `qbpp::Term` | Return a copy of the `i`-th term |
 | `f.max_degree` | `uint32_t` | Return the maximum degree of all terms |
 | `f.has(v)` | `bool` | Return `true` if `Var` `v` appears in the expression |
-| `f.has(vi)` | `bool` | Return `true` if all variables of `VarInt` `vi` appear in the expression |
+| `f.has(vi)` | `bool` | Return `true` if all variables of the integer variable `vi` appear in the expression |
 
 ### Example
 ```cpp

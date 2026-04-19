@@ -114,10 +114,11 @@ QUBO++ provides the following three **global simplify functions**:
 - **`qbpp::simplify()`**:
 Returns a simplified expression by merging coefficients of identical terms.
 - **`qbpp::simplify_as_binary()`**:
-Returns a simplified expression under the assumption that all variables take binary values $0/1$
-i.e., the identity $x^2=x$ holds.
+Returns a simplified expression under the assumption that all variables take binary values $0/1$,
+applying the identity $x^2=x$ to rewrite the expression.
 - **`qbpp::simplify_as_spin()`**:
-Returns a simplified expression under the assumption that all variables take spin values $−1/+1$, i.e., the identity $x^2=1$ holds.
+Returns a simplified expression under the assumption that all variables take spin values $−1/+1$,
+applying the identity $x^2=1$ to rewrite the expression.
 
 The following program demonstrates the behavior of these simplify functions:
 ```cpp

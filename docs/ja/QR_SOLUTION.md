@@ -26,8 +26,10 @@ hreflang_lang: "en"
 | 式 | 等価 | 戻り値の型 | 説明 |
 |------------|------------|-------------|-------------|
 | `sol(x)` | `x(sol)` | `energy_t` | `Var` `x` を評価（0 または 1 を返す） |
+| `sol(vi)` | `vi(sol)` | `energy_t` | 整数変数 `vi` を評価（整数値） |
 | `sol(t)` | `t(sol)` | `energy_t` | `Term` `t` を評価 |
 | `sol(f)` | `f(sol)` | `energy_t` | `Expr` `f` を評価 |
+| `sol(c)` | `c(sol)` | `energy_t` | 制約式 `c` のペナルティを評価 |
 | `sol(arr)` | `arr(sol)` | `Array<coeff_t>` | 変数/式の配列を評価 |
 
 `sol(x)` と `x(sol)` は同じ結果を返します。
@@ -43,7 +45,7 @@ hreflang_lang: "en"
 | `sol.set(ml)` | `MapList` から変数値を設定 |
 {% raw %}| `sol.set(other, ml)` | `other` からコピーし、`MapList` `ml` を適用 |{% endraw %}
 
-`MapList` は `(Var, 値)` または `(VarInt, 値)` のペアのリストです:
+`MapList` は `(Var, 値)` または `(Expr, 値)` (この `Expr` は整数変数) のペアのリストです:
 {% raw %}
 ```cpp
 qbpp::MapList ml = {{x[0], 1}, {x[1], 0}, {vi, 5}};

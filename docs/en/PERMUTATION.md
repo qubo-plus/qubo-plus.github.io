@@ -220,6 +220,7 @@ Here, $P$ is a sufficiently large positive constant that prioritizes the permuta
 ## QUBO++ program for the assignment problem
 We are now ready to design a QUBO++ program for the assignment problem.
 In this program, a fixed matrix $C$ of size $4\times4$ is given as an array of integer constants.
+`qbpp::array({...})` builds a constant integer array from a nested initializer list; the shape is inferred from the nesting (a list-of-lists becomes a 2D array).
 The formulas for $f(X)$ and $g(X)$ are defined using array functions and operations.
 Here, `qbpp::vector_sum(x, 1) == 1` returns a QUBO expression that takes the minimum value 0 if the equality is satisfied.
 In fact, it returns the same QUBO expression as `qbpp::sqr(qbpp::vector_sum(x, 1) - 1)`.

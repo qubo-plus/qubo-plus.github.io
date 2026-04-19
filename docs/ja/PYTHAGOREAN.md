@@ -39,7 +39,7 @@ int main() {
   auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 10}});
   for (const auto& sol : sols) {
     std::cout << "x=" << sol(x) << ", y=" << sol(y) << ", z=" << sol(z)
-              << ", *f=" << sol(*f) << ", *c=" << sol(*c) << std::endl;
+              << ", f.body()=" << f.body(sol) << ", c.body()=" << c.body(sol) << std::endl;
   }
 }
 ```
@@ -61,8 +61,8 @@ int main() {
 
 このプログラムは以下のような出力を生成します:
 ```
-x=3, y=4, z=5, *f=0, *c=1
-x=6, y=8, z=10, *f=0, *c=2
-x=9, y=12, z=15, *f=0, *c=3
-x=5, y=12, z=13, *f=0, *c=7
+x=3, y=4, z=5, f.body()=0, c.body()=1
+x=6, y=8, z=10, f.body()=0, c.body()=2
+x=9, y=12, z=15, f.body()=0, c.body()=3
+x=5, y=12, z=13, f.body()=0, c.body()=7
 ```

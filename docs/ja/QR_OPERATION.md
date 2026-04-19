@@ -21,8 +21,8 @@ hreflang_lang: "en"
 | 除算                          | `/`                                                  | グローバル     | `qbpp::Expr`     | `ExprType`-`Int`           |
 | 複合除算                       | `/=`                                                 | メンバ         | `qbpp::Expr`     | `Int`                    |
 | 単項演算子                     | `+`, `-`                                             | グローバル     | `qbpp::Expr`     | `ExprType`               |
-| 比較（等値）                    | `==`                                                 | グローバル     | `qbpp::ExprExpr` | `ExprType`-`Int`           |
-| 比較（範囲比較）                | `<= <=`                                              | グローバル     | `qbpp::ExprExpr` | `IntInf`-`ExprType`-`IntInf` |
+| 比較（等値）                    | `==`                                                 | グローバル     | `qbpp::Expr`（制約式） | `ExprType`-`Int`           |
+| 比較（範囲比較）                | `<= <=`                                              | グローバル     | `qbpp::Expr`（制約式） | `IntInf`-`ExprType`-`IntInf` |
 | 二乗                          | `sqr()`                                                | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | 二乗                          | `sqr()`                                                | メンバ         | `qbpp::Expr`     | -                      |
 | 最大公約数                     | `gcd()`                                                | グローバル     | `Int`            | `ExprType`               |
@@ -114,12 +114,12 @@ hreflang_lang: "en"
 
 返されたオブジェクト`g`について:
 - **`g`**は制約式`qbpp::sqr(f - n)`を表し、
-- **`*g`**は基礎となる式`f`を返します。
+- **`g.body()`**は基礎となる式`f`を返します。
 
-### `qbpp::ExprExpr`クラス
+### 制約式の `qbpp::Expr`
 
-ここで`g`は**`qbpp::ExprExpr`**オブジェクトであり、`qbpp::Expr`の派生クラスです。
-`*`演算子を使用して`g`を間接参照すると、関連付けられた基礎となるqbpp::Exprオブジェクトが返されます。
+ここで `g` は制約式の `qbpp::Expr`（penalty + body のメタデータを持つ `qbpp::Expr`）です。
+`g.body()` を呼ぶと、関連付けられた基礎となる `qbpp::Expr` オブジェクトが返されます。
 
 ## 比較（範囲比較）: `<= <=`
 **範囲比較演算子**は次の形式で記述されます:
@@ -137,9 +137,9 @@ l <= f <= u
 (f - a)(f - (a + 1))
 ```
 
-返された`qbpp::ExprExpr`オブジェクト`g`について:
+返された制約式 `qbpp::Expr` オブジェクト`g`について:
 - **`g`**は制約式`(f - a)(f - (a + 1))`を表し、
-- **`*g`**は基礎となる式`f`を返します。
+- **`g.body()`**は基礎となる式`f`を返します。
 
 ## 二乗関数: `sqr()`
 qbpp::Exprオブジェクト`f`に対して:
@@ -325,7 +325,7 @@ t.has(z);     // false
 | `f.term(i)` | `qbpp::Term` | `i` 番目の項のコピーを返す |
 | `f.max_degree` | `uint32_t` | すべての項の最大次数を返す |
 | `f.has(v)` | `bool` | `Var` `v` が式に含まれていれば `true` を返す |
-| `f.has(vi)` | `bool` | `VarInt` `vi` のすべての変数が式に含まれていれば `true` を返す |
+| `f.has(vi)` | `bool` | 整数変数 `vi` のすべての変数が式に含まれていれば `true` を返す |
 
 ### 例
 ```cpp

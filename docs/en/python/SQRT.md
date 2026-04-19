@@ -12,7 +12,7 @@ hreflang_lang: "ja"
 
 This example demonstrates how to compute the square root of
 $c=2$ using large integers.
-Let $s = 10 ^{10}$ be a fixed integer.
+Let $s = 10 ^{20}$ be a fixed integer.
 Since PyQBPP cannot handle real numbers directly, we compute  $\sqrt{cs^2}$ instead of $\sqrt{c}$.
 From the following relation,
 
@@ -22,7 +22,7 @@ $$
 \end{aligned}
 $$
 
-we can obtain an approximation of $\sqrt{c}$ with 10 decimal-digit precision.
+we can obtain an approximation of $\sqrt{c}$ with 20 decimal-digit precision.
 
 ## HUBO formulation of the square root computation
 We define an integer variable $x$ that takes values in the range $[s, 2s]$.
@@ -42,38 +42,43 @@ $$
 
 By finding the value of $x$ that minimizes this expression,
 we obtain an approximation of the square root of $c$ with
-10 decimal-digit precision.
+20 decimal-digit precision.
 Since $x$ is internally represented as a linear expression of binary variables, this objective function becomes quartic in those binary variables.
 
 ## PyQBPP program
 The following PyQBPP program constructs a HUBO expression based on the above idea and solves it using the Easy Solver:
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 c = 2
-s = 10**10
+s = 10**20
 x = qbpp.var("x", between=(s, c * s))
 f = qbpp.constrain(x * x, equal=c * s * s)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
-sol = solver.search(time_limit=1.0)
+sol = solver.search(time_limit=10.0)
+xv = sol(x)
+print(f"sqrt({c}) ≈ {xv} / {s}")
+print(f"       = {xv // s}.{xv % s}")
 print(f"Energy = {sol.energy}")
-print(f"x = {sol(x)}")
 ```
 
-Since Python integers have unlimited precision, there is no need to specify special integer types (unlike the C++ version which requires `INTEGER_TYPE_CPP_INT`).
+Because the coefficients and energy values of the HUBO expression exceed 64 bits, we import the arbitrary-precision `cpp_int` variant (`pyqbpp.cppint`).
 The constant `s`, the integer variable `x`, and the HUBO expression `f` are defined according to the formulation described above.
-The Easy Solver is executed with a time limit of 1.0 second, passed as a parameter to `search()`.
+The Easy Solver is executed with a time limit of 10 seconds, passed as a parameter to `search()`.
+
+The integer solution `xv` is split into its quotient `xv // s` and remainder `xv % s`, which are joined by a decimal point to obtain the decimal representation. No `float` conversion is performed, so full precision is preserved using Python's arbitrary-precision integers.
 
 This program produces the following output:
 ```
-Energy = 57910111919782629376
-x = 14142135624
+sqrt(2) ≈ 141421356237309504880 / 100000000000000000000
+       = 1.41421356237309504880
+Energy = 2281431565136320033809509291861647360000
 ```
 We can confirm that the Easy Solver outputs the correct approximation:
 
 $$
- \sqrt{2\times 10^{20}}\approx 14142135624
+ \sqrt{2}\approx 1.41421356237309504880
 $$
 
 Note that the reported energy value is not zero, and the equality constraint is not satisfied exactly.

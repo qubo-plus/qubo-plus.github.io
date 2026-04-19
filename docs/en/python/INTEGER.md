@@ -50,7 +50,7 @@ print(f"y = {y} uses {y.var_count} variables.")
 ```
 
 An integer variable is defined using the **`between=`** keyword argument, which specifies the integer range that the variable can take.
-The call **`qbpp.var("name", between=(min, max))`** creates a **`VarInt`** object with the given `name`, representing the linear expression encoded by binary variables.
+The call **`qbpp.var("name", between=(min, max))`** creates an integer-variable **`Expr`** object with the given `name`, representing the linear expression encoded by binary variables.
 The program outputs the following expressions:
 ```
 x = 1 +x[0] +2*x[1] +4*x[2] uses 3 variables.
@@ -129,30 +129,6 @@ print("f.body =", f.body, "=", sol(f.body))
 print("g.body =", g.body, "=", sol(g.body))
 ```
 
-> **NOTE — `VarInt` and `ExprExpr` are immutable**
-> `qbpp.var(..., between=...)` produces a
-> `VarInt`, and any constraint expression like `qbpp.constrain(x + y, equal=10)`
-> produces an `ExprExpr`. **Both types do not support in-place modification.**
-> Operations such as `vi += 1`, `ee.replace(ml)`, `ee.sqr()` raise `TypeError`
-> (only `ee.simplify_as_binary()` is supported in-place and is applied to both
-> the penalty and the body).
->
-> When you want to use a `VarInt` or `ExprExpr` in further arithmetic, mix it
-> into a normal `Expr` expression — both types implicitly decay to `Expr`
-> (the penalty for `ExprExpr`, the binary expansion for `VarInt`). The result
-> is an `Expr` and can be mutated freely:
->
-> ```python
-> h = f + g
-> h.simplify_as_binary()       # OK — Expr supports in-place
->
-> e  = qbpp.sqr(vi - 3)                    # VarInt → Expr via subtraction → sqr
-> e2 = qbpp.simplify_as_binary(ee)         # free-function form (returns a new Expr)
-> e3 = qbpp.replace(f, {x: 1})             # ExprExpr replace via free function (returns a new Expr)
-> ```
->
-> The original `ExprExpr` constraints `f` and `g` are still intact so you can
-> inspect them via `f.body` / `g.body` after solving.
 {% endraw %}
 First, integer variables **`x`** and **`y`** are defined with the range $[0,10]$.
 An expression **`f`** is created to represent the constraint **`qbpp.constrain(x + y, equal=10)`**.

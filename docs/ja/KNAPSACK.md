@@ -74,7 +74,7 @@ int main() {
     const auto& sol = sols.sols[i];
     std::cout << "[Solution " << i << "]" << std::endl;
     std::cout << "Energy = " << sol.energy() << std::endl;
-    std::cout << "Constraint  = " << sol(*constraint) << std::endl;
+    std::cout << "Constraint  = " << constraint.body(sol) << std::endl;
     std::cout << "Objective  = " << sol(objective) << std::endl;
     for (size_t j = 0; j < w.size(); ++j) {
       if (sol(x[j]) == 1) {

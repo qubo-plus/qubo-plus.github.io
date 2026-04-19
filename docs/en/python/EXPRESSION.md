@@ -15,16 +15,17 @@ The most important feature of PyQBPP is its ability to create expressions for so
 |------|-----|-----|
 | `pyqbpp.Var` | Variable | 32-bit ID + display string |
 | `pyqbpp.Term` | Product term | zero or more variables + integer coefficient |
-| `pyqbpp.Expr` | Expression | zero or more terms + integer constant |
+| `pyqbpp.Expr` | Expression, integer variable, or constraint expression | Terms + integer constant (plus optional metadata) |
 
-In addition, PyQBPP provides two related classes that are built on top of `Expr`:
+A `pyqbpp.Expr` object can store any of the following, depending on how it is constructed:
 
-| Class | Content | Details |
-|------|-----|-----|
-| `pyqbpp.VarInt` | Integer variable | A bounded integer encoded by binary variables |
-| `pyqbpp.ExprExpr` | Constraint expression | A pair of (penalty, body) produced by comparison / range operators |
+| Stored content | Created by | Extra metadata |
+|----------------|------------|----------------|
+| Expression | `x + 2*y`, `qbpp.expr(...)`, etc. | none |
+| Integer variable | `qbpp.var(..., between=(l, u))`, etc. | range `[min, max]`, binary variable list, coefficients |
+| Constraint expression | `qbpp.constrain(e, equal=5)`, `qbpp.constrain(e, between=(0, 10))`, etc. | penalty (the `Expr` itself) + body (the original expression) |
 
-Both decay to `Expr` in arithmetic contexts, so most user code can treat them as expressions.
+All three forms share the same `pyqbpp.Expr` type, so arithmetic operations and global functions work uniformly regardless of which content the `Expr` carries.
 
 Unlike the C++ version (QUBO++), in PyQBPP **you usually do not need to be conscious of the difference between these classes**. Python's dynamic typing performs the type conversion automatically (e.g., `2 * x * y` produces a `Term`; using `+=` promotes it to `Expr`). Still, understanding which class is used internally helps interpret error messages and optimize hot loops.
 
@@ -151,8 +152,8 @@ The first `+=` promotes `int → Expr`. This program prints:
 -1 +x[0] +x[1] +x[2] +x[3]
 ```
 
-## `pyqbpp.VarInt` class
-Instances of this class represent an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary variables. A `VarInt` is created by passing the `between=` argument to `qbpp.var()`:
+## Integer variables
+A `pyqbpp.Expr` can also represent an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary variables. An integer variable is created by passing the `between=` argument to `qbpp.var()`:
 ```python
 import pyqbpp as qbpp
 
@@ -164,15 +165,15 @@ The underlying linear expression (binary variables weighted by powers of two plu
 x[0] +2*x[1] +4*x[2] +3*x[3]
 ```
 
-A `VarInt` **decays to `Expr`** in arithmetic contexts, so it can be used anywhere an expression is expected:
+Since an integer variable is already a `pyqbpp.Expr`, it can be used directly anywhere an expression is expected:
 ```python
 y = qbpp.var("y", between=(0, 10))
-f = qbpp.sqr(x + y - 7)              # x + y - 7 promotes to Expr
+f = qbpp.sqr(x + y - 7)              # use it directly in arithmetic
 ```
-In addition to the embedded expression, a `VarInt` carries metadata: `name`, `min_val`, `max_val`, and the underlying binary variables. Details and usage examples are in [Integer Variables](INTEGER).
+In addition to the embedded expression, an integer variable carries metadata: `min_val`, `max_val`, and the underlying binary variables. Details and usage examples are in [Integer Variables](INTEGER).
 
-## `pyqbpp.ExprExpr` class
-Instances of this class represent a **constraint expression**, produced by comparison or range operators applied to an expression. An `ExprExpr` holds two parts:
+## Constraint expressions
+A `pyqbpp.Expr` can also represent a **constraint expression**, produced by comparison or range operators applied to an expression. A constraint expression holds two parts:
 - **`penalty`**: an `Expr` that equals 0 when the constraint is satisfied and is positive otherwise
 - **`body`**: the original expression (useful for inspecting the actual value under a solution)
 
@@ -185,9 +186,9 @@ c1 = qbpp.constrain(x, equal=3)              # penalty = (x - 3)^2
 c2 = qbpp.constrain(x, between=(2, 5))       # penalty = 0 when 2 <= x <= 5
 ```
 
-Like `VarInt`, an `ExprExpr` **decays to `Expr`** (its penalty part) in arithmetic contexts:
+A constraint expression can be used directly in further arithmetic — in such contexts it behaves as its penalty part:
 ```python
-f = c1 + c2 + qbpp.sqr(x - 4)        # mixing ExprExpr and Expr freely
+f = c1 + c2 + qbpp.sqr(x - 4)        # mix constraint and plain expressions freely
 f.simplify_as_binary()
 ```
 Use `c.body` to access the unevaluated expression (for example, to inspect `sol(c.body)` after solving). Details and the list of supported comparison forms are in [Comparison Constraints](COMPARISON).

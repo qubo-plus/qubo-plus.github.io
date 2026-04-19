@@ -26,8 +26,10 @@ Given a solution `sol`, variable values and expression results can be obtained u
 | Expression | Equivalent | Return Type | Description |
 |------------|------------|-------------|-------------|
 | `sol(x)` | `x(sol)` | `energy_t` | Evaluate `Var` `x` (returns 0 or 1) |
+| `sol(vi)` | `vi(sol)` | `energy_t` | Evaluate an integer variable `vi` (integer value) |
 | `sol(t)` | `t(sol)` | `energy_t` | Evaluate `Term` `t` |
 | `sol(f)` | `f(sol)` | `energy_t` | Evaluate `Expr` `f` |
+| `sol(c)` | `c(sol)` | `energy_t` | Evaluate the penalty of a constraint expression `c` |
 | `sol(arr)` | `arr(sol)` | `Array<coeff_t>` | Evaluate array of variables/expressions |
 
 Both `sol(x)` and `x(sol)` produce the same result.
@@ -43,7 +45,7 @@ The `x(sol)` form is convenient for use in array contexts: for a `Var` array `x`
 | `sol.set(ml)` | Set variable values from a `MapList` |
 {% raw %}| `sol.set(other, ml)` | Copy from `other`, then apply `MapList` `ml` |{% endraw %}
 
-A `MapList` is a list of `(Var, value)` or `(VarInt, value)` pairs:
+A `MapList` is a list of `(Var, value)` or `(Expr, value)` pairs (where the `Expr` is an integer variable):
 {% raw %}
 ```cpp
 qbpp::MapList ml = {{x[0], 1}, {x[1], 0}, {vi, 5}};

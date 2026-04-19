@@ -129,7 +129,7 @@ We can confirm that:
 - 64 and 27 are placed in distinct subsets, as intended.
 
 ## Replace Functions for Integer Variables
-Integer variables (`VarInt`) can be replaced with fixed integer values using the `replace()` function.
+Integer variables can be replaced with fixed integer values using the `replace()` function.
 When an integer variable is used as a key in the mapping, PyQBPP automatically expands it into its internal binary variables.
 
 Here, we demonstrate this feature using a simple **multiplication expression**.

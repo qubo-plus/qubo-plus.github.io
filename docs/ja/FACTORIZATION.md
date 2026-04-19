@@ -48,6 +48,7 @@ int main() {
   auto f = p * q == 35;
   f.simplify_as_binary();
   std::cout << "f = " << f << std::endl;
+  std::cout << "f.body() = " << f.body() << std::endl;
 
   auto solver = qbpp::EasySolver(f);
   auto sol = solver.search({{"target_energy", 0}});
@@ -55,20 +56,25 @@ int main() {
   std::cout << "sol = " << sol << std::endl;
   std::cout << "p = " << sol(p) << std::endl;
   std::cout << "q = " << sol(q) << std::endl;
+  std::cout << "f(sol) = " << f(sol) << std::endl;
+  std::cout << "f.body(sol) = " << f.body(sol) << std::endl;
 }
 ```
 {% endraw %}
 
-このプログラムでは、式 `p * q == 35` が自動的に `qbpp::sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値0を達成します。`f` は `qbpp::ExprExpr`（penalty と元の本体 `*f` を一緒に保持する制約オブジェクト）で、`f.simplify_as_binary()` は penalty と body の両方を同時に簡約します。
+このプログラムでは、式 `p * q == 35` が自動的に `qbpp::sqr(p * q - 35)` に変換され、等式が満たされたときにエネルギー値0を達成します。`f` は制約式の `qbpp::Expr` で、展開後のペナルティ `qbpp::sqr(p * q - 35)` と元の式 `p * q` の両方を保持します。`f` 自身は式 `qbpp::sqr(p * q - 35)` を表し、`f.body()` は元の式 `p * q` を返します。`f.simplify_as_binary()` は `f` 自身（ペナルティ）と `f.body()`（元の式）の両方を同時に簡約します。
 
 このプログラムの出力は以下の通りです:
 
 {% raw %}
 ```cpp
 f = 529 -240*p[0] -408*p[1] -88*q[0] -168*q[1] -304*q[2] -304*q[3] +144*p[0]*p[1] -5*p[0]*q[0] +40*p[0]*q[2] +40*p[0]*q[3] +16*p[1]*q[0] +56*p[1]*q[1] +208*p[1]*q[2] +208*p[1]*q[3] +16*q[0]*q[1] +32*q[0]*q[2] +32*q[0]*q[3] +64*q[1]*q[2] +64*q[1]*q[3] +128*q[2]*q[3] +52*p[0]*p[1]*q[0] +112*p[0]*p[1]*q[1] +256*p[0]*p[1]*q[2] +256*p[0]*p[1]*q[3] +20*p[0]*q[0]*q[1] +40*p[0]*q[0]*q[2] +40*p[0]*q[0]*q[3] +80*p[0]*q[1]*q[2] +80*p[0]*q[1]*q[3] +160*p[0]*q[2]*q[3] +48*p[1]*q[0]*q[1] +96*p[1]*q[0]*q[2] +96*p[1]*q[0]*q[3] +192*p[1]*q[1]*q[2] +192*p[1]*q[1]*q[3] +384*p[1]*q[2]*q[3] +16*p[0]*p[1]*q[0]*q[1] +32*p[0]*p[1]*q[0]*q[2] +32*p[0]*p[1]*q[0]*q[3] +64*p[0]*p[1]*q[1]*q[2] +64*p[0]*p[1]*q[1]*q[3] +128*p[0]*p[1]*q[2]*q[3]
+f.body() = 12 +6*p[0] +12*p[1] +2*q[0] +4*q[1] +8*q[2] +8*q[3] +p[0]*q[0] +2*p[0]*q[1] +4*p[0]*q[2] +4*p[0]*q[3] +2*p[1]*q[0] +4*p[1]*q[1] +8*p[1]*q[2] +8*p[1]*q[3]
 sol = 0:{{p[0],1},{p[1],1},{q[0],1},{q[1],0},{q[2],0},{q[3],0}}
 p = 5
 q = 7
+f(sol) = 0
+f.body(sol) = 35
 ```
 {% endraw %}
 出力から、式 `f` が4次の項を含んでおり、HUBO式であることが確認できます。
@@ -76,10 +82,9 @@ q = 7
 
 ## 大きな数の素因数分解のための無制限の大きな係数
 QUBO++では、式の係数とエネルギー値のデータ型はデフォルトでそれぞれ `int32_t` と `int64_t` です。
-これらの型はマクロ **`COEFF_TYPE`** と **`ENERGY_TYPE`** を定義することで変更できます。
+これらの型は **`INTEGER_TYPE_*`** マクロ（`INTEGER_TYPE_C32E32`、`INTEGER_TYPE_C32E64`（デフォルト）、`INTEGER_TYPE_C64E64`、`INTEGER_TYPE_C64E128`、`INTEGER_TYPE_C128E128`、`INTEGER_TYPE_CPP_INT`）のいずれかを定義することで切り替えられます — 詳細は [VAREXPR](VAREXPR#整数の範囲coeff_t-と-energy_t) 参照。
 
-さらに、QUBO++は任意の大きさの係数とエネルギー値を持つ式をサポートしています。
-このオプションを有効にするには、両方のマクロを **`qbpp::cpp_int`** に設定します。
+さらに、QUBO++は任意の大きさの係数とエネルギー値を持つ式を **`INTEGER_TYPE_CPP_INT`** でサポートします。このマクロを定義すると `coeff_t` と `energy_t` の両方が **`qbpp::cpp_int`** になります。
 以下のQUBO++プログラムは、2つの大きな素数の積を因数分解します:
 {% raw %}
 ```cpp
@@ -125,4 +130,4 @@ q = 1000039
 式 `f` が非常に大きな係数を含んでおり、大きな合成数の因数分解が正しく得られたことがわかります。
 
 >**TIP**
-> 任意精度整数を使用するには、ヘッダのインクルード前に **`INTEGER_TYPE_CPP_INT`** を定義します。他の型は **`-DCOEFF_TYPE=int64_t`** 等のコンパイラフラグで指定できます。
+> 任意精度整数を使用するには、ヘッダのインクルード前に **`INTEGER_TYPE_CPP_INT`** を定義します（あるいは `-DINTEGER_TYPE_CPP_INT` をコンパイラフラグで渡します）。他の型は **`INTEGER_TYPE_C32E32`**、**`INTEGER_TYPE_C32E64`（デフォルト）**、**`INTEGER_TYPE_C64E64`**、**`INTEGER_TYPE_C64E128`**、**`INTEGER_TYPE_C128E128`** で選択します — 全対応表は [VAREXPR](VAREXPR#整数の範囲coeff_t-と-energy_t) 参照。

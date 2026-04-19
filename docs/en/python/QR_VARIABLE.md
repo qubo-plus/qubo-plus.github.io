@@ -102,17 +102,16 @@ For a `pyqbpp.Var` instance `x`, the following are available:
 - **`str(x)`**:
   Returns the name of `x` as a string.
 
-## Integer variable class
-- **`pyqbpp.VarInt`**:
-  A class derived from `pyqbpp.Expr` that represents an integer variable with a specified range.
+## Integer variables
+An **integer variable** is a `pyqbpp.Expr` carrying range and binary-decomposition metadata; it represents an integer value in a specified range.
 
 ### Integer variable creation functions
 The following functions are provided to create integer variables:
 
 - **`pyqbpp.var("name", between=(l, u))`**:
   Here, `l` and `u` must be integers.
-  This expression creates a `pyqbpp.VarInt` object with the name `"name"`,
-  which internally contains a `pyqbpp.Expr` object representing all integers in the range `[l, u]`.
+  This expression creates a `pyqbpp.Expr` integer variable with the name `"name"`,
+  whose held expression represents all integers in the range `[l, u]`.
   Internally, this also creates `pyqbpp.Var` objects used in the underlying expression.
 
 - **`pyqbpp.var("name", shape=s1, between=(l, u))`**:
@@ -131,7 +130,7 @@ z = qbpp.var("z", shape=(2, 3), between=(1, 8))       # 2x3 matrix of integer va
 ```
 
 ### Integer variable properties
-For a `pyqbpp.VarInt` instance `x`, the following are available:
+For an integer variable `x` (a `pyqbpp.Expr`), the following are available:
 
 - **`x.min_val`** (property):
   Returns the minimum value `l` of `x`.

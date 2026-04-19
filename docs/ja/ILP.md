@@ -42,20 +42,21 @@ int main() {
   std::cout << "x0 = " << sol(x[0]) << ", x1 = " << sol(x[1])
             << ", x2 = " << sol(x[2]) << std::endl;
   std::cout << "objective = " << sol(objective) << std::endl;
-  std::cout << "*c1 = " << sol(*c1) << ", *c2 = " << sol(*c2)
-            << ", *c3 = " << sol(*c3) << std::endl;
+  std::cout << "c1.body(sol) = " << c1.body(sol)
+            << ", c2.body(sol) = " << c2.body(sol)
+            << ", c3.body(sol) = " << c3.body(sol) << std::endl;
 }
 ```
 {% endraw %}
-このプログラムでは、`x` は3つの `qbpp::VarInt` オブジェクトのベクトルであり、それぞれ $[0, 5]$ の範囲の整数値をとります。
+このプログラムでは、`x` は3つの整数変数のベクトルであり、それぞれ $[0, 5]$ の範囲の整数値をとります。
 目的関数と3つの制約は、それぞれ `objective`、`c1`、`c2`、`c3` で表されます。
 これらはペナルティ定数 `100` を用いて制約を強制する1つのQUBO式 `f` にまとめられます。
 
 Easy Solver は `f` の低エネルギー解を探索し、`sol` として返します。
-得られた解と `objective`、`*c1`、`*c2`、`*c3` の値は以下のように出力されます:
+得られた解と `objective`、および各制約の body（`c1.body(sol)`、`c2.body(sol)`、`c3.body(sol)`）の値は以下のように出力されます:
 ```
 x0 = 2, x1 = 3, x2 = 1
 objective = 24
-*c1 = 12, *c2 = 4, *c3 = 4
+c1.body(sol) = 12, c2.body(sol) = 4, c3.body(sol) = 4
 ```
 目的関数値24の解が得られ、すべての制約が満たされていることが確認できます。

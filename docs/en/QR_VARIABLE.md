@@ -25,7 +25,7 @@ compiler flag `-D...`):
 | Macro | `coeff_t` | `energy_t` |
 |---|---|---|
 | `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
-| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C32E64` (default) | `int32_t` | `int64_t` |
 | `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
 | `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
@@ -101,34 +101,30 @@ For a `qbpp::Var` instance `x`, the following member functions are available:
 
 Usually, there is no need to call these member functions explicitly in QUBO++ programs.
 
-## Integer variable class
-- **`qbpp::VarInt`**:
-  A class derived from `qbpp::Expr` that represents an integer variable with a specified range.
+## Integer variables
+An **integer variable** is a `qbpp::Expr` carrying range and binary-decomposition metadata; it represents an integer value in a specified range.
 
 ### Integer variable creation functions
 The following functions are provided to create integer variables:
 
 - **`qbpp::var_int("name")`**:
-  Returns an internally used helper object and does not create a `qbpp::VarInt` by itself.
-  To define a `qbpp::VarInt`, the range must be specified using the `<=` operator, as shown below.
+  Returns an internally used helper object and does not create an integer variable by itself.
+  To define an integer variable, the range must be specified using the `<=` operator, as shown below.
 
 - **`l <= qbpp::var_int("name") <= u`**:
   Here, `l` and `u` must be integers.
-  This expression creates a `qbpp::VarInt` object with the name `"name"`,
-  which internally contains a `qbpp::Expr` object representing all integers in the range `[l, u]`.
+  This expression creates a `qbpp::Expr` integer variable with the name `"name"`,
+  whose held expression represents all integers in the range `[l, u]`.
   Internally, this also creates `qbpp::Var` objects used in the underlying expression.
 
 - **`l <= qbpp::var_int("name", s1) <= u`**:
-  Creates a 1-dimensional array (vector) of `qbpp::VarInt` objects with the base name `"name"`
+  Creates a 1-dimensional array (vector) of integer-variable `qbpp::Expr` objects with the base name `"name"`
   and the same range `[l, u]`.
   Each element is represented as `name[i]`.
-  Higher-dimensional arrays of `qbpp::VarInt` can be created in the same way as `qbpp::Var` objects.
+  Higher-dimensional arrays of integer variables can be created in the same way as `qbpp::Var` objects.
 
 ### Integer variable member functions
-For a `qbpp::VarInt` instance `x`, the following member functions are available:
-
-- **`std::string x.name()`**:
-  Returns the name of `x`.
+For an integer variable `x` (a `qbpp::Expr`), the following member functions are available:
 
 - **`energy_t x.min_val`**:
   Returns the minimum value `l` of `x`.

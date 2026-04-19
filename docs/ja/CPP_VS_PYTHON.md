@@ -106,24 +106,19 @@ f = 2          # ただの int — 問題なし
 f += x         # f は自動的に 2 + x を表す Expr になる
 ```
 
-## 整数変数 (`VarInt`) と制約 (`ExprExpr`) の immutability
+## 整数変数・制約式の mutation
 
-`qbpp::VarInt` / `qbpp::ExprExpr` (および対応する `pyqbpp.VarInt` / `pyqbpp.ExprExpr`) は **どちらの言語でも immutable** で、in-place 変更はできません。
-ただし **エラーの出方が言語によって異なります**:
+整数変数・制約式はいずれも `Expr` 型で、追加のメタデータを持つだけです。**両言語とも mutation** (`+=`, `sqr()`, `replace()` 等) **は許可**されますが、mutation を行うと**そのメタデータは破棄**され、内部状態は通常の式になります（以後、顔固有の accessor は失敗）。例外は `simplify*()` で、メタデータを保ったまま簡約されます。
 
 | 操作 | C++ | Python |
 |---|---|---|
-| `vi += 1`, `ee += 1` (複合代入) | **コンパイルエラー** (`= delete`) | **silent rebind** — `vi` / `ee` は新しい `Expr` に再束縛されます (Python の immutable 型 `Decimal` / `Fraction` / `str` と同じ流儀)。VarInt の metadata / ExprExpr の body は破棄 |
-| `vi.sqr()`, `vi.replace(ml)` | **コンパイルエラー** (`= delete`) | **`TypeError`** (代替: `qbpp.sqr(vi)` 等) |
-| `ee.replace(ml)` | **コンパイルエラー** | **`TypeError`** (代替: `qbpp.replace(ee, ml)`) |
-| `vi.simplify_as_binary()` 等の simplify メソッド | **in-place 対応** | **in-place 対応** (C++ と同じ) |
-
-**理由**: C++ では型の不一致を**コンパイル時に検出する**のが慣習なので `= delete` が自然。Python では `f = 1; f += x` のような型変換を伴う複合代入が当たり前 (Python の immutable 型と同じ) なので、`vi += 1` も silent rebind のほうが自然 — ただし mutator メソッドには rebind の fallback がないので `TypeError`。simplify メソッドは両言語で in-place 対応 — 簡約化は式の意味を変えない正規化なので、immutability を破らずに内部状態のみ更新する。
+| `vi += 1`, `ee += 1` (複合代入) | **in-place**；内部状態は通常の式に戻る。以後 `min_val()`, `body()` 等の固有 accessor は runtime error | **in-place**；同じ `_handle` の中身を書き換え。以後固有 accessor は runtime error |
+| `vi.sqr()`, `vi.replace(ml)`, `ee.sqr()`, `ee.replace(ml)` | **in-place**；上と同じ規則 | **in-place**；上と同じ規則 |
+| `vi.simplify_as_binary()` 等の simplify メソッド | **in-place** — 顔は維持される | **in-place** — 顔は維持される |
 
 両言語に共通する原則:
-- **上書きは同じ型の代入のみ**: `vi = other_vi`, `ee = other_ee` は OK
-- **`Expr` への暗黙 decay**: 算術文脈で `vi + 1`, `ee + ee2` などは新しい `Expr` を返す
-- **関数を適用したい時はグローバル関数**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — 元のオブジェクトは変更されず新しい `Expr` を返す
+- **算術は新しい `Expr` を返す**: `vi + 1`, `ee + ee2` などは新しい通常 `Expr` を返す
+- **非破壊的に変換したい時はグローバル関数**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — 元のオブジェクトは変更されず新しい `Expr` を返す
 
 詳細はクイックリファレンス [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT) を参照。
 
@@ -139,7 +134,7 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 | **整数変数** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
 | **等式制約** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **制約の本体** | `*f` | `f.body` |
+| **制約の本体** | `f.body()` | `f.body` |
 | **配列スライス** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
 | **配列連結** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
 | **探索** | `auto sol = solver.search();` | `sol = solver.search()` |

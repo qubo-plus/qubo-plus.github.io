@@ -16,10 +16,10 @@ QUBO++ provides the following fundamental classes:
 - **`qbpp::Var`**: Represents a variable symbolically and is associated with a string used for display.
 Internally, a 32-bit unsigned integer is used as its identifier.
 - **`qbpp::Term`**: Represents a product term consisting of an integer coefficient and one or more `qbpp::Var` objects.
-The data type of the integer coefficient is defined by the `COEFF_TYPE` macro, whose default value is `int32_t`.
+The coefficient type is `qbpp::coeff_t` (default `int32_t`); it is selected at build time via one of the `INTEGER_TYPE_*` macros (see below).
 Each `qbpp::Term` stores its variables using a static array (inline buffer of 2 elements) combined with dynamic allocation for higher-degree terms, allowing terms of arbitrary degree with no upper limit.
 - **`qbpp::Expr`**: Represents an expanded expression consisting of an integer constant term and zero or more `qbpp::Term` objects.
-The data type of the integer constant term is defined by the `ENERGY_TYPE` macro, whose default value is `int64_t`.
+The constant-term type is `qbpp::energy_t` (default `int64_t`), also selected at build time via the `INTEGER_TYPE_*` macros.
 
 In the following program, **`x`** and **`y`** are `qbpp::Var` objects, **`t`** is a `qbpp::Term` object, and **`f`** is a `qbpp::Expr` object:
 ```cpp
@@ -126,10 +126,10 @@ int main() {
 In this program, both **`t`** and **`f`** are `qbpp::Expr` objects and can store general expressions.
 In particular, `f` is created as a `qbpp::Expr` object containing only a constant term with value `1` and no product terms.
 
-## Integer Ranges: COEFF_TYPE and ENERGY_TYPE
-The macros **`COEFF_TYPE`** and **`ENERGY_TYPE`** define the data types used for coefficients and energy values in expressions.
-The `ENERGY_TYPE` macro is also used as the data type for the integer constant term of a `qbpp::Expr` object.
-The following types can be specified:
+## Integer Ranges: coeff_t and energy_t
+The type aliases **`qbpp::coeff_t`** and **`qbpp::energy_t`** determine the data types used for coefficients and energy values in expressions.
+`qbpp::energy_t` is also the data type of the integer constant term of a `qbpp::Expr` object.
+The following types can be chosen:
 
 | Type | Range | Large constant syntax |
 |------|-------|-----------------------|
@@ -148,7 +148,7 @@ To use a different type, define one of the following macros before including the
 | Macro | `coeff_t` | `energy_t` |
 |---|---|---|
 | `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
-| (default) | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C32E64` (default) | `int32_t` | `int64_t` |
 | `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
 | `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |

@@ -21,12 +21,16 @@ It stores variable assignments along with the energy value and time-to-solution.
 
 ## Getting Variable Values
 
+For any `Var`, `Term`, or `Expr` (plain, integer-variable, or constraint), both `sol(x)` and `x(sol)`
+return the same value. In addition, `sol[x]` is a shortcut for `sol(x)`.
+
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
-| `sol[x]` | `int` | Get value of variable `x` (returns 0 or 1) |
-| `sol[vi]` | `int` | Get value of integer variable `vi` |
-| `sol(t)` | `int` | Evaluate term `t` |
-| `sol(f)` | `int` | Evaluate expression `f` |
+| `sol(x)` / `x(sol)` / `sol[x]` | `int` | Get value of variable `x` (returns 0 or 1) |
+| `sol(vi)` / `vi(sol)` / `sol[vi]` | `int` | Get value of integer variable `vi` |
+| `sol(t)` / `t(sol)` | `int` | Evaluate term `t` |
+| `sol(f)` / `f(sol)` | `int` | Evaluate expression `f` |
+| `sol(c)` / `c(sol)` | `int` | Evaluate the penalty of a constraint `c` |
 
 For arrays, use element-wise access:
 ```python
@@ -38,9 +42,7 @@ for i in range(n):
 
 | Expression | Description |
 |------------|-------------|
-| `sol[x] = value` | Set variable `x` to `value` (0 or 1) |
-| `sol[vi] = value` | Set integer variable `vi` to `value` |
-| `sol.set(x, value)` | Set variable `x` to `value` (0 or 1) |
+| `sol.set(x, value)` | Set variable `x` to `value` (0 or 1, or an integer for an integer variable) |
 | `sol.set(other_sol)` | Copy all variable values from another solution |
 | `sol.set({x: val, ...})` | Set variable values from a dict |
 | `sol.set([(x, val), ...])` | Set variable values from a list of tuples |
@@ -48,9 +50,9 @@ for i in range(n):
 | `sol.set(other_sol, [(x, val), ...])` | Copy from another solution, then apply list |
 
 ```python
-sol[x[0]] = 1
-sol[x[1]] = 0
-sol[vi] = 5
+sol.set(x[0], 1)
+sol.set(x[1], 0)
+sol.set(vi, 5)
 
 # Set multiple values at once with a dict
 sol.set({x[0]: 1, x[1]: 0, vi: 5})
@@ -71,7 +73,7 @@ full_sol = Sol(f).set(sol).set({x[0]: 1})
 
 `sol.energy` is a property that returns the energy value stored when the solver found the solution.
 It does **not** recompute the energy.
-After modifying variable values (e.g., `sol[x] = val`), the stored energy becomes **invalid**.
+After modifying variable values (e.g., `sol.set(x, val)`), the stored energy becomes **invalid**.
 Accessing `sol.energy` in this state raises an error.
 Call `sol.comp_energy()` to recompute and cache the energy.
 If the energy is already valid, `comp_energy()` returns the cached value without recomputation.

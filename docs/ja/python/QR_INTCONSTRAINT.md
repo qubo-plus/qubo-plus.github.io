@@ -10,93 +10,93 @@ hreflang_lang: "en"
 
 # クイックリファレンス: 整数変数と制約に関する演算と関数
 
-整数変数 (`pyqbpp.VarInt`) と制約 (`pyqbpp.ExprExpr`) は、`pyqbpp.Expr` を補う **2 つの専用オブジェクト型** で、共に **immutable** です。
+`pyqbpp.Expr` は通常の式・整数変数・制約式を **統一的に表現する型** です。3 つとも同じ型で、持つメタデータが違うだけです。
+
+`Expr` は 3 つの「顔」を持ちます:
+- **通常の式** (多項式): `x + 2*y*z` などの算術式
+- **整数変数**: `qbpp.var("x", between=(0, 10))` で作った `Expr`
+- **制約式**: `qbpp.constrain(e, equal=5)` などで作った `Expr`
 
 > **基本原則**
-> - **`simplify()` / `simplify_as_binary()` / `simplify_as_spin()` は in-place 対応**: VarInt は Expr 部分を、ExprExpr は penalty と body の両方を同時に簡約
-> - **`sqr()`, `replace()` はエラー** → `TypeError`。代替はグローバル関数 (`qbpp.sqr(vi)` 等)
-> - **複合代入 (`vi += 1` など) は silent rebind**: Python の immutable 型 (Decimal, Fraction, str) と同じ挙動で、`vi` は新しい `Expr` に再束縛されます (元の VarInt の metadata / ExprExpr の body は破棄)
-> - **算術文脈では `Expr` として扱われる**: 一旦 `Expr` になれば in-place 変更も自由
+> - `pyqbpp.Expr` の演算・関数はすべて、どの「顔」の Expr にも適用できる
+> - **固有 accessor** (`min_val`, `body` 等) は対応する「顔」の Expr でのみ有効。合わない Expr で呼ぶと **runtime abort**
+> - **式を変更するメソッド** (`+=`, `-=`, `*=`, `/=`, `//=`, `sqr()`, `replace()`) を呼ぶと、内部表現は通常の式に戻る（固有メタデータは破棄）
+> - **例外: `simplify*()`** は固有メタデータを保ったまま簡約
+> - `e.is_varint()` / `e.is_exprexpr()` で現在の「顔」を実行時に確認できる
 
 ---
 
-## 1. `pyqbpp.VarInt`
+## 1. 整数変数
 
 ### 生成
 
 | 構文 | 戻り値 |
 |---|---|
-| `qbpp.var("x", between=(l, u))` | `VarInt` (範囲 `[l, u]`) |
-| `qbpp.var("x", shape=N, between=(l, u))` | array (VarInt 要素) |
-| `qbpp.var("x", shape=(s1, s2, ...), between=(l, u))` | 多次元 VarInt 配列 |
-| `qbpp.var("x", shape=N, equal=0)` | placeholder VarInt 配列 (各要素を後から代入) |
+| `qbpp.var("x", between=(l, u))` | `Expr` (範囲 `[l, u]` の整数変数) |
+| `qbpp.var("x", shape=N, between=(l, u))` | 整数変数 `Expr` 要素の配列 |
+| `qbpp.var("x", shape=(s1, s2, ...), between=(l, u))` | 多次元の整数変数配列 |
+| `qbpp.var("x", shape=N, equal=0)` | placeholder の整数変数配列 (各要素を後から代入) |
 
-### 使える演算・関数
+### 演算・関数
 
 | カテゴリ | 例 | 戻り値 | 備考 |
 |---|---|---|---|
-| 単項 | `-vi` | `Expr` | `_expr()` に委譲 |
-| 算術 (右辺 Expr 系) | `vi + 1`, `vi * 2`, `vi - x` | `Expr` | `_expr()` に委譲 |
-| 算術 (右辺 VarInt) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | 両辺 `_expr()` |
-| 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `ExprExpr` | 制約生成 |
-| 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `ExprExpr` | 範囲制約 |
-| グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | `Expr` に変換して適用 |
-| メタ情報プロパティ | `vi.name`, `vi.min_val`, `vi.max_val` | 各種 | read-only |
-| 構造プロパティ・メソッド | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
+| 単項 | `-vi` | `Expr` | |
+| 算術 (右辺 Expr 系) | `vi + 1`, `vi * 2`, `vi - x` | `Expr` | |
+| 算術 (右辺 整数変数) | `vi1 + vi2`, `vi1 * vi2` | `Expr` | |
+| 制約 (等値) | `qbpp.constrain(vi, equal=5)` | `Expr` (制約式) | 制約生成 |
+| 制約 (範囲) | `qbpp.constrain(vi, between=(l, u))` | `Expr` (制約式) | 範囲制約 |
+| グローバル関数 | `qbpp.sqr(vi)`, `qbpp.simplify(vi)`, `qbpp.simplify_as_binary(vi)` | `Expr` | |
+| 整数変数固有メタ情報 | `vi.min_val`, `vi.max_val` | 各種 | read-only |
+| 整数変数固有構造 | `vi.var_count`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
 | 配列プロパティ | `vi.vars`, `vi.coeffs` | `list` | read-only |
-| Expr 取得 | `Expr(vi)`, `str(vi)` | `Expr` / `str` | clone |
-| in-place 簡約 | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()` | `VarInt` | Expr 部分のみ簡約（メタデータ不変） |
-| 代入 | `vi = other_vi` | (再束縛) | Python の通常の代入 |
-| 複合代入 (silent rebind) | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi //= 2`, `vi /= 2` | (`vi` が `Expr` に変わる) | `vi = vi + 1` と等価。VarInt metadata は破棄 |
+| Expr 取得 | `str(vi)` | `str` | |
+| **複合代入** | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi //= 2`, `vi /= 2` | (`vi` が通常の式相当に) | **以後整数変数固有 accessor は使えなくなる** |
+| **二乗** | `vi.sqr()` | (`vi` が通常の式相当に) | |
+| **置換** | `vi.replace(ml)` | (`vi` が通常の式相当に) | |
+| in-place 簡約 | `vi.simplify()`, `vi.simplify_as_binary()`, `vi.simplify_as_spin()` | `Expr` | 保持式のみ簡約、**整数変数のメタは保たれる** |
+| 代入 | `vi = other` | (再束縛) | Python の通常の代入 |
 
-### 使えない演算・関数
-
-| カテゴリ | 例 | 結果 |
-|---|---|---|
-| 二乗 | `vi.sqr()` | **`TypeError`** (代替: `qbpp.sqr(vi)`) |
-| 置換 | `vi.replace(ml)` | **`TypeError`** (代替: `qbpp.replace(vi, ml)`) |
+> **注意**: `vi += 1` 等を呼んだ後、Python の型は引き続き `Expr` ですが内部状態は通常の式相当です。`vi.min_val` 等の整数変数固有 accessor は **runtime error** になります。
 
 ---
 
-## 2. `pyqbpp.ExprExpr`
+## 2. 制約式
 
 ### 生成
 
 | 構文 | 戻り値 | 意味 (penalty / body) |
 |---|---|---|
-| `qbpp.constrain(f, equal=n)` | `ExprExpr` | penalty = `sqr(f - n)`, body = `f` |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | penalty = between, body = `f` |
-| `qbpp.constrain(f, between=(l, None))` | `ExprExpr` | `f >= l` (無上限) |
-| `qbpp.constrain(f, between=(None, u))` | `ExprExpr` | `f <= u` (無下限) |
+| `qbpp.constrain(f, equal=n)` | `Expr` (制約式) | penalty = `sqr(f - n)`, body = `f` |
+| `qbpp.constrain(f, between=(l, u))` | `Expr` (制約式) | penalty = between, body = `f` |
+| `qbpp.constrain(f, between=(l, None))` | `Expr` (制約式) | `f >= l` (無上限) |
+| `qbpp.constrain(f, between=(None, u))` | `Expr` (制約式) | `f <= u` (無下限) |
 
-`f` は非整数の式型 (`Var`, `Term`, `Expr`, `VarInt`)、`n`, `l`, `u` は整数。
+`f` は整数変数以外の式 (`Var`, `Term`, `Expr`, 整数変数 `Expr`)、`n`, `l`, `u` は整数。
 
-### 使える演算・関数
+### 演算・関数
 
 | カテゴリ | 例 | 戻り値 | 備考 |
 |---|---|---|---|
-| 単項 | `-ee` | `Expr` | Expr 継承で動作 |
-| 算術 (右辺 Expr 系) | `ee + 1`, `ee * 2`, `ee + x` | `Expr` | Expr 継承 |
-| 算術 (右辺 ExprExpr) | `ee1 + ee2` | `Expr` | 両辺 penalty |
-| グローバル関数 | `qbpp.sqr(ee)`, `qbpp.simplify_as_binary(ee)`, `qbpp.replace(ee, ml)` | `Expr` | penalty に適用、新 `Expr` を返す |
-| プロパティ | `ee.body`, `str(ee)` | `Expr` / `str` | clone (penalty は `Expr(ee)` で取得) |
+| 単項 | `-ee` | `Expr` | penalty を反転 |
+| 算術 (右辺 Expr 系) | `ee + 1`, `ee * 2`, `ee + x` | `Expr` | |
+| 算術 (右辺 制約式) | `ee1 + ee2` | `Expr` | penalty 同士 |
+| グローバル関数 | `qbpp.sqr(ee)`, `qbpp.simplify_as_binary(ee)`, `qbpp.replace(ee, ml)` | `Expr` | penalty に適用 |
+| プロパティ | `ee.body`, `str(ee)` | `Expr` / `str` | clone |
 | 解での評価 | `sol(ee)` (penalty を評価), `sol(ee.body)` (body を評価) | `coeff_t` | 制約満足度の検証 |
-| 代入 | `ee = other_ee` | (再束縛) | Python の通常の代入 |
-| in-place 簡約 | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()` | `ExprExpr` | penalty と body を同時に簡約 |
-| 複合代入 (silent rebind) | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee //= 2`, `ee /= 2` | (`ee` が `Expr` に変わる) | `ee = ee + 1` と等価。**body は破棄** |
+| **複合代入** | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee //= 2`, `ee /= 2` | (`ee` が通常の式相当に) | **body は参照不可に** |
+| **二乗** | `ee.sqr()` | (`ee` が通常の式相当に) | |
+| **置換** | `ee.replace(ml)` | (`ee` が通常の式相当に) | |
+| in-place 簡約 | `ee.simplify()`, `ee.simplify_as_binary()`, `ee.simplify_as_spin()` | `Expr` | penalty と body を同時に簡約、**制約式のまま** |
+| 代入 | `ee = other` | (再束縛) | Python の通常の代入 |
 
-### 使えない演算・関数
-
-| カテゴリ | 例 | 結果 |
-|---|---|---|
-| 二乗 | `ee.sqr()` | **`TypeError`** (代替: `qbpp.sqr(ee)`) |
-| 置換 | `ee.replace(ml)` | **`TypeError`** (代替: `qbpp.replace(ee, ml)`) |
+> **注意**: `ee += 1` 等の式変更系を呼ぶと penalty のみが更新され body は参照できなくなります。`ee.simplify*()` は penalty と body 両方に同じ rule を適用するため、制約式の整合性が保たれます。
 
 ---
 
 ## 3. グローバル関数: 新しい `Expr` を返す
 
-`VarInt` / `ExprExpr` を引数に取れる主要なグローバル関数。**いずれも引数を変更せず、新しい `pyqbpp.Expr` を返します**:
+整数変数・制約式を引数に取れる主要なグローバル関数。**いずれも引数を変更せず、新しい `pyqbpp.Expr` を返します**:
 
 | 関数 | 戻り値 | 説明 |
 |---|---|---|
@@ -105,30 +105,29 @@ hreflang_lang: "en"
 | `qbpp.simplify_as_binary(x)` | `Expr` | binary (0/1) ルールで簡約 |
 | `qbpp.simplify_as_spin(x)` | `Expr` | spin (±1) ルールで簡約 |
 | `qbpp.replace(x, ml)` | `Expr` | 変数置換 |
-| `qbpp.constrain(f, equal=n)` | `ExprExpr` | 等値制約 |
-| `qbpp.constrain(f, between=(l, u))` | `ExprExpr` | 範囲制約 |
+| `qbpp.constrain(f, equal=n)` | `Expr` (制約式) | 等値制約 |
+| `qbpp.constrain(f, between=(l, u))` | `Expr` (制約式) | 範囲制約 |
 
-引数 `x` は `Var`, `Term`, `Expr`, `VarInt`, `ExprExpr` のいずれでも OK (内部で `Expr` に変換)。
+引数 `x` は `Var`, `Term`, 任意の顔の `Expr` のいずれでも OK (内部では `Expr` として扱われる)。
 
 ---
 
 ## 4. 配列版
 
-`VarInt` / `ExprExpr` の配列も同じ規則:
-- **要素ごとに immutable**
-- **算術では各要素が `Expr` に変換** → 結果は `Expr` 配列
-- **in-place mutator は不可**、グローバル関数で代用
+整数変数・制約式の配列も同じ規則:
+- **算術では各要素が `Expr` として扱われる** → 結果は `Expr` 配列
+- **in-place mutator (`+=`, `*=` 等) も使える**が、要素ごとに上記と同じく通常の式相当に戻る
 
 ```python
-# VarInt 配列
-x = qbpp.var("x", shape=3, between=(0, 7))      # Array (VarInt 要素)
+# 整数変数の配列
+x = qbpp.var("x", shape=3, between=(0, 7))      # 整数変数 Expr の配列
 sum_expr = qbpp.sum(x)                           # Expr
 f = qbpp.sqr(sum_expr - 5)                       # Expr
 
-# ExprExpr 配列 (要素ごとの制約)
+# 制約式の配列 (要素ごとの制約)
 m = qbpp.var("m", shape=(3, 4))                  # 2D Var 配列
 rows = qbpp.vector_sum(m, axis=0)                # 各行の和 (Expr 配列)
-onehot = qbpp.constrain(rows, equal=1)           # Array (ExprExpr 要素)
+onehot = qbpp.constrain(rows, equal=1)           # 制約式 Expr の配列
 penalty = qbpp.sum(onehot)                       # Expr (全制約の合計)
 ```
 
@@ -138,7 +137,10 @@ penalty = qbpp.sum(onehot)                       # Expr (全制約の合計)
 
 ## 5. C++ 版との差異
 
-C++ では `+=` 等の複合代入はコンパイルエラー、Python では silent rebind になるなど挙動の違いがあります。詳細は [QUBO++ (C++) と PyQBPP (Python) の違い](../CPP_VS_PYTHON) の「整数変数 (`VarInt`) と制約 (`ExprExpr`) の immutability」を参照。
+C++ / Python とも `+=` 等の式変更操作は許可されますが、その後の挙動が異なります:
+
+- **C++**: 同じ object の内部状態が通常の式相当に変わる。固有 accessor 呼出は runtime error
+- **Python**: 同じ `_handle` の中身が変わる。Python の object identity は保たれるが、固有 accessor は同じく runtime error
 
 ---
 

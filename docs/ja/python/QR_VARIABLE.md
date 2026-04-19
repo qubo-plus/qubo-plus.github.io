@@ -102,17 +102,16 @@ b = qbpp.var(shape=5)            # Array of 5 unnamed variables
 - **`str(x)`**:
   `x` の名前を文字列として返します。
 
-## 整数変数クラス
-- **`pyqbpp.VarInt`**:
-  `pyqbpp.Expr` から派生したクラスで、指定された範囲を持つ整数変数を表現します。
+## 整数変数
+**整数変数**は、範囲とビット分解のメタデータを保持する `pyqbpp.Expr` であり、指定された範囲の整数値を表現します。
 
 ### 整数変数作成関数
 整数変数を作成するために以下の関数が提供されています。
 
 - **`pyqbpp.var("name", between=(l, u))`**:
   ここで `l` と `u` は整数でなければなりません。
-  この式は名前 `"name"` を持つ `pyqbpp.VarInt` オブジェクトを作成し、
-  内部的に範囲 `[l, u]` のすべての整数を表す `pyqbpp.Expr` オブジェクトを含みます。
+  この式は名前 `"name"` を持つ整数変数の `pyqbpp.Expr` オブジェクトを作成し、
+  保持する式が範囲 `[l, u]` のすべての整数を表します。
   内部的に、基礎となる式で使用される `pyqbpp.Var` オブジェクトも作成します。
 
 - **`pyqbpp.var("name", shape=s1, between=(l, u))`**:
@@ -130,7 +129,7 @@ z = qbpp.var("z", shape=(2, 3), between=(1, 8))      # 2x3 matrix of integer var
 ```
 
 ### 整数変数のプロパティ
-`pyqbpp.VarInt` のインスタンス `x` に対して、以下が利用可能です。
+整数変数 `x`（`pyqbpp.Expr`）に対して、以下が利用可能です。
 
 - **`x.min_val`** (プロパティ):
   `x` の最小値 `l` を返します。

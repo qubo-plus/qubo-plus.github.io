@@ -42,20 +42,21 @@ int main() {
   std::cout << "x0 = " << sol(x[0]) << ", x1 = " << sol(x[1])
             << ", x2 = " << sol(x[2]) << std::endl;
   std::cout << "objective = " << sol(objective) << std::endl;
-  std::cout << "*c1 = " << sol(*c1) << ", *c2 = " << sol(*c2)
-            << ", *c3 = " << sol(*c3) << std::endl;
+  std::cout << "c1.body(sol) = " << c1.body(sol)
+            << ", c2.body(sol) = " << c2.body(sol)
+            << ", c3.body(sol) = " << c3.body(sol) << std::endl;
 }
 ```
 {% endraw %}
-In this program, `x` is a vector of three `qbpp::VarInt` objects, each taking an integer value in the range $[0, 5]$.
+In this program, `x` is a vector of three integer variables, each taking an integer value in the range $[0, 5]$.
 The objective function and the three constraints are represented by `objective`, `c1`, `c2`, and `c3`, respectively.
 They are combined into a single QUBO expression `f`, where the penalty constant `100` is used to enforce the constraints.
 
 The Easy Solver searches for a low-energy solution of `f` and returns it as `sol`.
-The obtained solution and the values of `objective`, `*c1`, `*c2`, and `*c3` are printed as follows:
+The obtained solution and the values of `objective` and each constraint body (`c1.body(sol)`, `c2.body(sol)`, `c3.body(sol)`) are printed as follows:
 ```
 x0 = 2, x1 = 3, x2 = 1
 objective = 24
-*c1 = 12, *c2 = 4, *c3 = 4
+c1.body(sol) = 12, c2.body(sol) = 4, c3.body(sol) = 4
 ```
 We observe that a obtained solution with the objective 24 satisfies all constraints.

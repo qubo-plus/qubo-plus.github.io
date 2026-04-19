@@ -65,9 +65,9 @@ int main() {
   auto sol = solver.search({{"time_limit", 1.0}});
 
   std::cout << "x = " << sol(x) << std::endl;
-  std::cout << sol(x) << " - 3 * " << sol(d3) << " = " << sol(*c3) << std::endl;
-  std::cout << sol(x) << " - 5 * " << sol(d5) << " = " << sol(*c5) << std::endl;
-  std::cout << sol(x) << " - 7 * " << sol(d7) << " = " << sol(*c7) << std::endl;
+  std::cout << sol(x) << " - 3 * " << sol(d3) << " = " << c3.body(sol) << std::endl;
+  std::cout << sol(x) << " - 5 * " << sol(d5) << " = " << c5.body(sol) << std::endl;
+  std::cout << sol(x) << " - 7 * " << sol(d7) << " = " << c7.body(sol) << std::endl;
 }
 ```
 {% endraw %}

@@ -40,30 +40,30 @@ int main() {
   auto f = a + 2 * b + 3 * c == 3;
   f.simplify_as_binary();
   std::cout << "f = " << f << std::endl;
-  std::cout << "*f = " << *f << std::endl;
+  std::cout << "f.body() = " << f.body() << std::endl;
 
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
-              << ", f = " << f(sol) << ", *f = " << (*f)(sol) << std::endl;
+              << ", f = " << f(sol) << ", f.body() = " << f.body(sol) << std::endl;
   }
 }
 ```
 {% endraw %}
 In this program, `f` internally holds two qbpp::Expr objects:
 - **`f`**: $(a+2b+3c−3)^2$, which attains the minimum value of 0 if the equality $a+2b+3c=3$ is satisfied.
-- **`*f`**: the left-hand side of the equality, $a+2b+3c$.
+- **`f.body()`**: the left-hand side of the equality, $a+2b+3c$.
 
 Using the Exhaustive Solver object created for `f`, all optimal solutions are stored in **`sols`**.
-By iterating over `sols`, all solutions and the values of `f` and `*f` are printed as follows:
+By iterating over `sols`, all solutions and the values of `f` and `f.body()` are printed as follows:
 ```
 f = 9 -5*a -8*b -9*c +4*a*b +6*a*c +12*b*c
-*f = a +2*b +3*c
-a = 0, b = 0, c = 1, f = 0, *f = 3
-a = 1, b = 1, c = 0, f = 0, *f = 3
+f.body() = a +2*b +3*c
+a = 0, b = 0, c = 1, f = 0, f.body() = 3
+a = 1, b = 1, c = 0, f = 0, f.body() = 3
 ```
-These results confirm that two optimal solutions attain `f = 0` and satisfy `*f = 3`.
+These results confirm that two optimal solutions attain `f = 0` and satisfy `f.body() = 3`.
 
 ## Notes on Supported Equality Forms
 QUBO++ supports the equality operator only in the following form:
@@ -263,7 +263,7 @@ int main() {
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
-              << ", f = " << f(sol) << ", *f = " << (*f)(sol)
+              << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
               << ", sol = " << sol << std::endl;
   }
 }
@@ -281,9 +281,9 @@ $$
 This program produces the following output:
 {% raw %}
 ```
-a = 0, b = 1, c = 0, f = 0, *f = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],0},{{0}[1],1},{{0}[2],0}}
-a = 0, b = 1, c = 0, f = 0, *f = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
-a = 1, b = 1, c = 0, f = 0, *f = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
+a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],0},{{0}[1],1},{{0}[2],0}}
+a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
+a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
 ```
 {% endraw %}
 
@@ -340,7 +340,7 @@ int main() {
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
-              << ", f = " << f(sol) << ", *f = " << (*f)(sol)
+              << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
               << ", sol = " << sol << std::endl;
   }
 }
@@ -352,10 +352,10 @@ which is automatically replaced by 24.
 This program produces the following output:
 {% raw %}
 ```
-a = 0, b = 1, c = 1, f = 0, *f = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
-a = 0, b = 1, c = 1, f = 0, *f = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],0}}
-a = 1, b = 0, c = 1, f = 0, *f = 15, sol = 0:{{a,1},{b,0},{c,1},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
-a = 1, b = 1, c = 1, f = 0, *f = 24, sol = 0:{{a,1},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],0}}
+a = 1, b = 0, c = 1, f = 0, f.body() = 15, sol = 0:{{a,1},{b,0},{c,1},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
+a = 1, b = 1, c = 1, f = 0, f.body() = 24, sol = 0:{{a,1},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
 ```
 {% endraw %}
 
@@ -372,7 +372,7 @@ int main() {
   auto sols = solver.search({{"best_energy_sols", 1}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
-              << ", f = " << f(sol) << ", *f = " << (*f)(sol)
+              << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
               << ", sol = " << sol << std::endl;
   }
 }
@@ -384,10 +384,10 @@ which is automatically replaced by 0.
 This program produces the following output:
 {% raw %}
 ```
-a = 0, b = 0, c = 0, f = 0, *f = 0, sol = 0:{{a,0},{b,0},{c,0},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
-a = 0, b = 0, c = 1, f = 0, *f = 11, sol = 0:{{a,0},{b,0},{c,1},{{0}[0],0},{{0}[1],1},{{0}[2],1}}
-a = 0, b = 1, c = 0, f = 0, *f = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
-a = 1, b = 0, c = 0, f = 0, *f = 4, sol = 0:{{a,1},{b,0},{c,0},{{0}[0],0},{{0}[1],1},{{0}[2],0}}
-a = 1, b = 1, c = 0, f = 0, *f = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
+a = 0, b = 0, c = 0, f = 0, f.body() = 0, sol = 0:{{a,0},{b,0},{c,0},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
+a = 0, b = 0, c = 1, f = 0, f.body() = 11, sol = 0:{{a,0},{b,0},{c,1},{{0}[0],0},{{0}[1],1},{{0}[2],1}}
+a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
+a = 1, b = 0, c = 0, f = 0, f.body() = 4, sol = 0:{{a,1},{b,0},{c,0},{{0}[0],0},{{0}[1],1},{{0}[2],0}}
+a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
 ```
 {% endraw %}

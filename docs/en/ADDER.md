@@ -70,7 +70,7 @@ The program produces the following output, confirming that the expression correc
 {% endraw %}
 
 If some bits are fixed, the valid values of the remaining bits can be derived.
-For example, the three input bits can be fixed using the global `qbpp::replace()` function (`ExprExpr::replace()` is not supported, so we use the free function):
+For example, the three input bits can be fixed using the global `qbpp::replace()` function (the global form preserves the constraint-expression metadata):
 {% raw %}
 ```cpp
   auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});

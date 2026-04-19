@@ -35,8 +35,8 @@ For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` wi
 | Division               | `f / n`                                           | Global   | expression                        | expression, integer        |
 | Compound division      | `f /= n`                                          | In-place | expression                        | integer                    |
 | Unary operators        | `+f`, `-f`                                        | Global   | expression                        | expression                 |
-| Equality constraint    | `qbpp.constrain(f, equal=n)`                      | Global   | `ExprExpr`                        | expression, integer        |
-| Range constraint       | `qbpp.constrain(f, between=(l, u))`               | Global   | `ExprExpr`                        | expression, integer, integer |
+| Equality constraint    | `qbpp.constrain(f, equal=n)`                      | Global   | constraint expression             | expression, integer        |
+| Range constraint       | `qbpp.constrain(f, between=(l, u))`               | Global   | constraint expression             | expression, integer, integer |
 | Square                 | `qbpp.sqr(f)`                                     | Global   | expression                        | expression                 |
 | Square                 | `f.sqr()`                                         | In-place | expression                        | —                          |
 | GCD                    | `qbpp.gcd(f)`                                     | Global   | integer                           | expression                 |
@@ -159,10 +159,10 @@ Each form returns an expression whose minimum value is 0 when the constraint is 
 - **`between=(l, u)`**: implicitly introduces an auxiliary integer variable `a` with unit gaps, taking values in `[l, u-1]`, and returns `(f - a) * (f - (a + 1))`.
 - **`between=(l, None)`** / **`between=(None, u)`**: half-open forms that constrain only one side.
 
-### `pyqbpp.ExprExpr` class
-The object `g` returned by `constrain()` is a **`pyqbpp.ExprExpr`**, a derived class of `pyqbpp.Expr`.
+### Constraint expression
+The object `g` returned by `constrain()` is a `pyqbpp.Expr` carrying penalty + body metadata.
 
-- **`g`** is the penalty expression itself (corresponding to C++ `*g`) and can be used like any expression — evaluated, simplified, or passed to solvers.
+- **`g`** is the penalty expression itself (corresponding to C++ `g`) and can be used like any expression — evaluated, simplified, or passed to solvers.
 - **`g.body`** returns the original expression `f` before the constraint was applied.
 
 ## Square function: `sqr()`

@@ -33,8 +33,8 @@ hreflang_lang: "en"
 | 除算                   | `f / n`                                           | Global   | 式              | 式, 整数               |
 | 複合除算                | `f /= n`                                          | In-place | 式              | 整数                   |
 | 単項演算子              | `+f`, `-f`                                        | Global   | 式              | 式                     |
-| 等価制約                | `qbpp.constrain(f, equal=n)`                      | Global   | `ExprExpr`      | 式, 整数               |
-| 範囲制約                | `qbpp.constrain(f, between=(l, u))`               | Global   | `ExprExpr`      | 式, 整数, 整数         |
+| 等価制約                | `qbpp.constrain(f, equal=n)`                      | Global   | 制約式          | 式, 整数               |
+| 範囲制約                | `qbpp.constrain(f, between=(l, u))`               | Global   | 制約式          | 式, 整数, 整数         |
 | 二乗                   | `qbpp.sqr(f)`                                     | Global   | 式              | 式                     |
 | 二乗                   | `f.sqr()`                                         | In-place | 式              | —                      |
 | 最大公約数              | `qbpp.gcd(f)`                                     | Global   | 整数            | 式                     |
@@ -155,10 +155,10 @@ g = qbpp.constrain(f, between=(None, u)) # f <= u のペナルティ式（下限
 - **`between=(l, u)`**: 範囲 `[l, u-1]` の値を取る単位間隔の補助整数変数 `a` が暗黙的に導入され、関数は `(f - a) * (f - (a + 1))` を返します。
 - **`between=(l, None)`** / **`between=(None, u)`**: `l` / `u` の一方のみを制約する半開区間です。
 
-### `pyqbpp.ExprExpr` クラス
-`constrain()` が返すオブジェクト `g` は **`pyqbpp.ExprExpr`** 型で、`pyqbpp.Expr` の派生クラスです。
+### 制約式
+`constrain()` が返すオブジェクト `g` は、penalty + body のメタデータを持つ `pyqbpp.Expr` です。
 
-- **`g`** はペナルティ式そのもの（C++ の `*g` に対応）を表し、通常の式として評価・簡約化・ソルバー入力に使えます。
+- **`g`** はペナルティ式そのもの（C++ の `g` に対応）を表し、通常の式として評価・簡約化・ソルバー入力に使えます。
 - **`g.body`** は制約を作る前の元の式 `f` を返します。
 
 ## 二乗関数: `sqr()`

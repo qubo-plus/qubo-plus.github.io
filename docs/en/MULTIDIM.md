@@ -11,10 +11,10 @@ hreflang_lang: "ja"
 # Multi-dimensional Integers, Variables, and Expressions
 
 ## Defining multi-dimensional variables
-QUBO++ supports **multi-dimensional variables** (or `qbpp::Var` objects) and **multi-dimensional integer variables** (or `qbpp::VarInt` objects) of arbitrary depth using the functions `qbpp::var()` and `qbpp::var_int()`, respectively.
+QUBO++ supports **multi-dimensional variables** (`qbpp::Var` arrays) and **multi-dimensional integer variables** (arrays of integer-variable `qbpp::Expr`) of arbitrary depth using the functions `qbpp::var()` and `qbpp::var_int()`, respectively.
 Their basic usage is as follows:
 - `qbpp::var("name",s1,s2,...,sd)`: Creates an array of `qbpp::Var` objects with the given `name` and shape $s1\times s2\times \cdots\times sd$.
-- `l <= qbpp::var_int("name",s1,s2,...,sd) <= u`: Creates an array of `qbpp::VarInt` objects with the specified range and shape $s1\times s2\times \cdots\times sd$.
+- `l <= qbpp::var_int("name",s1,s2,...,sd) <= u`: Creates an array of integer-variable `qbpp::Expr` objects with the specified range and shape $s1\times s2\times \cdots\times sd$.
 
 The following QUBO++ program creates a binary variable and an integer variable, each with dimension $2\times 3\times 4$.
 ```cpp
@@ -35,7 +35,7 @@ y : {{{1 +y[0][0][0][0] +2*y[0][0][0][1] +4*y[0][0][0][2],1 +y[0][0][1][0] +2*y[
 ```
 {% endraw %}
 Each `qbpp::Var` object in **`x`** can be accessed as **`x[i][j][k]`**.
-Each `qbpp::VarInt` object in **`y`** can be accessed as **`y[i][j][k]`**,
+Each integer-variable `qbpp::Expr` in **`y`** can be accessed as **`y[i][j][k]`**,
 which is internally represented by three binary variables:
 - **`y[i][j][k][0]`**
 - **`y[i][j][k][1]`**
@@ -92,13 +92,13 @@ int main() {
   }
 }
 ```
-In this program, `qbpp::var_int("x", 4) == 0` creates an array of 4 constant-zero `VarInt` objects as placeholders.
+In this program, `qbpp::var_int("x", 4) == 0` creates an array of 4 constant-zero integer-variable `qbpp::Expr` objects as placeholders.
 Each element is then reassigned with its own range using `0 <= qbpp::var_int() <= max_vals[i]`.
 
 This technique is commonly used in problems such as the **[Cutting Stock Problem](BAR_CUTTING)**, where the upper bound of each variable differs.
 
 > **NOTE**
-> The `== 0` syntax creates a `VarInt` with `min_val = max_val = 0` (i.e., a constant zero).
+> The `== 0` syntax creates an integer variable with `min_val = max_val = 0` (i.e., a constant zero).
 > It does **not** create an equality constraint.
 > Any integer constant can be used, e.g., `qbpp::var_int("x", 4) == 5` creates constant-five placeholders.
 
@@ -181,7 +181,7 @@ f[1][2] = -1 +2*x[1][2]
 ```
 
 ## Arrays
-QUBO++ provides a multi-dimensional array type whose number of dimensions and element type (`qbpp::Var`, `qbpp::Expr`, `qbpp::Term`, `qbpp::VarInt`, or the integer coefficient type) are fixed at compile time.
+QUBO++ provides a multi-dimensional array type whose number of dimensions and element type (`qbpp::Var`, `qbpp::Expr`, `qbpp::Term`, or the integer coefficient type) are fixed at compile time.
 In practice you rarely need to spell out the array type by hand: the factory functions and `auto` type deduction pick the right instantiation, and the compiler checks that operations (element-wise `+`, `-`, `*`, assignment, …) are consistent with the declared element type.
 Arrays provide multi-dimensional indexing via `operator[]` chaining (e.g., `x[i][j][k]`) and element-wise arithmetic operations.
 

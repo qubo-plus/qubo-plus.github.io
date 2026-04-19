@@ -16,16 +16,17 @@ The following three classes are used for this purpose:
 |------|-----|-----|
 | `qbpp::Var` | A variable  |  a 32-bit ID and a string to display |
 | `qbpp::Term` | A product term | Zero or more variables and an integer coefficient |
-| `qbpp::Expr` | An expression | Zero ore moter terms and an integer constant term |
+| `qbpp::Expr` | An expression, an integer variable, or a constraint expression | Terms + integer constant, plus optional metadata |
 
-In addition, QUBO++ provides two related classes built on top of `qbpp::Expr`:
+A `qbpp::Expr` object can store any of the following, depending on how it is constructed:
 
-| Class | Contains | Details |
-|------|-----|-----|
-| `qbpp::VarInt` | Integer variable | A bounded integer variable encoded by binary variables |
-| `qbpp::ExprExpr` | Constraint expression | A pair of (penalty, body) produced by comparison / range operators |
+| Stored content | Created by | Extra metadata |
+|----------------|------------|----------------|
+| Expression | `x + 2*y`, `qbpp::expr(...)`, etc. | none |
+| Integer variable | `0 <= qbpp::var_int("x") <= 10`, etc. | range `[min, max]`, binary variable list, coefficients |
+| Constraint expression | `e == 5`, `0 <= e <= 10`, etc. | penalty (the `Expr` itself) + body (the original expression) |
 
-Both implicitly convert to `qbpp::Expr` in arithmetic contexts, so they can be freely mixed with ordinary expressions.
+All three forms share the same `qbpp::Expr` type, so every arithmetic operation and global function works uniformly regardless of which content the `Expr` carries.
 
 ## `qbpp::Var` class
 An instance of this class represents **a variable symbolically**.
@@ -179,9 +180,9 @@ This program prints:
 However, if `qbpp::toExpr()` is not used, `f` would be an `int` variable,
 and a compilation error would occur when applying the `+=` operator.
 
-## `qbpp::VarInt` class
-An instance of this class represents an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary `qbpp::Var` objects.
-A `VarInt` is created using the range-chain syntax:
+## Integer variables
+A `qbpp::Expr` can also represent an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary `qbpp::Var` objects.
+An integer variable is created using the range-chain syntax:
 ```cpp
 auto x = 0 <= qbpp::var_int("x") <= 10;   // integer variable in [0, 10]
 std::cout << x << std::endl;
@@ -191,17 +192,17 @@ The underlying linear expression (binary variables weighted by powers of two plu
 x[0] +2*x[1] +4*x[2] +3*x[3]
 ```
 
-A `VarInt` **implicitly converts to `qbpp::Expr`** in arithmetic contexts, so it can be used anywhere an expression is expected:
+Since an integer variable is already a `qbpp::Expr`, it can be used directly anywhere an expression is expected:
 ```cpp
 auto y = 0 <= qbpp::var_int("y") <= 10;
-auto f = qbpp::sqr(x + y - 7);            // x + y - 7 decays to Expr
+auto f = qbpp::sqr(x + y - 7);            // use it directly in arithmetic
 ```
-In addition to the embedded expression, a `VarInt` carries metadata: `name()`, `min_val()`, `max_val()`, and the underlying binary `Var` objects. Details and usage examples are in [Integer Variables](INTEGER).
+In addition to the embedded expression, an integer variable carries metadata: `min_val()`, `max_val()`, and the underlying binary `Var` objects. Details and usage examples are in [Integer Variables](INTEGER).
 
-## `qbpp::ExprExpr` class
-An instance of this class represents a **constraint expression**, produced by comparison or range operators applied to an expression. An `ExprExpr` holds two parts:
+## Constraint expressions
+A `qbpp::Expr` can also represent a **constraint expression**, produced by comparison or range operators applied to an expression. A constraint expression holds two parts:
 - **penalty**: an `Expr` that equals 0 when the constraint is satisfied and is positive otherwise
-- **body**: the original expression, accessed via `*ee` (useful for inspecting the actual value under a solution)
+- **body**: the original expression, accessed via `ee.body()` (useful for inspecting the actual value under a solution)
 
 Common ways to construct one:
 ```cpp
@@ -210,9 +211,9 @@ auto c1 = (x == 3);                    // penalty = sqr(x - 3), body = x
 auto c2 = (2 <= x <= 5);               // penalty = 0 iff 2 <= x <= 5, body = x
 ```
 
-Like `VarInt`, an `ExprExpr` **implicitly converts to `qbpp::Expr`** (its penalty part) in arithmetic contexts:
+A constraint expression can be used directly in further arithmetic — in such contexts it behaves as its penalty part:
 ```cpp
-auto f = c1 + c2 + qbpp::sqr(x - 4);   // mixing ExprExpr and Expr freely
+auto f = c1 + c2 + qbpp::sqr(x - 4);   // mix constraint and plain expressions freely
 f.simplify_as_binary();
 ```
-Use `*ee` to access the unevaluated body expression (for example, `sol(*ee)` gives the body's value under a solution). Details and the list of supported comparison forms are in [Comparison Operators](COMPARISON).
+Use `ee.body()` to access the unevaluated body expression (for example, `ee.body(sol)` gives the body's value under a solution). Details and the list of supported comparison forms are in [Comparison Operators](COMPARISON).
