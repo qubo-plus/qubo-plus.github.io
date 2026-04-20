@@ -107,16 +107,16 @@ Solution 23 : [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 ## 配列関数と演算を使った置換行列のQUBO定式化
 **`qbpp.vector_sum()`** を使用して、バイナリ変数の行列 `x` の行方向と列方向の和を計算できます:
-- **`qbpp.vector_sum(x, 1)`**: `x` の各行の和を計算し、それらの和を含むサイズ `n` の配列を返します。
-- **`qbpp.vector_sum(x, 0)`**: `x` の各列の和を計算し、それらの和を含むサイズ `n` の配列を返します。
+- **`qbpp.vector_sum(x, axis=1)`**: `x` の各行の和を計算し、それらの和を含むサイズ `n` の配列を返します。
+- **`qbpp.vector_sum(x, axis=0)`**: `x` の各列の和を計算し、それらの和を含むサイズ `n` の配列を返します。
 
 > **注釈**:
-> 多次元配列 `x` と軸 `k` に対して、`qbpp.vector_sum(x, k)` は軸 `k` に沿った和を計算し、次元が1つ減った多次元配列を返します。
+> 多次元配列 `x` と軸 `k` に対して、`qbpp.vector_sum(x, axis=k)` は軸 `k` に沿った和を計算し、次元が1つ減った多次元配列を返します。
 > 2次元配列（行列）`x` の場合、軸 `1` は行方向に、軸 `0` は列方向に対応します。
 
 スカラー-配列演算を使用して、各要素から1を引くことができます:
-- **`qbpp.vector_sum(x, 1) - 1`**: 行方向の各和から1を引きます。
-- **`qbpp.vector_sum(x, 0) - 1`**: 列方向の各和から1を引きます。
+- **`qbpp.vector_sum(x, axis=1) - 1`**: 行方向の各和から1を引きます。
+- **`qbpp.vector_sum(x, axis=0) - 1`**: 列方向の各和から1を引きます。
 
 これら2つのサイズ `n` の配列に対して、`qbpp.sqr()` は各要素を2乗し、`qbpp.sum()` はすべての要素の和を計算します。
 
@@ -125,21 +125,21 @@ Solution 23 : [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=(4, 4))
-f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + \
-    qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 0) - 1))
+f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, axis=1) - 1)) + \
+    qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, axis=0) - 1))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
 result = solver.search(best_energy_sols=0)
 for k, sol in enumerate(result.sols):
-    row = qbpp.onehot_to_int(sol(x), 1)
-    column = qbpp.onehot_to_int(sol(x), 0)
+    row = qbpp.onehot_to_int(sol(x), axis=1)
+    column = qbpp.onehot_to_int(sol(x), axis=0)
     print(f"Solution {k}: {row}, {column}")
 ```
 このプログラムでは、`sol(x)` は `sol` における `x` に割り当てられた値の行列を返します。これは整数のサイズの行列です。
 `qbpp.onehot_to_int()` は軸に沿ったone-hot配列を対応する整数に変換します。
-- **`qbpp.onehot_to_int(sol(x), 1)`**: 各行に対応する整数を計算し、4つの整数の配列として返します。これが置換を表します。
-- **`qbpp.onehot_to_int(sol(x), 0)`**: 各列に対応する整数を返し、4つの整数の配列として返します。これが置換の逆を表します。
+- **`qbpp.onehot_to_int(sol(x), axis=1)`**: 各行に対応する整数を計算し、4つの整数の配列として返します。これが置換を表します。
+- **`qbpp.onehot_to_int(sol(x), axis=0)`**: 各列に対応する整数を返し、4つの整数の配列として返します。これが置換の逆を表します。
 
 このプログラムはすべての置換とその逆を整数ベクトルとして以下のように出力します:
 ```
@@ -207,8 +207,8 @@ $$
 このプログラムでは、サイズ $4\times4$ の固定行列 $C$ が配列として与えられます。
 `qbpp.array()` はネストされたPythonリストを自動的にネストされた配列オブジェクトに変換するため、多次元配列を簡潔に作成できます。
 $f(X)$ と $g(X)$ の式は配列関数と演算を使用して定義されます。
-ここで、`qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)` は等式 `vector_sum(x, 1) == 1` が満たされた場合に最小値0を取るQUBO式の配列を返します。
-実際には、`qbpp.sqr(qbpp.vector_sum(x, 1) - 1)` と同じQUBO式を返します。
+ここで、`qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)` は等式 `vector_sum(x, axis=1) == 1` が満たされた場合に最小値0を取るQUBO式の配列を返します。
+実際には、`qbpp.sqr(qbpp.vector_sum(x, axis=1) - 1)` と同じQUBO式を返します。
 また、`c * x` は `c` と `x` の要素ごとの積を計算して得られる行列を返すため、`qbpp.sum(c * x)` は `g(X)` を返します。
 
 ```python
@@ -219,8 +219,8 @@ c = qbpp.array([[58, 73, 91, 44],
                 [78, 56, 23, 94],
                 [11, 85, 68, 72]])
 x = qbpp.var("x", shape=(4, 4))
-f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + \
-    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)) + \
+    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1))
 g = qbpp.sum(c * x)
 h = 1000 * f + g
 h.simplify_as_binary()
@@ -228,7 +228,7 @@ h.simplify_as_binary()
 solver = qbpp.EasySolver(h)
 sol = solver.search(time_limit=1.0)
 print("sol =", sol)
-result = qbpp.onehot_to_int(sol(x), 1)
+result = qbpp.onehot_to_int(sol(x), axis=1)
 print("Result :", result)
 for i in range(len(result)):
     print(f"c[{i}][{result[i]}] = {c[i][result[i]]}")

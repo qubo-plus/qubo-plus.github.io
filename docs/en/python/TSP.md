@@ -71,8 +71,8 @@ def dist(i, j):
 n = len(nodes)
 x = qbpp.var("x", shape=(n, n))
 
-constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + \
-             qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
+constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)) + \
+             qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1))
 
 objective = qbpp.expr()
 for i in range(n):

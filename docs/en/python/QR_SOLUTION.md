@@ -85,7 +85,7 @@ If the energy is already valid, `comp_energy()` returns the cached value without
 | Expression | Return Type | Description |
 |------------|-------------|-------------|
 | `qbpp.onehot_to_int(sol(x))` | array | Decode one-hot along last axis (default) |
-| `qbpp.onehot_to_int(sol(x), k)` | array | Decode one-hot along axis $k$ |
+| `qbpp.onehot_to_int(sol(x), axis=k)` | array | Decode one-hot along axis $k$ |
 
 Decodes along the specified axis and returns an array with one fewer dimension.
 The output shape is the input shape with axis $k$ removed, and each element is the index of the 1 along that axis.

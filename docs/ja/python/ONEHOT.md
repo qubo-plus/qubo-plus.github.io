@@ -34,7 +34,7 @@ x = qbpp.var("x", shape=(n, m))
 # ワンホット制約: 各行にちょうど1つの1
 onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 # 全異なり制約: 各列にちょうど1つの1
-alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
+alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1))
 
 f = onehot + alldiff
 f.simplify_as_binary()
@@ -65,16 +65,16 @@ onehot_to_int = {3,0,2,1,4}
 負のインデックスもサポートされています: 軸 `-1` は最後の軸、`-2` は最後から2番目の軸を指します。
 
 サイズ $n \times m$ の2次元配列の場合:
-- **`onehot_to_int(arr)`** または **`onehot_to_int(arr, 1)`**: 各行をデコード、$[0, m-1]$ の $n$ 個の整数を返す。
-- **`onehot_to_int(arr, 0)`**: 各列をデコード、$[0, n-1]$ の $m$ 個の整数を返す。
+- **`onehot_to_int(arr)`** または **`onehot_to_int(arr, axis=1)`**: 各行をデコード、$[0, m-1]$ の $n$ 個の整数を返す。
+- **`onehot_to_int(arr, axis=0)`**: 各列をデコード、$[0, n-1]$ の $m$ 個の整数を返す。
 
 ```python
-row_result = qbpp.onehot_to_int(sol(x))     # {3,0,2,1,4}
-col_result = qbpp.onehot_to_int(sol(x), 0)  # {1,3,2,0,4}
+row_result = qbpp.onehot_to_int(sol(x))          # {3,0,2,1,4}
+col_result = qbpp.onehot_to_int(sol(x), axis=0)  # {1,3,2,0,4}
 ```
 
 `x` が置換行列の場合、`onehot_to_int(sol(x))` は順列 $\sigma$ を、
-`onehot_to_int(sol(x), 0)` はその逆順列 $\sigma^{-1}$ を返します。
+`onehot_to_int(sol(x), axis=0)` はその逆順列 $\sigma^{-1}$ を返します。
 
 ### 1次元入力
 
@@ -92,9 +92,9 @@ idx = qbpp.onehot_to_int(sol(v))  # {2}
 次元 $d \geq 3$ の配列の場合、`onehot_to_int()` は指定された軸に沿ってデコードし、
 次元 $d - 1$ の配列を返します。
 例えば、$2 \times 3 \times 4$ の配列の場合:
-- **`onehot_to_int(arr)`** または **`onehot_to_int(arr, 2)`**: 軸2（最後）に沿ってデコード、結果の形状 $2 \times 3$。
-- **`onehot_to_int(arr, 1)`**: 軸1に沿ってデコード、結果の形状 $2 \times 4$。
-- **`onehot_to_int(arr, 0)`**: 軸0に沿ってデコード、結果の形状 $3 \times 4$。
+- **`onehot_to_int(arr)`** または **`onehot_to_int(arr, axis=2)`**: 軸2（最後）に沿ってデコード、結果の形状 $2 \times 3$。
+- **`onehot_to_int(arr, axis=1)`**: 軸1に沿ってデコード、結果の形状 $2 \times 4$。
+- **`onehot_to_int(arr, axis=0)`**: 軸0に沿ってデコード、結果の形状 $3 \times 4$。
 
 ### まとめ
 

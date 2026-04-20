@@ -34,6 +34,8 @@ x : {{{x[0][0][0],x[0][0][1],x[0][0][2],x[0][0][3]},{x[0][1][0],x[0][1][1],x[0][
 y : {{{1 +y[0][0][0][0] +2*y[0][0][0][1] +4*y[0][0][0][2],1 +y[0][0][1][0] +2*y[0][0][1][1] +4*y[0][0][1][2],1 +y[0][0][2][0] +2*y[0][0][2][1] +4*y[0][0][2][2],1 +y[0][0][3][0] +2*y[0][0][3][1] +4*y[0][0][3][2]},{1 +y[0][1][0][0] +2*y[0][1][0][1] +4*y[0][1][0][2],1 +y[0][1][1][0] +2*y[0][1][1][1] +4*y[0][1][1][2],1 +y[0][1][2][0] +2*y[0][1][2][1] +4*y[0][1][2][2],1 +y[0][1][3][0] +2*y[0][1][3][1] +4*y[0][1][3][2]},{1 +y[0][2][0][0] +2*y[0][2][0][1] +4*y[0][2][0][2],1 +y[0][2][1][0] +2*y[0][2][1][1] +4*y[0][2][1][2],1 +y[0][2][2][0] +2*y[0][2][2][1] +4*y[0][2][2][2],1 +y[0][2][3][0] +2*y[0][2][3][1] +4*y[0][2][3][2]}},{{1 +y[1][0][0][0] +2*y[1][0][0][1] +4*y[1][0][0][2],1 +y[1][0][1][0] +2*y[1][0][1][1] +4*y[1][0][1][2],1 +y[1][0][2][0] +2*y[1][0][2][1] +4*y[1][0][2][2],1 +y[1][0][3][0] +2*y[1][0][3][1] +4*y[1][0][3][2]},{1 +y[1][1][0][0] +2*y[1][1][0][1] +4*y[1][1][0][2],1 +y[1][1][1][0] +2*y[1][1][1][1] +4*y[1][1][1][2],1 +y[1][1][2][0] +2*y[1][1][2][1] +4*y[1][1][2][2],1 +y[1][1][3][0] +2*y[1][1][3][1] +4*y[1][1][3][2]},{1 +y[1][2][0][0] +2*y[1][2][0][1] +4*y[1][2][0][2],1 +y[1][2][1][0] +2*y[1][2][1][1] +4*y[1][2][1][2],1 +y[1][2][2][0] +2*y[1][2][2][1] +4*y[1][2][2][2],1 +y[1][2][3][0] +2*y[1][2][3][1] +4*y[1][2][3][2]}}}
 ```
 {% endraw %}
+The type of **`x`** is **`qbpp::Array<3, qbpp::Var>`** (3-D array of `qbpp::Var`), and the type of **`y`** is **`qbpp::Array<3, qbpp::Expr>`** (3-D array of integer-variable `qbpp::Expr`).
+
 Each `qbpp::Var` object in **`x`** can be accessed as **`x[i][j][k]`**.
 Each integer-variable `qbpp::Expr` in **`y`** can be accessed as **`y[i][j][k]`**,
 which is internally represented by three binary variables:
@@ -66,7 +68,8 @@ int main() {
 }
 ```
 {% endraw %}
-`c * x` returns an element-wise product as a 2D array of terms, and `qbpp::sum` sums all elements into a single `Expr`. The output of this program is:
+Here `c` has type **`qbpp::Array<2, qbpp::coeff_t>`** (2-D integer constant array) and `x` has type **`qbpp::Array<2, qbpp::Var>`**.
+`c * x` returns an element-wise product as a 2D array of terms (`qbpp::Array<2, qbpp::Term>`), and `qbpp::sum` sums all elements into a single `Expr`. The output of this program is:
 ```
 f = x[0][0] +2*x[0][1] +3*x[1][0] +4*x[1][1]
 ```
@@ -92,7 +95,8 @@ int main() {
   }
 }
 ```
-In this program, `qbpp::var_int("x", 4) == 0` creates an array of 4 constant-zero integer-variable `qbpp::Expr` objects as placeholders.
+In this program, `max_vals` has type **`qbpp::Array<1, qbpp::coeff_t>`** (1-D integer constant array).
+`qbpp::var_int("x", 4) == 0` creates an array of 4 constant-zero integer-variable `qbpp::Expr` objects as placeholders, so `x` has type **`qbpp::Array<1, qbpp::Expr>`**.
 Each element is then reassigned with its own range using `0 <= qbpp::var_int() <= max_vals[i]`.
 
 This technique is commonly used in problems such as the **[Cutting Stock Problem](BAR_CUTTING)**, where the upper bound of each variable differs.
@@ -131,6 +135,8 @@ int main() {
   }
 }
 ```
+Here `x` has type **`qbpp::Array<3, qbpp::Var>`** and `f` has type **`qbpp::Array<2, qbpp::Expr>`**.
+
 Note that the `simplify_as_binary()` member function can be applied to a multi-dimensional array of `qbpp::Expr` objects.
 When called on such an array, it applies `simplify_as_binary()` to each element individually (element-wise).
 
@@ -166,8 +172,8 @@ int main() {
   }
 }
 ```
-In this program, `x` is defined as a $2 \times 3$ array of `qbpp::Var` objects.
-The expression `x + 1` produces a $2 \times 3$ array of `qbpp::Expr` objects, which is used to initialize `f` via auto type deduction.
+In this program, `x` is defined as a $2 \times 3$ array of `qbpp::Var` objects (type **`qbpp::Array<2, qbpp::Var>`**).
+The expression `x + 1` produces a $2 \times 3$ array of `qbpp::Expr` objects, which is used to initialize `f` via auto type deduction, so `f` has type **`qbpp::Array<2, qbpp::Expr>`**.
 After that, the expression `x - 2` is added element-wise to `f`.
 
 This program outputs:
@@ -185,12 +191,16 @@ QUBO++ provides a multi-dimensional array type whose number of dimensions and el
 In practice you rarely need to spell out the array type by hand: the factory functions and `auto` type deduction pick the right instantiation, and the compiler checks that operations (element-wise `+`, `-`, `*`, assignment, …) are consistent with the declared element type.
 Arrays provide multi-dimensional indexing via `operator[]` chaining (e.g., `x[i][j][k]`) and element-wise arithmetic operations.
 
-Arrays are created using the following factory functions:
-- **`qbpp::var("name", s1, s2, ...)`**: multi-dimensional array of binary variables.
-- **`qbpp::expr(s1, s2, ...)`**: multi-dimensional array of zero-initialized expressions.
-- **`qbpp::array({v1, v2, ...})`**: 1D array of integer constants.
-- **`qbpp::array(s1, s2, ...)`**: zero-initialized multi-dimensional integer array with given shape.
-- **`l <= qbpp::var_int("name", s1, s2, ...) <= u`**: multi-dimensional array of integer variables.
+Arrays are created using the following factory functions (with `Dim = d`, the number of dimensions):
+- **`qbpp::var("name", s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::Var>`: multi-dimensional array of binary variables.
+- **`qbpp::expr(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::Expr>`: multi-dimensional array of zero-initialized expressions.
+- **`qbpp::array({v1, v2, ...})`** → `qbpp::Array<1, qbpp::coeff_t>`: 1D array of integer constants.
+- **`qbpp::array(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::coeff_t>`: zero-initialized multi-dimensional integer array with given shape.
+- **`l <= qbpp::var_int("name", s1, s2, ..., sd) <= u`** → `qbpp::Array<d, qbpp::Expr>`: multi-dimensional array of integer variables.
+
+> **NOTE — when to write the type explicitly**
+> With local variables, `auto` deduces the correct `qbpp::Array<Dim, T>` instantiation so you rarely need to write the type by hand.
+> The exception is **non-`static` class member variables**, for which C++ does not allow `auto` — the full type such as `qbpp::Array<2, qbpp::Expr>` must be spelled out in the member declaration.
 
 Arrays provide the following member functions:
 - **`size()`**: Returns the size of the outermost dimension.

@@ -92,7 +92,7 @@ f = 1 +2*x*y -x +2*y
 
 ## Building an expression
 
-Unlike the C++ API, Python does not require you to construct an `Expr` explicitly — arithmetic operators automatically promote `int` / `Var` / `Term` into `Expr` when needed. For example, `2 * x * y` is a `Term`, but once you `+=` another term onto it, it is promoted to an `Expr`:
+Python does not require you to construct an `Expr` explicitly — arithmetic operators automatically promote `int` / `Var` / `Term` into `Expr` when needed. For example, `2 * x * y` is a `Term`, but once you `+=` another term onto it, it is promoted to an `Expr`:
 ```python
 import pyqbpp as qbpp
 
@@ -125,7 +125,7 @@ The following types can be specified:
 | 128-bit | ±1.7×10³⁸ | `12345678901234567890` |
 | `cpp_int` | unlimited | `12345678901234567890...` |
 
-Because Python integer literals are arbitrary precision by construction, no helper function is needed to write large constants — you simply write the integer. When building an expression, each integer literal is converted into the current coefficient or energy type; if the value does not fit in the coefficient type of the selected variant, an exception is raised. This mirrors the role of `qbpp::integer("...")` in the C++ API, which is not needed in Python.
+Because Python integer literals are arbitrary precision by construction, no helper function is needed to write large constants — you simply write the integer. When building an expression, each integer literal is converted into the current coefficient or energy type; if the value does not fit in the coefficient type of the selected variant, an exception is raised.
 
 By default, `import pyqbpp` uses **32-bit coefficients and 64-bit energy** (`c32e64`),
 which is the fastest type variant suitable for most problems.
@@ -171,7 +171,7 @@ The appropriate shared library is automatically loaded at import time based on t
 
 In Python, integer literals are arbitrary precision by construction, so writing a large value is just a matter of typing it — for example, `12345678901234567890 * x`.
 Each such literal is converted to the current `coeff_t` type at the moment it participates in an operation.
-If the value does not fit, an exception is raised (mirroring C++'s `std::out_of_range`).
+If the value does not fit, an exception is raised.
 
 For very large integer-string conversions inside a hot loop, bind the value to a variable once instead of materializing it on every iteration:
 ```python

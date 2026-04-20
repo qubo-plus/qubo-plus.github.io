@@ -28,13 +28,12 @@ PyQBPP provides three solvers for QUBO/HUBO expressions:
   - Does not guarantee optimality, but is much more powerful than the Easy Solver.
   - If no GPU is available, falls back to CPU-only mode.
 
-The Easy Solver and Exhaustive Solver are used in the following steps:
-1. Create a solver object, **`qbpp.EasySolver`** or **`qbpp.ExhaustiveSolver`**.
+The Easy Solver, Exhaustive Solver, and ABS3 Solver are used in the following steps:
+1. Create a solver object, **`qbpp.EasySolver`**, **`qbpp.ExhaustiveSolver`**, or **`qbpp.ABS3Solver`**.
 2. Call the **`search()`** method on the solver object, optionally passing parameters as keyword arguments. It returns a solution that stores the obtained result.
 
 ## Easy Solver
 To use the **Easy Solver**, use the class **`qbpp.EasySolver`** provided by PyQBPP.
-Unlike the C++ version that requires including `qbpp/easy_solver.hpp`, PyQBPP exposes `EasySolver` directly as a top-level class, so a single `import pyqbpp as qbpp` is sufficient.
 
 We use the following expression $f(a,b,c,d)$ as an example:
 
@@ -81,7 +80,6 @@ One of the optimal solutions is correctly output.
 
 ## Exhaustive Solver
 To use the **Exhaustive Solver**, use the class **`qbpp.ExhaustiveSolver`** provided by PyQBPP.
-As with `EasySolver`, no extra import is required beyond `import pyqbpp as qbpp`.
 
 We construct an instance **`solver`** of the class **`qbpp.ExhaustiveSolver`**
 by passing `f` to its constructor.
@@ -152,7 +150,6 @@ The Exhaustive Solver is very useful for analyzing small expressions and for deb
 
 ## ABS3 Solver
 To use the **ABS3 Solver**, use the class **`qbpp.ABS3Solver`** provided by PyQBPP.
-No additional import is required beyond `import pyqbpp as qbpp`.
 
 The ABS3 Solver is a high-performance solver that uses CUDA GPUs and multicore CPUs.
 If no GPU is available, it automatically falls back to CPU-only mode.

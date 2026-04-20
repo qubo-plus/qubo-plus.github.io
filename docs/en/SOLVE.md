@@ -28,8 +28,8 @@ QUBO++ provides three solvers for QUBO/HUBO expressions:
   - Does not guarantee optimality, but is much more powerful than the Easy Solver.
   - If no GPU is available, falls back to CPU-only mode.
 
-The Easy Solver and Exhaustive Solver are used in the following steps:
-1. Create a solver object, **`qbpp::EasySolver`** or **`qbpp::ExhaustiveSolver`**.
+The Easy Solver, Exhaustive Solver, and ABS3 Solver are used in the following steps:
+1. Create a solver object, **`qbpp::EasySolver`**, **`qbpp::ExhaustiveSolver`**, or **`qbpp::ABS3Solver`**.
 2. Call the **`search()`** member function on the solver object, optionally passing parameters as an initializer list. It returns a **`qbpp::Sol`** object that stores the obtained solution.
 
 ## Easy Solver

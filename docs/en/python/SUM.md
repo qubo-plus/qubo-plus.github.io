@@ -79,12 +79,12 @@ Negative indices are also supported: axis `-1` refers to the last axis, `-2` to 
 Using the same $2 \times 3 \times 3$ array `x` as above, the following code demonstrates summing along each of the three axes:
 
 ```python
-vs2 = qbpp.vector_sum(x, 2)  # sum along axis 2 (default)
-vs1 = qbpp.vector_sum(x, 1)  # sum along axis 1
-vs0 = qbpp.vector_sum(x, 0)  # sum along axis 0
+vs2 = qbpp.vector_sum(x, axis=2)  # sum along axis 2 (default)
+vs1 = qbpp.vector_sum(x, axis=1)  # sum along axis 1
+vs0 = qbpp.vector_sum(x, axis=0)  # sum along axis 0
 ```
 
-- **`vector_sum(x, 2)`** sums along axis 2 (the innermost axis), producing a $2 \times 3$ array. This is equivalent to `vector_sum(x)`.
+- **`vector_sum(x, axis=2)`** sums along axis 2 (the innermost axis), producing a $2 \times 3$ array. This is equivalent to `vector_sum(x)`.
 
 ```
 vs2[0][0] = x[0][0][0] +x[0][0][1] +x[0][0][2]
@@ -95,7 +95,7 @@ vs2[1][1] = x[1][1][0] +x[1][1][1] +x[1][1][2]
 vs2[1][2] = x[1][2][0] +x[1][2][1] +x[1][2][2]
 ```
 
-- **`vector_sum(x, 1)`** sums along axis 1 (the middle axis), producing a $2 \times 3$ array.
+- **`vector_sum(x, axis=1)`** sums along axis 1 (the middle axis), producing a $2 \times 3$ array.
 
 ```
 vs1[0][0] = x[0][0][0] +x[0][1][0] +x[0][2][0]
@@ -106,7 +106,7 @@ vs1[1][1] = x[1][0][1] +x[1][1][1] +x[1][2][1]
 vs1[1][2] = x[1][0][2] +x[1][1][2] +x[1][2][2]
 ```
 
-- **`vector_sum(x, 0)`** sums along axis 0 (the outermost axis), producing a $3 \times 3$ array.
+- **`vector_sum(x, axis=0)`** sums along axis 0 (the outermost axis), producing a $3 \times 3$ array.
 
 ```
 vs0[0][0] = x[0][0][0] +x[1][0][0]

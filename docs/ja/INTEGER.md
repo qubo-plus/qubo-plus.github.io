@@ -46,8 +46,8 @@ $$
 int main() {
   auto x = 1 <= qbpp::var_int("x") <= 8;
   auto y = -10 <= qbpp::var_int("y") <= 10;
-  std::cout << "x = " << x << " uses " << x.size() << " variables.\n";
-  std::cout << "y = " << y << " uses " << y.size() << " variables.\n";
+  std::cout << "x = " << x << " uses " << x.var_count() << " variables.\n";
+  std::cout << "y = " << y << " uses " << y.var_count() << " variables.\n";
 }
 ```
 

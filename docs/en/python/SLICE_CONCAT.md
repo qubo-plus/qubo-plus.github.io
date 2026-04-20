@@ -150,8 +150,6 @@ $$
 \text{diff}_i = y_i - y_{i+1} \quad (0 \le i \le n)
 $$
 
-This is the direct Python equivalent of the C++ `head(y, n+1) - tail(y, n+1)` idiom.
-
 **Step 3: Penalty with `sqr` and `sum`**
 
 `qbpp.sum(qbpp.sqr(diff))` computes $\sum_{i=0}^{n} (y_i - y_{i+1})^2$.
@@ -234,9 +232,9 @@ for i in range(n):
 
 ### How it works
 
-1. **`x`** is $(n{-}1) \times n$. Adding guard rows via `concat(1, concat(x, 0, 0), 0)` along `dim=0` gives $(n{+}1) \times n$, where each column is a domain wall ($1\cdots 1\, 0\cdots 0$). Taking `xg[:n] - xg[-n:]` (equivalent to `head - tail` along `dim=0`) produces an $n \times n$ matrix `x_oh` where each **column** is one-hot.
+1. **`x`** is $(n{-}1) \times n$. Adding guard rows via `concat(1, concat(x, 0, 0), 0)` along `axis=0` gives $(n{+}1) \times n$, where each column is a domain wall ($1\cdots 1\, 0\cdots 0$). Taking `xg[:n] - xg[-n:]` (equivalent to `head - tail` along `axis=0`) produces an $n \times n$ matrix `x_oh` where each **column** is one-hot.
 
-2. **`y`** is $n \times (n{-}1)$. Adding guard columns via `concat(1, concat(y, 0, 1), 1)` along `dim=1` gives $n \times (n{+}1)$, where each row is a domain wall. Taking `yg[:, :n] - yg[:, -n:]` (equivalent to `head - tail` along `dim=1`) produces an $n \times n$ matrix `y_oh` where each **row** is one-hot.
+2. **`y`** is $n \times (n{-}1)$. Adding guard columns via `concat(1, concat(y, 0, 1), 1)` along `axis=1` gives $n \times (n{+}1)$, where each row is a domain wall. Taking `yg[:, :n] - yg[:, -n:]` (equivalent to `head - tail` along `axis=1`) produces an $n \times n$ matrix `y_oh` where each **row** is one-hot.
 
 3. **`x_oh == y_oh`**: Both are $n \times n$, so they can be directly compared without transposition. When matched, the resulting matrix has exactly one 1 in each row and each column — a **permutation matrix**.
 
@@ -244,8 +242,8 @@ for i in range(n):
 
 - **`x[:n]` / `x[-n:]`**: Python slice notation for first/last elements.
 - **`x[:, :n]` / `x[:, -n:]`**: Tuple indexing for slicing along inner dimensions.
-- **`concat(1, x, 0)`** (`dim=0`): Adds a guard row of 1s at the top.
-- **`concat(1, x, 1)`** (`dim=1`): Prepends 1 to each row.
+- **`concat(1, x, 0)`** (`axis=0`): Adds a guard row of 1s at the top.
+- **`concat(1, x, 1)`** (`axis=1`): Prepends 1 to each row.
 
 ### Output
 

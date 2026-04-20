@@ -42,6 +42,8 @@ f = x[0] +x[1] +x[2] +x[3] +x[4]
 
 > **NOTE**
 > **`qbpp::var(name, size)`** returns a 1D array containing `size` elements of type `qbpp::Var`.
+> Its exact type is **`qbpp::Array<1, qbpp::Var>`**, where `1` is the number of dimensions and `qbpp::Var` is the element type.
+> Using `auto` lets the compiler deduce this type automatically; you need to write it out explicitly only when the array is stored as a non-`static` class member (C++ disallows `auto` there).
 > The array type provides overloaded operators that support element-wise operations for its elements.
 
 ## Sum function

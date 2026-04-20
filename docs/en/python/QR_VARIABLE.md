@@ -12,7 +12,7 @@ hreflang_lang: "ja"
 ## Data types in PyQBPP
 In user code, PyQBPP represents coefficients, energy values, and constants as Python's
 native `int`, so you don't need to worry about `coeff_t` or `energy_t`.
-Internally, however, PyQBPP uses the same shared-library variants as the C++ version,
+Internally, however, PyQBPP offers multiple shared-library variants,
 and the variant is **chosen at import time** by selecting a submodule.
 The default `import pyqbpp` corresponds to `c32e64` — 32-bit coefficients and 64-bit energy.
 

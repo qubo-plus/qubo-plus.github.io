@@ -108,22 +108,6 @@ f = 2          # Just an int — no problem
 f += x         # f automatically becomes an Expr representing 2 + x
 ```
 
-## Mutation of integer variables and constraint expressions
-
-Integer-variable and constraint-expression `Expr` objects are the same `Expr` type but carry extra metadata. **Both languages allow mutation** (`+=`, `sqr()`, `replace()`, ...), but doing so **discards that metadata**: the internal state becomes a plain expression, and face-specific accessors fail afterwards. The exception is `simplify*()`, which preserves the metadata.
-
-| Operation | C++ | Python |
-|---|---|---|
-| `vi += 1`, `ee += 1` (compound assignment) | **In-place**; internal state becomes a plain expression. Face-specific accessors (`min_val()`, `body()`, ...) raise a runtime error afterwards. | **In-place**; the same `_handle` is rewritten in place. Face-specific accessors raise a runtime error afterwards. |
-| `vi.sqr()`, `vi.replace(ml)`, `ee.sqr()`, `ee.replace(ml)` | **In-place**; same rule as above. | **In-place**; same rule as above. |
-| `vi.simplify_as_binary()` etc. simplify methods | **In-place** — face identity is preserved. | **In-place** — face identity is preserved. |
-
-Common to both languages:
-- **Arithmetic returns a new `Expr`**: `vi + 1`, `ee + ee2` produce a plain-expression `Expr`.
-- **Use the global free functions for non-mutating transformations**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — the original object is unchanged; a fresh `Expr` is returned.
-
-See the quick reference [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT) for the full table.
-
 ## Syntax Differences
 
 The following table shows the main syntax differences between C++ and Python.
@@ -131,18 +115,17 @@ The following table shows the main syntax differences between C++ and Python.
 | Feature | C++ (QUBO++) | Python (PyQBPP) |
 |---|---|---|
 | **Include / Import** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
+| **Solver include** | `#include <qbpp/easy_solver.hpp>` | Not required |
 | **Variable** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
 | **Variable array** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
 | **Integer variable** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
+| **Explicit conversion to Expr** | `auto f = qbpp::toExpr(2);` | Not required |
 | **Equality** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **Body of a constraint** | `f.body()` | `f.body` |
 | **Array slice** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
 | **Array concat** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
-| **Search** | `auto sol = solver.search();` | `sol = solver.search()` |
 | **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **Output** | `std::cout << sol << std::endl;` | `print(sol)` |
-| **Array output format** | `{x[0], x[1], x[2]}` (braces) | `[x[0], x[1], x[2]]` (brackets) |
 
 ### Quick Start Example
 
@@ -211,7 +194,6 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 ### Python (PyQBPP) — Strengths
 
 - **No compilation**: Write and run immediately. Ideal for interactive exploration with Jupyter notebooks and the Python REPL.
-- **Fixed-precision by default**: 32-bit coefficients and 64-bit energy (`c32e64`) are used by default for speed. For arbitrary precision, use `import pyqbpp.cppint`.
 - **Simpler syntax**: Less boilerplate — no `#include`, `#define`, `main()`, `auto`, or namespace qualifiers.
 - **Easy installation**: `pip install pyqbpp` in a virtual environment, no `sudo` required.
 - **Data science ecosystem**: Seamless integration with NumPy, pandas, matplotlib, and other Python libraries for data preparation and result analysis.

@@ -27,7 +27,7 @@ A `pyqbpp.Expr` object can store any of the following, depending on how it is co
 
 All three forms share the same `pyqbpp.Expr` type, so arithmetic operations and global functions work uniformly regardless of which content the `Expr` carries.
 
-Unlike the C++ version (QUBO++), in PyQBPP **you usually do not need to be conscious of the difference between these classes**. Python's dynamic typing performs the type conversion automatically (e.g., `2 * x * y` produces a `Term`; using `+=` promotes it to `Expr`). Still, understanding which class is used internally helps interpret error messages and optimize hot loops.
+In PyQBPP **you usually do not need to be conscious of the difference between these classes**. Python's dynamic typing performs the type conversion automatically (e.g., `2 * x * y` produces a `Term`; using `+=` promotes it to `Expr`). Still, understanding which class is used internally helps interpret error messages and optimize hot loops.
 
 ## `pyqbpp.Var` class
 Instances of this class **symbolically represent a variable**. In most cases, they are used to represent binary variables. However, this class is not tied to any specific variable attribute; its instances can symbolically represent variables of any kind.
@@ -122,7 +122,7 @@ For details on the available simplification functions and operators, see [Basic 
 ## Important Notes on Expressions
 The `Term` class has a simpler data structure than `Expr`, so it consumes less memory and has lower operation overhead. However, a `Term` object cannot hold a full expression (sum of multiple terms).
 
-Because Python performs type conversion automatically, unlike C++ the following program is not an error — by the time `t += 3 * x` is executed, `t` is rebound from `Term` to `Expr`:
+Because Python performs type conversion automatically, in the following program by the time `t += 3 * x` is executed, `t` is rebound from `Term` to `Expr`:
 ```python
 import pyqbpp as qbpp
 
@@ -137,7 +137,7 @@ This program prints:
 2*x*y +3*x
 ```
 
-Unlike the C++ version, Python does not require you to construct an `Expr` explicitly — arithmetic operators automatically promote `int` / `Var` / `Term` into `Expr` as needed. For example, the following program builds an expression incrementally starting from a plain `int`:
+Python does not require you to construct an `Expr` explicitly — arithmetic operators automatically promote `int` / `Var` / `Term` into `Expr` as needed. For example, the following program builds an expression incrementally starting from a plain `int`:
 ```python
 import pyqbpp as qbpp
 

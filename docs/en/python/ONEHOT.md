@@ -34,7 +34,7 @@ x = qbpp.var("x", shape=(n, m))
 # One-hot constraint: each row has exactly one 1
 onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
 # All-different constraint: each column has exactly one 1
-alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
+alldiff = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1))
 
 f = onehot + alldiff
 f.simplify_as_binary()
@@ -65,16 +65,16 @@ You can specify any axis using **`onehot_to_int(arr, axis)`**.
 Negative indices are also supported: axis `-1` refers to the last axis, `-2` to the second-to-last, and so on.
 
 For a 2D array of size $n \times m$:
-- **`onehot_to_int(arr)`** or **`onehot_to_int(arr, 1)`**: decodes each row, returns $n$ integers in $[0, m-1]$.
-- **`onehot_to_int(arr, 0)`**: decodes each column, returns $m$ integers in $[0, n-1]$.
+- **`onehot_to_int(arr)`** or **`onehot_to_int(arr, axis=1)`**: decodes each row, returns $n$ integers in $[0, m-1]$.
+- **`onehot_to_int(arr, axis=0)`**: decodes each column, returns $m$ integers in $[0, n-1]$.
 
 ```python
-row_result = qbpp.onehot_to_int(sol(x))     # {3,0,2,1,4}
-col_result = qbpp.onehot_to_int(sol(x), 0)  # {1,3,2,0,4}
+row_result = qbpp.onehot_to_int(sol(x))          # {3,0,2,1,4}
+col_result = qbpp.onehot_to_int(sol(x), axis=0)  # {1,3,2,0,4}
 ```
 
 When `x` is a permutation matrix, `onehot_to_int(sol(x))` gives the permutation $\sigma$,
-and `onehot_to_int(sol(x), 0)` gives its inverse $\sigma^{-1}$.
+and `onehot_to_int(sol(x), axis=0)` gives its inverse $\sigma^{-1}$.
 
 ### 1D Input
 
@@ -92,9 +92,9 @@ idx = qbpp.onehot_to_int(sol(v))  # {2}
 For arrays with dimension $d \geq 3$, `onehot_to_int()` decodes along the specified axis
 and returns an array with dimension $d - 1$.
 For example, for a $2 \times 3 \times 4$ array:
-- **`onehot_to_int(arr)`** or **`onehot_to_int(arr, 2)`**: decode along axis 2 (last), result shape $2 \times 3$.
-- **`onehot_to_int(arr, 1)`**: decode along axis 1, result shape $2 \times 4$.
-- **`onehot_to_int(arr, 0)`**: decode along axis 0, result shape $3 \times 4$.
+- **`onehot_to_int(arr)`** or **`onehot_to_int(arr, axis=2)`**: decode along axis 2 (last), result shape $2 \times 3$.
+- **`onehot_to_int(arr, axis=1)`**: decode along axis 1, result shape $2 \times 4$.
+- **`onehot_to_int(arr, axis=0)`**: decode along axis 0, result shape $3 \times 4$.
 
 ### Summary
 

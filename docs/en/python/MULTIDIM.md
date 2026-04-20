@@ -50,7 +50,7 @@ print("len:", len(x))      # 2
 
 ## Arrays of constants, variables, and expressions
 
-Passing a Python list to **`qbpp.array(list)`** creates an array whose element type is automatically deduced from the first element (equivalent to `qbpp::array()` in C++):
+Passing a Python list to **`qbpp.array(list)`** creates an array whose element type is automatically deduced from the first element:
 
 | Call form | Result | Description |
 |---|---|---|
@@ -117,7 +117,6 @@ for i in range(len(max_vals)):
 
 This is the most concise approach. The `shape=` specifies the array dimensions, and
 `between=` assigns individual ranges from the lists element by element.
-This is analogous to the C++ syntax `lower <= qbpp::var_int("x", n) <= upper`.
 
 ### Approach 3: List comprehension with array
 

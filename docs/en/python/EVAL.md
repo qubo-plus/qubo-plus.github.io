@@ -13,8 +13,7 @@ hreflang_lang: "ja"
 ## Evaluation using a dict
 The value of an expression can simply be computed by providing an assignment of values to all variables
 as a dict mapping variables to values.
-A dict plays the same role as `qbpp::MapList` in the C++ API: it carries a list of
-`(variable, value)` pairs that together specify a complete assignment.
+A dict carries a list of `(variable, value)` pairs that together specify a complete assignment.
 
 The following program computes the function $f(x,y,z)$ for $(x,y,z)=(0,1,1)$:
 ```python

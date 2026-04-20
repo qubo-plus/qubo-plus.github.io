@@ -162,7 +162,7 @@ Each form returns an expression whose minimum value is 0 when the constraint is 
 ### Constraint expression
 The object `g` returned by `constrain()` is a `pyqbpp.Expr` carrying penalty + body metadata.
 
-- **`g`** is the penalty expression itself (corresponding to C++ `g`) and can be used like any expression — evaluated, simplified, or passed to solvers.
+- **`g`** is the penalty expression itself and can be used like any expression — evaluated, simplified, or passed to solvers.
 - **`g.body`** returns the original expression `f` before the constraint was applied.
 
 ## Square function: `sqr()`
@@ -339,12 +339,12 @@ k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 
 Python slice notation extracts a sub-range from an array. Slicing returns a new array.
 
 - **`v[from:to]`**: Elements in `[from, to)` along the outermost dimension.
-- **`v[:n]`**: First `n` elements. Equivalent to C++ `head(v, n)`.
-- **`v[-n:]`**: Last `n` elements. Equivalent to C++ `tail(v, n)`.
+- **`v[:n]`**: First `n` elements.
+- **`v[-n:]`**: Last `n` elements.
 
 For multi-dimensional arrays, use tuple indexing to slice along inner dimensions:
 
-- **`v[:, from:to]`**: Slice each row (dim=1). Equivalent to C++ `slice(v, from, to, 1)`.
+- **`v[:, from:to]`**: Slice each row (dim=1).
 - **`v[:, :, from:to]`**: Slice along dim=2. Works for any depth.
 
 ### Example

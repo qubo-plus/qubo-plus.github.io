@@ -75,6 +75,7 @@ int main() {
 
 In this program, **`qbpp::var("x",4,4)`** returns a $4\times 4$ array of `Var`
 named **`x`**.
+The exact type of `x` is **`qbpp::Array<2, qbpp::Var>`**, where `2` is the number of dimensions and `qbpp::Var` is the element type.
 For a `qbpp::Expr` object **`f`**, two double for-loops adds
 formulas for $f(X)$.
 Using the Exhaustive Solver, all optimal solutions are computed and stored in **`sols`**.

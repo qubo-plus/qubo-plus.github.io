@@ -76,8 +76,8 @@ The solver correctly finds the prime factors $p=5$ and $q=7$.
 
 ## Unlimited large coefficients for prime factorization of large numbers
 By default, the PyQBPP module `pyqbpp` (alias of `pyqbpp.c32e64`) uses 32-bit coefficients and 64-bit energy values, which runs fastest.
-For factorizing large composite numbers whose penalty coefficients may exceed 32 bits, we switch to arbitrary precision integer arithmetic by importing `pyqbpp.cppint`. This corresponds to defining `INTEGER_TYPE_CPP_INT` in the C++ version, which sets both `coeff_t` and `energy_t` to `cpp_int`.
-In PyQBPP, the type selection that corresponds to the C++ `INTEGER_TYPE_*` macros is made by importing the appropriate submodule (`pyqbpp.c32e64`, `pyqbpp.cppint`, etc.). All subsequent `qbpp.var`, `qbpp.constrain`, `qbpp.EasySolver` calls then use the chosen coefficient/energy types consistently.
+For factorizing large composite numbers whose penalty coefficients may exceed 32 bits, we switch to arbitrary precision integer arithmetic by importing `pyqbpp.cppint`, which sets both `coeff_t` and `energy_t` to `cpp_int`.
+In PyQBPP, the type selection is made by importing the appropriate submodule (`pyqbpp.c32e64`, `pyqbpp.cppint`, etc.). All subsequent `qbpp.var`, `qbpp.constrain`, `qbpp.EasySolver` calls then use the chosen coefficient/energy types consistently.
 
 The following program factorizes the product of two large prime numbers:
 ```python
@@ -98,7 +98,7 @@ print("p =", sol(p))
 print("q =", sol(q))
 ```
 
-Since Python natively supports arbitrary-precision integers, the target value `1000039 * 1000079` is written directly as a Python `int` — no special constructor (the C++ equivalent `qbpp::integer("1000039") * qbpp::integer("1000079")`, which uses decimal string literals to avoid intermediate `int * int` overflow) is needed. Once `pyqbpp.cppint` is imported, PyQBPP stores and manipulates all coefficients and energy values as Python `int`, so the upper bound `2000000` and the target product can be written naturally as Python integers.
+Since Python natively supports arbitrary-precision integers, the target value `1000039 * 1000079` is written directly as a Python `int`. Once `pyqbpp.cppint` is imported, PyQBPP stores and manipulates all coefficients and energy values as Python `int`, so the upper bound `2000000` and the target product can be written naturally as Python integers.
 
 This program outputs the following result:
 ```
@@ -114,4 +114,4 @@ q = 1000039
 We can see that the expression `f` contains very large coefficients (well beyond the 64-bit range), and the factorization of the large composite number is correctly obtained as $1000079 \times 1000039$. Each of the integer variables $p$ and $q$ is expanded into 21 binary variables (`p[0]`-`p[20]`, `q[0]`-`q[20]`) to cover the range $[2, 2000000]$.
 
 > **TIP**
-> For arbitrary precision integers, use `import pyqbpp.cppint as qbpp` (equivalent to defining `INTEGER_TYPE_CPP_INT` in C++). For other integer type variants, import the corresponding submodule such as `pyqbpp.c64e64` or `pyqbpp.c128e128` (equivalent to the C++ `INTEGER_TYPE_C64E64` / `INTEGER_TYPE_C128E128` macros).
+> For arbitrary precision integers, use `import pyqbpp.cppint as qbpp`. For other integer type variants, import the corresponding submodule such as `pyqbpp.c64e64` or `pyqbpp.c128e128`.

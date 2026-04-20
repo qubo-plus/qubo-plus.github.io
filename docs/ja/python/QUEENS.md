@@ -59,8 +59,8 @@ import pyqbpp as qbpp
 n = 8
 x = qbpp.var("x", shape=(n, n))
 
-f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1)) + \
-    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1))
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1)) + \
+    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1))
 
 m = 2 * n - 3
 a = qbpp.expr(shape=m)
@@ -93,9 +93,9 @@ for i in range(n):
 ```
 {% endraw %}
 `n`$\times$`n` のバイナリ変数の行列 `x` を導入し、`x[i][j] = 1` は行 `i`、列 `j` にクイーンが配置されていることを示します。
-列方向の和は `qbpp.vector_sum(x, 0)` を用いて計算され、`n` 個の式のベクトル（各列に1つ）を返します。
+列方向の和は `qbpp.vector_sum(x, axis=0)` を用いて計算され、`n` 個の式のベクトル（各列に1つ）を返します。
 `qbpp.constrain(..., equal=1)` を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が1に等しい場合にのみ0と評価されます。
-同様に、`qbpp.vector_sum(x, 1)` を用いて行方向の one-hot 制約を課すことができます。
+同様に、`qbpp.vector_sum(x, axis=1)` を用いて行方向の one-hot 制約を課すことができます。
 ペナルティ式のベクトルを `qbpp.sum(...)` で包むことで、各ベクトルは単一のスカラー式に集約され、`f` に組み込まれます。
 
 対角線制約を課すために、長さ `m = 2*n - 3` の2つの式ベクトル `a` と `b` を `qbpp.expr(shape=m)` を用いて構築します。`qbpp.expr(shape=m)` はゼロ式からなる1次元配列を生成します。

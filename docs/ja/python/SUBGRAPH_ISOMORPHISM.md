@@ -117,9 +117,9 @@ guest = [
 
 x = qbpp.var("x", shape=(M, N))
 
-host_assigned = qbpp.vector_sum(x, 0)
+host_assigned = qbpp.vector_sum(x, axis=0)
 
-constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + \
+constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)) + \
              qbpp.sum(qbpp.constrain(host_assigned, between=(0, 1)))
 
 objective = 0

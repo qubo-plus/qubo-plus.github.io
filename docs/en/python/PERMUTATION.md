@@ -110,16 +110,16 @@ Solution 23 : [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 ## QUBO formulation for a permutation matrix using array functions and operations
 Using **`qbpp.vector_sum()`**, we can compute the row-wise and column-wise sums of a matrix `x` of binary variables:
-- **`qbpp.vector_sum(x, 1)`**: Computes the sum of each row of `x` and returns an array of size `n` containing these sums.
-- **`qbpp.vector_sum(x, 0)`**: Computes the sum of each column of `x` and returns an array of size `n` containing these sums.
+- **`qbpp.vector_sum(x, axis=1)`**: Computes the sum of each row of `x` and returns an array of size `n` containing these sums.
+- **`qbpp.vector_sum(x, axis=0)`**: Computes the sum of each column of `x` and returns an array of size `n` containing these sums.
 
 > **Note**:
-> For a multi-dimensional array `x` and an axis `k`, `qbpp.vector_sum(x, k)` computes sums along axis `k` and returns a multi-dimensional array whose dimension is reduced by one.
+> For a multi-dimensional array `x` and an axis `k`, `qbpp.vector_sum(x, axis=k)` computes sums along axis `k` and returns a multi-dimensional array whose dimension is reduced by one.
 > For a 2-dimensional array (matrix) `x`, axis `1` corresponds to the row direction, and axis `0` corresponds to the column direction.
 
 A scalar-array operation can be used to subtract 1 from each element:
-- **`qbpp.vector_sum(x, 1) - 1`**: subtracts 1 from each row-wise sum.
-- **`qbpp.vector_sum(x, 0) - 1`**: subtracts 1 from each column-wise sum.
+- **`qbpp.vector_sum(x, axis=1) - 1`**: subtracts 1 from each row-wise sum.
+- **`qbpp.vector_sum(x, axis=0) - 1`**: subtracts 1 from each column-wise sum.
 
 For these two arrays of size `n`, `qbpp.sqr()` squares each element, and `qbpp.sum()` computes the sum of all elements.
 
@@ -128,21 +128,21 @@ The following PyQBPP program implements a QUBO formulation using these array fun
 import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=(4, 4))
-f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 1) - 1)) + \
-    qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, 0) - 1))
+f = qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, axis=1) - 1)) + \
+    qbpp.sum(qbpp.sqr(qbpp.vector_sum(x, axis=0) - 1))
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
 result = solver.search(best_energy_sols=0)
 for k, sol in enumerate(result.sols):
-    row = qbpp.onehot_to_int(sol(x), 1)
-    column = qbpp.onehot_to_int(sol(x), 0)
+    row = qbpp.onehot_to_int(sol(x), axis=1)
+    column = qbpp.onehot_to_int(sol(x), axis=0)
     print(f"Solution {k}: {row}, {column}")
 ```
 In this program, `sol(x)` returns a matrix of assigned values to `x` in `sol`, which is a matrix of integers.
 `qbpp.onehot_to_int()` converts one-hot arrays along the axis to the corresponding integers.
-- **`qbpp.onehot_to_int(sol(x), 1)`**: Computes the integer corresponding to each row and returns them as an array of 4 integers, which represents the permutation.
-- **`qbpp.onehot_to_int(sol(x), 0)`**: returns the integer corresponding to each column and returns them as an array of 4 integers, which represents the inverse of the permutation.
+- **`qbpp.onehot_to_int(sol(x), axis=1)`**: Computes the integer corresponding to each row and returns them as an array of 4 integers, which represents the permutation.
+- **`qbpp.onehot_to_int(sol(x), axis=0)`**: returns the integer corresponding to each column and returns them as an array of 4 integers, which represents the inverse of the permutation.
 
 This program outputs all permutations and their inverse as integer vectors as follows:
 ```
@@ -210,8 +210,8 @@ We are now ready to design a PyQBPP program for the assignment problem.
 In this program, a fixed matrix $C$ of size $4\times4$ is given as an array.
 `qbpp.array()` automatically converts nested Python lists into nested array objects, so multi-dimensional arrays can be created concisely.
 The formulas for $f(X)$ and $g(X)$ are defined using array functions and operations.
-Here, `qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)` returns an array of QUBO expressions that take the minimum value 0 when the equality `vector_sum(x, 1) == 1` is satisfied.
-In fact, it returns the same QUBO expressions as `qbpp.sqr(qbpp.vector_sum(x, 1) - 1)`.
+Here, `qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)` returns an array of QUBO expressions that take the minimum value 0 when the equality `vector_sum(x, axis=1) == 1` is satisfied.
+In fact, it returns the same QUBO expressions as `qbpp.sqr(qbpp.vector_sum(x, axis=1) - 1)`.
 Also, `c * x` returns a matrix obtained by computing the element-wise product of `c` and `x`,
 and therefore `qbpp.sum(c * x)` returns `g(X)`.
 
@@ -223,8 +223,8 @@ c = qbpp.array([[58, 73, 91, 44],
                 [78, 56, 23, 94],
                 [11, 85, 68, 72]])
 x = qbpp.var("x", shape=(4, 4))
-f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 1), equal=1)) + \
-    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, 0), equal=1))
+f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1)) + \
+    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1))
 g = qbpp.sum(c * x)
 h = 1000 * f + g
 h.simplify_as_binary()
@@ -232,7 +232,7 @@ h.simplify_as_binary()
 solver = qbpp.EasySolver(h)
 sol = solver.search(time_limit=1.0)
 print("sol =", sol)
-result = qbpp.onehot_to_int(sol(x), 1)
+result = qbpp.onehot_to_int(sol(x), axis=1)
 print("Result :", result)
 for i in range(len(result)):
     print(f"c[{i}][{result[i]}] = {c[i][result[i]]}")

@@ -12,7 +12,7 @@ hreflang_lang: "ja"
 
 All three solvers in PyQBPP — **EasySolver**, **ExhaustiveSolver**, and **ABS3Solver** — accept search parameters through `search()`.
 Parameters are passed as **keyword arguments**.
-Values can be strings, integers, or floats — they are automatically converted to strings before being passed to the C++ backend.
+Values can be strings, integers, or floats — they are automatically converted to strings before being passed to the backend.
 
 ## Passing Parameters
 
@@ -34,7 +34,7 @@ sol = solver.search(**params)
 ```
 
 No special `Params` object is needed — keyword arguments are all that is required.
-Internally, PyQBPP converts each value to a string and passes the key-value pairs to the C++ solver.
+Internally, PyQBPP converts each value to a string and passes the key-value pairs to the solver.
 
 ## Common Parameters
 

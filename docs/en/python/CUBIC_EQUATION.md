@@ -47,7 +47,7 @@ $$
 Since the integer variable `x` is implemented as a linear expression of binary variables, `f` becomes a polynomial of degree 6.
 
 Since Python integers have unlimited precision, there is usually no need to specify special integer types.
-However, when coefficients become very large, you can import the `pyqbpp.cppint` submodule (the counterpart of the C++ macro `INTEGER_TYPE_CPP_INT`) as follows:
+However, when coefficients become very large, you can import the `pyqbpp.cppint` submodule for arbitrary-precision integer arithmetic as follows:
 ```python
 import pyqbpp.cppint as qbpp
 ```

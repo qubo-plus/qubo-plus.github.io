@@ -20,7 +20,7 @@ The divisor must be an integer, and both the constant term and all coefficients 
 - unary **`-`**: Returns the negation of the operand.
 - unary **`~`**: Returns the negated literal of a variable (i.e., `~x` represents $1-x$ for a binary variable `x`).
 
-Because Python's operator overloading mirrors C++ for arithmetic operators, the operator precedence of `+`, `-`, `*`, and `/` follows the standard Python operator precedence rules, which are equivalent to those of C++ for these operators.
+The operator precedence of `+`, `-`, `*`, and `/` follows the standard Python operator precedence rules.
 
 The following program demonstrates how to construct expressions using these operators:
 ```python
@@ -41,7 +41,7 @@ g = 2 -2*x*y +2*x -2*y
 ```
 
 > **NOTE**
-> Unlike C++ where `qbpp::Expr` is a distinct type, in PyQBPP the `+`, `-`, `*`, `/` Python operators are overloaded on the `Var`, `Term`, and `Expr` classes. The result is always an expression.
+> In PyQBPP the `+`, `-`, `*`, `/` Python operators are overloaded on the `Var`, `Term`, and `Expr` classes. The result is always an expression.
 
 ## Compound operators
 The following compound operators for updating expressions are also supported:

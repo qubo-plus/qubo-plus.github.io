@@ -160,7 +160,7 @@ $$
 which takes the minimum value 0 if and only if the inequality is satisfied.
 By minimizing `f`, the program finds a minimum dominating set.
 
-Note that PyQBPP requires an explicit finite upper bound for `between`, whereas the C++ version allows `+qbpp::inf`. Using $|N[i]|+1$ is sufficient because $\sum_{j\in N[i]}x_j$ cannot exceed $|N[i]|$.
+Note that PyQBPP requires an explicit finite upper bound for `between`. Using $|N[i]|+1$ is sufficient because $\sum_{j\in N[i]}x_j$ cannot exceed $|N[i]|$.
 
 ## Visualization using matplotlib
 The following code visualizes the Dominating Set solution:

@@ -106,22 +106,6 @@ f = 2          # ただの int — 問題なし
 f += x         # f は自動的に 2 + x を表す Expr になる
 ```
 
-## 整数変数・制約式の mutation
-
-整数変数・制約式はいずれも `Expr` 型で、追加のメタデータを持つだけです。**両言語とも mutation** (`+=`, `sqr()`, `replace()` 等) **は許可**されますが、mutation を行うと**そのメタデータは破棄**され、内部状態は通常の式になります（以後、顔固有の accessor は失敗）。例外は `simplify*()` で、メタデータを保ったまま簡約されます。
-
-| 操作 | C++ | Python |
-|---|---|---|
-| `vi += 1`, `ee += 1` (複合代入) | **in-place**；内部状態は通常の式に戻る。以後 `min_val()`, `body()` 等の固有 accessor は runtime error | **in-place**；同じ `_handle` の中身を書き換え。以後固有 accessor は runtime error |
-| `vi.sqr()`, `vi.replace(ml)`, `ee.sqr()`, `ee.replace(ml)` | **in-place**；上と同じ規則 | **in-place**；上と同じ規則 |
-| `vi.simplify_as_binary()` 等の simplify メソッド | **in-place** — 顔は維持される | **in-place** — 顔は維持される |
-
-両言語に共通する原則:
-- **算術は新しい `Expr` を返す**: `vi + 1`, `ee + ee2` などは新しい通常 `Expr` を返す
-- **非破壊的に変換したい時はグローバル関数**: `qbpp::simplify_as_binary(ee)` (C++) / `qbpp.simplify_as_binary(ee)` (Python) — 元のオブジェクトは変更されず新しい `Expr` を返す
-
-詳細はクイックリファレンス [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT) を参照。
-
 ## 構文の違い
 
 以下の表に、C++ と Python の主な構文の違いを示します。
@@ -129,18 +113,17 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 | 機能 | C++（QUBO++） | Python（PyQBPP） |
 |---|---|---|
 | **インクルード / インポート** | `#include <qbpp/qbpp.hpp>` | `import pyqbpp as qbpp` |
+| **ソルバーのインクルード** | `#include <qbpp/easy_solver.hpp>` | 不要 |
 | **変数** | `auto a = qbpp::var("a");` | `a = qbpp.var("a")` |
 | **変数配列** | `auto x = qbpp::var("x", n);` | `x = qbpp.var("x", shape=n)` |
 | **整数変数** | `auto x = 0 <= qbpp::var_int("x") <= 10;` | `x = qbpp.var("x", between=(0, 10))` |
+| **式への明示的型変換** | `auto f = qbpp::toExpr(2);` | 不要 |
 | **等式制約** | `auto f = (expr == 3);` | `f = qbpp.constrain(expr, equal=3)` |
 | **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
-| **制約の本体** | `f.body()` | `f.body` |
 | **配列スライス** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
 | **配列連結** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
-| **探索** | `auto sol = solver.search();` | `sol = solver.search()` |
 | **パラメータ付き探索** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **出力** | `std::cout << sol << std::endl;` | `print(sol)` |
-| **配列の出力形式** | `{x[0], x[1], x[2]}` (中括弧) | `[x[0], x[1], x[2]]` (角括弧) |
 
 ### Quick Start の例
 
@@ -209,7 +192,6 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 ### Python（PyQBPP）の長所
 
 - **コンパイル不要**: すぐに書いて実行できます。Jupyter ノートブックや Python REPL での対話的な探索に最適です。
-- **デフォルトで高速な固定精度**: 32ビット係数・64ビットエネルギー（`c32e64`）がデフォルトです。任意精度が必要な場合は `import pyqbpp.cppint` を使用できます。
 - **シンプルな構文**: `#include`、`#define`、`main()`、`auto`、名前空間修飾子などの定型コードが不要です。
 - **簡単なインストール**: 仮想環境内で `pip install pyqbpp` するだけで、`sudo` は不要です。
 - **データサイエンスエコシステム**: NumPy、pandas、matplotlib などの Python ライブラリとシームレスに連携し、データの前処理や結果の分析が容易です。

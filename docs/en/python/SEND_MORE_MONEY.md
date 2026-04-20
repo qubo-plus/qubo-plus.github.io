@@ -168,8 +168,6 @@ The solver is run on `g`, and the resulting assignment `sol` is merged with the 
 
 Finally, the one-hot rows of `full_sol(x)` are decoded into digits by scanning each row for the index `k` with value 1 (or `-1` if none is found), and the program prints the obtained solution.
 
-> **Note:** Unlike the C++ version, Python has unlimited precision integers, so there is no need for `INTEGER_TYPE_C128E128`.
-
 This program produces the following output:
 ```
 onehot = 0

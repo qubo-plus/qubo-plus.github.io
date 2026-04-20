@@ -103,7 +103,7 @@ workers = len(worker_cost)
 
 x = qbpp.var("x", shape=(workers, days + 2))
 
-workers_each_day = qbpp.vector_sum(x, 0)
+workers_each_day = qbpp.vector_sum(x, axis=0)
 each_day_4_workers = 0
 for j in range(1, days + 1):
     each_day_4_workers += qbpp.constrain(workers_each_day[j], equal=4)
