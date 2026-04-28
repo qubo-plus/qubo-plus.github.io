@@ -43,10 +43,10 @@ $$
 
 int main() {
   auto x = qbpp::var("x", 4, 4);
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < 4; i++) {
-    auto s = qbpp::expr();
+    auto s = qbpp::toExpr(0);
     for (size_t j = 0; j < 4; j++) {
       s += x[i][j];
     }
@@ -54,7 +54,7 @@ int main() {
   }
 
   for (size_t j = 0; j < 4; j++) {
-    auto s = qbpp::expr();
+    auto s = qbpp::toExpr(0);
     for (size_t i = 0; i < 4; i++) {
       s += x[i][j];
     }

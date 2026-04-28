@@ -53,8 +53,8 @@ int main() {
   std::vector<uint32_t> w = {64, 27, 47, 74, 12, 83, 63, 40};
 
   auto x = qbpp::var("x", w.size());
-  auto p = qbpp::expr();
-  auto q = qbpp::expr();
+  auto p = qbpp::toExpr(0);
+  auto q = qbpp::toExpr(0);
   for (size_t i = 0; i < w.size(); ++i) {
     p += w[i] * x[i];
     q += w[i] * ~x[i];

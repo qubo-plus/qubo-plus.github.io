@@ -47,13 +47,22 @@ corresponding to the binary encoding of integers in the specified range.
 
 ## Integer constant arrays (`qbpp::array`)
 
-**`qbpp::array`** is a factory function that creates arrays of integer constants:
+**`qbpp::array<T>`** is a generic factory function for arrays. The element type
+`T` can be `qbpp::coeff_t` (integer constant), `qbpp::Var`, `qbpp::Term`, or
+`qbpp::Expr`. When `T` can be deduced from the initializer's element type, the
+template parameter may be omitted.
 
 | Call form | Return type | Description |
 |---|---|---|
-| `qbpp::array({v1, v2, ...})` | 1-D integer constant array | 1-D integer constant array |
-| `qbpp::array({% raw %}{{a,b},{c,d}}{% endraw %})` | 2-D integer constant array | 2-D integer constant array |
-| `qbpp::array(s1, s2, ...)` | multi-dimensional integer array | Zero-initialized integer array (shape specified) |
+| `qbpp::array<coeff_t>(s1, s2, ..., sd)` | `qbpp::Array<d, qbpp::coeff_t>` | Zero-initialized integer array of given shape |
+| `qbpp::array<qbpp::Expr>(s1, s2, ..., sd)` | `qbpp::Array<d, qbpp::Expr>` | Zero-initialized expression array (same as `qbpp::expr(s1, s2, ..., sd)`) |
+| `qbpp::array({v1, v2, ...})` | `qbpp::Array<1, qbpp::coeff_t>` | 1-D integer constant array (T deduced) |
+| `qbpp::array({% raw %}{{a,b},{c,d}}{% endraw %})` | `qbpp::Array<2, qbpp::coeff_t>` | 2-D integer constant array (T deduced) |
+| `qbpp::array<qbpp::Expr>({v1, v2, ...})` | `qbpp::Array<1, qbpp::Expr>` | int values widened to `Expr` |
+| `qbpp::array<qbpp::Expr>({% raw %}{{a,b},{c,d}}{% endraw %})` | `qbpp::Array<2, qbpp::Expr>` | 2-D int values widened to `Expr` |
+
+The shape-only form (`qbpp::array<T>(s1, s2, ...)`) requires the template
+parameter explicitly because `T` cannot be deduced from the dimensions alone.
 
 Integer constant arrays can be used in element-wise operations with variable arrays. The following program computes the sum of the element-wise product of a $2\times 2$ integer constant matrix `c` and a binary variable matrix `x`:
 {% raw %}
@@ -193,9 +202,9 @@ Arrays provide multi-dimensional indexing via `operator[]` chaining (e.g., `x[i]
 
 Arrays are created using the following factory functions (with `Dim = d`, the number of dimensions):
 - **`qbpp::var("name", s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::Var>`: multi-dimensional array of binary variables.
-- **`qbpp::expr(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::Expr>`: multi-dimensional array of zero-initialized expressions.
-- **`qbpp::array({v1, v2, ...})`** → `qbpp::Array<1, qbpp::coeff_t>`: 1D array of integer constants.
-- **`qbpp::array(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::coeff_t>`: zero-initialized multi-dimensional integer array with given shape.
+- **`qbpp::expr(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::Expr>`: multi-dimensional array of zero-initialized expressions (alias for `qbpp::array<qbpp::Expr>(s1, s2, ..., sd)`).
+- **`qbpp::array({v1, v2, ...})`** → `qbpp::Array<1, qbpp::coeff_t>`: 1D array of integer constants (T deduced).
+- **`qbpp::array<qbpp::coeff_t>(s1, s2, ..., sd)`** → `qbpp::Array<d, qbpp::coeff_t>`: zero-initialized multi-dimensional integer array with given shape. Use `qbpp::array<qbpp::Expr>(...)` for an expression array (equivalent to `qbpp::expr(...)`).
 - **`l <= qbpp::var_int("name", s1, s2, ..., sd) <= u`** → `qbpp::Array<d, qbpp::Expr>`: multi-dimensional array of integer variables.
 
 > **NOTE — when to write the type explicitly**

@@ -68,19 +68,19 @@ pip install pyqbpp-<VERSION>-py3-none-manylinux_2_31_x86_64.whl
 `<VERSION>` は実際のリリースバージョンに置き換え、CPU アーキテクチャに応じて wheel を選択してください（amd64 なら `x86_64`、arm64 なら `aarch64`）。
 
 環境変数の設定は不要です。
-wheel には共有ライブラリ（`libqbpp_*.so`、`libeasysolver_*.so`、`libexhaustive_*.so`）と `qbpp-license` コマンドがすべて同梱されており、`pip` が仮想環境内に自動的に配置します。
+wheel には共有ライブラリ（`qbpp_*.so`、`easysolver_*.so`、`exhaustive_*.so`）と `qbpp-license` コマンドがすべて同梱されており、`pip` が仮想環境内に自動的に配置します。
 
 ## PyQBPP のインポート
 
 PyQBPP は、係数型・エネルギー型の組み合わせごとに複数のサブモジュールを提供しています。扱う係数・エネルギーの大きさに応じて選択してください：
 
 ```python
-import pyqbpp as qbpp              # デフォルト: coeff=int32, energy=int64 (c32e64)
-import pyqbpp.c32e32 as qbpp       # coeff=int32, energy=int32
-import pyqbpp.c64e64 as qbpp       # coeff=int64, energy=int64
-import pyqbpp.c64e128 as qbpp      # coeff=int64, energy=int128
-import pyqbpp.c128e128 as qbpp     # coeff=int128, energy=int128
-import pyqbpp.cppint as qbpp       # coeff=cpp_int, energy=cpp_int（任意精度）
+import pyqbpp as qbpp                # デフォルト: coeff=int32, energy=int64 (c32e64)
+# import pyqbpp.c32e32 as qbpp       # coeff=int32, energy=int32
+# import pyqbpp.c64e64 as qbpp       # coeff=int64, energy=int64
+# import pyqbpp.c64e128 as qbpp      # coeff=int64, energy=int128
+# import pyqbpp.c128e128 as qbpp     # coeff=int128, energy=int128
+# import pyqbpp.cppint as qbpp       # coeff=cpp_int, energy=cpp_int（任意精度）
 ```
 
 `import pyqbpp as qbpp` は `import pyqbpp.c32e64 as qbpp` と等価であり、ほとんどの問題ではこれで十分です。

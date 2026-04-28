@@ -23,9 +23,9 @@ ABS3 Solverを使用して式 `f` を解くには、以下の3つのステップ
 int main() {
   const size_t size = 100;
   auto x = qbpp::var("x", size);
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
   for (size_t d = 1; d < size; ++d) {
-    auto temp = qbpp::expr();
+    auto temp = qbpp::toExpr(0);
     for (size_t i = 0; i < size - d; ++i) {
       temp += (2 * x[i] - 1) * (2 * x[i + d] - 1);
     }

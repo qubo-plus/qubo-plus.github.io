@@ -213,3 +213,49 @@ for i in range(3):
 4 3 8
 ```
 意図通り、左上のセルが2であることを確認できます。
+
+## `einsum` を使った簡潔な制約構築
+
+上のプログラムでは制約 `c2`、`c3`、`c4` を 3 重 for ループで構築していますが、
+これらはいずれも $3 \times 3 \times 9$ の二値配列 `x` に対するテンソル縮約
+そのものなので、[`qbpp.einsum`](EINSUM) を使えば各制約を 1 行で書けます:
+
+```python
+vals = qbpp.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# c2: 各値 k がちょうど 1 回現れる. temp[k] = Σ_{i,j} x[i,j,k]
+c2 = qbpp.sum(qbpp.constrain(qbpp.einsum("ijk->k", x), equal=1))
+
+# c3: row[i] = Σ_{j,k} (k+1) x[i,j,k]、column[j] = Σ_{i,k} (k+1) x[i,j,k]
+row    = qbpp.einsum("k,ijk->i", vals, x)
+column = qbpp.einsum("k,ijk->j", vals, x)
+c3 = qbpp.sum(qbpp.constrain(row,    equal=15)) + \
+     qbpp.sum(qbpp.constrain(column, equal=15))
+
+# c4: 対角線 Σ_k (k+1) Σ_i x[i,i,k]  — "ii" で軸 0 と軸 1 を結合
+diag = qbpp.einsum("k,iik->", vals, x)
+
+# 反対角線: 同じパターンだが軸 1 を反転する必要がある。
+# スライスと concat で x を軸 1 に沿って反転する。
+x_flip = qbpp.concat([x[:, 2:3, :], x[:, 1:2, :], x[:, 0:1, :]], axis=1)
+anti_diag = qbpp.einsum("k,iik->", vals, x_flip)
+c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
+```
+
+各 subscript の読み方:
+
+- **`"ijk->k"`**（c2）— `i` と `j` を縮約、`k` を残す。
+- **`"k,ijk->i"`**（row）— `vals`（軸 `k`）と `x`（軸 `i, j, k`）の間で `j, k` を縮約、`i` を残す。
+- **`"k,ijk->j"`**（column）— row と同じだが `j` を残す。
+- **`"k,iik->"`**（対角線）— `x` 内で `ii` のラベル繰り返しが軸 0 と軸 1 を結合し（`x[i,i,k]`）、結果はスカラー（`k` と対角の `i` 両方を縮約）。
+
+反対角は `x[i, n-1-i, k]` が必要で、これは einsum の subscript で直接表現
+できないため、Python のスライス構文（`x[:, 2:3, :]`、`x[:, 1:2, :]`、
+`x[:, 0:1, :]` — 単一要素スライスは軸を残します）と
+`qbpp.concat(..., axis=1)` で `x` の軸 1 を反転します。その後は同じ
+`"k,iik->"` パターンで反対角和が得られます。
+
+得られる QUBO 式は for ループ版と完全に同じですが、各制約が数式定義そのまま
+の 1 行で書けます。サイズが大きい場合は、`einsum` の処理が C++
+バックエンド内でマルチスレッド実行されるため、for ループ版で 1 反復ごとに
+発生する Python の `ctypes` オーバーヘッドを回避でき大幅に高速になります。

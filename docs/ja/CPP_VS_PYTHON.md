@@ -122,8 +122,15 @@ f += x         # f は自動的に 2 + x を表す Expr になる
 | **範囲制約** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
 | **配列スライス** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
 | **配列連結** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
+| **Einsum（テンソル縮約）** | `qbpp::einsum<2>("ij,jk->ik", A, B)` | `qbpp.einsum("ij,jk->ik", A, B)` |
 | **パラメータ付き探索** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **出力** | `std::cout << sol << std::endl;` | `print(sol)` |
+
+C++ の `einsum` は出力次元をテンプレート引数（上記の例では `<2>`）として
+明示する必要があります。戻り値の型 `Array<Dim, T>` の `Dim` は
+コンパイル時に確定する必要があるのに対し、subscript 文字列は実行時にしか
+中身を見られないためです。Python は subscript から出力次元を自動推論します。
+詳細は [Einsum 関数](EINSUM) を参照してください。
 
 ### Quick Start の例
 

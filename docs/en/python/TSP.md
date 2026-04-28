@@ -111,6 +111,49 @@ This program produces the following output:
 Tour: [7, 8, 5, 2, 4, 1, 0, 3, 6]
 ```
 
+## A more concise objective using slicing, `concat`, and `einsum`
+
+The triple for-loop that builds `objective` is a direct translation of the formula
+$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$,
+but it can also be written as a single call to
+[`qbpp.einsum`](EINSUM) once two auxiliary arrays are prepared:
+
+1. a distance matrix `d` of shape $n \times n$ with `d[j, k] = dist(j, k)`,
+2. a cyclically-shifted variable matrix `x_next` defined by
+   `x_next[i, k] = x[(i+1) % n, k]`, built with [slicing and `concat`](SLICE_CONCAT).
+
+The objective then becomes the single line
+`qbpp.einsum("jk,ij,ik->", d, x, x_next)`, replacing the entire triple loop:
+
+```python
+# Distance matrix as a 2-D coefficient array
+d = qbpp.array([dist(j, k) for j in range(n) for k in range(n)],
+               shape=(n, n))
+
+# Cyclic shift of x along axis 0:
+#   x_next[i, k] = x[(i+1) % n, k]
+x_next = qbpp.concat([x[1:], x[:1]], axis=0)
+
+# Σ_{i,j,k} d[j,k] * x[i,j] * x_next[i,k]
+objective = qbpp.einsum("jk,ij,ik->", d, x, x_next)
+```
+
+`qbpp.array(..., shape=(n, n))` builds the $n \times n$ distance matrix from a
+flat list. `x[1:]` and `x[:1]` slice the rows of `x`, and `qbpp.concat([...],
+axis=0)` joins them so that `x_next` is `x` cyclically shifted by one row.
+The subscript `"jk,ij,ik->"` then contracts `j` and `k` between `d` and
+`x_next` and `j` between `d` and `x`, summing over `i, j, k` to yield the
+scalar objective.
+
+The diagonal-skipping `if k != j` from the loop version is no longer needed:
+`dist(j, j)` is always 0, so those terms vanish automatically.
+
+The resulting QUBO expression has the same set of terms as the for-loop
+version, but the construction is much shorter. It is also much faster for
+larger $n$, since the entire contraction runs inside the C++ backend with
+multithreading — avoiding the per-iteration Python `ctypes` overhead of the
+for-loop version.
+
 ## Fixing the first node
 Without loss of generality, we can assume that node 0 is the starting node of the tour.
 Because the TSP tour is invariant under cyclic shifts, fixing the start position does not change the optimal tour length.

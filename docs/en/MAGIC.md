@@ -209,3 +209,55 @@ This program produces the following output:
 4 3 8
 ```
 We can confirm that the top-left cell is 2, as intended.
+
+## Concise constraint construction with `einsum`
+
+Constraints `c2`, `c3`, and `c4` are built with triple for-loops in the program
+above. Each of these is essentially a tensor contraction over the
+$3 \times 3 \times 9$ binary array `x`, so they can be rewritten in a single
+line each using [`qbpp::einsum`](EINSUM):
+
+{% raw %}
+```cpp
+  auto vals = qbpp::array({1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+  // c2: each value k appears exactly once.  temp[k] = Σ_{i,j} x[i,j,k]
+  auto c2 = qbpp::sum(qbpp::einsum<1>("ijk->k", x) == 1);
+
+  // c3: row[i] = Σ_{j,k} (k+1) x[i,j,k];  column[j] = Σ_{i,k} (k+1) x[i,j,k]
+  auto row    = qbpp::einsum<1>("k,ijk->i", vals, x);
+  auto column = qbpp::einsum<1>("k,ijk->j", vals, x);
+  auto c3     = qbpp::sum(row == 15) + qbpp::sum(column == 15);
+
+  // c4: diagonal Σ_k (k+1) Σ_i x[i,i,k]   — "ii" ties axes 0 and 1
+  auto diag      = qbpp::einsum<0>("k,iik->", vals, x);
+
+  // anti-diagonal: same pattern but with axis 1 reversed.  Reverse via
+  // slice/concat — single-element slices keep the axis at size 1, then
+  // concat along axis 1 to rebuild the flipped 3×3×9 array.
+  auto x_flip = qbpp::concat(
+      qbpp::concat(x(qbpp::all, qbpp::slice(2), qbpp::all),
+                   x(qbpp::all, qbpp::slice(1), qbpp::all), 1),
+      x(qbpp::all, qbpp::slice(0), qbpp::all), 1);
+  auto anti_diag = qbpp::einsum<0>("k,iik->", vals, x_flip);
+  auto c4 = (diag == 15) + (anti_diag == 15);
+```
+{% endraw %}
+
+Reading the subscripts:
+
+- **`"ijk->k"`** (c2) — sum over `i` and `j`, keep `k`.
+- **`"k,ijk->i"`** (row) — contract `j, k` between `vals` (axis `k`) and `x` (axes `i, j, k`), keep `i`.
+- **`"k,ijk->j"`** (column) — same as row but keep `j`.
+- **`"k,iik->"`** (diagonal) — `ii` repeated within `x` ties axes 0 and 1
+  (`x[i,i,k]`); the result is a scalar, summed over both `k` and the diagonal `i`.
+
+The anti-diagonal needs `x[i, n-1-i, k]`, which is not directly expressible as
+einsum subscripts, so we first reverse axis 1 of `x` using
+[`slice` and `concat`](SLICE_CONCAT). After that the same `"k,iik->"` pattern
+yields the anti-diagonal sum.
+
+The resulting QUBO expression is identical to the for-loop version, but each
+constraint is expressed in one line that mirrors its mathematical definition.
+For larger sizes `einsum` also runs faster, since it builds the expression in
+parallel using multiple CPU threads internally.

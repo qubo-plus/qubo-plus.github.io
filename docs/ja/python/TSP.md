@@ -110,6 +110,49 @@ print(f"Tour: {tour}")
 Tour: [7, 8, 5, 2, 4, 1, 0, 3, 6]
 ```
 
+## スライス、`concat`、`einsum` を使った簡潔な目的関数
+
+`objective` を構築する三重 for ループは数式
+$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$ をそのまま書き下したものですが、
+2 つの補助配列を用意すれば
+[`qbpp.einsum`](EINSUM) の 1 行で書き換えられます。
+
+1. 距離行列 `d`（形状 $n \times n$、`d[j, k] = dist(j, k)`）
+2. `x` を軸 0 で巡回シフトした変数行列 `x_next`
+   （`x_next[i, k] = x[(i+1) % n, k]`、[スライスと `concat`](SLICE_CONCAT) で構築）
+
+これらを使うと、目的関数は次の 1 行
+`qbpp.einsum("jk,ij,ik->", d, x, x_next)` に置き換わり、三重ループ全体が
+不要になります。
+
+```python
+# 距離行列を 2 次元の整数配列として作成
+d = qbpp.array([dist(j, k) for j in range(n) for k in range(n)],
+               shape=(n, n))
+
+# x を軸 0 で巡回シフト:
+#   x_next[i, k] = x[(i+1) % n, k]
+x_next = qbpp.concat([x[1:], x[:1]], axis=0)
+
+# Σ_{i,j,k} d[j,k] * x[i,j] * x_next[i,k]
+objective = qbpp.einsum("jk,ij,ik->", d, x, x_next)
+```
+
+`qbpp.array(..., shape=(n, n))` は平坦化したリストから $n \times n$ の距離行列を
+作成します。`x[1:]` と `x[:1]` で `x` の行をスライスし、`qbpp.concat([...],
+axis=0)` で連結することで、`x` を 1 行だけ巡回シフトした `x_next` が得られます。
+subscript `"jk,ij,ik->"` によって `d` と `x` の間で `j` を、
+`d` と `x_next` の間で `k` を、`x` と `x_next` の間で `i` を共有させ、
+`i, j, k` すべてを総和してスカラー目的関数を得ます。
+
+ループ版にあった `if k != j` の対角項スキップは不要です。
+`dist(j, j)` は常に 0 なので、対角項は自動的に消えます。
+
+得られる QUBO 式の項集合はループ版と完全に同じですが、構築コードは大幅に
+短くなります。さらに $n$ が大きい場合は、einsum 版は縮約全体が C++
+バックエンド内でマルチスレッド実行されるため、ループ版で 1 反復ごとに
+発生する Python の `ctypes` オーバーヘッドを回避でき、大幅に高速になります。
+
 ## 最初の頂点の固定
 一般性を失うことなく、頂点0を巡回路の出発点と仮定できます。
 TSPの巡回路は巡回シフトに対して不変であるため、出発位置を固定しても最適巡回路長は変わりません。

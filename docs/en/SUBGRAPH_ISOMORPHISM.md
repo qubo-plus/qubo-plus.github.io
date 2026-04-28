@@ -227,3 +227,42 @@ host_to_guest = {-1,0,-1,-1,1,-1,2,3,5,4}
 The objective value equals the number of guest edges ($|E_G|=8$), and all constraints are satisfied (`constraint` = 0).
 Therefore, the program finds an optimal solution that corresponds to a valid subgraph isomorphism.
 Note that an entry of host_to_guest is `-1` if the corresponding host node is not mapped from any guest node.
+
+## A more concise objective using `einsum`
+
+The doubly-nested edge loop that builds `objective` can also be written with
+[`qbpp::einsum`](EINSUM) by representing each graph as a binary adjacency
+matrix instead of an edge list. With
+
+- `A_G[a, b] = 1` if $\{a, b\} \in E_G$ (upper-triangular, one entry per undirected guest edge),
+- `A_H[c, d] = 1` if $\{c, d\} \in E_H$ (upper-triangular, one entry per undirected host edge),
+
+the objective $\sum_{(u_G,v_G)\in E_G}\sum_{(u_H,v_H)\in E_H} (x_{u_G,u_H}x_{v_G,v_H}+x_{u_G,v_H}x_{v_G,u_H})$
+becomes the sum of two `einsum` calls:
+
+{% raw %}
+```cpp
+  // Build adjacency matrices (one entry per undirected edge)
+  auto A_G = qbpp::array<qbpp::coeff_t>(M, M);
+  for (const auto& e : guest) A_G[e.first][e.second] = 1;
+  auto A_H = qbpp::array<qbpp::coeff_t>(N, N);
+  for (const auto& e : host)  A_H[e.first][e.second] = 1;
+
+  // Σ_{a<b, c<d} A_G[a,b] * A_H[c,d] * (x[a,c]*x[b,d] + x[a,d]*x[b,c])
+  auto objective = qbpp::einsum<0>("ab,cd,ac,bd->", A_G, A_H, x, x)
+                 + qbpp::einsum<0>("ab,cd,ad,bc->", A_G, A_H, x, x);
+```
+{% endraw %}
+
+The subscript `"ab,cd,ac,bd->"` reads directly as
+$\sum_{a,b,c,d} A_G[a,b]\, A_H[c,d]\, x_{a,c}\, x_{b,d}$ — exactly the QAP-style
+contraction shown in the [`einsum` documentation](EINSUM#three-or-more-inputs).
+The second call covers the symmetric mapping $(u_G, v_G) \mapsto (v_H, u_H)$
+by swapping the host axes (`ad,bc` instead of `ac,bd`).
+
+The resulting QUBO expression has the same simplified terms as the for-loop
+version, but the construction is much shorter and is parallelized internally
+by `einsum`. The trade-off is memory: edge-list construction is linear in
+$|E_G|+|E_H|$ while the adjacency representation is $\Theta(M^2 + N^2)$, so
+the loop version remains preferable when the graphs are very sparse and very
+large.

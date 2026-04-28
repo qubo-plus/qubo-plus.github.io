@@ -173,6 +173,46 @@ The objective value equals the number of guest edges ($|E_G|=8$), and all constr
 Therefore, the program finds an optimal solution that corresponds to a valid subgraph isomorphism.
 Note that an entry of `host_to_guest` is `-1` if the corresponding host node is not mapped from any guest node.
 
+## A more concise objective using `einsum`
+
+The doubly-nested edge loop that builds `objective` can also be written with
+[`qbpp.einsum`](EINSUM) by representing each graph as a binary adjacency
+matrix instead of an edge list. With
+
+- `A_G[a, b] = 1` if $\{a, b\} \in E_G$ (one entry per undirected guest edge),
+- `A_H[c, d] = 1` if $\{c, d\} \in E_H$ (one entry per undirected host edge),
+
+the objective $\sum_{(u_G,v_G)\in E_G}\sum_{(u_H,v_H)\in E_H} (x_{u_G,u_H}x_{v_G,v_H}+x_{u_G,v_H}x_{v_G,u_H})$
+becomes the sum of two `einsum` calls:
+
+```python
+# Build adjacency matrices (one entry per undirected edge)
+A_G = qbpp.array([0] * (M * M), shape=(M, M))
+for u, v in guest:
+    A_G[u][v] = 1
+A_H = qbpp.array([0] * (N * N), shape=(N, N))
+for u, v in host:
+    A_H[u][v] = 1
+
+# Σ_{a<b, c<d} A_G[a,b] * A_H[c,d] * (x[a,c]*x[b,d] + x[a,d]*x[b,c])
+objective = qbpp.einsum("ab,cd,ac,bd->", A_G, A_H, x, x) \
+          + qbpp.einsum("ab,cd,ad,bc->", A_G, A_H, x, x)
+```
+
+The subscript `"ab,cd,ac,bd->"` reads directly as
+$\sum_{a,b,c,d} A_G[a,b]\, A_H[c,d]\, x_{a,c}\, x_{b,d}$ — exactly the QAP-style
+contraction shown in the [`einsum` documentation](EINSUM). The second call
+covers the symmetric mapping $(u_G, v_G) \mapsto (v_H, u_H)$ by swapping the
+host axes (`ad,bc` instead of `ac,bd`).
+
+The resulting QUBO expression has the same simplified terms as the for-loop
+version, but the construction is much shorter and runs entirely inside the
+C++ backend with multithreading — avoiding the per-iteration Python `ctypes`
+overhead of the for-loop version. The trade-off is memory: edge-list
+construction is linear in $|E_G|+|E_H|$, while the adjacency representation
+is $\Theta(M^2 + N^2)$, so the loop version is preferable when the graphs
+are very sparse and very large.
+
 ## Visualization using matplotlib
 The following code visualizes the Subgraph Isomorphism solution on the host graph:
 ```python

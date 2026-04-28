@@ -90,7 +90,7 @@ int main() {
   auto constraint = qbpp::sum(qbpp::vector_sum(x, 1) == 1) +
                     qbpp::sum(qbpp::vector_sum(x, 0) == 1);
 
-  auto objective = qbpp::expr();
+  auto objective = qbpp::toExpr(0);
   for (size_t i = 0; i < nodes.size(); ++i) {
     auto next_i = (i + 1) % nodes.size();
     for (size_t j = 0; j < nodes.size(); ++j) {
@@ -136,6 +136,54 @@ This program produces the following output:
 ```
 Tour: {7,8,5,2,4,1,0,3,6}
 ```
+
+## A more concise objective using `slice`, `concat`, and `einsum`
+
+The triple for-loop that builds `objective` is a direct translation of the formula
+$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$,
+but it can also be written as a single call to
+[`qbpp::einsum`](EINSUM) once two auxiliary arrays are prepared:
+
+1. a distance matrix `d` of shape $n \times n$ with `d[j][k] = nodes.dist(j, k)`,
+2. a cyclically-shifted variable matrix `x_next` defined by
+   `x_next[i][k] = x[(i+1) % n][k]`, built with [slice and concat](SLICE_CONCAT).
+
+The objective then becomes the single line
+`qbpp::einsum<0>("jk,ij,ik->", d, x, x_next)`, replacing the entire triple
+loop:
+
+{% raw %}
+```cpp
+  // Distance matrix as a 2-D integer-constant array
+  auto d = qbpp::array<qbpp::coeff_t>(nodes.size(), nodes.size());
+  for (size_t j = 0; j < nodes.size(); ++j)
+    for (size_t k = 0; k < nodes.size(); ++k)
+      d[j][k] = nodes.dist(j, k);
+
+  // Cyclic shift of x along axis 0:
+  //   x_next[i, k] = x[(i+1) % n, k]
+  auto x_next = qbpp::concat(
+      x(qbpp::slice(1, qbpp::end), qbpp::all),
+      x(qbpp::slice(0),            qbpp::all));
+
+  // Σ_{i,j,k} d[j,k] * x[i,j] * x_next[i,k]
+  auto objective = qbpp::einsum<0>("jk,ij,ik->", d, x, x_next);
+```
+{% endraw %}
+
+`qbpp::array<qbpp::coeff_t>(nodes.size(), nodes.size())` allocates a 2-D
+`Array<2, coeff_t>` filled with zeros, into which the runtime distance values
+are stored. `slice` and `concat` move the first row of `x` to the end,
+producing the cyclically-shifted matrix `x_next`. The subscript `"jk,ij,ik->"`
+then contracts `j` and `k` between `d` and `x_next` and `j` between `d` and
+`x`, summing over `i, j, k` to yield the scalar objective.
+
+The diagonal-skipping `if (k != j)` from the loop version is no longer needed:
+`nodes.dist(j, j)` is always 0, so those terms vanish automatically.
+
+The resulting QUBO expression has the same set of terms as the for-loop
+version, but the construction is much shorter and `einsum` builds it in
+parallel using multiple CPU threads internally.
 
 ## Fixing the first node
 Without loss of generality, we can assume that node 0 is the starting node of the tour.

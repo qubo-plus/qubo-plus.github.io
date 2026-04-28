@@ -46,13 +46,14 @@ sections by providing a deeper understanding of QUBO++.
 8. [Replace functions](REPLACE)
 9. [Negated Literals](NEGATIVE)
 10. [Sum Functions for Multi-dimensional Arrays](SUM)
-11. [Slice and Concat Functions](SLICE_CONCAT)
-12. [One-Hot to Integer Conversion](ONEHOT)
-13. [Easy Solver Usage](EASYSOLVER)
-14. [Exhaustive Solver Usage](EXHAUSTIVE)
-15. [ABS3 Solver Usage](ABS3)
-16. [Search Parameters](PARAMS)
-17. [Performance Tips](TIPS)
+11. [Einsum Function for Tensor Contraction](EINSUM)
+12. [Slice and Concat Functions](SLICE_CONCAT)
+13. [One-Hot to Integer Conversion](ONEHOT)
+14. [Easy Solver Usage](EASYSOLVER)
+15. [Exhaustive Solver Usage](EXHAUSTIVE)
+16. [ABS3 Solver Usage](ABS3)
+17. [Search Parameters](PARAMS)
+18. [Performance Tips](TIPS)
 
 
 

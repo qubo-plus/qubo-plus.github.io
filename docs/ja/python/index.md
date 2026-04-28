@@ -46,13 +46,14 @@ PyQBPPを使った求解方法を学ぶことができます。
 8. [置換関数](REPLACE)
 9. [否定リテラル](NEGATIVE)
 10. [多次元配列の和関数](SUM)
-11. [スライスと連結](SLICE_CONCAT)
-12. [ワンホットから整数への変換](ONEHOT)
-13. [Easy Solverの使い方](EASYSOLVER)
-14. [Exhaustive Solverの使い方](EXHAUSTIVE)
-15. [ABS3 Solverの使い方](ABS3)
-16. [探索パラメータ](PARAMS)
-17. [高速化のための Tips](TIPS)
+11. [テンソル縮約のための Einsum 関数](EINSUM)
+12. [スライスと連結](SLICE_CONCAT)
+13. [ワンホットから整数への変換](ONEHOT)
+14. [Easy Solverの使い方](EASYSOLVER)
+15. [Exhaustive Solverの使い方](EXHAUSTIVE)
+16. [ABS3 Solverの使い方](ABS3)
+17. [探索パラメータ](PARAMS)
+18. [高速化のための Tips](TIPS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。

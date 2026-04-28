@@ -17,9 +17,9 @@ and the variant is **chosen at import time** by selecting a submodule.
 The default `import pyqbpp` corresponds to `c32e64` — 32-bit coefficients and 64-bit energy.
 
 ```python
-import pyqbpp as qbpp              # default: c32e64
-import pyqbpp.cppint as qbpp       # arbitrary precision (cpp_int)
-import pyqbpp.c32e64m4 as qbpp     # c32e64 with fixed-length up to degree 4
+import pyqbpp as qbpp                # default: c32e64
+# import pyqbpp.cppint as qbpp       # arbitrary precision (cpp_int)
+# import pyqbpp.c32e64m4 as qbpp     # c32e64 with fixed-length up to degree 4
 ```
 
 Available type variants:

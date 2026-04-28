@@ -89,7 +89,7 @@ int main() {
   auto constraint = qbpp::sum(qbpp::vector_sum(x, 1) == 1) +
                     qbpp::sum(qbpp::vector_sum(x, 0) == 1);
 
-  auto objective = qbpp::expr();
+  auto objective = qbpp::toExpr(0);
   for (size_t i = 0; i < nodes.size(); ++i) {
     auto next_i = (i + 1) % nodes.size();
     for (size_t j = 0; j < nodes.size(); ++j) {
@@ -135,6 +135,54 @@ int main() {
 ```
 Tour: {7,8,5,2,4,1,0,3,6}
 ```
+
+## `slice`、`concat`、`einsum` を使った簡潔な目的関数
+
+`objective` を構築する三重 for ループは数式
+$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$ をそのまま書き下したものですが、
+2 つの補助配列を用意すれば
+[`qbpp::einsum`](EINSUM) の 1 行で書き換えられます。
+
+1. 距離行列 `d`（形状 $n \times n$、`d[j][k] = nodes.dist(j, k)`）
+2. `x` を軸 0 で巡回シフトした変数行列 `x_next`
+   （`x_next[i][k] = x[(i+1) % n][k]`、[slice と concat](SLICE_CONCAT) で構築）
+
+これらを使うと、目的関数は次の 1 行
+`qbpp::einsum<0>("jk,ij,ik->", d, x, x_next)` に置き換わり、三重ループ全体が
+不要になります。
+
+{% raw %}
+```cpp
+  // 距離行列を 2 次元の整数定数配列として作成
+  auto d = qbpp::array<qbpp::coeff_t>(nodes.size(), nodes.size());
+  for (size_t j = 0; j < nodes.size(); ++j)
+    for (size_t k = 0; k < nodes.size(); ++k)
+      d[j][k] = nodes.dist(j, k);
+
+  // x を軸 0 で巡回シフト:
+  //   x_next[i, k] = x[(i+1) % n, k]
+  auto x_next = qbpp::concat(
+      x(qbpp::slice(1, qbpp::end), qbpp::all),
+      x(qbpp::slice(0),            qbpp::all));
+
+  // Σ_{i,j,k} d[j,k] * x[i,j] * x_next[i,k]
+  auto objective = qbpp::einsum<0>("jk,ij,ik->", d, x, x_next);
+```
+{% endraw %}
+
+`qbpp::array<qbpp::coeff_t>(nodes.size(), nodes.size())` は 0 で初期化された
+2 次元の `Array<2, coeff_t>` を確保し、そこへ実行時に計算した距離値を
+代入します。`slice` と `concat` で `x` の先頭行を末尾に移動し、巡回シフト
+された行列 `x_next` を作っています。subscript `"jk,ij,ik->"` によって
+`d` と `x` の間で `j` を、`d` と `x_next` の間で `k` を、`x` と `x_next`
+の間で `i` を共有させ、`i, j, k` すべてを総和してスカラー目的関数を得ます。
+
+ループ版にあった `if (k != j)` の対角項スキップは不要です。
+`nodes.dist(j, j)` は常に 0 なので、対角項は自動的に消えます。
+
+得られる QUBO 式の項集合はループ版と完全に同じですが、構築コードは大幅に
+短くなり、しかも `einsum` は内部で複数 CPU スレッドを使って並列に式を構築
+するため、$n$ が大きい場合は高速化も期待できます。
 
 ## 最初の頂点の固定
 一般性を失うことなく、頂点0を巡回路の出発点と仮定できます。

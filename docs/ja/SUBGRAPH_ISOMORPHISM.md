@@ -221,3 +221,42 @@ host_to_guest = {-1,0,-1,-1,1,-1,2,3,5,4}
 目的関数値はゲスト辺の数（$|E_G|=8$）に等しく、すべての制約が満たされています（`constraint` = 0）。
 したがって、プログラムは有効な部分グラフ同型に対応する最適解を見つけました。
 host_to_guest のエントリが `-1` の場合、対応するホスト頂点にはゲスト頂点が写像されていないことを意味します。
+
+## `einsum` を使った簡潔な目的関数
+
+`objective` を構築する二重の辺ループは、各グラフを辺リストではなく
+**二値の隣接行列**として表現することで、[`qbpp::einsum`](EINSUM) を使って
+書き換えられます。次のように上三角の隣接行列を用意します:
+
+- `A_G[a, b] = 1` ($\{a, b\} \in E_G$ のとき、無向ゲスト辺ごとに 1 エントリ)
+- `A_H[c, d] = 1` ($\{c, d\} \in E_H$ のとき、無向ホスト辺ごとに 1 エントリ)
+
+すると目的関数 $\sum_{(u_G,v_G)\in E_G}\sum_{(u_H,v_H)\in E_H} (x_{u_G,u_H}x_{v_G,v_H}+x_{u_G,v_H}x_{v_G,u_H})$
+は 2 つの `einsum` 呼び出しの和として書けます:
+
+{% raw %}
+```cpp
+  // 隣接行列を構築（無向辺ごとに 1 エントリ）
+  auto A_G = qbpp::array<qbpp::coeff_t>(M, M);
+  for (const auto& e : guest) A_G[e.first][e.second] = 1;
+  auto A_H = qbpp::array<qbpp::coeff_t>(N, N);
+  for (const auto& e : host)  A_H[e.first][e.second] = 1;
+
+  // Σ_{a<b, c<d} A_G[a,b] * A_H[c,d] * (x[a,c]*x[b,d] + x[a,d]*x[b,c])
+  auto objective = qbpp::einsum<0>("ab,cd,ac,bd->", A_G, A_H, x, x)
+                 + qbpp::einsum<0>("ab,cd,ad,bc->", A_G, A_H, x, x);
+```
+{% endraw %}
+
+subscript `"ab,cd,ac,bd->"` はそのまま
+$\sum_{a,b,c,d} A_G[a,b]\, A_H[c,d]\, x_{a,c}\, x_{b,d}$ を表しており、
+[`einsum` ドキュメント](EINSUM)の QAP 形のテンソル縮約と同じパターンです。
+2 つ目の呼び出しはホスト軸を入れ替えた
+$(u_G, v_G) \mapsto (v_H, u_H)$ の対称写像をカバーします
+（`ac,bd` の代わりに `ad,bc`）。
+
+得られる QUBO 式の整理後の項集合は for ループ版と完全に同じですが、
+構築コードは大幅に短くなり、`einsum` 内部でマルチスレッドによる並列化も
+効きます。トレードオフはメモリ使用量で、辺リスト方式は $|E_G|+|E_H|$ に
+比例するのに対し、隣接行列表現は $\Theta(M^2 + N^2)$ となるため、
+非常に疎で巨大なグラフでは for ループ版の方が依然として有利です。

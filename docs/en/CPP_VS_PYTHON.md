@@ -124,8 +124,15 @@ The following table shows the main syntax differences between C++ and Python.
 | **Range constraint** | `auto f = (1 <= expr <= 5);` | `f = qbpp.constrain(expr, between=(1, 5))` |
 | **Array slice** | `x(qbpp::slice(1, 3))`, `x(qbpp::all, j)` | `x[1:3]`, `x[:, j]` |
 | **Array concat** | `qbpp::concat(a, b)` | `qbpp.concat([a, b])` |
+| **Einsum (tensor contraction)** | `qbpp::einsum<2>("ij,jk->ik", A, B)` | `qbpp.einsum("ij,jk->ik", A, B)` |
 | **Search with params** | `solver.search({% raw %}{{"time_limit", 10}, {"target_energy", 0}}{% endraw %})` | `solver.search(time_limit=10, target_energy=0)` |
 | **Output** | `std::cout << sol << std::endl;` | `print(sol)` |
+
+In C++, `einsum` requires the output dimension as a template argument (`<2>` in
+the example above) because the result type `Array<Dim, T>` is parameterized by
+`Dim` at compile time, while the subscript string is only inspected at runtime.
+Python infers the output dimension automatically from the subscript. See
+[Einsum Function](EINSUM) for details.
 
 ### Quick Start Example
 

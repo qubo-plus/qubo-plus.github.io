@@ -18,7 +18,7 @@ An array of binary variables can be created using the **`qbpp::var()`** function
 
 The following program defines an array of 5 variables with the name **`x`**.
 By printing `x` with `std::cout`, we can confirm that it contains the 5 variables **`x[0]`**, **`x[1]`**, **`x[2]`**, **`x[3]`**, and **`x[4]`**.
-Next, using the **`qbpp::expr()`** function with type deduction, we create a **`qbpp::Expr`** object **`f`** whose initial value is `0`.
+Next, using **`qbpp::toExpr(0)`** with type deduction, we create a **`qbpp::Expr`** object **`f`** whose initial value is `0`.
 In the for-loop from `i = 0` to `4`, each variable `x[i]` is added to `f` using the compound operator **`+=`**.
 Finally, `f` is simplified and printed using `std::cout`.
 ```cpp
@@ -27,7 +27,7 @@ Finally, `f` is simplified and printed using `std::cout`.
 int main() {
   auto x = qbpp::var("x", 5);
   std::cout << x << std::endl;
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
   for (int i = 0; i < 5; ++i) {
     f += x[i];
   }

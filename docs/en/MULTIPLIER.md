@@ -58,7 +58,7 @@ template <typename A, typename B, typename S>
 qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto N = a.size();
   auto c = qbpp::var("_c", N + 1);
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
     f += fa(qbpp::toExpr(a[j]), qbpp::toExpr(b[j]), qbpp::toExpr(c[j]), qbpp::toExpr(c[j + 1]), qbpp::toExpr(s[j]));
   }
@@ -80,7 +80,7 @@ qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);
@@ -141,7 +141,7 @@ template <typename A, typename B, typename S>
 qbpp::Expr adder(const A& a, const B& b, const S& s) {
   auto N = a.size();
   auto c = qbpp::var("_c", N + 1);
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
   for (size_t j = 0; j < N; ++j) {
     f += fa(qbpp::toExpr(a[j]), qbpp::toExpr(b[j]), qbpp::toExpr(c[j]), qbpp::toExpr(c[j + 1]), qbpp::toExpr(s[j]));
   }
@@ -153,7 +153,7 @@ qbpp::Expr multiplier(const X& x, const Y& y, const Z& z) {
   auto N = x.size();
   auto c = qbpp::var("c", N - 1, N + 1);
 
-  auto f = qbpp::expr();
+  auto f = qbpp::toExpr(0);
 
   for (size_t i = 0; i < N - 1; ++i) {
     auto b = qbpp::expr(N);

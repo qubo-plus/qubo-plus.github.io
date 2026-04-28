@@ -68,19 +68,19 @@ pip install pyqbpp-<VERSION>-py3-none-manylinux_2_31_x86_64.whl
 Replace `<VERSION>` with the actual release version and choose the wheel that matches your CPU architecture (`x86_64` for amd64, `aarch64` for arm64).
 
 No environment variable configuration is required.
-The wheel bundles all shared libraries (`libqbpp_*.so`, `libeasysolver_*.so`, `libexhaustive_*.so`) and the `qbpp-license` command inside the package; `pip` installs them under your virtual environment automatically.
+The wheel bundles all shared libraries (`qbpp_*.so`, `easysolver_*.so`, `exhaustive_*.so`) and the `qbpp-license` command inside the package; `pip` installs them under your virtual environment automatically.
 
 ## Importing PyQBPP
 
 PyQBPP provides multiple submodules that correspond to different coefficient / energy integer types. Pick the one that fits the size of your coefficients and energies:
 
 ```python
-import pyqbpp as qbpp              # default: coeff=int32, energy=int64 (c32e64)
-import pyqbpp.c32e32 as qbpp       # coeff=int32, energy=int32
-import pyqbpp.c64e64 as qbpp       # coeff=int64, energy=int64
-import pyqbpp.c64e128 as qbpp      # coeff=int64, energy=int128
-import pyqbpp.c128e128 as qbpp     # coeff=int128, energy=int128
-import pyqbpp.cppint as qbpp       # coeff=cpp_int, energy=cpp_int (arbitrary precision)
+import pyqbpp as qbpp                # default: coeff=int32, energy=int64 (c32e64)
+# import pyqbpp.c32e32 as qbpp       # coeff=int32, energy=int32
+# import pyqbpp.c64e64 as qbpp       # coeff=int64, energy=int64
+# import pyqbpp.c64e128 as qbpp      # coeff=int64, energy=int128
+# import pyqbpp.c128e128 as qbpp     # coeff=int128, energy=int128
+# import pyqbpp.cppint as qbpp       # coeff=cpp_int, energy=cpp_int (arbitrary precision)
 ```
 
 The plain `import pyqbpp as qbpp` is equivalent to `import pyqbpp.c32e64 as qbpp` and is sufficient for most problems.

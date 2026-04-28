@@ -209,6 +209,7 @@ To extract a sub-array from a multi-dimensional array, use `Array::operator()`. 
 | integer `i` | Fix the axis at `i` | Axis removed |
 | `qbpp::all` | Full range `:` | Axis kept |
 | `qbpp::slice(from, to)` | Range `[from, to)` | Axis kept |
+| `qbpp::slice(i)` | Single element `[i, i+1)` (shorthand for `slice(i, i+1)`) | Axis kept |
 | `qbpp::end` / `qbpp::end - n` | Position computed from the axis size | Fix or range endpoint |
 
 Trailing axes not given are implicitly `qbpp::all`. The output is built with a single call to the unified `view` C ABI, so the copy cost is **O(output_size)**, independent of the input size.

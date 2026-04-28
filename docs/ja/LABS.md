@@ -52,9 +52,9 @@ int main() {
   const int n = 30;
 
   auto s = qbpp::var("s", n);
-  auto labs = qbpp::expr();
+  auto labs = qbpp::toExpr(0);
   for (size_t d = 1; d < n; ++d) {
-    auto temp = qbpp::expr();
+    auto temp = qbpp::toExpr(0);
     for (size_t i = 0; i < n - d; ++i) {
       temp += s[i] * s[i + d];
     }

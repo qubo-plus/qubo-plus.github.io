@@ -17,9 +17,9 @@ PyQBPPでは係数・エネルギー値・定数をPythonのネイティブな `
 （デフォルトの `import pyqbpp` は `c32e64`、つまり32ビット係数・64ビットエネルギー）。
 
 ```python
-import pyqbpp as qbpp              # デフォルト: c32e64
-import pyqbpp.cppint as qbpp       # 任意精度 (cpp_int)
-import pyqbpp.c32e64m4 as qbpp     # c32e64 + 4次まで固定長
+import pyqbpp as qbpp                # デフォルト: c32e64
+# import pyqbpp.cppint as qbpp       # 任意精度 (cpp_int)
+# import pyqbpp.c32e64m4 as qbpp     # c32e64 + 4次まで固定長
 ```
 
 利用可能な型バリアント:
