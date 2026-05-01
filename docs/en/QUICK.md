@@ -59,7 +59,7 @@ This command creates an executable file named test.
 The compiler options mean the following:
 - **`-std=c++17`**: Use the C++17 standard.
 - **`-ldl`**: Link against the dynamic loader library (QUBO++ loads its .so at runtime via `dlopen`).
-- **`-pthread`**: Enable POSIX threads (required by QUBO++ solvers).
+- **`-pthread`**: Link the POSIX threads library (required because the QUBO++ `.so` uses `std::thread` internally).
 
 ### Execute the program
 Run `test` as follows to display the expanded expression and the solution:
