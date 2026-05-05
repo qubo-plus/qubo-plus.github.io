@@ -32,6 +32,14 @@ The Easy Solver, Exhaustive Solver, and ABS3 Solver are used in the following st
 1. Create a solver object, **`qbpp.EasySolver`**, **`qbpp.ExhaustiveSolver`**, or **`qbpp.ABS3Solver`**.
 2. Call the **`search()`** method on the solver object, optionally passing parameters as keyword arguments. It returns a solution that stores the obtained result.
 
+> **NOTE**
+> The returned solution is a mutable object: assigning it to another variable
+> creates an **alias** (Python's reference semantics). Use `qbpp.Sol(other_sol)`
+> to make an independent deep copy. See [Aliasing and Copying](VAREXPR#aliasing-and-copying)
+> for details.
+> Solver objects own heavy compute resources and should not be copied; create a
+> new solver if you need another one.
+
 ## Easy Solver
 To use the **Easy Solver**, use the class **`qbpp.EasySolver`** provided by PyQBPP.
 

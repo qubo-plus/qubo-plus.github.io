@@ -108,6 +108,60 @@ f = 2          # Just an int — no problem
 f += x         # f automatically becomes an Expr representing 2 + x
 ```
 
+## Object Copy and Aliasing
+
+C++ uses **value semantics** by default, while Python uses **reference
+semantics** for mutable types. This affects how `qbpp::Term`, `qbpp::Expr`,
+and `qbpp::Sol` (the mutable types) behave when assigned to another variable.
+
+### C++ — Independent Copy
+
+```cpp
+qbpp::Expr f = x;
+qbpp::Expr g = f;   // independent copy
+f += y;             // f only
+std::cout << "f = " << f << std::endl;   // f = x +y
+std::cout << "g = " << g << std::endl;   // g = x
+```
+
+`Expr g = f` deep-copies the data. Mutating `f` afterwards has no effect on `g`.
+
+### Python — Alias by Default
+
+```python
+f = qbpp.expr() + x
+g = f               # alias — same object
+f += y              # mutates the shared object
+print("f =", f)     # f = x +y
+print("g =", g)     # g = x +y   (also changed)
+```
+
+`g = f` only binds the name `g` to the same object that `f` points to.
+Mutating through one name is visible through both.
+
+### Comparison Table
+
+| Operation | C++ (QUBO++) | Python (PyQBPP) |
+|---|---|---|
+| `g = f` (new variable) | deep copy (independent) | alias (shared object) |
+| `f += x` | in-place | in-place |
+| `f = f + x` (lhs survives) | independent — same observable result as `f += x` | new Expr; **g (alias) unaffected** |
+| Explicit copy | implicit (assignment copies) | `qbpp.Expr(other)` for deep copy |
+| `Sol` copy | `qbpp::Sol s2 = s1;` (deep copy) | `qbpp.Sol(other_sol)` (deep copy) |
+| Solver copy | **deleted** — compile error | not advised; copying breaks the resource handle |
+
+### Practical Tip
+
+In Python, treat any expression you want to keep around as **off-limits** to
+compound assignment unless you intend every alias to see the change. In C++,
+you can freely mix `f = f + x` and `f += x` interchangeably; the compiler
+chooses the optimal path via rvalue overloads.
+
+Solver objects (`EasySolver`, `ExhaustiveSolver`, `ABS3Solver`) own heavy
+compute resources (GPU contexts, thread pools). In C++ they are **non-copyable**
+by design — the copy constructor is deleted. In Python they should also not be
+copied; create a new solver if needed.
+
 ## Syntax Differences
 
 The following table shows the main syntax differences between C++ and Python.
@@ -209,7 +263,7 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 
 | | C++ (QUBO++) | Python (PyQBPP) |
 |---|---|---|
-| **Expression building speed** | Fast (native) | Slower (ctypes overhead) |
+| **Expression building speed** | Fast (native) | Slower (Python binding overhead) |
 | **Solver speed** | Same | Same |
 | **Ease of use** | Moderate | Easy |
 | **Interactive use** | No | Yes (Jupyter, REPL) |

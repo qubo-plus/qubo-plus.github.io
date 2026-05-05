@@ -71,7 +71,15 @@ This program prints:
 ```
 
 ## `qbpp::Expr` class
-An instance of this class represents **an expression** involving:
+An instance of this class can represent any of the following three forms, depending on how it is constructed:
+- **Expression** — an integer constant term plus zero or more `qbpp::Term` objects.
+- **Integer variable** — an integer value in a specified range, internally encoded by binary variables.
+- **Constraint expression** — produced by comparison or range operators, holds a penalty and a body.
+
+All three forms share the same `qbpp::Expr` type, so arithmetic operations and global functions work uniformly regardless of which form an `Expr` carries.
+
+### Expression
+An `Expr` in its most basic form represents an **expression** involving:
 - **an integer constant term**, and
 - **zero or more `qbpp::Term` objects**.
 
@@ -118,6 +126,44 @@ This program prints:
 ```
 For details of the available simplify functions and operators,
 see [Basic Operators and Functions](OPERATOR).
+
+### Integer variable
+A `qbpp::Expr` can also represent an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary `qbpp::Var` objects.
+An integer variable is created using the range-chain syntax:
+```cpp
+auto x = 0 <= qbpp::var_int("x") <= 10;   // integer variable in [0, 10]
+std::cout << x << std::endl;
+```
+The underlying linear expression (binary variables weighted by powers of two plus an offset) is printed:
+```
+x[0] +2*x[1] +4*x[2] +3*x[3]
+```
+
+Since an integer variable is already a `qbpp::Expr`, it can be used directly anywhere an expression is expected:
+```cpp
+auto y = 0 <= qbpp::var_int("y") <= 10;
+auto f = qbpp::sqr(x + y - 7);            // use it directly in arithmetic
+```
+In addition to the embedded expression, an integer variable carries metadata: `min_val()`, `max_val()`, and the underlying binary `Var` objects. Details and usage examples are in [Integer Variables](INTEGER).
+
+### Constraint expression
+A `qbpp::Expr` can also represent a **constraint expression**, produced by comparison or range operators applied to an expression. A constraint expression holds two parts:
+- **penalty**: an `Expr` that equals 0 when the constraint is satisfied and is positive otherwise
+- **body**: the original expression, accessed via `ee.body()` (useful for inspecting the actual value under a solution)
+
+Common ways to construct one:
+```cpp
+auto x = 0 <= qbpp::var_int("x") <= 10;
+auto c1 = (x == 3);                    // penalty = sqr(x - 3), body = x
+auto c2 = (2 <= x <= 5);               // penalty = 0 iff 2 <= x <= 5, body = x
+```
+
+A constraint expression can be used directly in further arithmetic — in such contexts it behaves as its penalty part:
+```cpp
+auto f = c1 + c2 + qbpp::sqr(x - 4);   // mix constraint and plain expressions freely
+f.simplify_as_binary();
+```
+Use `ee.body()` to access the unevaluated body expression (for example, `ee.body(sol)` gives the body's value under a solution). Details and the list of supported comparison forms are in [Comparison Operators](COMPARISON).
 
 ## Important Notes on Expressions
 Since the `qbpp::Term` class has a simpler data structure than `qbpp::Expr`,
@@ -179,41 +225,3 @@ This program prints:
 
 However, if `qbpp::toExpr()` is not used, `f` would be an `int` variable,
 and a compilation error would occur when applying the `+=` operator.
-
-## Integer variables
-A `qbpp::Expr` can also represent an **integer variable** that takes a value in a specified integer range, internally encoded by multiple binary `qbpp::Var` objects.
-An integer variable is created using the range-chain syntax:
-```cpp
-auto x = 0 <= qbpp::var_int("x") <= 10;   // integer variable in [0, 10]
-std::cout << x << std::endl;
-```
-The underlying linear expression (binary variables weighted by powers of two plus an offset) is printed:
-```
-x[0] +2*x[1] +4*x[2] +3*x[3]
-```
-
-Since an integer variable is already a `qbpp::Expr`, it can be used directly anywhere an expression is expected:
-```cpp
-auto y = 0 <= qbpp::var_int("y") <= 10;
-auto f = qbpp::sqr(x + y - 7);            // use it directly in arithmetic
-```
-In addition to the embedded expression, an integer variable carries metadata: `min_val()`, `max_val()`, and the underlying binary `Var` objects. Details and usage examples are in [Integer Variables](INTEGER).
-
-## Constraint expressions
-A `qbpp::Expr` can also represent a **constraint expression**, produced by comparison or range operators applied to an expression. A constraint expression holds two parts:
-- **penalty**: an `Expr` that equals 0 when the constraint is satisfied and is positive otherwise
-- **body**: the original expression, accessed via `ee.body()` (useful for inspecting the actual value under a solution)
-
-Common ways to construct one:
-```cpp
-auto x = 0 <= qbpp::var_int("x") <= 10;
-auto c1 = (x == 3);                    // penalty = sqr(x - 3), body = x
-auto c2 = (2 <= x <= 5);               // penalty = 0 iff 2 <= x <= 5, body = x
-```
-
-A constraint expression can be used directly in further arithmetic — in such contexts it behaves as its penalty part:
-```cpp
-auto f = c1 + c2 + qbpp::sqr(x - 4);   // mix constraint and plain expressions freely
-f.simplify_as_binary();
-```
-Use `ee.body()` to access the unevaluated body expression (for example, `ee.body(sol)` gives the body's value under a solution). Details and the list of supported comparison forms are in [Comparison Operators](COMPARISON).

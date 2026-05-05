@@ -68,7 +68,7 @@ the correct output array on its own.
 - If **all inputs are integer arrays** (`Array<Dim, coeff_t>`), the result
   is an integer array (`Array<OutDim, coeff_t>`) — or a `coeff_t` scalar when
   `OutDim == 0`.
-- Otherwise (any input contains `Var`, `Term`, `Expr`, or `VarInt`), the result
+- Otherwise (any input contains `Var`, `Term`, or `Expr`), the result
   is `Array<OutDim, Expr>` — or an `Expr` scalar when `OutDim == 0`.
 
 ## Examples

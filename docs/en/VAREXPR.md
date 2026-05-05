@@ -90,6 +90,28 @@ f = 1 -x +2*x*y
 t = 6*x*y*x
 f = 1 -x +2*x*y +2*y
 ```
+
+### Aliasing and Copying
+
+C++ uses **value semantics** by default. Assigning one `qbpp::Term` or
+`qbpp::Expr` to another performs a deep copy, producing two independent
+objects:
+```cpp
+qbpp::Expr f = x;
+qbpp::Expr g = f;   // independent copy
+f += y;
+std::cout << "f = " << f << std::endl;   // f = x +y
+std::cout << "g = " << g << std::endl;   // g = x   (unaffected)
+```
+`f = f + x` and `f += x` produce the same observable result — both update `f`
+and leave any other object alone. Their difference is purely in performance:
+the compiler picks an in-place rvalue overload for binary `+` to avoid
+unnecessary copies when the left-hand side is a temporary.
+
+The Python frontend (PyQBPP) follows different rules due to Python's reference
+semantics — see [C++ vs Python](CPP_VS_PYTHON#object-copy-and-aliasing) for a
+side-by-side comparison.
+
 In most cases, there is no need to explicitly use `qbpp::Term` objects.
 They should only be used when maximum performance optimization is required.
 

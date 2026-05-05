@@ -52,8 +52,9 @@ hreflang_lang: "en"
 14. [Easy Solver の使い方](EASYSOLVER)
 15. [Exhaustive Solver の使い方](EXHAUSTIVE)
 16. [ABS3 Solver の使い方](ABS3)
-17. [探索パラメータ](PARAMS)
-18. [高速化のための Tips](TIPS)
+17. [Gurobi Optimizer の使い方](GUROBI)
+18. [探索パラメータ](PARAMS)
+19. [高速化のための Tips](TIPS)
 
 
 

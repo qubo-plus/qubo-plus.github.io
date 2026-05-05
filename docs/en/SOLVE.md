@@ -32,6 +32,13 @@ The Easy Solver, Exhaustive Solver, and ABS3 Solver are used in the following st
 1. Create a solver object, **`qbpp::EasySolver`**, **`qbpp::ExhaustiveSolver`**, or **`qbpp::ABS3Solver`**.
 2. Call the **`search()`** member function on the solver object, optionally passing parameters as an initializer list. It returns a **`qbpp::Sol`** object that stores the obtained solution.
 
+> **NOTE**
+> `qbpp::Sol` is a mutable value type — it can be assigned, copied, and updated
+> like other QUBO++ values (see [Aliasing and Copying](VAREXPR#aliasing-and-copying)).
+> Solver objects (`EasySolver`, `ExhaustiveSolver`, `ABS3Solver`) own heavy
+> compute resources and are **non-copyable** (their copy constructor is deleted);
+> create a new solver if you need another one.
+
 ## Easy Solver
 To use the **Easy Solver**, include the header file **`qbpp/easy_solver.hpp`**.
 It is defined in the namespace **`qbpp::easy_solver`**.

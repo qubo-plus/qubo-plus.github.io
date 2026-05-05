@@ -38,7 +38,7 @@ subscript and the input arrays.
 
 - If **all inputs are integer arrays**, the result is an integer array — or an
   `int` scalar when the output has 0 dimensions.
-- Otherwise (any input contains `Var`, `Term`, `Expr`, or `VarInt`), the result
+- Otherwise (any input contains `Var`, `Term`, or `Expr`), the result
   is an `Expr` array — or an `Expr` scalar when the output has 0 dimensions.
 
 ## Examples

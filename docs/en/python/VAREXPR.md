@@ -90,6 +90,39 @@ f = 1 +2*x*y -x +2*y
 > Keep variable names (the result of `qbpp.var(...)`) pristine and accumulate
 > into a separate expression variable.
 
+### Aliasing and Copying
+
+Because `pyqbpp.Term` and `pyqbpp.Expr` are mutable, they follow standard
+Python mutable-object semantics: assigning one variable to another creates an
+**alias** (both names refer to the same object), not an independent copy.
+Modifying one through compound assignment will be visible through the other:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = qbpp.expr() + x
+g = f               # alias — f and g point to the same Expr
+f += y              # f is mutated in place; g sees the same change
+print("f =", f)     # f = x +y
+print("g =", g)     # g = x +y   (also updated)
+```
+If you want an independent copy, build a fresh expression or use the
+constructor `qbpp.Expr(other)` (which deep-copies):
+```python
+g = f + 0           # new Expr
+# or
+g = qbpp.Expr(f)    # deep copy via constructor
+f += y              # f is mutated; g is unaffected
+```
+The same rule applies to `pyqbpp.Sol`: passing a `Sol` to
+`qbpp.Sol(other_sol)` creates an independent deep copy.
+
+The C++ frontend (QUBO++) uses value semantics instead — `Expr g = f;`
+already creates an independent copy. See [C++ vs Python](../CPP_VS_PYTHON#object-copy-and-aliasing)
+for a side-by-side comparison.
+
 ## Building an expression
 
 Python does not require you to construct an `Expr` explicitly — arithmetic operators automatically promote `int` / `Var` / `Term` into `Expr` when needed. For example, `2 * x * y` is a `Term`, but once you `+=` another term onto it, it is promoted to an `Expr`:

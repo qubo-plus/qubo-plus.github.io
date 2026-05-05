@@ -112,7 +112,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(f);
-  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
+  auto sol = solver.search({{"target_energy", -T}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << sol(v[i]) << std::endl;
@@ -245,7 +245,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(f);
-  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
+  auto sol = solver.search({{"target_energy", -T}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << (sol(v[i])) << std::endl;
@@ -266,4 +266,4 @@ The inequality constraint `constraint2 = 0 <= sum <= T`
 ensures that the total selected sum does not exceed `T`.
 
 Finally, we minimize `f = -sum + P * (constraint1 + constraint2)` with a sufficiently large penalty constant `P`.
-As in the previous example, passing {% raw %}`{{"target_energy", std::to_string(-T)}}`{% endraw %} to `search()` allows the solver to stop early if it finds a feasible solution achieving `sum = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
+As in the previous example, passing {% raw %}`{{"target_energy", -T}}`{% endraw %} to `search()` allows the solver to stop early if it finds a feasible solution achieving `sum = T` (in which case the penalty terms are zero and the objective term becomes `-T`).

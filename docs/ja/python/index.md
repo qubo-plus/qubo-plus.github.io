@@ -52,8 +52,9 @@ PyQBPPを使った求解方法を学ぶことができます。
 14. [Easy Solverの使い方](EASYSOLVER)
 15. [Exhaustive Solverの使い方](EXHAUSTIVE)
 16. [ABS3 Solverの使い方](ABS3)
-17. [探索パラメータ](PARAMS)
-18. [高速化のための Tips](TIPS)
+17. [Gurobi Optimizerの使い方](GUROBI)
+18. [探索パラメータ](PARAMS)
+19. [高速化のための Tips](TIPS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。

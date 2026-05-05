@@ -68,7 +68,7 @@ Python 版でこの引数が不要なのは、Python のオブジェクトが次
 - **すべての入力が整数配列**（`Array<Dim, coeff_t>`）の場合、結果も
   整数配列 `Array<OutDim, coeff_t>` になります。`OutDim == 0` のときは
   `coeff_t` のスカラーが返ります。
-- それ以外（`Var`, `Term`, `Expr`, `VarInt` を 1 つでも含む）場合は
+- それ以外（`Var`, `Term`, `Expr` を 1 つでも含む）場合は
   `Array<OutDim, Expr>` が返ります。`OutDim == 0` のときは `Expr` のスカラーです。
 
 ## 使用例

@@ -52,8 +52,9 @@ usage patterns, and, where appropriate, internal implementations.
 14. [Easy Solver Usage](EASYSOLVER)
 15. [Exhaustive Solver Usage](EXHAUSTIVE)
 16. [ABS3 Solver Usage](ABS3)
-17. [Search Parameters](PARAMS)
-18. [Performance Tips](TIPS)
+17. [Gurobi Optimizer Usage](GUROBI)
+18. [Search Parameters](PARAMS)
+19. [Performance Tips](TIPS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.

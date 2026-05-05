@@ -8,47 +8,25 @@ hreflang_alt: "en/GUROBI"
 hreflang_lang: "en"
 ---
 
-# Gurobi Optimizerの使い方
+# Gurobi Optimizer の使い方
+QUBO++ は [Gurobi Optimizer](https://www.gurobi.com) を使用して QUBO 式を解くことができます。
+Gurobi の有効なライセンスが必要です。
 
-QUBO++はGurobi Optimizerを使用してQUBO式を解くことができます。
-Gurobi Optimizerを使用するには、有効なGurobiライセンスが必要です。
+式 `f` を **`qbpp::GurobiSolver`** で解くには、以下の 2 ステップで行います:
+1. 式 `f` に対して Gurobi ソルバー (`qbpp::GurobiSolver`) オブジェクトを作成します。
+2. パラメータを初期化リストとして渡しながら **`search()`** メンバ関数を呼び出します。解が返されます。
 
-Gurobi Optimizerを使用して問題を解くには、以下の3つのステップで行います：
-1. Gurobiモデルオブジェクト（**`qbpp::grb::QuboModel`**）を作成します。
-2. Gurobiモデルオブジェクトのメンバ関数を呼び出してソルバーオプションを設定します。
-3. **`optimize()`**メンバ関数を呼び出して解を探索します。解（`qbpp::Sol` オブジェクト）が返されます。
+インタフェースは意図的に `qbpp::ABS3Solver` と揃えてあるため、ユーザーコードはほぼそのままソルバー切替が可能です。
 
-## Gurobiモデルオブジェクトの作成
-Gurobi Optimizerを使用するには、式（`qbpp::Expr`）を引数としてGurobiモデルオブジェクト（**`qbpp::grb::QuboModel`**）を以下のように構築します：
-- **`qbpp::grb::QuboModel(const qbpp::Expr& f)`**
-
-ここで、`f` は解くべき式です。
-
-## Gurobiオプションの設定
-作成されたGurobiモデルオブジェクトに対して、以下のメンバ関数を使用してソルバーオプションを指定できます：
-- **`set(key, val)`:**
-keyで指定されたGurobiパラメータをvalに設定します。
-keyとvalはどちらも文字列でなければなりません。
-- **`time_limit(time_limit)`**:
-制限時間を秒単位で設定します。
-内部的には `set("TimeLimit", std::to_string(time_limit))` を呼び出します。
-
-利用可能なパラメータの完全なリストについては、以下のGurobiドキュメントを参照してください：
-https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html
-
-## 解の探索
-Gurobi Optimizerは、Gurobiモデルオブジェクトの**`optimize()`**メンバ関数を呼び出すことで解を探索します。
-`optimize()` 関数は `qbpp::Sol` の派生クラスである解オブジェクトを返します。
-メンバ関数**`bound()`**は最適化中に得られた最良バウンドを返します。
-
-## サンプルプログラム
-以下のプログラムは、Gurobi Optimizerを使用して分割問題の解を探索します：
+## Gurobi Solver による分割問題の解法
+以下のプログラムは、数の分割問題を Gurobi Optimizer で解きます:
+{% raw %}
 ```cpp
 #include <qbpp/qbpp.hpp>
-#include <qbpp/grb.hpp>
+#include <qbpp/gurobi.hpp>
 
 int main() {
-  std::vector<uint32_t> w = {64, 27, 47, 74, 12, 83, 63, 40};
+  std::vector<int> w = {64, 27, 47, 74, 12, 83, 63, 40};
   auto x = qbpp::var("x", w.size());
   auto p = qbpp::toExpr(0);
   auto q = qbpp::toExpr(0);
@@ -58,44 +36,188 @@ int main() {
   }
   auto f = qbpp::sqr(p - q);
   f.simplify_as_binary();
-  auto model = qbpp::grb::QuboModel(f);
-  model.time_limit(10.0);
-  auto sol = model.optimize();
-  std::cout << "Solution: " << sol << std::endl;
-  std::cout << "Bound = " << sol.bound() << std::endl;
-  std::cout << "f(sol) = " << f(sol) << std::endl;
-  std::cout << "p(sol) = " << p(sol) << std::endl;
-  std::cout << "q(sol) = " << q(sol) << std::endl;
-  std::cout << "P :";
-  for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 1) {
-      std::cout << " " << w[i];
-    }
-  }
+
+  auto solver = qbpp::GurobiSolver(f);
+  auto sol = solver.search({{"time_limit", 10.0}, {"enable_default_callback", 1}});
+
+  std::cout << "energy = " << sol.energy() << std::endl;
+  std::cout << "bound  = " << sol.info().get("bound") << std::endl;
+  std::cout << "status = " << sol.info().get("status") << std::endl;
+  std::cout << "P :"; for (size_t i = 0; i < w.size(); ++i) if (sol(x[i]) == 1) std::cout << " " << w[i];
   std::cout << std::endl;
-  std::cout << "Q :";
-  for (size_t i = 0; i < w.size(); ++i) {
-    if (x[i](sol) == 0) {
-      std::cout << " " << w[i];
-    }
-  }
+  std::cout << "Q :"; for (size_t i = 0; i < w.size(); ++i) if (sol(x[i]) == 0) std::cout << " " << w[i];
   std::cout << std::endl;
 }
 ```
-まず、このプログラムは分割問題を表す式 `f` に対してGurobiモデルを作成します。
-制限時間を10.0秒に設定し、`optimize()` を呼び出します。
-得られた解は `sol` に格納されます。
+{% endraw %}
 
-このプログラムは以下の出力を生成します：
-{% raw %}
+このプログラムは、まず式 `f` に対して `GurobiSolver` オブジェクトを作成します。
+次にパラメータを初期化リストとして `search()` メンバ関数に渡します。
+`time_limit` は探索の最大秒数を、`enable_default_callback` は新しい最良解が見つかるたびにエネルギーと TTS を出力する組込みコールバックを有効化します。
+
+得られた解のエネルギーが `sol.info().get("bound")` から得られる下界と一致したとき、その解は最適であることが保証されます:
+
 ```
-Solution: 0:{{x[0],1},{x[1],1},{x[2],0},{x[3],1},{x[4],0},{x[5],0},{x[6],0},{x[7],1}}
-Bound = 0
-f(sol) = 0
-p(sol) = 205
-q(sol) = 205
+energy = 0
+bound  = 0.000000
+status = OPTIMAL
 P : 64 27 74 40
 Q : 47 12 83 63
 ```
+
+## GurobiSolver オブジェクト
+`qbpp::GurobiSolver` オブジェクトは式から作成します。
+構築時に式は Gurobi 内部のモデル (`GRBmodel`) に変換されます:
+- **`qbpp::GurobiSolver(expression)`**: 式から Gurobi モデルを構築します。
+
+`GurobiSolver` は **QUBO** (次数 ≤ 2) のみサポートします。HUBO (3 次以上) を含む式を渡すと例外が投げられます。
+HUBO の場合は補助変数で QUBO に低次化するか、任意次数を扱える `qbpp::ABS3Solver` / `qbpp::EasySolver` を利用してください。
+
+## Gurobi パラメータ
+パラメータは `search()` の初期化リストで key-value のペアとして渡します。
+qbpp ラッパが解釈するキーを以下に示します。**このリストにないキーはそのまま Gurobi に転送される**ので、[Gurobi の全パラメータ](https://docs.gurobi.com/projects/optimizer/en/current/reference/parameters.html) (`MIPFocus`, `Heuristics`, `Cuts`, `Seed`, `LogFile`, `OutputFlag` など) が利用可能です。
+
+### 基本オプション
+
+| キー | 値 | 説明 |
+|----|----|----|
+| **`time_limit`** | 秒数 | 制限時間に達した時点で探索を終了 |
+| **`target_energy`** | 目標エネルギー | 目標エネルギー以下の解を発見した時点で探索を終了 |
+| **`thread_count`** | スレッド数 | Gurobi のワーカースレッド数 |
+
+### 高度なオプション
+
+| キー | 値 | 説明 |
+|----|----|----|
+| **`enable_default_callback`** | `1` | 組込みコールバック (新最良解のエネルギーと TTS を出力) を有効化 |
+| **`callback_timer_interval`** | 秒数 | `Timer` コールバックの初期間隔 |
+| **`topk_sols`** | 解数 | 上位 K 解を返す (`PoolSearchMode=2` と `PoolSolutions=K` を設定) |
+| **`license_file`** | パス | `$GRB_LICENSE_FILE` を上書き |
+
+> 注: ABS3 の `best_energy_sols` は提供していません — Gurobi の solution pool には「同一ベストエネルギーのみ収集」モードが直接無く、別 API (例: `PoolGap=0`) が必要なためです。
+
+その他の Gurobi ネイティブパラメータ (例: `"MIPFocus", 1`、`"Heuristics", 0.5`、`"OutputFlag", 1`) も同じ初期化リストに混ぜて渡せ、そのまま Gurobi に転送されます。
+
+## 複数解の取得
+
+`topk_sols` を指定すると Gurobi の解プール機能が有効になり、エネルギー昇順に複数の異なる解を取得できます。
+
+{% raw %}
+```cpp
+auto result = solver.search({{"topk_sols", 5}});
+
+std::cout << "Best energy: " << result.energy() << std::endl;
+std::cout << "追加解数: " << result.size() << std::endl;
+for (const auto& s : result.sols) {
+  std::cout << "energy=" << s.energy() << " tts=" << s.tts() << "s" << std::endl;
+}
+```
 {% endraw %}
-解の値とバウンドが同じエネルギー0であるため、得られた解が最適であることが保証されます。
+
+返り値オブジェクトのメソッド:
+- **`energy()`** — 最良解のエネルギー
+- **`sols`** — 追加プール解のベクタ (エネルギー昇順)
+- **`size()`** — 追加解数
+- **`info().get(key)`** — ソルバー情報文字列 (下記参照)
+
+## ソルバー情報
+
+`sol.info()` には Gurobi が提供する以下の情報が文字列で格納されます:
+
+| キー | 説明 |
+|----|----|
+| `status` | `OPTIMAL`, `TIME_LIMIT`, `INFEASIBLE`, `INTERRUPTED`, ... |
+| `bound` | Gurobi が見つけた最良目的下界 (LP リラクゼーション) |
+| `mip_gap` | 最終的な MIP gap |
+| `node_count` | 探索した分枝限定ノード数 |
+| `iter_count` | シンプレックス反復回数 |
+| `solution_count` | Gurobi が保持している解の数 |
+| `gurobi_version` | Gurobi バージョン文字列 (例: `13.0.1`) |
+| `run_time` | optimize 呼出のウォール時間 (秒) |
+
+## カスタムコールバック
+
+コールバック API は `qbpp::ABS3Solver` と完全一致です。`qbpp::GurobiSolver` をサブクラス化して仮想メソッド `callback()` をオーバライドします:
+
+| イベント | 説明 |
+|---------|------|
+| `CallbackEvent::Start` | `search()` の最初に 1 回呼ばれる |
+| `CallbackEvent::BestUpdated` | Gurobi が新しい最良解を見つけたとき (`MIPSOL`) に呼ばれる |
+| `CallbackEvent::Timer` | `timer(seconds)` で設定した間隔で定期的に呼ばれる |
+
+コールバック内で利用可能なメソッド:
+- **`event()`** — 現在のイベント
+- **`best_sol()`** — 現時点での最良解 (`qbpp::Sol`)。`BestUpdated` 中は確実に有効、`Timer` 中はキャッシュ値、`Start` 中は未定義
+- **`bound()`** — Gurobi が現時点で把握している最良目的下界 (LP リラクゼーション、`double`)。各 Gurobi コールバック発火時に更新される。Gurobi がまだ下界を確定していない場合 (`Start` 中、root LP 実行前など) は `-infinity` を返す。`BestUpdated` (= `MIPSOL`) は LP 実行前のヒューリスティックから発火することも多いため、その時点では `bound()` は `-infinity` のことがある。LP 処理後の `MIP` コンテキストから発火する `Timer` イベントで読み取ると意味のある下界が得られる
+- **`timer(seconds)`** — Timer 間隔を設定/無効化 (次のコールバック境界で反映)
+- **`hint(sol)`** — ヒント解を提供 (キューに保存され次の `MIPNODE` で Gurobi に注入)
+
+### 例: カスタムコールバック
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/gurobi.hpp>
+
+class MySolver : public qbpp::GurobiSolver {
+ public:
+  using GurobiSolver::GurobiSolver;
+
+  void callback() const override {
+    if (event() == qbpp::CallbackEvent::Start) {
+      timer(1.0);  // 1 秒ごとに Timer イベントを発火
+    }
+    if (event() == qbpp::CallbackEvent::BestUpdated) {
+      std::cout << "新しい最良解: energy=" << best_sol().energy()
+                << " TTS=" << best_sol().tts() << "s" << std::endl;
+    }
+  }
+};
+
+int main() {
+  auto x = qbpp::var("x", 8);
+  auto f = qbpp::sqr(qbpp::sum(x) - 4);
+  f.simplify_as_binary();
+
+  auto solver = MySolver(f);
+  auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
+  std::cout << "energy=" << sol.energy() << std::endl;
+}
+```
+{% endraw %}
+
+## 解のヒント
+
+ヒント解を与えると、既知の解から探索を warm start できます。
+
+最もシンプルな方法は `search()` 前に **`params.hint(sol)`** を呼ぶことです:
+{% raw %}
+```cpp
+qbpp::Params params({{"time_limit", 10.0}});
+params.hint(prev_sol);
+auto result = solver.search(params);
+```
+{% endraw %}
+
+これは Gurobi の MIPSTART 属性 (`GRB_DBL_ATTR_START`) として書き込まれます。
+
+外部ソルバーから定期的に解をフィードする等の高度な用途では、コールバック内から **`hint(sol)`** を呼ぶこともできます。コールバック中の hint はキューに入り、次の `MIPNODE` イベント発火時に Gurobi へ届きます (これは Gurobi 側の API 制約)。コールバックを定期的に走らせるため `timer()` の併用を推奨します。
+
+## セットアップ
+
+Gurobi のインストールとライセンス設定は Gurobi 公式の Software Installation Guide に従ってください。tar.gz を展開した後、以下の標準環境変数を設定します (Linux x86_64 の場合):
+
+```sh
+export GUROBI_HOME="$HOME/gurobi1301/linux64"
+export PATH="${PATH}:${GUROBI_HOME}/bin"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+```
+
+ビルド:
+```sh
+g++ -std=c++17 -I$GUROBI_HOME/include -Wl,-rpath,$GUROBI_HOME/lib \
+    your_program.cpp -lqbpp -ldl -pthread
+```
+
+`qbpp::GurobiSolver` は `libgurobi<MAJOR><MINOR>.so` を `dlopen` で遅延ロードするため、リンク時に `-lgurobi*` は不要です。**`$GUROBI_HOME/src/build` で `make` を実行する必要もありません** — Gurobi の C++ ラッパ層は使用しません。
+
+ARM64 Linux では `linux64` を `armlinux64` に置き換えます。

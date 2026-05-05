@@ -112,7 +112,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(f);
-  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
+  auto sol = solver.search({{"target_energy", -T}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << sol(v[i]) << std::endl;
@@ -238,7 +238,7 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::EasySolver(f);
-  auto sol = solver.search({{"target_energy", std::to_string(-T)}});
+  auto sol = solver.search({{"target_energy", -T}});
   for (size_t i = 0; i < v.size(); ++i) {
     if (sol(s[i])) {
       std::cout << "Interval " << i << ": val = " << (sol(v[i])) << std::endl;
@@ -255,4 +255,4 @@ int main() {
 不等式制約 `constraint2 = 0 <= sum <= T` は、選択された合計が `T` を超えないことを保証します。
 
 最後に、十分大きなペナルティ定数 `P` で `f = -sum + P * (constraint1 + constraint2)` を最小化します。
-前の例と同様に、`search()` に {% raw %}`{{"target_energy", std::to_string(-T)}}`{% endraw %} を渡すことで、`sum = T` を達成する実行可能解が見つかった場合にソルバーを早期停止させることができます（この場合、ペナルティ項は0になり目的関数項は `-T` になります）。
+前の例と同様に、`search()` に {% raw %}`{{"target_energy", -T}}`{% endraw %} を渡すことで、`sum = T` を達成する実行可能解が見つかった場合にソルバーを早期停止させることができます（この場合、ペナルティ項は0になり目的関数項は `-T` になります）。
