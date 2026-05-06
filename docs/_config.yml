@@ -43,3 +43,14 @@ last_edit_time_format: "%Y.%m.%d"
 back_to_top: true
 back_to_top_text: "Back to top"
 
+# User portal SPA — pass through unmodified, no Jekyll layout
+exclude:
+  - portal/README.md
+
+defaults:
+  - scope:
+      path: "portal"
+    values:
+      sitemap: false
+      layout: null
+
