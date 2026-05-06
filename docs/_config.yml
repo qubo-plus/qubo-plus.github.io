@@ -32,9 +32,8 @@ nav_external_links:
     url: "https://github.com/qubo-plus/qbpp/releases/latest"
     opens_in_new_tab: true
 
-# Google Analytics — both GA4 properties receive page views.
-# Comma-separated list parsed by just-the-docs head.html (split: ",").
-ga_tracking: G-5X2BP69THZ,G-7BETDZ89NV
+# Google Analytics
+ga_tracking: G-02FF2NG7DD
 
 # Footer
 last_edit_timestamp: true
