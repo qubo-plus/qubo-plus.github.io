@@ -79,3 +79,10 @@ QUBO++ はライセンスキーなしで使用できます。
   - BSD 2-Clause License の下でライセンスされています。
   - Copyright © Yann Collet.
   - 詳細は <https://opensource.org/license/bsd-2-clause/> をご覧ください。
+
+- **Gurobi Optimizer** (オプション)
+  - QUBO++ には同梱・リンクされておらず、ユーザー側でインストール済みの `libgurobi*.so` を実行時に `dlopen` で読み込みます。
+    - C++: `#include <qbpp/gurobi.hpp>` を使った場合のみ
+    - Python: `qbpp.GurobiSolver` を呼び出した場合のみ
+  - 商用ライセンスが必要 (アカデミック利用は無償ライセンスあり)。
+  - 詳細: <https://www.gurobi.com> ／ C++: [Gurobi Optimizer の使い方](GUROBI) ／ Python: [Gurobi Optimizer の使い方 (PyQBPP)](python/GUROBI)

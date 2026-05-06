@@ -55,6 +55,7 @@ usage patterns, and, where appropriate, internal implementations.
 17. [Gurobi Optimizer Usage](GUROBI)
 18. [Search Parameters](PARAMS)
 19. [Performance Tips](TIPS)
+20. [Experimental Solver Support (Amplify, D-Wave, OpenJij)](EXPERIMENTAL_SOLVERS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.

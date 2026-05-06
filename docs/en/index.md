@@ -84,3 +84,10 @@ For details on license activation, license types, and terms, see **[License Mana
   - Licensed under the BSD 2-Clause License.
   - Copyright © Yann Collet.
   - See <https://opensource.org/license/bsd-2-clause/> for details.
+
+- **Gurobi Optimizer** (optional)
+  - Not bundled with or linked to QUBO++; the user's own installation of `libgurobi*.so` is loaded at runtime via `dlopen`.
+    - C++: only when `#include <qbpp/gurobi.hpp>` is used
+    - Python: only when `qbpp.GurobiSolver` is called
+  - Commercial license required (free academic license available).
+  - See: <https://www.gurobi.com> / C++: [Gurobi Optimizer Usage](GUROBI) / Python: [Gurobi Optimizer Usage (PyQBPP)](python/GUROBI)

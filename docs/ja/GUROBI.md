@@ -210,14 +210,14 @@ Gurobi のインストールとライセンス設定は Gurobi 公式の Softwar
 export GUROBI_HOME="$HOME/gurobi1301/linux64"
 export PATH="${PATH}:${GUROBI_HOME}/bin"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${GUROBI_HOME}/include"
 ```
 
-ビルド:
+ビルド (qbpp の他のサンプルと同じく、リンクは `-ldl -pthread` のみ):
 ```sh
-g++ -std=c++17 -I$GUROBI_HOME/include -Wl,-rpath,$GUROBI_HOME/lib \
-    your_program.cpp -lqbpp -ldl -pthread
+g++ -std=c++17 your_program.cpp -o your_program -ldl -pthread
 ```
 
-`qbpp::GurobiSolver` は `libgurobi<MAJOR><MINOR>.so` を `dlopen` で遅延ロードするため、リンク時に `-lgurobi*` は不要です。**`$GUROBI_HOME/src/build` で `make` を実行する必要もありません** — Gurobi の C++ ラッパ層は使用しません。
+`qbpp::GurobiSolver` は `libgurobi<MAJOR><MINOR>.so` を `dlopen` で遅延ロードするため、リンク時に `-lgurobi*` は不要です。**`$GUROBI_HOME/src/build` で `make` を実行する必要もありません** — Gurobi の C++ ラッパ層は使用しません。qbpp 自身も `dlopen` で `qbpp_*.so` をロードするため `-lqbpp` は不要です。
 
 ARM64 Linux では `linux64` を `armlinux64` に置き換えます。

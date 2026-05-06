@@ -55,6 +55,7 @@ PyQBPPを使った求解方法を学ぶことができます。
 17. [Gurobi Optimizerの使い方](GUROBI)
 18. [探索パラメータ](PARAMS)
 19. [高速化のための Tips](TIPS)
+20. [実験的なソルバー連携 (Amplify, D-Wave, OpenJij)](EXPERIMENTAL_SOLVERS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。

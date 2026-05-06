@@ -210,14 +210,14 @@ Gurobi installation and license setup follow Gurobi's official Software Installa
 export GUROBI_HOME="$HOME/gurobi1301/linux64"
 export PATH="${PATH}:${GUROBI_HOME}/bin"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${GUROBI_HOME}/include"
 ```
 
-Build with:
+Build (same flags as any other qbpp program — link only `-ldl -pthread`):
 ```sh
-g++ -std=c++17 -I$GUROBI_HOME/include -Wl,-rpath,$GUROBI_HOME/lib \
-    your_program.cpp -lqbpp -ldl -pthread
+g++ -std=c++17 your_program.cpp -o your_program -ldl -pthread
 ```
 
-`qbpp::GurobiSolver` loads `libgurobi<MAJOR><MINOR>.so` lazily via `dlopen`, so no link-time `-lgurobi*` flag is needed. **You do not need to run `make` in `$GUROBI_HOME/src/build`** — the C++ wrapper layer is not used.
+`qbpp::GurobiSolver` loads `libgurobi<MAJOR><MINOR>.so` lazily via `dlopen`, so no link-time `-lgurobi*` flag is needed. **You do not need to run `make` in `$GUROBI_HOME/src/build`** — the C++ wrapper layer is not used. qbpp itself is also loaded via `dlopen`, so no `-lqbpp` is needed either.
 
 For ARM64 Linux, replace `linux64` with `armlinux64`.
