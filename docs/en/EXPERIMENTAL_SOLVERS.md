@@ -10,16 +10,26 @@ hreflang_lang: "ja"
 
 # Experimental Solver Support — PyQBPP only
 
-The experimental solver integrations for **Fixstars Amplify**,
-**D-Wave Advantage / Leap Hybrid**, and **OpenJij** are available **only
-from PyQBPP (Python)**. They are not exposed from the C++ QUBO++ library.
+PyQBPP wraps a number of third-party solvers as **experimental
+integrations**, available **only from PyQBPP (Python)** — not from the
+C++ QUBO++ library. Currently supported:
 
-Each backend (Amplify SDK, D-Wave Ocean SDK, OpenJij) is distributed only
-as a Python package, so PyQBPP forwards models to them directly through
-Python; there is no C++ entry point.
+- **Fixstars Amplify** (cloud meta — Fixstars AE, Fujitsu DA, Toshiba SBM, …)
+- **D-Wave** — Advantage QPU, Leap Hybrid, Neal (classical SA), Tabu, Steepest Descent
+- **dimod** — ExactSolver (brute-force enumeration)
+- **OpenJij** (local SA / SQA, HUBO via `sample_hubo`)
+- **TYTAN-SDK** — MIKASAmpler (HUBO-native PyTorch SA)
+- **qubovert** (pure-Python HUBO SA)
+- **Simulated Bifurcation** (Toshiba SB algorithm, PyTorch CPU/GPU)
+- **IBM CPLEX** (commercial MIQP)
+- **IBM Qiskit Optimization** (classical exact / QAOA / VQE)
+- **Google OR-Tools CP-SAT** (HUBO via Boolean encoding)
+
+Each backend is distributed only as a Python package, so PyQBPP forwards
+models to them directly through Python; there is no C++ entry point.
 
 → See the PyQBPP documentation:
-[**Experimental Solver Support (Amplify, D-Wave, OpenJij)**](python/EXPERIMENTAL_SOLVERS)
+[**Experimental Solver Support (Amplify, D-Wave, OpenJij, TYTAN, qubovert, …)**](python/EXPERIMENTAL_SOLVERS)
 
 ## Solvers available from C++
 

@@ -10,16 +10,27 @@ hreflang_lang: "en"
 
 # 実験的なソルバー連携 — PyQBPP のみ対応
 
-**Fixstars Amplify**, **D-Wave Advantage / Leap Hybrid**, **OpenJij**
-への実験的な連携機能は **PyQBPP (Python) からのみ** 利用可能です。
-C++ の QUBO++ ライブラリからは呼び出せません。
+PyQBPP は多数のサードパーティソルバーを **実験的な連携** としてラップ
+しており、これらは **PyQBPP (Python) からのみ** 利用可能です。C++ の
+QUBO++ ライブラリからは呼び出せません。現在サポート中：
 
-各バックエンド (Amplify SDK, D-Wave Ocean SDK, OpenJij) は Python
-パッケージとしてのみ提供されているため、PyQBPP は Python 経由で
-直接モデルを渡しています。C++ 側のエントリーポイントはありません。
+- **Fixstars Amplify**（クラウドメタ — Fixstars AE / Fujitsu DA / Toshiba SBM など）
+- **D-Wave** — Advantage QPU、Leap Hybrid、Neal（古典 SA）、Tabu、Steepest Descent
+- **dimod** — ExactSolver（全数列挙）
+- **OpenJij**（ローカル SA / SQA、HUBO は `sample_hubo` 経由）
+- **TYTAN-SDK** — MIKASAmpler（HUBO ネイティブ PyTorch SA）
+- **qubovert**（Pure Python HUBO SA）
+- **Simulated Bifurcation**（東芝 SB アルゴリズム、PyTorch CPU/GPU）
+- **IBM CPLEX**（商用 MIQP）
+- **IBM Qiskit Optimization**（古典厳密 / QAOA / VQE）
+- **Google OR-Tools CP-SAT**（HUBO は Boolean エンコーディング）
+
+各バックエンドは Python パッケージとしてのみ提供されているため、
+PyQBPP は Python 経由で直接モデルを渡しています。C++ 側のエントリー
+ポイントはありません。
 
 → PyQBPP ドキュメントを参照してください:
-[**実験的なソルバー連携 (Amplify, D-Wave, OpenJij)**](python/EXPERIMENTAL_SOLVERS)
+[**実験的なソルバー連携 (Amplify, D-Wave, OpenJij, TYTAN, qubovert ほか)**](python/EXPERIMENTAL_SOLVERS)
 
 ## C++ から利用できるソルバー
 
