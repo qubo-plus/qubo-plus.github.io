@@ -55,7 +55,6 @@ PyQBPPを使った求解方法を学ぶことができます。
 17. [Gurobi Optimizerの使い方](GUROBI)
 18. [探索パラメータ](PARAMS)
 19. [高速化のための Tips](TIPS)
-20. [実験的なソルバー連携 (Amplify, D-Wave, OpenJij)](EXPERIMENTAL_SOLVERS)
 
 ## ケーススタディ
 このセクションでは、PyQBPPを使った最適化問題、数学問題、グラフ問題の解法例を提供します。
@@ -66,3 +65,10 @@ PyQBPPを使った求解方法を学ぶことができます。
 2. [演算子と関数](QR_OPERATION)
 3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
 4. [解](QR_SOLUTION)
+
+## 実験的なソルバー連携
+[実験的なソルバー連携](EXPERIMENTAL_SOLVERS) — PyQBPP 限定の実験的サポートで、
+Fixstars Amplify, D-Wave (Advantage / Leap Hybrid / Neal / Tabu / Steepest Descent),
+dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation,
+IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT などの
+サードパーティソルバーから統一インタフェースで呼び出せます。

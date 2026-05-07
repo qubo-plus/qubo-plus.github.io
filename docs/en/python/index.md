@@ -55,7 +55,6 @@ usage patterns, and, where appropriate, internal implementations.
 17. [Gurobi Optimizer Usage](GUROBI)
 18. [Search Parameters](PARAMS)
 19. [Performance Tips](TIPS)
-20. [Experimental Solver Support (Amplify, D-Wave, OpenJij)](EXPERIMENTAL_SOLVERS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.
@@ -66,3 +65,11 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 2. [Operators and Functions](QR_OPERATION)
 3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
 4. [Solutions](QR_SOLUTION)
+
+## Experimental Solver Support
+[Experimental Solver Support](EXPERIMENTAL_SOLVERS) — PyQBPP-only experimental
+integrations that let you call third-party solvers through a unified interface,
+including Fixstars Amplify, D-Wave (Advantage / Leap Hybrid / Neal / Tabu /
+Steepest Descent), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert,
+Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools
+CP-SAT.
