@@ -19,6 +19,7 @@ hreflang_lang: "en"
 - **CPU並列加速** — すべてのソルバーがマルチコアCPU上でマルチスレッド並列実行されます。
 - **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。32ビットから数千桁まで、オーバーフローの心配なく計算可能。
 - **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
+- **実験的なサードパーティソルバー連携**（PyQBPP のみ）— Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。詳細は [実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) をご覧ください。
 - **どこでも実行** — Raspberry PiからノートPC、GPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
 
 # QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver
@@ -86,3 +87,24 @@ QUBO++ はライセンスキーなしで使用できます。
     - Python: `qbpp.GurobiSolver` を呼び出した場合のみ
   - 商用ライセンスが必要 (アカデミック利用は無償ライセンスあり)。
   - 詳細: <https://www.gurobi.com> ／ C++: [Gurobi Optimizer の使い方](GUROBI) ／ Python: [Gurobi Optimizer の使い方 (PyQBPP)](python/GUROBI)
+
+## 実験的サードパーティソルバー (PyQBPP のみ)
+
+以下のパッケージは QUBO++ には**同梱されません**。PyQBPP は対応する
+ソルバークラスを構築した時にのみ遅延 import します。各パッケージは
+独自のライセンスで配布されているので、必要なものだけインストール
+してください。使い方や統一 `num_reads` / `time_limit` のセマンティクス
+については [実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) を参照。
+
+| パッケージ | ライセンス | 提供されるバックエンド | ソース |
+|---|---|---|---|
+| `amplify` | プロプライエタリ (Fixstars; クラウド SDK) | `AmplifySolver` (Fixstars AE, Fujitsu DA, Toshiba SBM, ...) | <https://amplify.fixstars.com/> |
+| `dwave-ocean-sdk` (`dimod`, `dwave-system`, `dwave-cloud-client`, `dwave-samplers`) | Apache 2.0 | `DWaveSolver` (Advantage QPU), `DWaveHybridSolver`, `DWaveNealSolver`, `DWaveTabuSolver`, `DWaveSteepestDescentSolver`, `DimodExactSolver` | <https://github.com/dwavesystems/dwave-ocean-sdk> |
+| `openjij` (+ `jij-cimod`) | Apache 2.0 | `OpenJijSolver` | <https://github.com/OpenJij/OpenJij> |
+| TYTAN-SDK (`tytan`, GitHub のみ) | MIT | `HobotanMikasSolver` | <https://github.com/tytansdk/tytan> |
+| `qubovert` | Apache 2.0 | `QubovertSolver` | <https://github.com/jiosue/qubovert> |
+| `simulated-bifurcation` | MIT | `SimulatedBifurcationSolver` | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
+| `cplex` | プロプライエタリ (IBM ILOG; 実行時にライセンス必要) | `CplexSolver` | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
+| `qiskit` (+ `qiskit-optimization`, `qiskit-algorithms`) | Apache 2.0 | `QiskitOptimizationSolver` | <https://github.com/Qiskit/qiskit> |
+| `ortools` | Apache 2.0 | `OrToolsCpSatSolver` | <https://github.com/google/or-tools> |
+| `torch` (PyTorch; TYTAN-SDK / Simulated Bifurcation の推移依存) | BSD 3-Clause | (Hobotan MIKAS / SB の CPU/GPU 実行で使用) | <https://pytorch.org/> |

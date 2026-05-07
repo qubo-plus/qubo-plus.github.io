@@ -385,9 +385,13 @@ that path is not yet wrapped here.
 [Google OR-Tools CP-SAT](https://developers.google.com/optimization/cp/cp_solver)
 — a constraint-programming engine with a SAT-solver core. CP-SAT
 doesn't natively accept quadratic objectives; PyQBPP encodes each
-non-linear monomial ``x_a x_b ... x_k`` as a fresh Boolean ``z`` with
-``z = x_a ∧ ... ∧ x_k`` and then minimizes the resulting linear
-objective. **HUBO of any degree** works with the same encoding::
+non-linear monomial ``ℓ_a ℓ_b ... ℓ_k`` (each ``ℓ`` either ``x_i`` or
+``~x_i``) as a fresh Boolean ``z`` with ``z = ℓ_a ∧ ... ∧ ℓ_k`` and
+minimizes the resulting linear objective. **HUBO of any degree** works
+with the same encoding, and **negated literals are handled natively**
+via CP-SAT's ``BoolVar.Not()`` — no ``all_positive`` expansion is
+applied (which would multiply each m-negation monomial into 2^m
+sub-terms)::
 
     sol = qbpp.OrToolsCpSatSolver(e).search(time_limit=5.0)
 

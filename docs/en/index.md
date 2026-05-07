@@ -20,6 +20,7 @@ as polynomials of binary variables (QUBO/HUBO).
 - **CPU parallel acceleration** — All solvers run multithreaded on multicore CPUs.
 - **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 32-bit to thousands of digits.
 - **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
+- **Experimental third-party solver support** (PyQBPP only) — Call Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools CP-SAT through a unified `Solver.search()` protocol. See [Experimental Solver Support](python/EXPERIMENTAL_SOLVERS).
 - **Run anywhere** — From a Raspberry Pi to a laptop, GPU servers, and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
 
 # QUBO++ Solvers: Easy Solver, Exhaustive Solver, ABS3 Solver
@@ -91,3 +92,24 @@ For details on license activation, license types, and terms, see **[License Mana
     - Python: only when `qbpp.GurobiSolver` is called
   - Commercial license required (free academic license available).
   - See: <https://www.gurobi.com> / C++: [Gurobi Optimizer Usage](GUROBI) / Python: [Gurobi Optimizer Usage (PyQBPP)](python/GUROBI)
+
+## Experimental Third-Party Solver Backends (PyQBPP only)
+
+The following packages are **not bundled** with QUBO++. PyQBPP loads
+them lazily — only when the corresponding solver class is constructed.
+Each ships under its own license; install only the ones you need.
+See [Experimental Solver Support](python/EXPERIMENTAL_SOLVERS) for
+usage and the unified `num_reads` / `time_limit` semantics.
+
+| Package | License | Backends exposed | Source |
+|---|---|---|---|
+| `amplify` | proprietary (Fixstars; cloud SDK) | `AmplifySolver` (Fixstars AE, Fujitsu DA, Toshiba SBM, ...) | <https://amplify.fixstars.com/> |
+| `dwave-ocean-sdk` (`dimod`, `dwave-system`, `dwave-cloud-client`, `dwave-samplers`) | Apache 2.0 | `DWaveSolver` (Advantage QPU), `DWaveHybridSolver`, `DWaveNealSolver`, `DWaveTabuSolver`, `DWaveSteepestDescentSolver`, `DimodExactSolver` | <https://github.com/dwavesystems/dwave-ocean-sdk> |
+| `openjij` (+ `jij-cimod`) | Apache 2.0 | `OpenJijSolver` | <https://github.com/OpenJij/OpenJij> |
+| TYTAN-SDK (`tytan`, GitHub-only) | MIT | `HobotanMikasSolver` | <https://github.com/tytansdk/tytan> |
+| `qubovert` | Apache 2.0 | `QubovertSolver` | <https://github.com/jiosue/qubovert> |
+| `simulated-bifurcation` | MIT | `SimulatedBifurcationSolver` | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
+| `cplex` | proprietary (IBM ILOG; license required at runtime) | `CplexSolver` | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
+| `qiskit` (+ `qiskit-optimization`, `qiskit-algorithms`) | Apache 2.0 | `QiskitOptimizationSolver` | <https://github.com/Qiskit/qiskit> |
+| `ortools` | Apache 2.0 | `OrToolsCpSatSolver` | <https://github.com/google/or-tools> |
+| `torch` (PyTorch; transitive dep of TYTAN-SDK and Simulated Bifurcation) | BSD 3-Clause | (used by Hobotan MIKAS / SB on CPU/GPU) | <https://pytorch.org/> |
