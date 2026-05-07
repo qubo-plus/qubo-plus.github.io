@@ -77,39 +77,34 @@ For details on license activation, license types, and terms, see **[License Mana
 
 # Third-Party Libraries
 
-- **Boost C++ Libraries**
-  - Licensed under the Boost Software License, Version 1.0.
-  - See <https://www.boost.org/LICENSE_1_0.txt> for details.
+The following libraries are linked into the QUBO++ shared objects (`qbpp_*.so`):
 
-- **xxHash**
-  - Licensed under the BSD 2-Clause License.
-  - Copyright © Yann Collet.
-  - See <https://opensource.org/license/bsd-2-clause/> for details.
+- **Boost C++ Libraries** — Boost Software License, Version 1.0. See <https://www.boost.org/LICENSE_1_0.txt>.
+- **xxHash** — BSD 2-Clause License, Copyright © Yann Collet. See <https://opensource.org/license/bsd-2-clause/>.
 
-- **Gurobi Optimizer** (optional)
-  - Not bundled with or linked to QUBO++; the user's own installation of `libgurobi*.so` is loaded at runtime via `dlopen`.
-    - C++: only when `#include <qbpp/gurobi.hpp>` is used
-    - Python: only when `qbpp.GurobiSolver` is called
-  - Commercial license required (free academic license available).
-  - See: <https://www.gurobi.com> / C++: [Gurobi Optimizer Usage](GUROBI) / Python: [Gurobi Optimizer Usage (PyQBPP)](python/GUROBI)
+# Optional Solver Backends
 
-## Experimental Third-Party Solver Backends (PyQBPP only)
+QUBO++ can call a number of external solvers through dynamic loading
+(C++: `dlopen`; Python: lazy `import`). None of these packages are
+bundled with QUBO++ — install only the ones you need. Each ships
+under its own license. The **stable** backend (Gurobi) has been
+supported for several releases; **experimental** backends were added
+in 2026.05.07 and the API may evolve.
 
-The following packages are **not bundled** with QUBO++. PyQBPP loads
-them lazily — only when the corresponding solver class is constructed.
-Each ships under its own license; install only the ones you need.
-See [Experimental Solver Support](python/EXPERIMENTAL_SOLVERS) for
-usage and the unified `num_reads` / `time_limit` semantics.
+| Solver | Status | Languages | License | Source / docs |
+|---|---|---|---|---|
+| **Gurobi Optimizer** | stable | C++ + Python | proprietary (free academic) | <https://www.gurobi.com> · [C++ usage](GUROBI) · [Python usage](python/GUROBI) |
+| **Fixstars Amplify** | experimental | Python | proprietary (cloud SDK) | <https://amplify.fixstars.com/> |
+| **D-Wave Ocean** (6 solvers: QPU / Hybrid / Neal / Tabu / Steepest / Exact) | experimental | Python | Apache 2.0 | <https://github.com/dwavesystems/dwave-ocean-sdk> |
+| **OpenJij** (+ `jij-cimod`) | experimental | Python | Apache 2.0 | <https://github.com/OpenJij/OpenJij> |
+| **TYTAN-SDK** (MIKASAmpler) | experimental | Python | MIT | <https://github.com/tytansdk/tytan> |
+| **qubovert** | experimental | Python | Apache 2.0 | <https://github.com/jiosue/qubovert> |
+| **Simulated Bifurcation** | experimental | Python | MIT | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
+| **IBM CPLEX** | experimental | Python | proprietary (license required) | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
+| **IBM Qiskit Optimization** (+ `qiskit-algorithms`) | experimental | Python | Apache 2.0 | <https://github.com/Qiskit/qiskit> |
+| **Google OR-Tools CP-SAT** | experimental | Python | Apache 2.0 | <https://github.com/google/or-tools> |
+| **PyTorch** (transitive dep of TYTAN-SDK / Simulated Bifurcation) | — | Python | BSD 3-Clause | <https://pytorch.org/> |
 
-| Package | License | Backends exposed | Source |
-|---|---|---|---|
-| `amplify` | proprietary (Fixstars; cloud SDK) | `AmplifySolver` (Fixstars AE, Fujitsu DA, Toshiba SBM, ...) | <https://amplify.fixstars.com/> |
-| `dwave-ocean-sdk` (`dimod`, `dwave-system`, `dwave-cloud-client`, `dwave-samplers`) | Apache 2.0 | `DWaveSolver` (Advantage QPU), `DWaveHybridSolver`, `DWaveNealSolver`, `DWaveTabuSolver`, `DWaveSteepestDescentSolver`, `DimodExactSolver` | <https://github.com/dwavesystems/dwave-ocean-sdk> |
-| `openjij` (+ `jij-cimod`) | Apache 2.0 | `OpenJijSolver` | <https://github.com/OpenJij/OpenJij> |
-| TYTAN-SDK (`tytan`, GitHub-only) | MIT | `HobotanMikasSolver` | <https://github.com/tytansdk/tytan> |
-| `qubovert` | Apache 2.0 | `QubovertSolver` | <https://github.com/jiosue/qubovert> |
-| `simulated-bifurcation` | MIT | `SimulatedBifurcationSolver` | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
-| `cplex` | proprietary (IBM ILOG; license required at runtime) | `CplexSolver` | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
-| `qiskit` (+ `qiskit-optimization`, `qiskit-algorithms`) | Apache 2.0 | `QiskitOptimizationSolver` | <https://github.com/Qiskit/qiskit> |
-| `ortools` | Apache 2.0 | `OrToolsCpSatSolver` | <https://github.com/google/or-tools> |
-| `torch` (PyTorch; transitive dep of TYTAN-SDK and Simulated Bifurcation) | BSD 3-Clause | (used by Hobotan MIKAS / SB on CPU/GPU) | <https://pytorch.org/> |
+For experimental-backend usage, the unified `num_reads` / `time_limit`
+semantics, and per-backend caveats, see
+[Experimental Solver Support](python/EXPERIMENTAL_SOLVERS).

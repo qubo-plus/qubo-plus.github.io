@@ -72,39 +72,34 @@ QUBO++ はライセンスキーなしで使用できます。
 
 # サードパーティライブラリ
 
-- **Boost C++ Libraries**
-  - Boost Software License, Version 1.0 の下でライセンスされています。
-  - 詳細は <https://www.boost.org/LICENSE_1_0.txt> をご覧ください。
+以下のライブラリは QUBO++ の共有ライブラリ (`qbpp_*.so`) にリンクされています：
 
-- **xxHash**
-  - BSD 2-Clause License の下でライセンスされています。
-  - Copyright © Yann Collet.
-  - 詳細は <https://opensource.org/license/bsd-2-clause/> をご覧ください。
+- **Boost C++ Libraries** — Boost Software License, Version 1.0. <https://www.boost.org/LICENSE_1_0.txt>
+- **xxHash** — BSD 2-Clause License, Copyright © Yann Collet. <https://opensource.org/license/bsd-2-clause/>
 
-- **Gurobi Optimizer** (オプション)
-  - QUBO++ には同梱・リンクされておらず、ユーザー側でインストール済みの `libgurobi*.so` を実行時に `dlopen` で読み込みます。
-    - C++: `#include <qbpp/gurobi.hpp>` を使った場合のみ
-    - Python: `qbpp.GurobiSolver` を呼び出した場合のみ
-  - 商用ライセンスが必要 (アカデミック利用は無償ライセンスあり)。
-  - 詳細: <https://www.gurobi.com> ／ C++: [Gurobi Optimizer の使い方](GUROBI) ／ Python: [Gurobi Optimizer の使い方 (PyQBPP)](python/GUROBI)
+# オプションのソルバーバックエンド
 
-## 実験的サードパーティソルバー (PyQBPP のみ)
+QUBO++ は外部のソルバーを動的ロード経由で呼び出すことができます
+（C++: `dlopen`；Python: 遅延 `import`）。**いずれも QUBO++ には同梱
+されません** — 必要なものだけインストールしてください。各パッケージは
+独自のライセンスで配布されています。**Stable**（Gurobi）はリリースを
+重ねて成熟済み、**Experimental**（その他）は 2026.05.07 で追加された
+新機能で、API は今後変更される可能性があります。
 
-以下のパッケージは QUBO++ には**同梱されません**。PyQBPP は対応する
-ソルバークラスを構築した時にのみ遅延 import します。各パッケージは
-独自のライセンスで配布されているので、必要なものだけインストール
-してください。使い方や統一 `num_reads` / `time_limit` のセマンティクス
-については [実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) を参照。
+| ソルバー | Status | 言語 | ライセンス | ソース / ドキュメント |
+|---|---|---|---|---|
+| **Gurobi Optimizer** | stable | C++ + Python | プロプライエタリ（アカデミック無償） | <https://www.gurobi.com> · [C++ の使い方](GUROBI) · [Python の使い方](python/GUROBI) |
+| **Fixstars Amplify** | experimental | Python | プロプライエタリ（クラウド SDK） | <https://amplify.fixstars.com/> |
+| **D-Wave Ocean** (6 ソルバー: QPU / Hybrid / Neal / Tabu / Steepest / Exact) | experimental | Python | Apache 2.0 | <https://github.com/dwavesystems/dwave-ocean-sdk> |
+| **OpenJij** (+ `jij-cimod`) | experimental | Python | Apache 2.0 | <https://github.com/OpenJij/OpenJij> |
+| **TYTAN-SDK** (MIKASAmpler) | experimental | Python | MIT | <https://github.com/tytansdk/tytan> |
+| **qubovert** | experimental | Python | Apache 2.0 | <https://github.com/jiosue/qubovert> |
+| **Simulated Bifurcation** | experimental | Python | MIT | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
+| **IBM CPLEX** | experimental | Python | プロプライエタリ（ライセンス必要） | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
+| **IBM Qiskit Optimization** (+ `qiskit-algorithms`) | experimental | Python | Apache 2.0 | <https://github.com/Qiskit/qiskit> |
+| **Google OR-Tools CP-SAT** | experimental | Python | Apache 2.0 | <https://github.com/google/or-tools> |
+| **PyTorch**（TYTAN-SDK / Simulated Bifurcation の推移依存） | — | Python | BSD 3-Clause | <https://pytorch.org/> |
 
-| パッケージ | ライセンス | 提供されるバックエンド | ソース |
-|---|---|---|---|
-| `amplify` | プロプライエタリ (Fixstars; クラウド SDK) | `AmplifySolver` (Fixstars AE, Fujitsu DA, Toshiba SBM, ...) | <https://amplify.fixstars.com/> |
-| `dwave-ocean-sdk` (`dimod`, `dwave-system`, `dwave-cloud-client`, `dwave-samplers`) | Apache 2.0 | `DWaveSolver` (Advantage QPU), `DWaveHybridSolver`, `DWaveNealSolver`, `DWaveTabuSolver`, `DWaveSteepestDescentSolver`, `DimodExactSolver` | <https://github.com/dwavesystems/dwave-ocean-sdk> |
-| `openjij` (+ `jij-cimod`) | Apache 2.0 | `OpenJijSolver` | <https://github.com/OpenJij/OpenJij> |
-| TYTAN-SDK (`tytan`, GitHub のみ) | MIT | `HobotanMikasSolver` | <https://github.com/tytansdk/tytan> |
-| `qubovert` | Apache 2.0 | `QubovertSolver` | <https://github.com/jiosue/qubovert> |
-| `simulated-bifurcation` | MIT | `SimulatedBifurcationSolver` | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
-| `cplex` | プロプライエタリ (IBM ILOG; 実行時にライセンス必要) | `CplexSolver` | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
-| `qiskit` (+ `qiskit-optimization`, `qiskit-algorithms`) | Apache 2.0 | `QiskitOptimizationSolver` | <https://github.com/Qiskit/qiskit> |
-| `ortools` | Apache 2.0 | `OrToolsCpSatSolver` | <https://github.com/google/or-tools> |
-| `torch` (PyTorch; TYTAN-SDK / Simulated Bifurcation の推移依存) | BSD 3-Clause | (Hobotan MIKAS / SB の CPU/GPU 実行で使用) | <https://pytorch.org/> |
+experimental バックエンドの使い方、統一 `num_reads` / `time_limit` の
+セマンティクス、各バックエンドの注意点については
+[実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) を参照してください。
