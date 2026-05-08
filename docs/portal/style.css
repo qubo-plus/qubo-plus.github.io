@@ -23,19 +23,34 @@ body {
 
 header {
   background: var(--card);
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 2rem;
   border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
 }
-
+header .header-row {
+  display: flex; flex-wrap: wrap; justify-content: space-between;
+  align-items: center; gap: 1rem;
+}
 header h1 { margin: 0; font-size: 1.4rem; color: var(--primary); }
-header .subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; width: 100%; }
+header .subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
 
-nav#topnav { display: flex; gap: 0.75rem; align-items: center; }
+nav#topnav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+nav#topnav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+nav#topnav a:hover { background: rgba(0,0,0,0.04); }
+nav#topnav a.active { color: var(--primary); font-weight: 600; }
+nav#topnav .sep { color: var(--border); }
 nav#topnav #user-email { color: var(--muted); font-size: 0.9rem; }
+nav#topnav .secondary-sm {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); padding: 0.25rem 0.6rem;
+  border-radius: 4px; font-size: 0.85rem;
+}
+nav#topnav .secondary-sm:hover { background: rgba(0,0,0,0.04); }
 
 main {
   max-width: 560px;
@@ -65,7 +80,7 @@ label small {
   margin-top: 0.2rem;
 }
 
-input, textarea {
+input, textarea, select {
   display: block;
   width: 100%;
   padding: 0.5rem 0.6rem;
@@ -74,8 +89,32 @@ input, textarea {
   border-radius: 4px;
   font: inherit;
   font-size: 1rem;
+  background: #fff;
 }
 textarea { resize: vertical; }
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 480px) {
+  .row-2 { grid-template-columns: 1fr; gap: 0; }
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1rem;
+}
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0.2rem 0 0;
+  flex-shrink: 0;
+}
+.checkbox-label span { line-height: 1.4; }
 
 button {
   background: var(--primary);
@@ -119,12 +158,47 @@ button:disabled { opacity: 0.6; cursor: wait; }
 }
 .muted { color: var(--muted); font-size: 0.9rem; margin-top: 1.25rem; }
 
+.section-h { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
 .license-card {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 1rem;
   margin-bottom: 1rem;
   background: #fff;
+}
+.license-card.inactive { opacity: 0.7; background: #fafafa; }
+.license-card.inactive code { color: var(--muted); }
+
+#dashboard-actions { margin: 1rem 0; }
+#dashboard-actions small { display: block; margin-top: 0.4rem; }
+
+.activation-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.75rem 1rem; margin-bottom: 0.5rem;
+  background: #fff; gap: 1rem;
+}
+.activation-row .meta-stack { flex: 1; min-width: 0; }
+.activation-row .meta-stack > div { word-break: break-all; }
+.activation-row .small { font-size: 0.8rem; }
+
+details { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.75rem 1rem; background: var(--card); }
+details summary { cursor: pointer; padding: 0.25rem 0; }
+details[open] summary { margin-bottom: 0.75rem; }
+details.danger { border-color: #f5c2c0; }
+details.danger summary strong { color: var(--error); }
+
+button.danger { background: var(--error); }
+button.danger:hover { background: #9c2516; }
+.warn {
+  background: #fff8e1; border: 1px solid #f0d39a; padding: 0.6rem 0.8rem;
+  border-radius: 4px; font-size: 0.9rem; color: #6b4f00;
+}
+
+.forgot-link {
+  display: block; margin-top: 0.5rem; font-size: 0.85rem; color: var(--primary);
 }
 .license-card .key-row {
   display: flex;

@@ -10,20 +10,38 @@
 <body>
 
 <header>
-  <h1>QUBO++ User Portal</h1>
-  <p class="subtitle">Sign up to receive a free trial license key.</p>
-  <nav id="topnav" hidden>
-    <span id="user-email"></span>
-    <button id="signout-btn" type="button">Sign out</button>
-  </nav>
+  <div class="header-row">
+    <h1>QUBO++ User Portal</h1>
+    <nav id="topnav" hidden>
+      <a href="#/dashboard" data-tab="dashboard">Dashboard</a>
+      <a href="#/profile" data-tab="profile">Profile</a>
+      <a href="#/account" data-tab="account">Account</a>
+      <span class="sep">|</span>
+      <span id="user-email"></span>
+      <button id="signout-btn" type="button" class="secondary-sm">Sign out</button>
+    </nav>
+  </div>
+  <p class="subtitle" id="subtitle">Sign up to receive a free trial license key.</p>
 </header>
 
 <main id="app">
   <!-- ============== Sign-up ============== -->
   <section class="view" data-view="signup">
     <h2>Create an account</h2>
-    <p>30-day free trial · 10,000 binary variables · CPU and GPU.</p>
+    <p class="muted" style="margin-top:0.5rem">
+      <strong>Before signing up:</strong> install QUBO++ on a Linux machine,
+      then run <code>qbpp-license -s</code>. Your terminal will print today's
+      8-character <em>Sign-up code</em>. Enter it below.
+      <a href="../en/INSTALL.html" target="_blank" rel="noopener">Installation guide →</a>
+    </p>
     <form id="signup-form">
+      <label>Sign-up code <span class="req">*</span>
+        <input type="text" name="trial_code" required maxlength="8" minlength="8"
+               pattern="[A-Z0-9a-z]{8}" placeholder="e.g. ABCD2345" autocomplete="off"
+               style="text-transform:uppercase">
+        <small>Output of <code>qbpp-license -s</code>. Codes rotate daily;
+          the server accepts yesterday / today / tomorrow's codes (UTC).</small>
+      </label>
       <label>Email
         <input type="email" name="email" required autocomplete="email">
       </label>
@@ -31,15 +49,38 @@
         <input type="password" name="password" required minlength="12" autocomplete="new-password">
         <small>At least 12 characters, mixing upper, lower, and digit.</small>
       </label>
+      <div class="row-2">
+        <label>First name <span class="req">*</span>
+          <input type="text" name="first_name" required maxlength="64" autocomplete="given-name">
+        </label>
+        <label>Last name <span class="req">*</span>
+          <input type="text" name="last_name" required maxlength="64" autocomplete="family-name">
+        </label>
+      </div>
       <label>Organization <span class="req">*</span>
-        <input type="text" name="organization" required maxlength="256" placeholder="University / Company name">
+        <input type="text" name="organization" required maxlength="256" placeholder="University / Company name" autocomplete="organization">
+      </label>
+      <label>Position / role
+        <select name="position">
+          <option value="">— Select (optional) —</option>
+          <option value="Engineer">Engineer</option>
+          <option value="Faculty">Faculty</option>
+          <option value="Other">Other</option>
+          <option value="Researcher">Researcher</option>
+          <option value="Student">Student</option>
+        </select>
+      </label>
+      <label>Country <span class="req">*</span>
+        <input type="text" name="country" required maxlength="64" placeholder="e.g. Japan, United States, Germany" autocomplete="country-name">
       </label>
       <label>Purpose <span class="req">*</span>
         <textarea name="purpose" required maxlength="1024" rows="3"
                   placeholder="What will you use QUBO++ for? (research, evaluation, project name, etc.)"></textarea>
       </label>
-      <label>Country (optional)
-        <input type="text" name="country" maxlength="64" placeholder="JP">
+      <label class="checkbox-label">
+        <input type="checkbox" name="agree" required>
+        <span>I have read and agree to the
+          <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ Trial License Terms of Service</a>.</span>
       </label>
       <button type="submit">Create account</button>
       <p class="error" id="signup-error" hidden></p>
@@ -74,29 +115,158 @@
         <input type="password" name="password" required autocomplete="current-password">
       </label>
       <button type="submit">Sign in</button>
+      <a href="#/forgot" class="forgot-link">Forgot password?</a>
       <p class="error" id="signin-error" hidden></p>
     </form>
     <p class="muted">No account? <a href="#/signup">Create one</a></p>
   </section>
 
+  <!-- ============== Forgot password ============== -->
+  <section class="view" data-view="forgot" hidden>
+    <h2>Reset password</h2>
+    <p>Enter your email — we'll send a verification code.</p>
+    <form id="forgot-request-form">
+      <label>Email
+        <input type="email" name="email" required autocomplete="email">
+      </label>
+      <button type="submit">Send code</button>
+      <p class="error" id="forgot-request-error" hidden></p>
+    </form>
+
+    <form id="forgot-confirm-form" hidden>
+      <p>Code sent to <strong id="forgot-email"></strong>.</p>
+      <label>Verification code
+        <input type="text" name="code" required pattern="[0-9]{6}" inputmode="numeric" maxlength="6">
+      </label>
+      <label>New password
+        <input type="password" name="password" required minlength="12">
+      </label>
+      <button type="submit">Reset password</button>
+      <p class="error" id="forgot-confirm-error" hidden></p>
+    </form>
+    <p class="muted"><a href="#/signin">Back to sign in</a></p>
+  </section>
+
   <!-- ============== Dashboard ============== -->
   <section class="view" data-view="dashboard" hidden>
-    <h2>Your license</h2>
+    <h2>Your licenses</h2>
     <div id="dashboard-loading" class="info">Loading…</div>
     <div id="dashboard-empty" hidden>
-      <p>No license yet. Click below to issue your trial key.</p>
+      <p>No active license. Click below to issue a trial key.</p>
       <button type="button" id="issue-btn">Issue trial license</button>
       <p class="error" id="issue-error" hidden></p>
     </div>
     <div id="license-list" hidden></div>
+    <div id="dashboard-actions" hidden>
+      <button type="button" id="reissue-btn" class="secondary">Issue a new trial</button>
+      <small class="muted">Available when your previous trial is expired or suspended.</small>
+    </div>
+
+    <h3 class="section-h">Activated machines</h3>
+    <div id="activations-list">Loading…</div>
+
     <details class="howto">
-      <summary>How to use this key</summary>
+      <summary>How to use a license key</summary>
       <pre><code># Linux (after installing the qbpp APT package):
 qbpp-license activate <span class="placeholder">YOUR-LICENSE-KEY</span>
 
 # Then run any program built with QUBO++. The library reads the
 # cached activation from ~/.qbpp/license_cache automatically.</code></pre>
       <p>Full documentation: <a href="../en/LICENSE_MANAGEMENT.html">License Management</a></p>
+    </details>
+  </section>
+
+  <!-- ============== Profile ============== -->
+  <section class="view" data-view="profile" hidden>
+    <h2>Profile</h2>
+    <form id="profile-form">
+      <label>Email <small class="muted">(change in Account tab)</small>
+        <input type="email" name="email" disabled>
+      </label>
+      <div class="row-2">
+        <label>First name <span class="req">*</span>
+          <input type="text" name="first_name" required maxlength="64">
+        </label>
+        <label>Last name <span class="req">*</span>
+          <input type="text" name="last_name" required maxlength="64">
+        </label>
+      </div>
+      <label>Organization <span class="req">*</span>
+        <input type="text" name="organization" required maxlength="256">
+      </label>
+      <label>Position / role
+        <select name="position">
+          <option value="">— Select (optional) —</option>
+          <option value="Engineer">Engineer</option>
+          <option value="Faculty">Faculty</option>
+          <option value="Other">Other</option>
+          <option value="Researcher">Researcher</option>
+          <option value="Student">Student</option>
+        </select>
+      </label>
+      <label>Country <span class="req">*</span>
+        <input type="text" name="country" required maxlength="64" autocomplete="country-name">
+      </label>
+      <label>Purpose <span class="req">*</span>
+        <textarea name="purpose" required maxlength="1024" rows="3"></textarea>
+      </label>
+      <button type="submit">Save changes</button>
+      <p class="error" id="profile-error" hidden></p>
+      <p class="info" id="profile-info" hidden></p>
+    </form>
+  </section>
+
+  <!-- ============== Account ============== -->
+  <section class="view" data-view="account" hidden>
+    <h2>Account</h2>
+
+    <details open>
+      <summary><strong>Change password</strong></summary>
+      <form id="password-form">
+        <label>Current password
+          <input type="password" name="current" required autocomplete="current-password">
+        </label>
+        <label>New password
+          <input type="password" name="next" required minlength="12" autocomplete="new-password">
+        </label>
+        <button type="submit">Change password</button>
+        <p class="error" id="password-error" hidden></p>
+        <p class="info" id="password-info" hidden></p>
+      </form>
+    </details>
+
+    <details>
+      <summary><strong>Change email</strong></summary>
+      <form id="email-form">
+        <label>New email address
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <button type="submit">Send verification code</button>
+        <p class="error" id="email-error" hidden></p>
+      </form>
+      <form id="email-verify-form" hidden>
+        <p>Verification code sent to <strong id="email-pending"></strong>.</p>
+        <label>Code
+          <input type="text" name="code" required pattern="[0-9]{6}" inputmode="numeric" maxlength="6">
+        </label>
+        <button type="submit">Confirm new email</button>
+        <p class="error" id="email-verify-error" hidden></p>
+        <p class="info" id="email-verify-info" hidden></p>
+      </form>
+    </details>
+
+    <details class="danger">
+      <summary><strong>Delete account</strong></summary>
+      <p class="warn">All your portal-issued licenses will be <strong>suspended</strong>
+        and any activations dropped. Audit records are retained for 90 days
+        per legal/compliance requirements. This cannot be undone.</p>
+      <form id="delete-form">
+        <label>Type <code>DELETE</code> to confirm
+          <input type="text" name="confirm" required pattern="DELETE" autocomplete="off">
+        </label>
+        <button type="submit" class="danger">Delete my account</button>
+        <p class="error" id="delete-error" hidden></p>
+      </form>
     </details>
   </section>
 </main>
