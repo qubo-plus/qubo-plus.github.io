@@ -27,6 +27,10 @@
     document.querySelectorAll("nav#topnav [data-tab]").forEach((a) => {
       a.classList.toggle("active", a.dataset.tab === view);
     });
+    // Wide layout for authenticated tabs that benefit from more horizontal
+    // room (license cards, activation details).
+    const wide = view === "dashboard" || view === "profile" || view === "account";
+    document.getElementById("app").classList.toggle("wide", wide);
   }
   function setError(el, msg) {
     if (!msg) { el.hidden = true; el.textContent = ""; return; }
@@ -45,6 +49,40 @@
     return String(s).replace(/[&<>"']/g, (c) => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     }[c]));
+  }
+
+  // Browsers (Chrome/Edge/Firefox/Safari) won't offer to save passwords for
+  // SPA forms with preventDefault() + hash routing. The Credential Management
+  // API lets us explicitly request save / update. No-ops on browsers that
+  // lack PasswordCredential support.
+  //
+  // We try the form-based PasswordCredential(form) constructor first (which
+  // Chrome's password manager treats more like a real form submission) and
+  // fall back to the dictionary form. Logs to console for diagnosability.
+  // Browsers won't reliably offer to save passwords for SPA forms with
+  // preventDefault() + hash routing. Use the dictionary form of
+  // PasswordCredential (the form-element form has stricter Chrome
+  // validation that we can't always satisfy). Logs to console.
+  async function saveCredential(email, password) {
+    if (!window.PasswordCredential || !navigator.credentials || !navigator.credentials.store) {
+      console.warn("[QUBO++] PasswordCredential API not available; password not saved.");
+      return;
+    }
+    if (!email || !password) {
+      console.warn("[QUBO++] saveCredential: missing email or password, skipping.");
+      return;
+    }
+    try {
+      const cred = new window.PasswordCredential({
+        id: email,
+        password: password,
+        name: email,
+      });
+      const stored = await navigator.credentials.store(cred);
+      console.log("[QUBO++] Credential stored:", stored ? stored.id : "(null result — Chrome may show key icon in address bar instead of a popup)");
+    } catch (e) {
+      console.warn("[QUBO++] saveCredential failed:", e);
+    }
   }
 
   function getCurrentUser() { return userPool.getCurrentUser(); }
@@ -198,7 +236,7 @@
     const sub = $("#subtitle");
     if (!u) {
       nav.hidden = true;
-      sub.textContent = "Sign up to receive a free trial license key.";
+      sub.textContent = "Create your QUBO++ account. A Trial License is issued automatically.";
       return;
     }
     u.getSession((err, session) => {
@@ -215,15 +253,25 @@
   }
 
   // -------- Dashboard --------
+  function fmtDateTime(unix) {
+    const d = new Date(unix * 1000);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ` +
+           `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
   function fmtExpiry(item) {
     const now = Math.floor(Date.now() / 1000);
     if (item.suspended) return "Suspended";
     if (item.expiry && item.expiry > 0) {
-      const d = new Date(item.expiry * 1000).toISOString().slice(0, 10);
-      return item.expiry < now ? `Expired (${d})` : `Expires ${d}`;
+      const ts = fmtDateTime(item.expiry);
+      return item.expiry < now ? `Expired at: ${ts}` : `Expires at: ${ts}`;
     }
-    if (item.expiry_days) {
-      return `${item.expiry_days}-day window starts on first \`qbpp-license activate\``;
+    // expiry not yet started — typical for admin-issued node_locked / floating
+    // licenses where the v2 Lambda computes the deadline on first activate /
+    // checkout. Show the configured duration so the user isn't surprised.
+    if (item.expiry_days && item.expiry_days > 0) {
+      const verb = (item.license_type === "floating") ? "first checkout" : "first activate";
+      return `${item.expiry_days}-day window — clock starts on ${verb}`;
     }
     return "No expiry";
   }
@@ -237,35 +285,120 @@
   function renderLicense(lic) {
     const status = fmtExpiry(lic);
     const cls = isActive(lic) ? "active" : "inactive";
+    const isPortalTrial = lic.source === "portal_trial";
+    let renewBtn = "";
+    if (isPortalTrial) {
+      // Renew is gated server-side; the SPA mirrors the same check using
+      // renew_available_at so the button explains itself before the click.
+      const now = Math.floor(Date.now() / 1000);
+      const avail = Number(lic.renew_available_at || 0);
+      const expired = lic.expiry && lic.expiry > 0 && lic.expiry < now;
+      const allowed = expired || !avail || now >= avail;
+      if (allowed) {
+        renewBtn = `<button type="button" class="secondary" data-renew="1" title="Delete this key and issue a new one">Renew</button>`;
+      } else {
+        const dt = fmtDateTime(avail);
+        renewBtn = `<button type="button" class="secondary" data-renew="1" disabled title="Renew available from ${escapeHTML(dt)}">Renew</button>`;
+      }
+    }
     return `
       <div class="license-card ${cls}">
         <h3>${escapeHTML(lic.license_name || lic.license_type || "License")}</h3>
         <div class="key-row">
           <code>${escapeHTML(lic.license_key)}</code>
           <button type="button" class="secondary" data-copy="${escapeHTML(lic.license_key)}">Copy</button>
+          ${renewBtn}
         </div>
         <div class="meta"><strong>Type:</strong> ${escapeHTML(lic.license_type || "node_locked")}</div>
-        <div class="meta"><strong>Limits:</strong> ${lic.max_var_count.toLocaleString()} CPU vars / ${lic.gpu_max_var_count.toLocaleString()} GPU vars</div>
+        <div class="meta"><strong>Limits:</strong> ${fmtVarCount(lic.max_var_count)} CPU vars / ${fmtVarCount(lic.gpu_max_var_count)} GPU vars</div>
         <div class="meta"><strong>Status:</strong> ${escapeHTML(status)}</div>
       </div>`;
   }
 
-  function renderActivation(act) {
-    const lastSeen = act.last_verified
-      ? new Date(act.last_verified).toISOString().slice(0, 10)
-      : (act.activated_at ? new Date(act.activated_at).toISOString().slice(0, 10) : "?");
-    const id = `${act.license_key}::${act.machine_id}`;
+  async function renewLicense(btn) {
+    if (!confirm(
+      "This will permanently delete your current Trial License key and any " +
+      "machine activations bound to it, then issue a fresh Trial License key " +
+      "under your account. Continue?"
+    )) return;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = "Renewing…";
+    try {
+      const data = await apiFetch("/me/trial/renew", { method: "POST" });
+      await loadDashboard();
+      alert("New license issued: " + data.license_key);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      alert("Could not renew: " + e.message);
+    }
+  }
+
+  // Negative values are an "unlimited" sentinel from the C++ client; cap them
+  // to the QUBO++ vindex_t maximum (2^31 - 1) for human display.
+  const MAX_VAR_DISPLAY = 2147483647;
+  function fmtVarCount(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num) || num < 0 || num >= MAX_VAR_DISPLAY) {
+      return MAX_VAR_DISPLAY.toLocaleString();
+    }
+    return num.toLocaleString();
+  }
+
+  function fmtIsoLocal(iso) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "-";
+    return fmtDateTime(Math.floor(d.getTime() / 1000));
+  }
+
+  function renderActivation(act, licenseLabelMap) {
+    const labelInfo = (licenseLabelMap && licenseLabelMap[act.license_key]) || {};
+    const licName = labelInfo.name || "(unnamed)";
+    const licenseLine = `${escapeHTML(licName)} · <code>${escapeHTML(act.license_key)}</code>`;
+    const isFloating = act.kind === "floating_session";
+
+    // Label per row type: node-locked is permanent until explicit deactivate;
+    // floating is a transient session keyed by session_id.
+    const lastVerifiedLabel = isFloating ? "Last Heartbeat" : "Last Verified";
+    const startedLabel       = isFloating ? "Checked Out"   : "Activated";
+    const lastVerifiedTs = fmtIsoLocal(act.last_verified);
+    const startedTs      = fmtIsoLocal(act.activated_at);
+    const buttonLabel    = isFloating ? "Release" : "Deactivate";
+    // For floating: only show button while the session is still in lease.
+    const buttonHtml = (isFloating && !act.session_active)
+      ? ""
+      : `<button type="button" class="secondary deactivate-btn"
+            data-license="${escapeHTML(act.license_key)}"
+            data-machine="${escapeHTML(act.machine_id)}"
+            data-floating="${isFloating ? "1" : "0"}">${buttonLabel}</button>`;
+
+    let statusBadge = "";
+    if (isFloating) {
+      statusBadge = act.session_active
+        ? ` <span class="meta-tag tag-active">Active session · ${act.lease_remaining_seconds}s lease left</span>`
+        : ` <span class="meta-tag tag-inactive">Last checkout (released)</span>`;
+    }
+
     return `
-      <div class="activation-row">
+      <div class="activation-row${isFloating ? " floating-row" : ""}">
+        ${buttonHtml}
         <div class="meta-stack">
-          <div><strong>${escapeHTML(act.hostname || "(unknown host)")}</strong>
-            <span class="muted">${escapeHTML(act.os || "")}</span></div>
-          <div class="muted small">user=${escapeHTML(act.user || "?")} · last verified=${escapeHTML(lastSeen)}</div>
-          <div class="muted small">key=${escapeHTML(act.license_key)} · machine=${escapeHTML(act.machine_id.slice(0,12))}…</div>
+          <div class="host-row">
+            <strong>${escapeHTML(act.hostname || "(unknown host)")}</strong>
+            <span class="muted">${escapeHTML(act.user || "(unknown user)")}</span>
+            ${statusBadge}
+          </div>
+          <div class="meta"><strong>License:</strong> ${licenseLine}</div>
+          <div class="meta"><strong>${startedLabel}:</strong> ${escapeHTML(startedTs)}</div>
+          <div class="meta"><strong>${lastVerifiedLabel}:</strong> ${escapeHTML(lastVerifiedTs)}</div>
+          <div class="meta"><strong>IP:</strong> ${escapeHTML(act.ip || "-")}${act.country ? " (" + escapeHTML(act.country) + ")" : ""}</div>
+          <div class="meta"><strong>OS:</strong> ${escapeHTML(act.os || "-")}</div>
+          <div class="meta"><strong>CPU:</strong> ${escapeHTML(act.cpu || "-")}</div>
+          <div class="meta"><strong>GPU:</strong> ${escapeHTML(act.gpu || "-")}</div>
+          <div class="meta"><strong>RAM:</strong> ${escapeHTML(act.ram || "-")}</div>
         </div>
-        <button type="button" class="secondary deactivate-btn"
-          data-license="${escapeHTML(act.license_key)}"
-          data-machine="${escapeHTML(act.machine_id)}">Deactivate</button>
       </div>`;
   }
 
@@ -280,8 +413,9 @@
     loading.hidden = false; empty.hidden = true; list.hidden = true; actions.hidden = true;
     list.innerHTML = "";
 
+    let data = null;  // Hoisted so the Activations block can read data.licenses
     try {
-      let data = await apiFetch("/me/licenses");
+      data = await apiFetch("/me/licenses");
       const hasActive = (data.licenses || []).some(isActive);
       if (!hasActive) {
         // Heal the case where PostConfirmation trigger failed, or user was missing one
@@ -306,6 +440,9 @@
             });
           });
         });
+        list.querySelectorAll("[data-renew]").forEach((btn) => {
+          btn.addEventListener("click", () => renewLicense(btn));
+        });
         // Show "Issue a new trial" only when the user has no active trial
         actions.hidden = hasActive;
       }
@@ -320,9 +457,17 @@
     try {
       const aData = await apiFetch("/me/activations");
       if (!aData.activations || aData.activations.length === 0) {
-        acts.innerHTML = '<p class="muted">No activated machines. Run <code>qbpp-license activate &lt;KEY&gt;</code> on a Linux machine to use a license key.</p>';
+        acts.innerHTML = '<p class="muted">No activated machines yet.</p>';
       } else {
-        acts.innerHTML = aData.activations.map(renderActivation).join("");
+        // Build a lookup map license_key -> { name } so each activation can
+        // show which license it belongs to.
+        const licenseMap = {};
+        for (const lic of (data && data.licenses) || []) {
+          licenseMap[lic.license_key] = { name: lic.license_name };
+        }
+        acts.innerHTML = aData.activations
+          .map((a) => renderActivation(a, licenseMap))
+          .join("");
         acts.querySelectorAll(".deactivate-btn").forEach((btn) => {
           btn.addEventListener("click", () => deactivate(btn));
         });
@@ -333,8 +478,10 @@
   }
 
   async function deactivate(btn) {
-    if (!confirm(`Deactivate this machine?\n\n${btn.dataset.machine.slice(0,16)}…`)) return;
-    btn.disabled = true; btn.textContent = "Deactivating…";
+    const isFloating = btn.dataset.floating === "1";
+    const verb = isFloating ? "Release this Floating session" : "Deactivate this machine";
+    if (!confirm(`${verb}?\n\n${btn.dataset.machine.slice(0,16)}…`)) return;
+    btn.disabled = true; btn.textContent = isFloating ? "Releasing…" : "Deactivating…";
     try {
       await apiFetch("/me/activations/delete", {
         method: "POST",
@@ -392,7 +539,7 @@
 
   // -------- Routing --------
   function route() {
-    const hash = location.hash || "#/signup";
+    const hash = location.hash || "#/signin";
     const u = getCurrentUser();
     const authedRoutes = ["#/dashboard", "#/profile", "#/account"];
 
@@ -417,12 +564,13 @@
       $("#forgot-request-form").hidden = false;
       $("#forgot-confirm-form").hidden = true;
       show("forgot"); renderTopnav();
-    } else if (hash === "#/signin") {
-      show("signin"); renderTopnav();
-    } else {
-      // Default: signup. But if signed in, send to dashboard.
-      if (u && hash === "#/signup") { location.hash = "#/dashboard"; return; }
+    } else if (hash.startsWith("#/signup")) {
+      if (u) { location.hash = "#/dashboard"; return; }
       show("signup"); renderTopnav();
+    } else {
+      // Default: signin. If already signed in, send to dashboard.
+      if (u) { location.hash = "#/dashboard"; return; }
+      show("signin"); renderTopnav();
     }
   }
 
@@ -441,12 +589,13 @@
       first_name: f.first_name.value.trim(),
       last_name: f.last_name.value.trim(),
       organization: f.organization.value.trim(),
-      position: f.position.value,
+      position: f.position.value.trim(),
       country: f.country.value.trim(),
       purpose: f.purpose.value.trim(),
     };
     try {
       await signUp(data);
+      await saveCredential(data.email, data.password);
       location.hash = "#/verify?email=" + encodeURIComponent(data.email);
     } catch (e) {
       setError($("#signup-error"), e.message || "Sign up failed.");
@@ -483,8 +632,11 @@
     const f = ev.currentTarget;
     setError($("#signin-error"), "");
     disable(f, true);
+    const email = f.email.value.trim().toLowerCase();
+    const password = f.password.value;
     try {
-      await signIn(f.email.value.trim().toLowerCase(), f.password.value);
+      await signIn(email, password);
+      await saveCredential(email, password);
       location.hash = "#/dashboard";
     } catch (e) {
       setError($("#signin-error"), e.message || "Sign in failed.");
@@ -513,12 +665,58 @@
     setError($("#forgot-confirm-error"), "");
     disable(f, true);
     const email = $("#forgot-email").textContent.trim();
+    const newPassword = f.password.value;
     try {
-      await forgotPasswordConfirm(email, f.code.value.trim(), f.password.value);
-      location.hash = "#/signin";
+      await forgotPasswordConfirm(email, f.code.value.trim(), newPassword);
+      // Sign the user in immediately with the new password and jump to the
+      // dashboard. Otherwise browser autofill on /signin can replay the old
+      // saved password and look like the reset failed.
+      try {
+        await signIn(email, newPassword);
+        await saveCredential(email, newPassword);
+        location.hash = "#/dashboard";
+      } catch (signInErr) {
+        // Fallback: just send them to signin with their freshly set credentials.
+        await saveCredential(email, newPassword);
+        location.hash = "#/signin";
+      }
     } catch (e) {
       setError($("#forgot-confirm-error"), e.message || "Reset failed.");
     } finally { disable(f, false); }
+  });
+
+  $("#btn-dashboard-refresh").addEventListener("click", async () => {
+    const btn = $("#btn-dashboard-refresh");
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = "Refreshing…";
+    try {
+      await loadDashboard();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  });
+
+  $("#redeem-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const f = ev.currentTarget;
+    setError($("#redeem-error"), ""); setInfo($("#redeem-info"), "");
+    const code = f.code.value.trim().toUpperCase();
+    if (!code) return;
+    disable(f, true);
+    try {
+      const data = await apiFetch("/me/activation/redeem",
+        { method: "POST", body: { code: code } });
+      setInfo($("#redeem-info"),
+        "License issued: " + data.license_key + " — refreshing your dashboard…");
+      f.code.value = "";
+      await loadDashboard();
+    } catch (e) {
+      setError($("#redeem-error"), e.message || "Could not redeem code.");
+    } finally {
+      disable(f, false);
+    }
   });
 
   $("#issue-btn").addEventListener("click", async () => {
@@ -529,12 +727,12 @@
       await apiFetch("/trial/issue", { method: "POST" });
       await loadDashboard();
     } catch (e) {
-      setError($("#issue-error"), e.message || "Could not issue trial.");
+      setError($("#issue-error"), e.message || "Could not issue Trial License.");
     } finally { btn.disabled = false; }
   });
 
   $("#reissue-btn").addEventListener("click", async () => {
-    if (!confirm("Issue a new trial license? Your previous trial must be expired or suspended.")) return;
+    if (!confirm("Issue a new Trial License? Your previous Trial License must be expired or suspended.")) return;
     const btn = $("#reissue-btn");
     btn.disabled = true;
     try {
@@ -556,7 +754,7 @@
         "given_name": f.first_name.value.trim(),
         "family_name": f.last_name.value.trim(),
         "custom:organization": f.organization.value.trim(),
-        "custom:position": f.position.value,
+        "custom:position": f.position.value.trim(),
         "custom:country": f.country.value.trim(),
         "custom:purpose": f.purpose.value.trim(),
       });
@@ -571,8 +769,14 @@
     const f = ev.currentTarget;
     setError($("#password-error"), ""); setInfo($("#password-info"), "");
     disable(f, true);
+    const newPassword = f.next.value;
     try {
-      await changePassword(f.current.value, f.next.value);
+      await changePassword(f.current.value, newPassword);
+      try {
+        const { user } = await getValidSession();
+        const attrs = await getUserAttrs(user);
+        if (attrs.email) await saveCredential(attrs.email, newPassword);
+      } catch (_) { /* credential save failure is non-fatal */ }
       setInfo($("#password-info"), "Password updated.");
       f.reset();
     } catch (e) {

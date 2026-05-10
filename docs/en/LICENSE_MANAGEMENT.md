@@ -18,19 +18,31 @@ QUBO++ offers several license types with different variable count limits and val
 
 | License Type | Key Required | Validity | CPU Variables | GPU Variables |
 |---|---|---|---|---|
-| **Anonymous Trial** | No | 7 days | 1,000 | 1,000 |
-| **Registered Trial** | Yes | 30 days | 10,000 | 10,000 |
-| **Standard** | Yes | Agreement term | 2,147,483,647 | 1,000 |
+| **Trial** | Yes | 30 days (renewable) | 10,000 | 10,000 |
+| **Standard** | Yes | Agreement term | 2,147,483,647 | 10,000 |
 | **Professional** | Yes | Agreement term | 2,147,483,647 | 2,147,483,647 |
 | **Fallback** | N/A | Always | 100 | 100 |
 
-- **Anonymous Trial**: No registration required. Automatically activated on first use.
-- **Registered Trial**: Requires a free license key for evaluation purposes. [Apply here](https://docs.google.com/forms/d/e/1FAIpQLSd0SsTJE3TF435rPus256BKhM3-4pNougsA_85W3F4Oi_aOUQ/viewform).
+- **Trial License**: Free, self-service. Sign up at the [QUBO++ User Portal](https://qubo-plus.github.io/portal/) using the sign-up code printed by `qbpp-license -s`. The Trial license is delivered via email on completion of registration.
 - **Standard License**: For production use. Supports large-scale CPU optimization.
 - **Professional License**: For production use with GPU acceleration (ABS3 Solver, Exhaustive Solver).
-- **Fallback Mode**: When no valid license is found or the license has expired, QUBO++ runs with a 100-variable limit.
+- **Fallback Mode**: When no valid license is set, the license is suspended, or the cache has expired with no network, QUBO++ runs with a 100-variable limit.
+
+## Obtaining a Trial License
+
+1. Install QUBO++ on a Linux machine.
+2. Run `qbpp-license -s` — your terminal prints today's 8-character sign-up code along with the portal URL.
+3. Open <https://qubo-plus.github.io/portal/>, fill the sign-up form, and enter the code from step 2.
+4. After confirming your email, the portal displays your Trial license key (`T-PREFIX-XXXXXX-XXXXXX-XXXXXX`, where PREFIX is derived from your email local part).
+5. Activate the key on your machine: `qbpp-license -k T-... -a`.
+
+The 30-day Trial clock starts the moment you activate the key, not at sign-up time. Within the final week before expiry, the User Portal allows you to renew the Trial — issuing a fresh 30-day key.
 
 ## Setting and Activating the License Key
+
+> **Scope of this section:** the activation flow described below — together with [Checking License Status](#checking-license-status) and [Deactivating a License](#deactivating-a-license) — applies to **node-locked licenses** (Trial, Standard, Professional with single-machine keys). Activation binds the key to a specific physical machine. For floating licenses, see [Floating Licenses](#floating-licenses) at the bottom of this page.
+>
+> **Virtual environments (Docker, VMs, ephemeral containers, etc.) are not supported with node-locked licenses.** The machine fingerprint may not be stable, activation may fail, or the cached activation may be lost when the container is rebuilt — leaving the deactivation slot stranded on the server. If you need to run QUBO++ inside a virtual environment, use a **floating license**, which is designed for this case and works without any per-machine activation.
 
 If you have a license key, set it using one of the following methods.
 
@@ -62,7 +74,7 @@ When multiple methods are used, the following priority applies:
 2. **`QBPP_LICENSE_KEY` environment variable**
 3. **Cached key** (lowest)
 
-> **Note**: For Anonymous Trial, no license key is needed. Simply run `qbpp-license -a` without setting a key.
+> **Note**: A Trial license key is required even for evaluation. Run `qbpp-license -s` to obtain a sign-up code, then register at the [User Portal](https://qubo-plus.github.io/portal/) to receive your Trial key.
 
 ## Checking License Status
 
@@ -84,7 +96,6 @@ qbpp-license -d
 
 - Each license key has a limited number of allowed activations.
 - Deactivation frees up one activation slot.
-- **Anonymous Trial** licenses cannot be deactivated.
 - There is a **24-hour cooldown** between consecutive deactivations to prevent abuse.
 
 
@@ -94,11 +105,13 @@ qbpp-license -d
 Usage: qbpp-license [options]
 
 Options:
-  -h, --help         Show help message and exit
-  -k, --key KEY      Specify a license key
-  -a, --activate     Activate the license on this machine
-  -d, --deactivate   Deactivate the license on this machine
-  -t, --time-out SEC Set the server communication timeout (default: 20 seconds)
+  -h, --help          Show help message and exit
+  -v, --version       Show version and exit
+  -k, --key KEY       Specify a license key
+  -a, --activate      Activate the license on this machine
+  -d, --deactivate    Deactivate the license on this machine
+  -s, --signup-code   Print today's portal sign-up code and exit
+  -t, --time-out SEC  Set the server communication timeout (default: 20 seconds)
 ```
 
 ### Examples
@@ -106,7 +119,7 @@ Options:
 | Command | Description |
 |---|---|
 | `qbpp-license` | Display current license status |
-| `qbpp-license -a` | Activate (Anonymous Trial if no key is set) |
+| `qbpp-license -s` | Print today's sign-up code for portal registration |
 | `qbpp-license -k KEY -a` | Activate with a specific key |
 | `qbpp-license -d` | Deactivate the license on this machine |
 | `qbpp-license -t 60` | Check status with a 60-second timeout |
@@ -153,6 +166,7 @@ Floating licenses allow shared access across multiple machines within an organiz
 - The lease is automatically renewed while the program is running.
 - When the program exits, the lease is released, making the slot available for other machines.
 - If the program crashes or the network is lost, the lease expires automatically after a timeout period.
+- **Virtual environments (Docker, VMs, ephemeral containers, etc.) are fully supported.** Floating licenses do not bind to a machine fingerprint, so rebuilding a container or starting a fresh VM does not strand any activation slot.
 
 Usage is the same as node-locked licenses:
 

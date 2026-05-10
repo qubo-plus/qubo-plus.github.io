@@ -1,56 +1,105 @@
 ---
 layout: default
-title: "Portal Terms of Service"
+title: "Portal Account Terms of Service"
 nav_exclude: true
 lang: en
+hreflang_alt: "ja/PORTAL_TOS"
+hreflang_lang: "ja"
 ---
 
-# QUBO++ User Portal — Trial License Terms of Service
+# QUBO++ User Portal — Account Terms of Service
 
-**Effective:** 2026-05-07
+**Effective:** 2026-05-09
 
-These Terms govern your access to and use of the QUBO++ trial license
-("Trial") issued through the QUBO++ User Portal at
-<https://qubo-plus.github.io/portal/>. They supplement the
-[QUBO++ Terms and Conditions](TERMS.html) that apply to all use of the software.
+These Terms govern your QUBO++ User Account ("**Account**") created through
+the QUBO++ User Portal at <https://qubo-plus.github.io/portal/> and your use
+of any QUBO++ license keys attached to that Account. They supplement the
+[QUBO++ Terms and Conditions](TERMS.html) that apply to all use of the
+software.
 
 ## 1. Acceptance
-By creating an account or activating a trial license key, you agree to
-these Terms. If you do not agree, do not create an account.
+By creating an Account, or by activating any license key issued under the
+Account, you agree to these Terms. If you do not agree, do not create an
+Account.
 
-## 2. License grant
-We grant you a limited, non-exclusive, non-transferable, revocable license
-to use QUBO++ for the duration of the Trial, solely for non-commercial
-evaluation, research, or education. The Trial is valid for the period and
-variable-count limits shown on your dashboard.
+## 2. The Account
+A QUBO++ User Account is the personal identity through which we attribute
+license keys to you. On creation, the Account is provisioned automatically
+with one **Trial License**. We may, at our sole discretion, attach
+additional licenses to your Account — for example, an Unlimited or paid
+license arranged separately. All licenses, regardless of type, are governed
+by these Terms in addition to any specific terms communicated when the
+license is issued.
 
-## 3. Restrictions
+## 3. License grant
+For each license attached to your Account, we grant you a limited,
+non-exclusive, non-transferable, revocable license to use QUBO++ subject to
+the period, variable-count limits, and other terms shown on your portal
+dashboard for that license.
+
+The Trial License is provided **solely for non-commercial evaluation,
+research, or education.** Other license types may carry different terms,
+specified at the time the license is issued or in a separate agreement.
+
+## 4. One Account per individual
+Each individual may hold and operate **only one** QUBO++ User Account at any
+given time. You may not:
+
+- create or operate more than one Account, including via email aliases,
+  alternate addresses, or accounts registered under a colleague's or
+  relative's name, for the purpose of obtaining additional licenses or
+  evading any Account-level restriction;
+- share Account credentials with another person, or transfer your Account
+  to another person.
+
+We may suspend or close any Account that, in our reasonable judgement,
+violates this clause, and revoke any licenses attached to it.
+
+## 5. Restrictions
 You may not:
-- redistribute or sublicense the QUBO++ binaries, libraries, or trial keys;
-- reverse engineer, decompile, or attempt to derive source code from binaries;
-- use QUBO++ for production or commercial purposes during the Trial;
-- share account credentials or transfer your account;
-- circumvent the activation, machine-binding, or verification mechanisms.
 
-## 4. Data we collect
-We collect your email, name, organization, role, country, stated purpose,
-and — when you activate or verify a license — machine fingerprint, hostname, OS, CPU / GPU info, RAM size, IP address, and software version.
+- redistribute or sublicense the QUBO++ binaries, libraries, or license keys;
+- reverse engineer, decompile, or attempt to derive source code from
+  binaries;
+- use QUBO++ under a Trial License for production or commercial purposes;
+- circumvent the activation, machine-binding, verification, or rate-limit
+  mechanisms — including, without limitation, the deactivation cooldown and
+  renewal window.
 
-## 5. Disclaimer of warranty
+## 6. Data we collect
+We collect your email, name, organization, role, country, and stated
+purpose when you create the Account, and — when you activate or verify any
+license — machine fingerprint, hostname, OS, CPU / GPU info, RAM size, IP
+address, and software version.
+
+We do **not** collect or transmit the contents of your programs, the
+problem instances they construct, or any computation results. License
+verification messages contain only the metadata listed above.
+
+We may use the sign-up information (your email, name, organization,
+role, country, and stated purpose) for our internal records, and may
+disclose it to our partner companies — for example, distributors and
+resellers of commercial QUBO++ licenses — for the purpose of
+sales-related communications regarding paid licenses and related
+products. License-verification metadata (machine fingerprint, IP,
+hardware specifications, etc.) is **not** disclosed for these
+purposes.
+
+You may opt out of such partner disclosures at any time by contacting
+us through the address shown on the QUBO++ website; opting out does
+not affect the operation of your existing licenses.
+
+## 7. Disclaimer of warranty
 QUBO++ is provided **"AS IS"**, without warranty of any kind, express or
-implied, including merchantability, fitness for a particular purpose,
-and non-infringement.
+implied, including merchantability, fitness for a particular purpose, and
+non-infringement.
 
-## 6. Limitation of liability
-In no event shall the author, contributors, or Hiroshima University be
-liable for any indirect, incidental, special, consequential, or punitive
-damages. Total cumulative liability shall not exceed JPY 1,000.
+## 8. Termination
+We may suspend or revoke any license, or close your Account, **at any time,
+with or without cause and without notice.** You may delete your Account
+from the User Portal at any time; all licenses attached to the Account
+will be suspended.
 
-## 7. Termination
-We may suspend or revoke your Trial license **at any time, with or without
-cause and without notice.** You may delete your account from the User
-Portal at any time; license keys will be suspended.
-
-## 8. Changes to these Terms
+## 9. Changes to these Terms
 We may update these Terms from time to time. Material changes will be
 communicated via email or portal notice.

@@ -53,9 +53,14 @@ nav#topnav .secondary-sm {
 nav#topnav .secondary-sm:hover { background: rgba(0,0,0,0.04); }
 
 main {
-  max-width: 560px;
+  max-width: 720px;
   margin: 2rem auto;
   padding: 0 1rem;
+  transition: max-width 0.15s ease;
+}
+/* Dashboard / Profile / Account benefit from a wider canvas. */
+main.wide {
+  max-width: 720px;
 }
 
 .view {
@@ -66,6 +71,24 @@ main {
 }
 
 h2 { margin-top: 0; }
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  margin-bottom: 0.5rem;
+}
+.dashboard-header h2 {
+  margin: 0;
+  flex: 1;            /* H2 grows; button stays at the right edge */
+  min-width: 0;
+}
+.dashboard-header > button {
+  flex: 0 0 auto;     /* don't stretch */
+  margin: 0 !important;  /* override .secondary's default margin-left */
+}
 
 label {
   display: block;
@@ -120,11 +143,11 @@ button {
   background: var(--primary);
   color: #fff;
   border: 0;
-  padding: 0.6rem 1.2rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 4px;
   cursor: pointer;
   font: inherit;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 button:hover { background: var(--primary-hover); }
 button.secondary {
@@ -132,8 +155,14 @@ button.secondary {
   color: var(--primary);
   border: 1px solid var(--primary);
   margin-left: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
 }
 button.secondary:hover { background: rgba(26, 111, 181, 0.08); }
+button.danger {
+  background: var(--error);
+  color: #fff;
+}
 button:disabled { opacity: 0.6; cursor: wait; }
 
 .req { color: var(--error); }
@@ -156,6 +185,20 @@ button:disabled { opacity: 0.6; cursor: wait; }
   margin-top: 0.75rem;
   font-size: 0.9rem;
 }
+.notice {
+  background: #fffaeb;
+  border: 1px solid #f0d27a;
+  border-left: 4px solid #d49a2c;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.notice ul { margin: 0.4rem 0 0.4rem 0; padding-left: 1.25rem; }
+.notice li { margin-bottom: 0.3rem; }
+.notice li:last-child { margin-bottom: 0; }
+.notice small { color: var(--muted); display: block; margin-top: 0.4rem; }
 .muted { color: var(--muted); font-size: 0.9rem; margin-top: 1.25rem; }
 
 .section-h { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
@@ -174,14 +217,42 @@ button:disabled { opacity: 0.6; cursor: wait; }
 #dashboard-actions small { display: block; margin-top: 0.4rem; }
 
 .activation-row {
-  display: flex; justify-content: space-between; align-items: flex-start;
+  display: block;
   border: 1px solid var(--border); border-radius: 6px;
   padding: 0.75rem 1rem; margin-bottom: 0.5rem;
-  background: #fff; gap: 1rem;
+  background: #fff;
+  overflow: hidden;  /* contain floats */
 }
-.activation-row .meta-stack { flex: 1; min-width: 0; }
-.activation-row .meta-stack > div { word-break: break-all; }
+.activation-row .deactivate-btn {
+  float: right;
+  margin: 0 0 0.3rem 0.6rem;
+}
+.activation-row .meta-stack { min-width: 0; }
+.activation-row .meta-stack > div { word-break: break-word; overflow-wrap: anywhere; }
 .activation-row .small { font-size: 0.8rem; }
+.activation-row.floating-row { background: #f6f9ff; }
+.meta-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.tag-active { background: #d4edda; color: #155724; }
+.tag-inactive { background: #e2e3e5; color: #495057; }
+.activation-row .host-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #eee;
+}
+.activation-row .host-row strong { font-size: 1rem; }
+.activation-row .host-row .muted { font-size: 0.9rem; color: var(--muted); }
+.activation-row .meta { font-size: 0.85rem; color: var(--muted); margin: 0.15rem 0; }
+.activation-row .meta strong { color: var(--fg); font-weight: 600; min-width: 6.5rem; display: inline-block; }
 
 details { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 6px;
   padding: 0.75rem 1rem; background: var(--card); }

@@ -21,13 +21,28 @@
       <button id="signout-btn" type="button" class="secondary-sm">Sign out</button>
     </nav>
   </div>
-  <p class="subtitle" id="subtitle">Sign up to receive a free trial license key.</p>
+  <p class="subtitle" id="subtitle">Create your QUBO++ account. A Trial License is issued automatically.</p>
 </header>
 
 <main id="app">
   <!-- ============== Sign-up ============== -->
   <section class="view" data-view="signup">
     <h2>Create an account</h2>
+    <aside class="notice">
+      <strong>Before you sign up — please note:</strong>
+      <ul>
+        <li><strong>One account per individual.</strong> Creating multiple
+            accounts (e.g. via email aliases or alternate addresses) is not
+            permitted and may result in suspension.</li>
+        <li><strong>Trial License auto-issued.</strong> A Trial License is
+            attached to your account automatically, for
+            <em>non-commercial evaluation, research, or education only</em>.</li>
+        <li><strong>Suspension / revocation.</strong> Accounts and licenses
+            may be suspended or revoked at our discretion, with or without
+            notice.</li>
+      </ul>
+      <small>Full details: <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ User Portal Account Terms of Service</a>.</small>
+    </aside>
     <p class="muted" style="margin-top:0.5rem">
       <strong>Before signing up:</strong> install QUBO++ on a Linux machine,
       then run <code>qbpp-license -s</code>. Your terminal will print today's
@@ -42,10 +57,10 @@
         <small>Output of <code>qbpp-license -s</code>. Codes rotate daily;
           the server accepts yesterday / today / tomorrow's codes (UTC).</small>
       </label>
-      <label>Email
-        <input type="email" name="email" required autocomplete="email">
+      <label>Email <span class="req">*</span>
+        <input type="email" name="email" required autocomplete="username">
       </label>
-      <label>Password
+      <label>Password <span class="req">*</span>
         <input type="password" name="password" required minlength="12" autocomplete="new-password">
         <small>At least 12 characters, mixing upper, lower, and digit.</small>
       </label>
@@ -60,15 +75,8 @@
       <label>Organization <span class="req">*</span>
         <input type="text" name="organization" required maxlength="256" placeholder="University / Company name" autocomplete="organization">
       </label>
-      <label>Position / role
-        <select name="position">
-          <option value="">— Select (optional) —</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Faculty">Faculty</option>
-          <option value="Other">Other</option>
-          <option value="Researcher">Researcher</option>
-          <option value="Student">Student</option>
-        </select>
+      <label>Position / role <span class="req">*</span>
+        <input type="text" name="position" required maxlength="64" placeholder="e.g. Researcher / Professor / Student">
       </label>
       <label>Country <span class="req">*</span>
         <input type="text" name="country" required maxlength="64" placeholder="e.g. Japan, United States, Germany" autocomplete="country-name">
@@ -80,7 +88,7 @@
       <label class="checkbox-label">
         <input type="checkbox" name="agree" required>
         <span>I have read and agree to the
-          <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ Trial License Terms of Service</a>.</span>
+          <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ User Portal Account Terms of Service</a>.</span>
       </label>
       <button type="submit">Create account</button>
       <p class="error" id="signup-error" hidden></p>
@@ -109,7 +117,7 @@
     <h2>Sign in</h2>
     <form id="signin-form">
       <label>Email
-        <input type="email" name="email" required autocomplete="email">
+        <input type="email" name="email" required autocomplete="username">
       </label>
       <label>Password
         <input type="password" name="password" required autocomplete="current-password">
@@ -127,7 +135,7 @@
     <p>Enter your email — we'll send a verification code.</p>
     <form id="forgot-request-form">
       <label>Email
-        <input type="email" name="email" required autocomplete="email">
+        <input type="email" name="email" required autocomplete="username">
       </label>
       <button type="submit">Send code</button>
       <p class="error" id="forgot-request-error" hidden></p>
@@ -149,31 +157,40 @@
 
   <!-- ============== Dashboard ============== -->
   <section class="view" data-view="dashboard" hidden>
-    <h2>Your licenses</h2>
+    <div class="dashboard-header">
+      <h2>Your licenses</h2>
+      <button type="button" id="btn-dashboard-refresh" class="secondary" title="Refresh license & activation data from the server">Refresh</button>
+    </div>
     <div id="dashboard-loading" class="info">Loading…</div>
     <div id="dashboard-empty" hidden>
-      <p>No active license. Click below to issue a trial key.</p>
-      <button type="button" id="issue-btn">Issue trial license</button>
+      <p>Your account has no active license. Click below to issue a Trial License.</p>
+      <button type="button" id="issue-btn">Issue Trial License</button>
       <p class="error" id="issue-error" hidden></p>
     </div>
     <div id="license-list" hidden></div>
     <div id="dashboard-actions" hidden>
-      <button type="button" id="reissue-btn" class="secondary">Issue a new trial</button>
-      <small class="muted">Available when your previous trial is expired or suspended.</small>
+      <button type="button" id="reissue-btn" class="secondary">Issue a new Trial License</button>
+      <small class="muted">Available when your previous Trial License is expired or suspended.</small>
     </div>
+
+    <details class="howto" id="redeem-section">
+      <summary><strong>Have an activation code?</strong></summary>
+      <p class="muted" style="margin:0.5rem 0;">If you have a paid license,
+        enter your activation code below to receive your license key.</p>
+      <form id="redeem-form" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+        <label style="flex:1; min-width:14rem; margin:0;">Activation code
+          <input type="text" name="code" required autocomplete="off"
+                 placeholder="e.g. ACAD-2026-AB12CD"
+                 style="text-transform:uppercase">
+        </label>
+        <button type="submit">Redeem</button>
+      </form>
+      <p class="error" id="redeem-error" hidden></p>
+      <p class="info" id="redeem-info" hidden></p>
+    </details>
 
     <h3 class="section-h">Activated machines</h3>
     <div id="activations-list">Loading…</div>
-
-    <details class="howto">
-      <summary>How to use a license key</summary>
-      <pre><code># Linux (after installing the qbpp APT package):
-qbpp-license activate <span class="placeholder">YOUR-LICENSE-KEY</span>
-
-# Then run any program built with QUBO++. The library reads the
-# cached activation from ~/.qbpp/license_cache automatically.</code></pre>
-      <p>Full documentation: <a href="../en/LICENSE_MANAGEMENT.html">License Management</a></p>
-    </details>
   </section>
 
   <!-- ============== Profile ============== -->
@@ -194,15 +211,8 @@ qbpp-license activate <span class="placeholder">YOUR-LICENSE-KEY</span>
       <label>Organization <span class="req">*</span>
         <input type="text" name="organization" required maxlength="256">
       </label>
-      <label>Position / role
-        <select name="position">
-          <option value="">— Select (optional) —</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Faculty">Faculty</option>
-          <option value="Other">Other</option>
-          <option value="Researcher">Researcher</option>
-          <option value="Student">Student</option>
-        </select>
+      <label>Position / role <span class="req">*</span>
+        <input type="text" name="position" required maxlength="64" placeholder="e.g. Researcher / Professor / Student">
       </label>
       <label>Country <span class="req">*</span>
         <input type="text" name="country" required maxlength="64" autocomplete="country-name">
@@ -257,7 +267,7 @@ qbpp-license activate <span class="placeholder">YOUR-LICENSE-KEY</span>
 
     <details class="danger">
       <summary><strong>Delete account</strong></summary>
-      <p class="warn">All your portal-issued licenses will be <strong>suspended</strong>
+      <p class="warn">All licenses attached to your account will be <strong>suspended</strong>
         and any activations dropped. Audit records are retained for 90 days
         per legal/compliance requirements. This cannot be undone.</p>
       <form id="delete-form">
