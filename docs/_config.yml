@@ -31,6 +31,9 @@ nav_external_links:
   - title: "Latest Release"
     url: "https://github.com/qubo-plus/qbpp/releases/latest"
     opens_in_new_tab: true
+  - title: "User Portal"
+    url: "https://qubo-plus.github.io/portal/"
+    opens_in_new_tab: true
 
 # Google Analytics
 ga_tracking: G-02FF2NG7DD
