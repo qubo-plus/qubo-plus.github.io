@@ -72,6 +72,11 @@ purpose when you create the Account, and — when you activate or verify any
 license — machine fingerprint, hostname, OS, CPU / GPU info, RAM size, IP
 address, and software version.
 
+Any free-text memos or notes that you voluntarily attach to a license
+through the User Portal are stored alongside that license and are visible
+to QUBO++ administrators. Do not enter sensitive personal information,
+secrets, or third-party confidential data into these memos.
+
 We do **not** collect or transmit the contents of your programs, the
 problem instances they construct, or any computation results. License
 verification messages contain only the metadata listed above.

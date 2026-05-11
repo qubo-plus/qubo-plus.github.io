@@ -293,6 +293,36 @@ button.danger:hover { background: #9c2516; }
 }
 .license-card .meta strong { color: var(--fg); }
 
+.license-card .memo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.license-card .memo-row strong { color: var(--fg); }
+.license-card .memo-input {
+  flex: 1;
+  min-width: 14rem;
+  width: auto;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  margin: 0;
+}
+.license-card .memo-counter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.license-card .memo-status {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.license-card .memo-saved { color: var(--info); }
+.license-card .memo-error { color: var(--error); }
+
 .howto {
   margin-top: 1.5rem;
   border: 1px solid var(--border);

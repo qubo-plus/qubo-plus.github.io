@@ -301,6 +301,8 @@
         renewBtn = `<button type="button" class="secondary" data-renew="1" disabled title="Renew available from ${escapeHTML(dt)}">Renew</button>`;
       }
     }
+    const note = lic.user_note || "";
+    const noteId = "note-" + encodeURIComponent(lic.license_key).replace(/[^A-Za-z0-9]/g, "_");
     return `
       <div class="license-card ${cls}">
         <h3>${escapeHTML(lic.license_name || lic.license_type || "License")}</h3>
@@ -312,8 +314,77 @@
         <div class="meta"><strong>Type:</strong> ${escapeHTML(lic.license_type || "node_locked")}</div>
         <div class="meta"><strong>Limits:</strong> ${fmtVarCount(lic.max_var_count)} CPU vars / ${fmtVarCount(lic.gpu_max_var_count)} GPU vars</div>
         <div class="meta"><strong>Status:</strong> ${escapeHTML(status)}</div>
+        <div class="memo-row">
+          <strong>Memo:</strong>
+          <input type="text" class="memo-input" maxlength="100"
+                 data-note-key="${escapeHTML(lic.license_key)}"
+                 data-note-orig="${escapeHTML(note)}"
+                 id="${noteId}"
+                 value="${escapeHTML(note)}"
+                 placeholder="Optional note (max 100 chars, visible to admin)">
+          <span class="memo-counter" data-note-counter="${escapeHTML(lic.license_key)}">${[...note].length}/100</span>
+          <button type="button" class="secondary memo-save" data-note-save="${escapeHTML(lic.license_key)}" disabled>Save</button>
+          <span class="memo-status" data-note-status="${escapeHTML(lic.license_key)}"></span>
+        </div>
       </div>`;
   }
+
+  // Per-license memo: wire up input change → enable Save, click → POST, optimistic.
+  // Counter uses [...str].length to count Unicode code points, matching the
+  // server's Python len() which also counts code points. Surrogate pairs count
+  // as 2 (one each), so a single 😀 = 2 — predictable and matches the input's
+  // built-in maxlength attribute.
+  function bindMemoEditors(container) {
+    container.querySelectorAll(".memo-input").forEach((input) => {
+      const key = input.dataset.noteKey;
+      const orig = input.dataset.noteOrig || "";
+      const counter = container.querySelector(`[data-note-counter="${cssEsc(key)}"]`);
+      const saveBtn = container.querySelector(`[data-note-save="${cssEsc(key)}"]`);
+      const status = container.querySelector(`[data-note-status="${cssEsc(key)}"]`);
+      const refresh = () => {
+        const v = input.value;
+        if (counter) counter.textContent = v.length + "/100";
+        const dirty = v !== orig;
+        if (saveBtn) saveBtn.disabled = !dirty;
+        if (status && dirty) status.textContent = "";
+      };
+      input.addEventListener("input", refresh);
+      refresh();
+      if (saveBtn) {
+        saveBtn.addEventListener("click", async () => {
+          saveBtn.disabled = true;
+          const orig2 = saveBtn.textContent;
+          saveBtn.textContent = "Saving…";
+          if (status) { status.textContent = ""; status.className = "memo-status"; }
+          try {
+            await apiFetch("/me/licenses/note", {
+              method: "POST",
+              body: { license_key: key, note: input.value },
+            });
+            // Update baseline so subsequent edits compare against new value.
+            input.dataset.noteOrig = input.value;
+            saveBtn.textContent = orig2;
+            if (status) {
+              status.textContent = "Saved";
+              status.className = "memo-status memo-saved";
+              setTimeout(() => { if (status.textContent === "Saved") status.textContent = ""; }, 2000);
+            }
+            refresh();
+          } catch (e) {
+            saveBtn.textContent = orig2;
+            saveBtn.disabled = false;
+            if (status) {
+              status.textContent = "Error: " + (e.message || "save failed");
+              status.className = "memo-status memo-error";
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // CSS.escape polyfill-ish — only needed for our attribute selectors above.
+  function cssEsc(s) { return (s + "").replace(/(["\\])/g, "\\$1"); }
 
   async function renewLicense(btn) {
     if (!confirm(
@@ -443,6 +514,7 @@
         list.querySelectorAll("[data-renew]").forEach((btn) => {
           btn.addEventListener("click", () => renewLicense(btn));
         });
+        bindMemoEditors(list);
         // Show "Issue a new trial" only when the user has no active trial
         actions.hidden = hasActive;
       }
