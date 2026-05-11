@@ -57,24 +57,28 @@ $$
 \end{aligned}
 $$
 
-These equality constraints are encoded as a sum of squared penalties to define the energy $f$. Any assignment with $f=0$ corresponds to a valid Sudoku solution.
+These equality constraints are encoded as a sum of squared penalties to define the QUBO expression $f$. Any assignment with $f=0$ corresponds to a valid Sudoku solution.
 
 ## Fixing variables from clues
 
 Rather than encoding clues as additional penalties, we fix the affected variables directly to 0 or 1.
 When the clue tells us that cell $(i, j)$ contains digit $v$, the following variables are forced:
 
-- $x_{i,j,v-1} = 1$ (cell $(i, j)$ IS digit $v$)
-- $x_{i,j,k} = 0$ for $k \ne v-1$ (cell $(i, j)$ is not any other digit)
-- $x_{i,j',v-1} = 0$ for $j' \ne j$ (no other cell in the same row holds $v$)
-- $x_{i',j,v-1} = 0$ for $i' \ne i$ (same for the column)
-- $x_{i',j',v-1} = 0$ for $(i', j')$ in the same $3\times 3$ block (same for the block)
+$$
+\begin{aligned}
+x_{i,j,v-1} &= 1 && \text{(cell $(i, j)$ IS digit $v$)}\\
+x_{i,j,k} &= 0 && \text{($k \ne v-1$, cell $(i, j)$ is not any other digit)}\\
+x_{i,j',v-1} &= 0 && \text{($j' \ne j$, no other cell in the same row holds $v$)}\\
+x_{i',j,v-1} &= 0 && \text{($i' \ne i$, same for the column)}\\
+x_{i',j',v-1} &= 0 && \text{($(i', j')$ in the same $3\times 3$ block, same for the block)}
+\end{aligned}
+$$
 
-Collecting these forced values into a dictionary `{Var: 0 or 1}` and passing it to `qbpp.replace` removes the corresponding variables from the energy expression, drastically reducing the number of variables the solver needs to handle.
+Collecting these forced values into a dictionary `{Var: 0 or 1}` and passing it to `qbpp.replace` removes the corresponding variables from the QUBO expression, drastically reducing the number of variables the solver needs to handle.
 
 ## PyQBPP program
 
-The following PyQBPP program builds the energy expression from the constraints, fixes the clue-related variables, and then solves the puzzle with EasySolver:
+The following PyQBPP program builds the QUBO expression from the constraints, fixes the clue-related variables, and then solves the puzzle with EasySolver:
 
 {% raw %}
 ```python
