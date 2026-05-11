@@ -36,7 +36,7 @@ QUBO++ offers several license types with different variable count limits and val
 4. After confirming your email, the portal displays your Trial license key (`T-PREFIX-XXXXXX-XXXXXX-XXXXXX`, where PREFIX is derived from your email local part).
 5. Activate the key on your machine: `qbpp-license -k T-... -a`.
 
-The 30-day Trial clock starts at the moment you sign up — the expiry date is fixed when the key is issued, so you can see your deadline in the portal immediately. Within the final week before expiry, the User Portal allows you to renew the Trial — issuing a fresh 30-day key.
+The 30-day Trial clock starts at the moment you sign up — the expiry date is fixed when the key is issued, so you can see your deadline in the portal immediately. Within the final week before expiry, the User Portal allows you to renew the Trial — the same license key is reused with the expiry pushed out by another 30 days, so your machine activations stay in place and no re-activation is needed.
 
 ## Setting and Activating the License Key
 

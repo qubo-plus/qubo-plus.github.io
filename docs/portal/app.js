@@ -388,9 +388,9 @@
 
   async function renewLicense(btn) {
     if (!confirm(
-      "This will permanently delete your current Trial License key and any " +
-      "machine activations bound to it, then issue a fresh Trial License key " +
-      "under your account. Continue?"
+      "Extend your Trial License expiry. The license key and any existing " +
+      "machine activations stay as they are — only the expiry date moves " +
+      "forward. Continue?"
     )) return;
     btn.disabled = true;
     const orig = btn.textContent;
@@ -398,7 +398,12 @@
     try {
       const data = await apiFetch("/me/trial/renew", { method: "POST" });
       await loadDashboard();
-      alert("New license issued: " + data.license_key);
+      if (data.renewed) {
+        const dt = data.expiry ? fmtDateTime(data.expiry) : "the new date";
+        alert("Trial extended. New expiry: " + dt);
+      } else {
+        alert("New license issued: " + data.license_key);
+      }
     } catch (e) {
       btn.disabled = false;
       btn.textContent = orig;
