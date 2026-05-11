@@ -85,6 +85,6 @@ export PATH=$QBPP_PATH/bin:$PATH
 qbpp-license -k XXXXXX-XXXXXX-XXXXXX-XXXXXX -a
 ```
 
-ライセンスキーが設定されていない場合、**Anonymous Trial**（7日間、1,000変数）がアクティベートされます。
+無料の **Trial ライセンス**（30日間、10,000変数）は [QUBO++ User Portal](https://qubo-plus.github.io/portal/) で取得できます。`qbpp-license -s` を実行してサインアップコードを得て、portal で登録すると Trial キーが受け取れます。
 
 ライセンスの種類、ディアクティベーション、トラブルシューティングなどの詳細は **[ライセンス管理](LICENSE_MANAGEMENT)** をご覧ください。

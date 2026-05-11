@@ -98,7 +98,7 @@ qbpp-license -k XXXXXX-XXXXXX-XXXXXX-XXXXXX -a
 
 The `qbpp-license` command is installed by the wheel into your virtual environment's `bin/` directory, so it is available on `PATH` as soon as the venv is activated.
 
-If no license key is set, an **Anonymous Trial** (7 days, 1,000 variables) is activated automatically on first use.
+A free **Trial license** (30 days, 10,000 variables) is available via the [QUBO++ User Portal](https://qubo-plus.github.io/portal/). Run `qbpp-license -s` to obtain a sign-up code, register at the portal, and activate the resulting key with `qbpp-license -k <KEY> -a`.
 
 ### Using `QBPP_LICENSE_KEY` at runtime
 

@@ -25,7 +25,7 @@ The following actions are prohibited without prior written permission from the c
 
 ## Trial License Restrictions
 
-Trial licenses (**Anonymous Trial** and **Registered Trial**) are intended for evaluation and non-commercial use only. **Commercial use of trial licenses is prohibited.** For commercial use, please obtain a Standard or Professional license.
+**Trial licenses** are intended for evaluation and non-commercial use only. **Commercial use of trial licenses is prohibited.** For commercial use, please obtain a Standard or Professional license.
 
 ## Third-Party Libraries
 

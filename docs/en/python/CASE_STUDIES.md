@@ -48,6 +48,7 @@ This section provides examples of solving optimization, mathematical, and graph 
 1. [Magic Square](MAGIC) (Hard)
 2. [N-Queens Problem](QUEENS) (Medium)
 3. [SEND + MORE = MONEY Problem](SEND_MORE_MONEY) (Hard)
+4. [Sudoku](SUDOKU) (Medium)
 
 ## Satisfiability
 1. [Boolean Satisfiability Problem (SAT)](SAT) (Easy)

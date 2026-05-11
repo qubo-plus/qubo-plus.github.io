@@ -70,8 +70,8 @@ To ensure compatibility, please use the same or newer versions of the listed com
 
 # QUBO++ Licensing
 
-QUBO++ can be used without a license key.
-If no license key is set, an **Anonymous Trial** (7 days, 1,000 variables) is automatically activated, allowing you to try QUBO++ immediately.
+A free **Trial license** (30 days, 10,000 variables) is available via the [QUBO++ User Portal](https://qubo-plus.github.io/portal/).
+After installing QUBO++, run `qbpp-license -s` to obtain today's sign-up code, then register at the portal to receive your Trial key.
 
 For details on license activation, license types, and terms, see **[License Management](LICENSE_MANAGEMENT)**.
 

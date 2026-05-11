@@ -50,6 +50,7 @@ hreflang_lang: "en"
 1. [魔方陣](MAGIC)（Hard）
 2. [N クイーン問題](QUEENS)（Medium）
 3. [SEND + MORE = MONEY 問題](SEND_MORE_MONEY)（Hard）
+4. [数独](SUDOKU)（Medium）
 
 ## 充足可能性
 1. [充足可能性問題 (SAT)](SAT)（Easy）

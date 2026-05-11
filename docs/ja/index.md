@@ -65,8 +65,8 @@ hreflang_lang: "en"
 
 # QUBO++ ライセンス
 
-QUBO++ はライセンスキーなしで使用できます。
-ライセンスキーが設定されていない場合、**Anonymous Trial**（7日間、1,000変数）が自動的に有効になり、すぐに QUBO++ を試すことができます。
+無料の **Trial ライセンス**（30日間、10,000変数）は [QUBO++ User Portal](https://qubo-plus.github.io/portal/) で取得できます。
+QUBO++ をインストールしたら `qbpp-license -s` を実行して本日のサインアップコードを取得し、portal で登録すると Trial キーが受け取れます。
 
 ライセンスの有効化、ライセンスの種類、条件の詳細は **[License Management](LICENSE_MANAGEMENT)** をご覧ください。
 

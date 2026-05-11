@@ -85,6 +85,6 @@ After installation, activate the license to start using QUBO++:
 qbpp-license -k XXXXXX-XXXXXX-XXXXXX-XXXXXX -a
 ```
 
-If no license key is set, an **Anonymous Trial** (7 days, 1,000 variables) is activated.
+A free **Trial license** (30 days, 10,000 variables) is available via the [QUBO++ User Portal](https://qubo-plus.github.io/portal/). Run `qbpp-license -s` to obtain a sign-up code, register at the portal, and you'll receive a Trial key to activate.
 
 For details on license types, deactivation, troubleshooting, and more, see **[License Management](LICENSE_MANAGEMENT)**.

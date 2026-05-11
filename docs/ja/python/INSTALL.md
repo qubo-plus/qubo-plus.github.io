@@ -98,7 +98,7 @@ qbpp-license -k XXXXXX-XXXXXX-XXXXXX-XXXXXX -a
 
 `qbpp-license` コマンドは wheel によって仮想環境の `bin/` ディレクトリにインストールされるため、venv をアクティベートすると自動的に `PATH` 上で利用可能になります。
 
-ライセンスキーが設定されていない場合、初回使用時に **Anonymous Trial**（7日間、1,000変数）が自動的にアクティベートされます。
+無料の **Trial ライセンス**（30日間、10,000変数）は [QUBO++ User Portal](https://qubo-plus.github.io/portal/) で取得できます。`qbpp-license -s` を実行してサインアップコードを得て、portal で登録、`qbpp-license -k <KEY> -a` で受け取ったキーをアクティベートしてください。
 
 ### 実行時に `QBPP_LICENSE_KEY` を使う
 
