@@ -5,6 +5,7 @@ nav_order: 3
 lang: en
 hreflang_alt: "ja/CPP_VS_PYTHON"
 hreflang_lang: "ja"
+mode_shared: true
 ---
 
 # QUBO++ (C++) vs PyQBPP (Python)

@@ -5,6 +5,7 @@ nav_order: 7
 lang: ja
 hreflang_alt: "en/DEMOS"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # デモ

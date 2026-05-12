@@ -56,4 +56,12 @@ defaults:
     values:
       sitemap: false
       layout: null
+  - scope:
+      path: "en/python"
+    values:
+      python: true
+  - scope:
+      path: "ja/python"
+    values:
+      python: true
 

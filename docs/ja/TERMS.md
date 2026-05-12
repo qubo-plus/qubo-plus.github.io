@@ -5,6 +5,7 @@ nav_order: 99
 lang: ja
 hreflang_alt: "en/TERMS"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # 利用規約

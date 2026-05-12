@@ -13,7 +13,7 @@
 
   {%- include nav_switch.html -%}
 
-  {% include_cached components/site_nav.html lang=page.lang %}
+  {% include_cached components/site_nav.html lang=page.lang python=page.python %}
 
   <div class="d-md-block d-none site-footer">
   {% capture nav_footer_custom %}

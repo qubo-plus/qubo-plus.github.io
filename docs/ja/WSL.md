@@ -6,6 +6,7 @@ nav_order: 1
 lang: ja
 hreflang_alt: "en/WSL"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # Windows (WSL) でのクイックスタート

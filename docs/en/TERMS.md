@@ -5,6 +5,7 @@ nav_order: 99
 lang: en
 hreflang_alt: "ja/TERMS"
 hreflang_lang: "ja"
+mode_shared: true
 ---
 
 # Terms and Conditions

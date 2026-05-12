@@ -5,6 +5,7 @@ nav_order: 2
 lang: ja
 hreflang_alt: "en/HUBO_QUBO"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # HUBO と QUBO

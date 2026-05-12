@@ -5,6 +5,7 @@ nav_exclude: true
 lang: ja
 hreflang_alt: "en/PORTAL_TOS"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # QUBO++ User Portal — アカウント利用規約

@@ -5,6 +5,7 @@ nav_order: 4
 lang: ja
 hreflang_alt: "en/LICENSE_MANAGEMENT"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # ライセンス管理

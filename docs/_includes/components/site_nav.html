@@ -1,14 +1,19 @@
 {%- comment -%}
   Override of just-the-docs site_nav.
-  Filters site.html_pages by page.lang so the rendered navigation
-  contains only pages in the current language (en or ja).
-  This is critical for SEO: hreflang + canonical assume language-
-  separated link graphs. Pages without a lang front-matter value
-  (top-level redirect stubs) are excluded because they have
-  nav_exclude: true already.
+
+  Filters site.html_pages by both:
+    1. current language (page.lang: en or ja) — set by include.lang
+    2. current mode (cpp or python) — derived from page.python.
+       Mode python: only /en/python/ or /ja/python/ items (page.python == true),
+                    plus pages flagged mode_shared: true.
+       Mode cpp:    everything else in the current language.
+
+  This avoids the duplicate Installation/Quick Start/Case Studies entries
+  that previously showed both /en/X and /en/python/X side-by-side.
 {%- endcomment -%}
 
 {%- assign current_lang = include.lang | default: page.lang | default: 'en' -%}
+{%- assign current_is_python = include.python | default: page.python -%}
 
 <nav aria-label="Main" id="site-nav" class="site-nav">
   {%- assign lang_pages = site.html_pages
@@ -16,8 +21,13 @@
         | where_exp: "item", "item.parent == nil"
         | where_exp: "item", "item.nav_exclude != true"
         | where: "lang", current_lang -%}
-  {% if lang_pages.size > 0 %}
-    {% include components/nav/pages.html pages=lang_pages all=include.all %}
+  {%- if current_is_python -%}
+    {%- assign mode_pages = lang_pages | where_exp: "item", "item.python == true or item.mode_shared == true" -%}
+  {%- else -%}
+    {%- assign mode_pages = lang_pages | where_exp: "item", "item.python != true" -%}
+  {%- endif -%}
+  {% if mode_pages.size > 0 %}
+    {% include components/nav/pages.html pages=mode_pages all=include.all %}
   {% endif %}
   {%- if site.nav_external_links -%}
     <ul class="nav-list">

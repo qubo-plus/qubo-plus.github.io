@@ -5,6 +5,7 @@ nav_order: 4
 lang: en
 hreflang_alt: "ja/LICENSE_MANAGEMENT"
 hreflang_lang: "ja"
+mode_shared: true
 ---
 
 # License Management

@@ -6,6 +6,7 @@ nav_order: 1
 lang: en
 hreflang_alt: "ja/WSL"
 hreflang_lang: "ja"
+mode_shared: true
 ---
 
 # Quick Start for Windows (WSL)
