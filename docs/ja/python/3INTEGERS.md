@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Find Three Integers"
+title: "3整数探索"
 nav_order: 44
 lang: ja
 hreflang_alt: "en/python/3INTEGERS"

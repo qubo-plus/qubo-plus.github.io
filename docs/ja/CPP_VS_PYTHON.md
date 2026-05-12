@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "C++ vs Python"
+title: "C++ と Python"
 nav_order: 3
 lang: ja
 hreflang_alt: "en/CPP_VS_PYTHON"

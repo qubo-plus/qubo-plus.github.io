@@ -70,6 +70,29 @@ vector_sum[1][2] = 3 +x[1][2][0] +x[1][2][1] +x[1][2][2]
 The same results can be obtained using explicit for-loops.
 However, for large arrays, it is recommended to use `sum()` and `vector_sum()`, since these functions internally exploit multithreading to accelerate computation.
 
+## Accepting iterables
+
+`qbpp.sum()` accepts not only qbpp arrays but also any Python iterable, including **list**, **tuple**, **generator expression**, and **`range`**.
+Non-array inputs are implicitly converted via `qbpp.array(...)` and then summed through the same fast path, so the result is always a single scalar `Expr`.
+
+```python
+# qbpp array (multi-dimensional) — flat sum of all elements
+qbpp.sum(x)
+
+# List comprehension over a sparse index set (e.g. graph edges)
+qbpp.sum([~x[u] * ~x[v] for u, v in edges])
+
+# Generator expression — equivalent and slightly lighter
+qbpp.sum(~x[u] * ~x[v] for u, v in edges)
+
+# Plain int iterables also work
+qbpp.sum(range(10))   # → 45
+```
+
+This is particularly useful for **sparse, unstructured sums** (e.g. over graph edges or set membership) that are awkward to express with array operations.
+
+> **Note**: Python's builtin `sum()` is also defined on qbpp arrays, but its behavior differs in higher dimensions — for a 2D array `y`, `sum(y)` reduces along axis 0 and returns a 1D array, whereas `qbpp.sum(y)` is a flat sum over all elements (matching `numpy.sum`). For QUBO formulations, always prefer `qbpp.sum()`.
+
 ## Specifying the axis in `vector_sum()`
 
 By default, `vector_sum()` sums along the innermost (last) axis.

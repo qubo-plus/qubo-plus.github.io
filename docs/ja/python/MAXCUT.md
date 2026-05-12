@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Max-Cut"
+title: "最大カット"
 nav_order: 51
 lang: ja
 hreflang_alt: "en/python/MAXCUT"

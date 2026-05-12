@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Einsum Function"
+title: "Einsum関数"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/python/EINSUM"

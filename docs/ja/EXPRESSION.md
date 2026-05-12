@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Expression Classes"
+title: "式クラス"
 nav_order: 15
 lang: ja
 hreflang_alt: "en/EXPRESSION"

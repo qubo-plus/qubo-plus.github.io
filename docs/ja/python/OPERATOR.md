@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Operators and Functions"
+title: "演算子と関数"
 nav_order: 11
 lang: ja
 hreflang_alt: "en/python/OPERATOR"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "MIS Problem"
+title: "最大独立集合問題"
 nav_order: 50
 lang: ja
 hreflang_alt: "en/python/GRAPH"

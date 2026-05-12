@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "LABS Problem"
+title: "LABS 問題"
 nav_order: 32
 lang: ja
 hreflang_alt: "en/LABS"

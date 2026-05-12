@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Magic Square"
+title: "魔方陣"
 nav_order: 80
 lang: ja
 hreflang_alt: "en/python/MAGIC"

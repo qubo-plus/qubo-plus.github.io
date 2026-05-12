@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Pythagorean Triples"
+title: "ピタゴラスの三つ組"
 nav_order: 40
 lang: ja
 hreflang_alt: "en/python/PYTHAGOREAN"

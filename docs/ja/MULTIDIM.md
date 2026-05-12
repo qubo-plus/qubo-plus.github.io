@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Multi-dimensional Integers, Variables, and Expressions"
+title: "多次元整数・変数・式"
 nav_order: 13
 lang: ja
 hreflang_alt: "en/MULTIDIM"

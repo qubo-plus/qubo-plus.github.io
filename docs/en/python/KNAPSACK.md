@@ -55,8 +55,8 @@ The following PyQBPP program solves a knapsack problem with 10 items using the E
 ```python
 import pyqbpp as qbpp
 
-w = [10, 20, 30, 5, 8, 15, 12, 7, 17, 18]
-v = [60, 100, 120, 60, 80, 150, 110, 70, 150, 160]
+w = qbpp.array([10, 20, 30, 5, 8, 15, 12, 7, 17, 18])
+v = qbpp.array([60, 100, 120, 60, 80, 150, 110, 70, 150, 160])
 capacity = 50
 
 x = qbpp.var("x", shape=len(w))

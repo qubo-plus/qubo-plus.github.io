@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Greatest Common Divisor"
+title: "最大公約数"
 nav_order: 43
 lang: ja
 hreflang_alt: "en/python/GCD"

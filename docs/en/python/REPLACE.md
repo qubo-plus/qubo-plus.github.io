@@ -21,7 +21,7 @@ We explain the **`qbpp.replace()`** function using the
 [PyQBPP program for partitioning problem](PARTITION).
 This program finds a partition of the numbers in the following list **`w`** into two subsets $P$ and $Q$ ($=\overline{P}$) such that the difference between their sums is minimized:
 ```python
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 ```
 We modify this partitioning problem so that 64 must belong to $P$ and 27 must belong to $Q$, ensuring that they are placed in distinct subsets.
 
@@ -32,7 +32,7 @@ The complete PyQBPP program is shown below:
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 x = qbpp.var("x", shape=len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)

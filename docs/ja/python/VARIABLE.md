@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Variables and Expressions"
+title: "変数と式"
 nav_order: 2
 lang: ja
 hreflang_alt: "en/python/VARIABLE"

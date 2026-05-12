@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Cutting Stock"
+title: "切り出し"
 nav_order: 33
 lang: ja
 hreflang_alt: "en/BAR_CUTTING"

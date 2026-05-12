@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Reference Integer & Constraint"
+title: "参照整数と制約"
 nav_order: 32
 lang: ja
 hreflang_alt: "en/QR_INTCONSTRAINT"

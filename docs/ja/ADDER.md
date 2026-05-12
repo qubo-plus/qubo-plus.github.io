@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Adder Simulation"
+title: "加算器シミュレーション"
 nav_order: 50
 lang: ja
 hreflang_alt: "en/ADDER"

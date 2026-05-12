@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Remainder Problem"
+title: "剰余問題"
 nav_order: 2
 lang: ja
 hreflang_alt: "en/REMAINDER"

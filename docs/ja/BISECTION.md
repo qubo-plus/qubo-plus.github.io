@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Graph Bisection"
+title: "グラフ二分割"
 nav_order: 11
 lang: ja
 hreflang_alt: "en/BISECTION"

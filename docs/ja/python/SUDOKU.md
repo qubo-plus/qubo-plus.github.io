@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Sudoku"
+title: "数独"
 nav_order: 83
 lang: ja
 hreflang_alt: "en/python/SUDOKU"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Maximum Clique"
+title: "最大クリーク"
 nav_order: 12
 lang: ja
 hreflang_alt: "en/MAX_CLIQUE"

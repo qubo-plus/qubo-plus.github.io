@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Vertex Cover"
+title: "頂点被覆"
 nav_order: 54
 lang: ja
 hreflang_alt: "en/python/VERTEX_COVER"

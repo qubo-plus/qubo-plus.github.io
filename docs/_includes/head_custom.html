@@ -5,6 +5,17 @@
 {% if page.hreflang_alt %}
 <link rel="alternate" hreflang="{{ page.hreflang_lang }}" href="{{ site.url }}{{ site.baseurl }}/{{ page.hreflang_alt }}" />
 {% endif %}
+{% comment %} x-default points to the English variant so Google picks /en/ when language is unknown. {% endcomment %}
+{% if page.lang == 'en' %}
+<link rel="alternate" hreflang="x-default" href="{{ page.url | absolute_url }}" />
+{% elsif page.hreflang_lang == 'en' %}
+<link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ site.baseurl }}/{{ page.hreflang_alt }}" />
+{% endif %}
+{% elsif page.url == '/' %}
+{% comment %} Root landing: declare both language variants for hreflang. {% endcomment %}
+<link rel="alternate" hreflang="en" href="https://qubo-plus.github.io/en/" />
+<link rel="alternate" hreflang="ja" href="https://qubo-plus.github.io/ja/" />
+<link rel="alternate" hreflang="x-default" href="https://qubo-plus.github.io/en/" />
 {% endif %}
 
 {% if page.redirect_to %}

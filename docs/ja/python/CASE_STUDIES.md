@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Case Studies"
+title: "活用事例"
 nav_order: 6
 lang: ja
 hreflang_alt: "en/python/CASE_STUDIES"

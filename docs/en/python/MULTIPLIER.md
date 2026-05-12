@@ -151,7 +151,7 @@ def multiplier(x, y, z):
 
 x = qbpp.var("x", shape=4)
 y = qbpp.var("y", shape=4)
-z = [1, 1, 1, 1, 0, 0, 0, 1]
+z = qbpp.array([1, 1, 1, 1, 0, 0, 0, 1])
 f = multiplier(x, y, z)
 f.simplify_as_binary()
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Comparison Operators"
+title: "比較演算子"
 nav_order: 14
 lang: ja
 hreflang_alt: "en/COMPARISON"

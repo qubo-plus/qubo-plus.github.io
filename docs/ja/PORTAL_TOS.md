@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Portal Account Terms of Service"
+title: "ポータルアカウント利用規約"
 nav_exclude: true
 lang: ja
 hreflang_alt: "en/PORTAL_TOS"

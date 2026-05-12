@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Slice and Concat Functions"
+title: "スライスと連結関数"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/SLICE_CONCAT"

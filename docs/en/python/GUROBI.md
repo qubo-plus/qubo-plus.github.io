@@ -23,7 +23,7 @@ The following program solves a number partitioning problem using the Gurobi Opti
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 x = qbpp.var("x", shape=len(w))
 p = qbpp.expr()
 q = qbpp.expr()

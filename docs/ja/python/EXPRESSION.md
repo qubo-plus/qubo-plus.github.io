@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Expression Classes"
+title: "式クラス"
 nav_order: 15
 lang: ja
 hreflang_alt: "en/python/EXPRESSION"
@@ -159,6 +159,8 @@ import pyqbpp as qbpp
 x = qbpp.var("x", between=(0, 10))
 c1 = qbpp.constrain(x, equal=3)              # penalty = (x - 3)^2
 c2 = qbpp.constrain(x, between=(2, 5))       # penalty = 0 (2 <= x <= 5 のとき)
+c3 = (x <= 5)                                # qbpp.constrain(x, between=(None, 5)) の省略形
+c4 = (x == 3)                                # qbpp.constrain(x, equal=3) の省略形
 ```
 
 制約式はそのまま算術式として使え、算術文脈ではその penalty 部分として振る舞います:

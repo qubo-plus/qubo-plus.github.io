@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Search Parameters"
+title: "探索パラメータ"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/python/PARAMS"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Replace Functions"
+title: "置換関数"
 nav_order: 17
 lang: ja
 hreflang_alt: "en/REPLACE"

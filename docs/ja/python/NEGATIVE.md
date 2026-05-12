@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Negated Literals"
+title: "否定リテラル"
 nav_order: 18
 lang: ja
 hreflang_alt: "en/python/NEGATIVE"

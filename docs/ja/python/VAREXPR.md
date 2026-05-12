@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Data Types"
+title: "データ型"
 nav_order: 10
 lang: ja
 hreflang_alt: "en/python/VAREXPR"

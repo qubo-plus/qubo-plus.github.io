@@ -23,7 +23,7 @@ When a QUBO expression is given in this form, PyQBPP can construct and solve it 
 ```python
 import pyqbpp as qbpp
 
-w = [[1, -2, 1], [-4, 3, 2], [4, 2, -1]]
+w = qbpp.array([[1, -2, 1], [-4, 3, 2], [4, 2, -1]])
 x = qbpp.var("x", shape=3)
 f = qbpp.expr()
 for i in range(3):
@@ -38,7 +38,7 @@ print("sol =", sol)
 ```
 
 This program demonstrates an example with $n = 3$.
-A $3 \times 3$ Python list `w` is defined, and the expression `f` is constructed from it.
+A $3 \times 3$ integer array `w` is defined with `qbpp.array(...)`, and the expression `f` is constructed from it.
 After applying `simplify_as_binary()` to simplify the expression using the binary variable rule ($x_i^2 = x_i$), the EasySolver searches for the optimal solution.
 Running this program produces the following output:
 

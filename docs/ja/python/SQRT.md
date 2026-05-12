@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Square Root"
+title: "平方根"
 nav_order: 42
 lang: ja
 hreflang_alt: "en/python/SQRT"

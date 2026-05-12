@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Interval Subset Sum"
+title: "区間部分和"
 nav_order: 35
 lang: ja
 hreflang_alt: "en/ISSP"

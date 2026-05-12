@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Sum Functions"
+title: "総和関数"
 nav_order: 18
 lang: ja
 hreflang_alt: "en/SUM"

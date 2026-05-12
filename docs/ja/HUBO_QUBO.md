@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "HUBO and QUBO"
+title: "HUBO と QUBO"
 nav_order: 2
 lang: ja
 hreflang_alt: "en/HUBO_QUBO"

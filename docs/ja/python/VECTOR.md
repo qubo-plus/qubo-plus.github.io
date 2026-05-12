@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Arrays"
+title: "配列"
 nav_order: 4
 lang: ja
 hreflang_alt: "en/python/VECTOR"

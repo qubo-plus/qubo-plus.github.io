@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Multiplier Simulation"
+title: "乗算器シミュレーション"
 nav_order: 51
 lang: ja
 hreflang_alt: "en/MULTIPLIER"

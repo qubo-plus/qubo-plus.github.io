@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Factorization"
+title: "素因数分解"
 nav_order: 8
 lang: ja
 hreflang_alt: "en/python/FACTORIZATION"

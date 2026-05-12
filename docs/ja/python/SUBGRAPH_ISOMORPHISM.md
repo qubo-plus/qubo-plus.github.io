@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Subgraph Isomorphism"
+title: "部分グラフ同型"
 nav_order: 56
 lang: ja
 hreflang_alt: "en/python/SUBGRAPH_ISOMORPHISM"

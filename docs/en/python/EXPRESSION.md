@@ -159,6 +159,8 @@ import pyqbpp as qbpp
 x = qbpp.var("x", between=(0, 10))
 c1 = qbpp.constrain(x, equal=3)              # penalty = (x - 3)^2
 c2 = qbpp.constrain(x, between=(2, 5))       # penalty = 0 when 2 <= x <= 5
+c3 = (x <= 5)                                # shorthand for qbpp.constrain(x, between=(None, 5))
+c4 = (x == 3)                                # shorthand for qbpp.constrain(x, equal=3)
 ```
 
 A constraint expression can be used directly in further arithmetic — in such contexts it behaves as its penalty part:

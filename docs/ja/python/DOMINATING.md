@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Dominating Set"
+title: "支配集合"
 nav_order: 55
 lang: ja
 hreflang_alt: "en/python/DOMINATING"

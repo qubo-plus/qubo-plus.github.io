@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Solving Expressions"
+title: "式の求解"
 nav_order: 3
 lang: ja
 hreflang_alt: "en/python/SOLVE"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Comparison Constraints"
+title: "比較制約"
 nav_order: 14
 lang: ja
 hreflang_alt: "en/python/COMPARISON"
@@ -60,14 +60,15 @@ a=1, b=1, c=0, f=0, body=3
 これらの結果から、2つの最適解が `f = 0` を達成し、`body = 3` を満たしていることが確認できます。
 
 ## サポートされる等式の形式に関する注意
-PyQBPPは等式制約を以下の形式でのみサポートしています:
+PyQBPPは等式制約を以下の2つの等価な形式でサポートしています:
 - **`qbpp.constrain(expression, equal=integer)`**
+- **`expression == integer`**（省略形、[演算子による省略構文](#演算子による省略構文)を参照）
 
-`expression1 == expression2` の形式は直接サポートされていません。
-代わりに、以下のように書き換えることができます:
-- **`qbpp.constrain(expression1 - expression2, equal=0)`**
+`expression1 == expression2`（両辺が式）の形式は直接サポートされて**いません**。
+代わりに、以下のように書き換えてください:
+- **`qbpp.constrain(expression1 - expression2, equal=0)`** — または等価に **`(expression1 - expression2) == 0`**
 
-これは完全にサポートされています。
+これらは完全にサポートされています。
 
 
 ## 範囲制約
@@ -288,8 +289,11 @@ $f$ の取りうる最小値と最大値はそれぞれ0と24です。
 したがって、PyQBPPは対応する範囲制約を構築する際に、$-\infty$ と $+\infty$ の代わりに0と24を使用します。
 
 > **注釈**
-> PyQBPPは不等式制約において下界と上界の両方を（無限側には `None` を明示的に指定して）指定することを意図的に要求しています。
-> これにより、**MIPスタイルの解釈**（例: $f\leq u$ が $0\leq f\leq u$ を意味する）と**QUBOスタイルの解釈**（例: $f\leq u$ が $-\infty\leq f\leq u$ を意味する）の間の曖昧さを回避し、微妙なモデリングエラーを防ぎます。
+> `qbpp.constrain(f, between=(l, None))` や `qbpp.constrain(f, between=(None, u))` を使う場合、
+> PyQBPPは**QUBOスタイルの解釈**を採用します。すなわち、`None` 側は $f$ の係数から導かれる
+> 構造的な境界（全変数がバイナリのときに $f$ が取りうる最大値・最小値）で置き換えられます。
+> これは **MIPスタイルの解釈**（例: $f\leq u$ を $0\leq f\leq u$ と解釈する流儀）とは異なります。
+> QUBOスタイルを採用しているのは、ユーザーが書いた以上の暗黙の制約を勝手に追加しないためです。
 
 ### 下界・上界制約のPyQBPPプログラム
 PyQBPPでは、無限大の値は `between` の対応する側の `None` で表現されます。
@@ -352,3 +356,40 @@ a=1, b=0, c=0, f=0, body=4, sol=0:{{a,1},{b,0},{c,0},{{s0}[0],0},{{s0}[1],1},{{s
 a=1, b=1, c=0, f=0, body=13, sol=0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1}}
 ```
 {% endraw %}
+
+## 演算子による省略構文
+利便性のため、PyQBPPは式と整数の間の比較演算子 `==`, `<=`, `>=` も受け付けます。
+これらは `qbpp.constrain()` の単なる糖衣構文であり、同等の制約式を生成します:
+
+| 演算子による形式 | 等価な `qbpp.constrain()` 形式 | 生成される penalty |
+|---|---|---|
+| `f == n` | `qbpp.constrain(f, equal=n)` | $(f-n)^2$ |
+| `f <= n` | `qbpp.constrain(f, between=(None, n))` | $\min(f) \leq f \leq n$ のとき $0$ |
+| `f >= n` | `qbpp.constrain(f, between=(n, None))` | $n \leq f \leq \max(f)$ のとき $0$ |
+
+ここで $\min(f)$ と $\max(f)$ は $f$ の係数から導かれる構造的な境界であり、上記の
+[下界・上界制約](#下界上界制約)で説明したルールに従います。
+反転形式 `n <= f`, `n >= f` も Python の標準的な反射規則により動作します。
+
+例えば、上の上界制約のプログラムは次のように書き換えられます:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (4 * a + 9 * b + 11 * c) <= 14   # qbpp.constrain(..., between=(None, 14)) と等価
+f.simplify_as_binary()
+```
+{% endraw %}
+
+これらの演算子は式の配列に対しても定義されており、その場合は要素ごとに制約が適用され、
+制約式の配列が返されます。
+
+> **注釈**
+> 右辺には `int` のみを受け付けます。`expression1 <= expression2` の形式はサポートされておらず、
+> `(expression1 - expression2) <= 0` に書き換えるか、`qbpp.constrain()` で `between=` 範囲を
+> 明示的に指定してください。`var1 == var2` のような変数の同一性比較（辞書のキーとして使うために
+> bool を返すもの）は影響を受けません。演算子オーバーロードは `Expr` および式の配列に対してのみ
+> 定義されているためです。

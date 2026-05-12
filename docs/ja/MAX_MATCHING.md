@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Maximum Matching"
+title: "最大マッチング"
 nav_order: 11
 lang: ja
 hreflang_alt: "en/MAX_MATCHING"

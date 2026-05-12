@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Variable and Expression Classes"
+title: "変数・式クラス"
 nav_order: 10
 lang: ja
 hreflang_alt: "en/VAREXPR"

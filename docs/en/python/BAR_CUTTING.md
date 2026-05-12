@@ -53,8 +53,8 @@ The PyQBPP program for this cutting stock problem is as follows:
 import pyqbpp as qbpp
 
 L = 60
-l = [13, 23, 8, 11]
-c = [10, 4, 8, 6]
+l = qbpp.array([13, 23, 8, 11])
+c = qbpp.array([10, 4, 8, 6])
 N = len(l)
 M = 6
 

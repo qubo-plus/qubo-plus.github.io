@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Quick Start"
+title: "クイックスタート"
 nav_order: 4
 lang: ja
 hreflang_alt: "en/QUICK"

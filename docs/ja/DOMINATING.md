@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Dominating Set"
+title: "支配集合"
 nav_order: 14
 lang: ja
 hreflang_alt: "en/DOMINATING"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QUBO Problem"
+title: "QUBO問題"
 nav_order: 39
 lang: ja
 hreflang_alt: "en/QUBO"

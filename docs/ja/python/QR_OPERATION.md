@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QR: Operations"
+title: "クイックリファレンス: 演算"
 nav_order: 31
 lang: ja
 hreflang_alt: "en/python/QR_OPERATION"

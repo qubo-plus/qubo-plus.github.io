@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Multi-dimensional Variables"
+title: "多次元変数"
 nav_order: 13
 lang: ja
 hreflang_alt: "en/python/MULTIDIM"
@@ -86,7 +86,7 @@ f = x[0][0] +2*x[0][1] +3*x[1][0] +4*x[1][1]
 ```python
 import pyqbpp as qbpp
 
-max_vals = [3, 7, 15, 5]
+max_vals = qbpp.array([3, 7, 15, 5])
 x = qbpp.var("x", shape=len(max_vals), equal=0)
 for i in range(len(max_vals)):
     x[i] = qbpp.constrain(x[i], between=(0, max_vals[i]))
@@ -124,7 +124,7 @@ Python のリスト内包表記を `qbpp.array()` で包む方法もあります
 ```python
 import pyqbpp as qbpp
 
-max_vals = [3, 7, 15, 5]
+max_vals = qbpp.array([3, 7, 15, 5])
 x = qbpp.array([qbpp.var(f"x[{i}]", between=(0, max_vals[i]))
                   for i in range(len(max_vals))])
 ```

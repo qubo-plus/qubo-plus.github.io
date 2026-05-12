@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Demos"
+title: "デモ"
 nav_order: 7
 lang: ja
 hreflang_alt: "en/DEMOS"

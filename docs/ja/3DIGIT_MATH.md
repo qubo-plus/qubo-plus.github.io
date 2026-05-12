@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "3-Digit Math"
+title: "3桁演算"
 nav_order: 6
 lang: ja
 hreflang_alt: "en/3DIGIT_MATH"

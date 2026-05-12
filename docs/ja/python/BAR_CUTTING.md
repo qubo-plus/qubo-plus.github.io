@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Cutting Stock"
+title: "切り出し"
 nav_order: 73
 lang: ja
 hreflang_alt: "en/python/BAR_CUTTING"
@@ -51,8 +51,8 @@ $$
 import pyqbpp as qbpp
 
 L = 60
-l = [13, 23, 8, 11]
-c = [10, 4, 8, 6]
+l = qbpp.array([13, 23, 8, 11])
+c = qbpp.array([10, 4, 8, 6])
 N = len(l)
 M = 6
 

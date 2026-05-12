@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Edge Coloring"
+title: "辺彩色"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/EDGE_COLOR"

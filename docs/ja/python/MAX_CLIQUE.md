@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Maximum Clique"
+title: "最大クリーク"
 nav_order: 53
 lang: ja
 hreflang_alt: "en/python/MAX_CLIQUE"

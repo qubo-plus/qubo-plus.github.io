@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Array Operations"
+title: "配列演算"
 nav_order: 12
 lang: ja
 hreflang_alt: "en/python/OPVECTOR"

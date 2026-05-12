@@ -86,7 +86,7 @@ First create a **placeholder array** using **`qbpp.var("name", shape=..., equal=
 ```python
 import pyqbpp as qbpp
 
-max_vals = [3, 7, 15, 5]
+max_vals = qbpp.array([3, 7, 15, 5])
 x = qbpp.var("x", shape=len(max_vals), equal=0)
 for i in range(len(max_vals)):
     x[i] = qbpp.constrain(x[i], between=(0, max_vals[i]))
@@ -125,7 +125,7 @@ You can also use a Python list comprehension wrapped with `qbpp.array()`:
 ```python
 import pyqbpp as qbpp
 
-max_vals = [3, 7, 15, 5]
+max_vals = qbpp.array([3, 7, 15, 5])
 x = qbpp.array([qbpp.var(f"x[{i}]", between=(0, max_vals[i]))
                   for i in range(len(max_vals))])
 ```

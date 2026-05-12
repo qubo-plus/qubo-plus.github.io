@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QR: Integer & Constraint"
+title: "クイックリファレンス: 整数と制約"
 nav_order: 32
 lang: ja
 hreflang_alt: "en/python/QR_INTCONSTRAINT"

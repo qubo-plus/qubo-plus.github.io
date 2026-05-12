@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Magic Square"
+title: "魔方陣"
 nav_order: 40
 lang: ja
 hreflang_alt: "en/MAGIC"

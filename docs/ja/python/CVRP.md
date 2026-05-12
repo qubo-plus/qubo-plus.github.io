@@ -198,7 +198,7 @@ locations = [
     (200, 200, 0),  (247, 296, 44), (31, 393, 57), (96, 398, 94),
     (391, 230, 91), (118, 95, 66),  (197, 99, 59), (224, 8, 10),
     (3, 10, 52),    (281, 379, 83)]
-vehicle_capacity = [100, 200, 300]
+vehicle_capacity = qbpp.array([100, 200, 300])
 
 N = len(locations)
 V = len(vehicle_capacity)

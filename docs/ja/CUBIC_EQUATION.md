@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Cubic Equation"
+title: "3次方程式"
 nav_order: 7
 lang: ja
 hreflang_alt: "en/CUBIC_EQUATION"

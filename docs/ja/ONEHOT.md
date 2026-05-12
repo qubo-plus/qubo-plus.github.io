@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "One-Hot to Integer Conversion"
+title: "ワンホットから整数への変換"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/ONEHOT"

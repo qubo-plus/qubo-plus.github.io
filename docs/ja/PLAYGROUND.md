@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Playground"
+title: "プレイグラウンド"
 nav_order: 8
 lang: ja
 hreflang_alt: "en/PLAYGROUND"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Reference Variables"
+title: "参照変数"
 nav_order: 30
 lang: ja
 hreflang_alt: "en/QR_VARIABLE"

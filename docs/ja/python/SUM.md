@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Sum Functions"
+title: "総和関数"
 nav_order: 18
 lang: ja
 hreflang_alt: "en/python/SUM"
@@ -69,6 +69,29 @@ vector_sum[1][2] = 3 +x[1][2][0] +x[1][2][1] +x[1][2][2]
 ```
 明示的なforループを使っても同じ結果が得られます。
 しかし、大きな配列では `sum()` と `vector_sum()` の使用を推奨します。これらの関数は内部的にマルチスレッドを活用して計算を高速化するためです。
+
+## 受け付ける入力
+
+`qbpp.sum()` は qbpp 配列だけでなく、**list**, **tuple**, **ジェネレータ式**, **`range`** など任意の Python iterable を受け付けます。
+配列以外の入力は内部で `qbpp.array(...)` に暗黙変換されてから同じ高速パスで合計されるため、戻り値は常にスカラの `Expr` です。
+
+```python
+# qbpp 配列（多次元）— 全要素の総和
+qbpp.sum(x)
+
+# 疎なインデックス集合に対する内包表記（例: グラフのエッジ）
+qbpp.sum([~x[u] * ~x[v] for u, v in edges])
+
+# ジェネレータ式 — 上と等価でやや軽量
+qbpp.sum(~x[u] * ~x[v] for u, v in edges)
+
+# 整数の iterable も動作する
+qbpp.sum(range(10))   # → 45
+```
+
+この機能は、配列演算では表現しにくい**疎で不規則な総和**（グラフのエッジ集合、集合への所属など）を書くときに特に便利です。
+
+> **注意**: Python 標準の `sum()` も qbpp 配列に対して動作しますが、多次元では挙動が異なります。2次元配列 `y` に対して `sum(y)` は軸0で縮約して1次元配列を返しますが、`qbpp.sum(y)` は全要素の総和（スカラ）を返します（`numpy.sum` と同じ規約）。QUBO の定式化では常に `qbpp.sum()` を使ってください。
 
 ## `vector_sum()` の軸指定
 

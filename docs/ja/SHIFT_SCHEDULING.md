@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Shift Scheduling"
+title: "シフトスケジューリング"
 nav_order: 31
 lang: ja
 hreflang_alt: "en/SHIFT_SCHEDULING"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Partitioning Problem"
+title: "分割問題"
 nav_order: 4
 lang: ja
 hreflang_alt: "en/PARTITION"

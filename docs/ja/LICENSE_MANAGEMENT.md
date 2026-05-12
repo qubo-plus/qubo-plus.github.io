@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "License Management"
+title: "ライセンス管理"
 nav_order: 4
 lang: ja
 hreflang_alt: "en/LICENSE_MANAGEMENT"

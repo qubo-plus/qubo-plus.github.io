@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Installation"
+title: "インストール"
 nav_order: 3
 lang: ja
 hreflang_alt: "en/INSTALL"

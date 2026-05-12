@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Home"
+title: "ホーム"
 nav_order: 1
 lang: ja
 hreflang_alt: "en/index"

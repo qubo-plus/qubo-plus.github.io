@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Terms and Conditions"
+title: "利用規約"
 nav_order: 99
 lang: ja
 hreflang_alt: "en/TERMS"

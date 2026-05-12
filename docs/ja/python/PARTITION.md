@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Partitioning Problem"
+title: "分割問題"
 nav_order: 5
 lang: ja
 hreflang_alt: "en/python/PARTITION"
@@ -49,7 +49,7 @@ $$
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 
 x = qbpp.var("x", shape=len(w))
 p = qbpp.expr()
@@ -125,7 +125,7 @@ Pythonリストと array の乗算（例: `w * x`）では、PyQBPPの `__rmul__
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 x = qbpp.var("x", shape=len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)

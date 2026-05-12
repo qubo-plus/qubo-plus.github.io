@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Maximum Matching"
+title: "最大マッチング"
 nav_order: 52
 lang: ja
 hreflang_alt: "en/python/MAX_MATCHING"

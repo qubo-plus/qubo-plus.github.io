@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Shift Scheduling"
+title: "シフトスケジューリング"
 nav_order: 71
 lang: ja
 hreflang_alt: "en/python/SHIFT_SCHEDULING"
@@ -98,7 +98,7 @@ $$
 import pyqbpp as qbpp
 
 days = 31
-worker_cost = [13, 13, 12, 12, 11, 10]
+worker_cost = qbpp.array([13, 13, 12, 12, 11, 10])
 workers = len(worker_cost)
 
 x = qbpp.var("x", shape=(workers, days + 2))

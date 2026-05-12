@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "N-Queens"
+title: "N-クイーン"
 nav_order: 41
 lang: ja
 hreflang_alt: "en/QUEENS"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Knapsack"
+title: "ナップサック"
 nav_order: 30
 lang: ja
 hreflang_alt: "en/KNAPSACK"

@@ -95,8 +95,8 @@ The lower and upper bounds $[l_i,u_i]$ are stored in the lists `lower` and `uppe
 ```python
 import pyqbpp as qbpp
 
-lower = [18, 17, 21, 18, 20, 14, 14, 23]
-upper = [19, 17, 22, 19, 20, 16, 15, 25]
+lower = qbpp.array([18, 17, 21, 18, 20, 14, 14, 23])
+upper = qbpp.array([19, 17, 22, 19, 20, 16, 15, 25])
 T = 100
 n = len(lower)
 
@@ -222,8 +222,8 @@ The following PyQBPP program solves the same ISSP instance using the QUBO formul
 ```python
 import pyqbpp as qbpp
 
-lower = [18, 17, 21, 18, 20, 14, 14, 23]
-upper = [19, 17, 22, 19, 20, 16, 15, 25]
+lower = qbpp.array([18, 17, 21, 18, 20, 14, 14, 23])
+upper = qbpp.array([19, 17, 22, 19, 20, 16, 15, 25])
 T = 100
 n = len(lower)
 

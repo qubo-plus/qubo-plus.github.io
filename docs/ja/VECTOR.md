@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Arrays"
+title: "配列"
 nav_order: 3
 lang: ja
 hreflang_alt: "en/VECTOR"

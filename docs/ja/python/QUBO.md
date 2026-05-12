@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QUBO Problem"
+title: "QUBO問題"
 nav_order: 79
 lang: ja
 hreflang_alt: "en/python/QUBO"
@@ -23,7 +23,7 @@ $$
 ```python
 import pyqbpp as qbpp
 
-w = [[1, -2, 1], [-4, 3, 2], [4, 2, -1]]
+w = qbpp.array([[1, -2, 1], [-4, 3, 2], [4, 2, -1]])
 x = qbpp.var("x", shape=3)
 f = qbpp.expr()
 for i in range(3):
@@ -38,7 +38,7 @@ print("sol =", sol)
 ```
 
 このプログラムは $n = 3$ の例です．
-$3 \times 3$ の Python リスト `w` を定義し，それをもとに式 `f` を構築しています．
+$3 \times 3$ の整数配列 `w` を `qbpp.array(...)` で定義し，それをもとに式 `f` を構築しています．
 `simplify_as_binary()` で二値変数のルール（$x_i^2 = x_i$）を適用して式を整理した後，EasySolver で解探索を行います．
 このプログラムを実行すると，次の出力が得られます．
 

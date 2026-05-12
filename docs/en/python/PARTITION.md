@@ -49,7 +49,7 @@ The following program creates the QUBO formulation of the partitioning problem f
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 
 x = qbpp.var("x", shape=len(w))
 p = qbpp.expr()
@@ -126,7 +126,7 @@ Thus, **`qbpp.sum(w * ~x)`** returns an expression storing $Q(L)$.
 ```python
 import pyqbpp as qbpp
 
-w = [64, 27, 47, 74, 12, 83, 63, 40]
+w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 x = qbpp.var("x", shape=len(w))
 p = qbpp.sum(w * x)
 q = qbpp.sum(w * ~x)

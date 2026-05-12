@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Set Cover"
+title: "集合被覆"
 nav_order: 16
 lang: ja
 hreflang_alt: "en/SETCOVER"

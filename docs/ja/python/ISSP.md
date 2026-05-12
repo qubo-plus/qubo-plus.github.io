@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Interval Subset Sum"
+title: "区間部分和"
 nav_order: 75
 lang: ja
 hreflang_alt: "en/python/ISSP"
@@ -96,8 +96,8 @@ $$
 ```python
 import pyqbpp as qbpp
 
-lower = [18, 17, 21, 18, 20, 14, 14, 23]
-upper = [19, 17, 22, 19, 20, 16, 15, 25]
+lower = qbpp.array([18, 17, 21, 18, 20, 14, 14, 23])
+upper = qbpp.array([19, 17, 22, 19, 20, 16, 15, 25])
 T = 100
 n = len(lower)
 
@@ -216,8 +216,8 @@ $$
 ```python
 import pyqbpp as qbpp
 
-lower = [18, 17, 21, 18, 20, 14, 14, 23]
-upper = [19, 17, 22, 19, 20, 16, 15, 25]
+lower = qbpp.array([18, 17, 21, 18, 20, 14, 14, 23])
+upper = qbpp.array([19, 17, 22, 19, 20, 16, 15, 25])
 T = 100
 n = len(lower)
 

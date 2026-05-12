@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Range Constraints"
+title: "範囲制約"
 nav_order: 9
 lang: ja
 hreflang_alt: "en/python/RANGE"

@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Integer Variables"
+title: "整数変数"
 nav_order: 6
 lang: ja
 hreflang_alt: "en/INTEGER"

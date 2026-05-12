@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Set Cover"
+title: "集合被覆"
 nav_order: 57
 lang: ja
 hreflang_alt: "en/python/SETCOVER"
@@ -75,7 +75,7 @@ n = 10
 cover = [
     [0, 1, 2], [2, 3, 4],       [4, 5, 6],    [6, 7, 8],
     [9, 0, 1], [1, 3, 5, 7, 9], [0, 3, 6, 9], [1, 4, 7, 8]]
-cost = [3, 4, 3, 2, 3, 4, 3, 3]
+cost = qbpp.array([3, 4, 3, 2, 3, 4, 3, 3])
 m = len(cover)
 
 x = qbpp.var("x", shape=m)

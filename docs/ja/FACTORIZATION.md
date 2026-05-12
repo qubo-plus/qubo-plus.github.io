@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Factorization Through HUBO Expression"
+title: "HUBO式による素因数分解"
 nav_order: 7
 lang: ja
 hreflang_alt: "en/FACTORIZATION"

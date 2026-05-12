@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QR: Solutions"
+title: "クイックリファレンス: 解"
 nav_order: 33
 lang: ja
 hreflang_alt: "en/QR_SOLUTION"

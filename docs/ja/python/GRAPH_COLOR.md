@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Graph Coloring"
+title: "グラフ彩色"
 nav_order: 59
 lang: ja
 hreflang_alt: "en/python/GRAPH_COLOR"

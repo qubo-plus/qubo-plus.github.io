@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Integer Linear Programming"
+title: "整数線形計画"
 nav_order: 34
 lang: ja
 hreflang_alt: "en/ILP"

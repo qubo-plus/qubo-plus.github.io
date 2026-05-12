@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Evaluating Expressions"
+title: "式の評価"
 nav_order: 16
 lang: ja
 hreflang_alt: "en/EVAL"

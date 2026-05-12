@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "QR: Variables"
+title: "クイックリファレンス: 変数"
 nav_order: 30
 lang: ja
 hreflang_alt: "en/python/QR_VARIABLE"

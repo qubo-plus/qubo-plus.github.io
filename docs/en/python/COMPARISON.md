@@ -60,12 +60,13 @@ a=1, b=1, c=0, f=0, body=3
 These results confirm that two optimal solutions attain `f = 0` and satisfy `body = 3`.
 
 ## Notes on Supported Equality Forms
-PyQBPP supports the equality constraint only in the following form:
+PyQBPP supports the equality constraint in two equivalent forms:
 - **`qbpp.constrain(expression, equal=integer)`**
+- **`expression == integer`** (shorthand, see [Shorthand Operator Syntax](#shorthand-operator-syntax))
 
-The form `expression1 == expression2` is not directly supported.
-Instead of `expression1 == expression2`, you can rewrite the constraint as:
-- **`qbpp.constrain(expression1 - expression2, equal=0)`**
+The form `expression1 == expression2` (both sides being expressions) is **not** directly supported.
+Instead, rewrite the constraint as:
+- **`qbpp.constrain(expression1 - expression2, equal=0)`** — or equivalently **`(expression1 - expression2) == 0`**
 
 which is fully supported.
 
@@ -302,10 +303,12 @@ Thus, PyQBPP uses 0 and 24 as substitutes for $-\infty$ and $+\infty$
 when constructing the corresponding range constraints.
 
 > **NOTE**
-> PyQBPP intentionally requires both lower and upper bounds to be specified in inequality constraints (using `None` explicitly for an unbounded side).
-> This avoids ambiguity between **MIP-style interpretations** (e.g.,
-> $f\leq u$ meaning $0\leq f\leq u$) and **QUBO-style interpretations** (e.g., $f\leq u$ meaning $-\infty\leq f\leq u$),
-> which could otherwise lead to subtle modeling errors.
+> When you write `qbpp.constrain(f, between=(l, None))` or `qbpp.constrain(f, between=(None, u))`,
+> PyQBPP adopts the **QUBO-style interpretation**: the `None` side is replaced by the structural
+> bound of $f$ derived from its coefficients (the maximum and minimum values $f$ can take given that
+> all variables are binary). This differs from **MIP-style interpretations**, where `f <= u` would
+> typically be read as $0 \leq f \leq u$. The QUBO interpretation is used so that no implicit
+> constraint is silently added beyond what the user wrote.
 
 ### PyQBPP Programs for Lower and Upper Bound Constraints
 In PyQBPP, an infinite value is represented by `None` on the corresponding side of `between`.
@@ -370,3 +373,41 @@ a=1, b=0, c=0, f=0, body=4, sol=0:{{a,1},{b,0},{c,0},{{s0}[0],0},{{s0}[1],1},{{s
 a=1, b=1, c=0, f=0, body=13, sol=0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1}}
 ```
 {% endraw %}
+
+## Shorthand Operator Syntax
+For convenience, PyQBPP also accepts the Python comparison operators `==`, `<=`, and `>=`
+between an expression and an integer. They are pure syntactic sugar for `qbpp.constrain()`
+and produce the same constraint expression:
+
+| Operator form | Equivalent `qbpp.constrain()` form | Generated penalty |
+|---|---|---|
+| `f == n` | `qbpp.constrain(f, equal=n)` | $(f-n)^2$ |
+| `f <= n` | `qbpp.constrain(f, between=(None, n))` | $0$ iff $\min(f) \leq f \leq n$ |
+| `f >= n` | `qbpp.constrain(f, between=(n, None))` | $0$ iff $n \leq f \leq \max(f)$ |
+
+Here $\min(f)$ and $\max(f)$ are the structural bounds of $f$ derived from its coefficients,
+following the same rule described above in [Lower and Upper Bound Constraints](#lower-and-upper-bound-constraints).
+The reflected forms `n <= f` and `n >= f` work as well via Python's standard reflection rules.
+
+For example, the upper-bound program above can be rewritten as:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (4 * a + 9 * b + 11 * c) <= 14   # equivalent to qbpp.constrain(..., between=(None, 14))
+f.simplify_as_binary()
+```
+{% endraw %}
+
+These operators are also defined on arrays of expressions, in which case the constraint is
+applied element-wise and an array of constraint expressions is returned.
+
+> **NOTE**
+> Only `int` is accepted on the right-hand side. The form `expression1 <= expression2` is
+> not supported; rewrite it as `(expression1 - expression2) <= 0`, or use `qbpp.constrain()`
+> with an explicit `between=` range. Variable-identity comparisons such as `var1 == var2`
+> (returning a boolean for use as dictionary keys) are unaffected, as the operator overloads
+> are defined only on `Expr` and arrays of expressions.

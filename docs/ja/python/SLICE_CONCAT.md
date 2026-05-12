@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Slice and Concat"
+title: "スライスと連結"
 nav_order: 19
 lang: ja
 hreflang_alt: "en/python/SLICE_CONCAT"

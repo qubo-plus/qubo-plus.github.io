@@ -1,7 +1,7 @@
 ---
 layout: default
 nav_exclude: true
-title: "Permutation Matrix"
+title: "置換行列"
 nav_order: 6
 lang: ja
 hreflang_alt: "en/python/PERMUTATION"
