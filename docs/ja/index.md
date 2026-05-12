@@ -5,6 +5,7 @@ nav_order: 1
 lang: ja
 hreflang_alt: "en/index"
 hreflang_lang: "en"
+mode_shared: true
 ---
 
 # QUBO++: QUBO/HUBOによる組合せ最適化のためのモデリング・求解フレームワーク

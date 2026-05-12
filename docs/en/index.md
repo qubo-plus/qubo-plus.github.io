@@ -5,6 +5,7 @@ nav_order: 1
 lang: en
 hreflang_alt: "ja/index"
 hreflang_lang: "ja"
+mode_shared: true
 ---
 
 # QUBO++: A model-and-solve framework for combinatorial optimization via QUBO/HUBO
