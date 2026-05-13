@@ -1,6 +1,26 @@
 <meta name="google-site-verification" content="R4v2nXwRZ8rUSkQZV_fo-qIyh1VUbNsqeQsRoTS-IwI" />
 
-{% if page.mode_shared %}<meta name="qbpp-mode-shared" content="true" />{% endif %}
+{% if page.mode_shared %}
+<meta name="qbpp-mode-shared" content="true" />
+<style>
+  /* Shared pages render both sidebars (cpp + python). Hide both by default;
+     the .qbpp-mode-cpp / .qbpp-mode-python class on <html> shows one. */
+  nav.site-nav[data-mode] { display: none; }
+  html.qbpp-mode-cpp nav.site-nav[data-mode="cpp"] { display: block; }
+  html.qbpp-mode-python nav.site-nav[data-mode="python"] { display: block; }
+</style>
+<script>
+  /* Apply stored mode before paint to avoid FOUC. */
+  (function () {
+    var mode = 'cpp';
+    try {
+      var stored = localStorage.getItem('qbpp-mode');
+      if (stored === 'python') mode = 'python';
+    } catch (e) {}
+    document.documentElement.classList.add('qbpp-mode-' + mode);
+  })();
+</script>
+{% endif %}
 
 {% if page.lang %}
 <link rel="alternate" hreflang="{{ page.lang }}" href="{{ page.url | absolute_url }}" />

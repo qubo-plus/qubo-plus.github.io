@@ -1,27 +1,30 @@
 {%- comment -%}
   Override of just-the-docs site_nav.
 
-  Filters site.html_pages by both:
-    1. current language (page.lang: en or ja) — set by include.lang
-    2. current mode (cpp or python) — derived from page.python.
-       Mode python: only /en/python/ or /ja/python/ items (page.python == true),
-                    plus pages flagged mode_shared: true.
-       Mode cpp:    everything else in the current language.
+  Filters site.html_pages by:
+    1. current language (include.lang or page.lang)
+    2. current mode (include.python or page.python). When include.python
+       is explicitly passed (even as false) it takes precedence.
 
-  This avoids the duplicate Installation/Quick Start/Case Studies entries
-  that previously showed both /en/X and /en/python/X side-by-side.
+  Pages with mode_shared: true (HUBO_QUBO, LICENSE_MANAGEMENT, etc.) appear
+  in both cpp and python sidebars.
+
+  include.mode_attr: when provided, written as data-mode on <nav> so the
+  client-side script can toggle visibility on shared pages where two
+  sidebars are rendered side by side.
 {%- endcomment -%}
 
 {%- assign current_lang = include.lang | default: page.lang | default: 'en' -%}
-{%- assign current_is_python = include.python | default: page.python -%}
+{%- assign current_is_python = include.python -%}
+{%- if current_is_python == nil -%}{%- assign current_is_python = page.python -%}{%- endif -%}
 
-<nav aria-label="Main" id="site-nav" class="site-nav">
+<nav aria-label="Main" id="site-nav-{{ include.mode_attr | default: 'default' }}" class="site-nav"{% if include.mode_attr %} data-mode="{{ include.mode_attr }}"{% endif %}>
   {%- assign lang_pages = site.html_pages
         | where_exp: "item", "item.title != nil"
         | where_exp: "item", "item.parent == nil"
         | where_exp: "item", "item.nav_exclude != true"
         | where: "lang", current_lang -%}
-  {%- if current_is_python -%}
+  {%- if current_is_python == true -%}
     {%- assign mode_pages = lang_pages | where_exp: "item", "item.python == true or item.mode_shared == true" -%}
   {%- else -%}
     {%- assign mode_pages = lang_pages | where_exp: "item", "item.python != true" -%}

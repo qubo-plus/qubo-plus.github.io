@@ -1,9 +1,10 @@
 {%- comment -%}
   Sidebar UI: C++ / Python mode toggle and EN / JA language toggle.
-  Navigation items are server-side filtered by page.lang in
-  components/site_nav.html so this script no longer hides items
-  at runtime. Buttons here only navigate the user between the
-  C++/Python and EN/JA variants of the current page.
+
+  Three kinds of pages:
+    1. cpp page  (URL not /python/, not mode_shared) — single SSR sidebar; button navigates to /python/ equivalent.
+    2. python page (URL contains /python/)            — single SSR sidebar; button navigates to /en|ja/ equivalent.
+    3. mode_shared page (HUBO_QUBO, Home, ...)         — both sidebars SSR'd. Button toggles in place via localStorage + html class.
 {%- endcomment -%}
 
 <div style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; padding:0.3rem 2rem 0.1rem;">
@@ -20,41 +21,55 @@
 <script>
 (function() {
   var path = window.location.pathname;
-  var isPython = path.indexOf('/python/') !== -1;
+  var urlIsPython = path.indexOf('/python/') !== -1;
+  var isShared = !!document.querySelector('meta[name="qbpp-mode-shared"]');
 
-  /* C++/Python button styling: highlight the active mode */
+  function getStoredMode() {
+    try { return localStorage.getItem('qbpp-mode'); } catch (e) { return null; }
+  }
+  function setStoredMode(m) {
+    try { localStorage.setItem('qbpp-mode', m); } catch (e) {}
+  }
+
+  /* Current mode: derived from URL on unambiguous pages; from localStorage on shared. */
+  function currentMode() {
+    if (urlIsPython) return 'python';
+    if (!isShared) return 'cpp';
+    return getStoredMode() === 'python' ? 'python' : 'cpp';
+  }
+
+  /* Persist URL-derived mode on unambiguous pages so shared pages can recall it. */
+  if (!isShared) setStoredMode(urlIsPython ? 'python' : 'cpp');
+
+  /* Initial html class is set by an inline script in <head> on shared pages.
+     Keep it in sync if storage was stale relative to URL on non-shared pages. */
+  if (!isShared) {
+    document.documentElement.classList.remove('qbpp-mode-cpp', 'qbpp-mode-python');
+    document.documentElement.classList.add('qbpp-mode-' + (urlIsPython ? 'python' : 'cpp'));
+  }
+
   function styleModeButtons() {
+    var mode = currentMode();
     var btnsCpp = document.querySelectorAll('.qbpp-switch-cpp');
     var btnsPython = document.querySelectorAll('.qbpp-switch-python');
     for (var i = 0; i < btnsCpp.length; i++) {
-      btnsCpp[i].style.background = isPython ? '' : '#7253ed';
-      btnsCpp[i].style.color = isPython ? '' : '#fff';
-      btnsCpp[i].style.borderColor = isPython ? '#ccc' : '#7253ed';
+      btnsCpp[i].style.background = mode === 'python' ? '' : '#7253ed';
+      btnsCpp[i].style.color = mode === 'python' ? '' : '#fff';
+      btnsCpp[i].style.borderColor = mode === 'python' ? '#ccc' : '#7253ed';
     }
     for (var i = 0; i < btnsPython.length; i++) {
-      btnsPython[i].style.background = isPython ? '#7253ed' : '';
-      btnsPython[i].style.color = isPython ? '#fff' : '';
-      btnsPython[i].style.borderColor = isPython ? '#7253ed' : '#ccc';
+      btnsPython[i].style.background = mode === 'python' ? '#7253ed' : '';
+      btnsPython[i].style.color = mode === 'python' ? '#fff' : '';
+      btnsPython[i].style.borderColor = mode === 'python' ? '#7253ed' : '#ccc';
     }
   }
 
-  /* Build target URL when switching mode: keep current page name and language. */
+  /* Build the URL of the other-mode equivalent of this (non-shared) page. */
   function switchModeUrl(targetMode) {
-    var p = path;
-    var lang = p.indexOf('/ja/') !== -1 ? 'ja' : 'en';
-    /* Mode-shared pages (HUBO_QUBO, LICENSE_MANAGEMENT, ...) have no /python/
-       counterpart. Falling through to /lang/python/<name> would 404, so route
-       to the python landing page instead. The meta tag is emitted by Jekyll
-       in head_custom.html when page.mode_shared is true. */
-    var isShared = !!document.querySelector('meta[name="qbpp-mode-shared"]');
-    if (isShared && targetMode === 'python') {
-      return '/' + lang + '/python/';
-    }
-    var name = p.replace(/^\/(en|ja)(\/python)?\//, '').replace(/\.html$/, '');
+    var lang = path.indexOf('/ja/') !== -1 ? 'ja' : 'en';
+    var name = path.replace(/^\/(en|ja)(\/python)?\//, '').replace(/\.html$/, '');
     if (!name || name === '/' || name === 'index') {
-      return targetMode === 'python'
-        ? '/' + lang + '/python/'
-        : '/' + lang + '/';
+      return targetMode === 'python' ? '/' + lang + '/python/' : '/' + lang + '/';
     }
     return targetMode === 'python'
       ? '/' + lang + '/python/' + name
@@ -62,7 +77,16 @@
   }
 
   function switchMode(target) {
-    if ((target === 'python') === isPython) return;
+    if (isShared) {
+      /* Stay on the page; toggle sidebar and remember choice. */
+      if (currentMode() === target) return;
+      setStoredMode(target);
+      document.documentElement.classList.remove('qbpp-mode-cpp', 'qbpp-mode-python');
+      document.documentElement.classList.add('qbpp-mode-' + target);
+      styleModeButtons();
+      return;
+    }
+    if ((target === 'python') === urlIsPython) return;
     window.location.href = switchModeUrl(target);
   }
 
@@ -70,8 +94,8 @@
     styleModeButtons();
     var btnsCpp = document.querySelectorAll('.qbpp-switch-cpp');
     var btnsPython = document.querySelectorAll('.qbpp-switch-python');
-    for (var i = 0; i < btnsCpp.length; i++) btnsCpp[i].onclick = function() { switchMode('cpp'); };
-    for (var i = 0; i < btnsPython.length; i++) btnsPython[i].onclick = function() { switchMode('python'); };
+    for (var i = 0; i < btnsCpp.length; i++) btnsCpp[i].onclick = function () { switchMode('cpp'); };
+    for (var i = 0; i < btnsPython.length; i++) btnsPython[i].onclick = function () { switchMode('python'); };
   }
 
   /* EN / JA language toggle in the top header */
@@ -125,7 +149,7 @@
     bJa.onclick = function() { switchLang('ja'); };
   }
 
-  /* Activate-link bold on current page */
+  /* Activate-link bold on current page (across both rendered navs on shared pages) */
   function highlightActive() {
     var cur = path.replace(/\.html$/, '').replace(/\/$/, '');
     var links = document.querySelectorAll('.site-nav a.nav-list-link');

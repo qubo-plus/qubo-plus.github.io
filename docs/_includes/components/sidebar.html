@@ -13,7 +13,17 @@
 
   {%- include nav_switch.html -%}
 
-  {% include_cached components/site_nav.html lang=page.lang python=page.python %}
+  {% if page.mode_shared %}
+    {%- comment -%}
+      Shared pages (HUBO_QUBO, LICENSE_MANAGEMENT, Home, ...) render BOTH
+      sidebars; CSS shows the one matching the user's stored mode
+      (qbpp-mode in localStorage). The toggle button swaps in place.
+    {%- endcomment -%}
+    {% include_cached components/site_nav.html lang=page.lang python=false mode_attr='cpp' %}
+    {% include_cached components/site_nav.html lang=page.lang python=true mode_attr='python' %}
+  {% else %}
+    {% include_cached components/site_nav.html lang=page.lang python=page.python %}
+  {% endif %}
 
   <div class="d-md-block d-none site-footer">
   {% capture nav_footer_custom %}
