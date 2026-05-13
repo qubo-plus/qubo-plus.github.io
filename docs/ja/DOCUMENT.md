@@ -5,6 +5,7 @@ nav_order: 5
 lang: ja
 hreflang_alt: "en/DOCUMENT"
 hreflang_lang: "en"
+mode_counterpart: "/ja/python/"
 ---
 
 # QUBO++ (C++) ドキュメント

@@ -5,6 +5,7 @@ nav_order: 5
 lang: ja
 hreflang_alt: "en/python/index"
 hreflang_lang: "en"
+mode_counterpart: "/ja/DOCUMENT.html"
 ---
 
 # PyQBPP ドキュメント

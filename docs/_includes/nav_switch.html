@@ -64,8 +64,12 @@
     }
   }
 
-  /* Build the URL of the other-mode equivalent of this (non-shared) page. */
+  /* Build the URL of the other-mode equivalent of this (non-shared) page.
+     Pages with an explicit counterpart (DOCUMENT <-> python/index, etc.) emit
+     <meta name="qbpp-mode-counterpart"> from Jekyll; use it verbatim. */
   function switchModeUrl(targetMode) {
+    var counter = document.querySelector('meta[name="qbpp-mode-counterpart"]');
+    if (counter) return counter.getAttribute('content');
     var lang = path.indexOf('/ja/') !== -1 ? 'ja' : 'en';
     var name = path.replace(/^\/(en|ja)(\/python)?\//, '').replace(/\.html$/, '');
     if (!name || name === '/' || name === 'index') {
