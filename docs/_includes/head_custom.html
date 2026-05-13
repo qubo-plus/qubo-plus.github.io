@@ -1,5 +1,7 @@
 <meta name="google-site-verification" content="R4v2nXwRZ8rUSkQZV_fo-qIyh1VUbNsqeQsRoTS-IwI" />
 
+{% if page.mode_shared %}<meta name="qbpp-mode-shared" content="true" />{% endif %}
+
 {% if page.lang %}
 <link rel="alternate" hreflang="{{ page.lang }}" href="{{ page.url | absolute_url }}" />
 {% if page.hreflang_alt %}

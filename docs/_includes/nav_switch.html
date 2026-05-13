@@ -42,6 +42,14 @@
   function switchModeUrl(targetMode) {
     var p = path;
     var lang = p.indexOf('/ja/') !== -1 ? 'ja' : 'en';
+    /* Mode-shared pages (HUBO_QUBO, LICENSE_MANAGEMENT, ...) have no /python/
+       counterpart. Falling through to /lang/python/<name> would 404, so route
+       to the python landing page instead. The meta tag is emitted by Jekyll
+       in head_custom.html when page.mode_shared is true. */
+    var isShared = !!document.querySelector('meta[name="qbpp-mode-shared"]');
+    if (isShared && targetMode === 'python') {
+      return '/' + lang + '/python/';
+    }
     var name = p.replace(/^\/(en|ja)(\/python)?\//, '').replace(/\.html$/, '');
     if (!name || name === '/' || name === 'index') {
       return targetMode === 'python'
