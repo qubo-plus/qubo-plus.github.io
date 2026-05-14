@@ -164,6 +164,7 @@ for s in sol.sols:
 - **`self.best_sol()`** — 現在の最良解を返します。`.energy`, `.tts`, `.get(var)` などが使用できます
 - **`self.timer(seconds)`** — 定期的な `Timer` コールバックの間隔を秒単位で設定。`0` でタイマーを無効化（下記参照）
 - **`self.hint(sol)`** — 探索中にソルバーにヒント解を提供（[Solution Hint](#solution-hint) を参照）
+- **`self.terminate()`** — 現在の探索を協調的に中断します（下記[探索の中断](#探索の中断)を参照）
 
 ### タイマー制御
 
@@ -196,6 +197,53 @@ f.simplify_as_binary()
 solver = MySolver(f)
 sol = solver.search(time_limit=5, target_energy=0)
 print(f"energy={sol.energy}")
+```
+
+## 探索の中断
+
+`self.terminate()` を呼び出すと、実行中の `search()` を協調的に中断させ、これまでに発見した最良解を保持したまま即座に return させることができます。
+
+呼び出せる場所:
+- **`callback()` の内部** — `self.best_sol().energy` などを観察して停止を判断
+- **別スレッド** — 外部からのキャンセル、シグナルハンドラ、ウォッチドッグなど
+
+`terminate()` の利点は、**現在の最良解を見て柔軟に停止条件を組み立てられる** ことです。`target_energy` は事前に閾値を1つ固定する必要がありますが、`terminate()` なら:
+- 任意の `energy` 条件（例: `energy <= 0`、`energy < prev_best * 0.99`）
+- 経過時間と組み合わせた条件（例:「5秒以内に改善が無ければ停止」）
+- 制約違反量と目的関数の重み付け（例: `onehot_violation == 0 and objective <= threshold`）
+- 外部要因（GUI のキャンセルボタン、別ソルバーの完了通知など）
+
+など、**実行時に評価できる任意の条件**で停止を制御できます。
+
+同じインスタンスで再度 `search()` を呼び出すと、停止フラグは自動的にクリアされます。
+
+### 例: energy が 0 になったら停止
+
+`target_energy` を使わず、コールバックで `energy == 0` を観測した瞬間に `self.terminate()` を呼び出します。
+
+```python
+import pyqbpp as qbpp
+
+class TerminateOnZero(qbpp.ABS3Solver):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self.fired = False
+
+    def callback(self):
+        if self.event() == qbpp.ABS3Solver.EVENT_BEST_UPDATED:
+            sol = self.best_sol()
+            print(f"energy={sol.energy} tts={sol.tts:.3f}s")
+            if sol.energy == 0 and not self.fired:
+                self.fired = True
+                self.terminate()    # search() から即座に return
+
+x = qbpp.var("x", shape=10)
+f = qbpp.sqr(qbpp.sum(x) - 5)
+f.simplify_as_binary()
+solver = TerminateOnZero(f)
+# target_energy は指定しない。callback の terminate() のみで停止する
+sol = solver.search(time_limit=60)
+print(f"final energy={sol.energy}")
 ```
 
 ## Solution Hint

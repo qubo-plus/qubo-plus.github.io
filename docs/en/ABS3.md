@@ -174,6 +174,7 @@ Inside the callback, the following methods are available:
 - **`best_sol()`** — returns `const qbpp::Sol&` to the current best solution. Use `.energy`, `.tts`, `.get(var)`, etc.
 - **`event()`** — returns the event that triggered this callback
 - **`hint(sol)`** — provides a hint solution to the solver during the search (see [Solution Hint](#solution-hint))
+- **`terminate()`** — cooperatively aborts the running search (see [Aborting the Search](#aborting-the-search) below)
 
 ### Timer Control
 
@@ -215,6 +216,63 @@ int main() {
   auto solver = MySolver(f);
   auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
   std::cout << "energy=" << sol.energy() << std::endl;
+}
+```
+{% endraw %}
+
+## Aborting the Search
+
+Calling `terminate()` cooperatively aborts a running `search()`. The call returns immediately with the best solution found so far.
+
+It can be called from:
+- **inside `callback()`** — inspect `best_sol().energy` and decide whether to stop
+- **a separate thread** — for external cancellation, signal handlers, watchdogs, etc.
+
+The advantage of `terminate()` is that **you can express stopping conditions in terms of the current best solution at runtime**. Whereas `target_energy` locks you into a single fixed threshold up front, `terminate()` lets you decide on the fly:
+- arbitrary energy conditions (e.g., `energy <= 0`, `energy < prev_best * 0.99`)
+- conditions combined with elapsed time (e.g., "stop if no improvement in the last 5 seconds")
+- weighted combinations of constraint violations and objective (e.g., `onehot_violation == 0 && objective <= threshold`)
+- external triggers (a GUI cancel button, a notification from another solver, ...)
+
+— anything you can evaluate from inside the callback (or another thread) qualifies as a stopping condition.
+
+The stop flag is automatically cleared when `search()` is called again on the same instance, so the solver can be reused.
+
+### Example: Terminate on energy == 0
+
+This example does not use `target_energy`. Instead the callback observes `energy == 0` and calls `terminate()`.
+
+{% raw %}
+```cpp
+#include <atomic>
+#include <iostream>
+#include <qbpp/qbpp.hpp>
+#include <qbpp/abs3_solver.hpp>
+
+class TerminateOnZero : public qbpp::ABS3Solver {
+ public:
+  using ABS3Solver::ABS3Solver;
+  mutable std::atomic<bool> fired{false};
+
+  void callback() const override {
+    if (event() == qbpp::CallbackEvent::BestUpdated) {
+      std::cout << "energy=" << best_sol().energy
+                << " tts=" << best_sol().tts << "s" << std::endl;
+      if (best_sol().energy == 0 && !fired.exchange(true)) {
+        terminate();  // search() returns immediately
+      }
+    }
+  }
+};
+
+int main() {
+  auto x = qbpp::var("x", 10);
+  auto f = qbpp::sqr(qbpp::sum(x) - 5);
+  f.simplify_as_binary();
+  TerminateOnZero solver(f);
+  // No target_energy is set; stopping is controlled entirely by terminate().
+  auto sol = solver.search({{"time_limit", 60}});
+  std::cout << "final energy=" << sol.energy() << std::endl;
 }
 ```
 {% endraw %}

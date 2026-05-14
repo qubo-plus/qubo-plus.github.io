@@ -165,6 +165,7 @@ Inside `callback()`, the following methods are available:
 - **`self.best_sol()`** — returns the current best solution. Use `.energy`, `.tts`, `.get(var)`, etc.
 - **`self.timer(seconds)`** — set the timer interval in seconds for periodic `Timer` callbacks. `0` disables the timer (see below)
 - **`self.hint(sol)`** — provide a hint solution to the solver during the search (see [Solution Hint](#solution-hint))
+- **`self.terminate()`** — cooperatively abort the running search (see [Aborting the Search](#aborting-the-search) below)
 
 ### Timer Control
 
@@ -197,6 +198,53 @@ f.simplify_as_binary()
 solver = MySolver(f)
 sol = solver.search(time_limit=5, target_energy=0)
 print(f"energy={sol.energy}")
+```
+
+## Aborting the Search
+
+Calling `self.terminate()` cooperatively aborts a running `search()`. The call returns immediately with the best solution found so far.
+
+It can be called from:
+- **inside `callback()`** — inspect `self.best_sol().energy` and decide whether to stop
+- **a separate thread** — for external cancellation, signal handlers, watchdogs, etc.
+
+The advantage of `terminate()` is that **you can express stopping conditions in terms of the current best solution at runtime**. Whereas `target_energy` locks you into a single fixed threshold up front, `terminate()` lets you decide on the fly:
+- arbitrary energy conditions (e.g., `energy <= 0`, `energy < prev_best * 0.99`)
+- conditions combined with elapsed time (e.g., "stop if no improvement in the last 5 seconds")
+- weighted combinations of constraint violations and objective (e.g., `onehot_violation == 0 and objective <= threshold`)
+- external triggers (a GUI cancel button, a notification from another solver, ...)
+
+— anything you can evaluate from inside the callback (or another thread) qualifies as a stopping condition.
+
+The stop flag is automatically cleared when `search()` is called again on the same instance, so the solver can be reused.
+
+### Example: Terminate on energy == 0
+
+This example does not use `target_energy`. Instead the callback observes `energy == 0` and calls `self.terminate()`.
+
+```python
+import pyqbpp as qbpp
+
+class TerminateOnZero(qbpp.ABS3Solver):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self.fired = False
+
+    def callback(self):
+        if self.event() == qbpp.ABS3Solver.EVENT_BEST_UPDATED:
+            sol = self.best_sol()
+            print(f"energy={sol.energy} tts={sol.tts:.3f}s")
+            if sol.energy == 0 and not self.fired:
+                self.fired = True
+                self.terminate()    # search() returns immediately
+
+x = qbpp.var("x", shape=10)
+f = qbpp.sqr(qbpp.sum(x) - 5)
+f.simplify_as_binary()
+solver = TerminateOnZero(f)
+# No target_energy is set; stopping is controlled entirely by terminate().
+sol = solver.search(time_limit=60)
+print(f"final energy={sol.energy}")
 ```
 
 ## Solution Hint

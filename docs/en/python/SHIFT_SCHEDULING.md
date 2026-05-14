@@ -144,7 +144,9 @@ constraints = (work_20_21_days + no_less_than_3_consecutive_working_days +
 f = total_worker_cost + 10000 * constraints
 
 ml = {x[i][0]: 0 for i in range(workers)}
+ml.update({~x[i][0]: 1 for i in range(workers)})
 ml.update({x[i][days + 1]: 0 for i in range(workers)})
+ml.update({~x[i][days + 1]: 1 for i in range(workers)})
 f.simplify_as_binary()
 
 g = qbpp.replace(f, ml)

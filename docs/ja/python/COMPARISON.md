@@ -393,3 +393,58 @@ f.simplify_as_binary()
 > 明示的に指定してください。`var1 == var2` のような変数の同一性比較（辞書のキーとして使うために
 > bool を返すもの）は影響を受けません。演算子オーバーロードは `Expr` および式の配列に対してのみ
 > 定義されているためです。
+
+## `qbpp.same` による範囲制約の連鎖記法
+
+`qbpp.constrain(f, between=(l, u))` を書くもう一つの方法として、上界制約と下界制約を **`&`** で連結する記法が用意されています。
+ここで、**もう一方の側にある式 `f`** をプレースホルダ **`qbpp.same`** で参照します:
+
+```python
+(l <= f) & (qbpp.same <= u)        # qbpp.constrain(f, between=(l, u)) と等価
+(qbpp.same >= l) & (f <= u)        # 同上
+```
+
+`<=` / `>=` の向きや左右はどの組合せでも構いません。`&` の左右どちらに `qbpp.same` を置いても解釈されます。
+
+`qbpp.same` を介在させる理由は、`f` が大きな式や配列の場合でも、両側の制約に対して**補助変数を 1 組だけ**生成するためです。
+`qbpp.constrain(f, between=(l, u))` と完全に同じ QUBO 式が得られます。
+
+### 連鎖記法のPyQBPPプログラム
+
+以下のプログラムは、[範囲制約を使用するPyQBPPプログラム](#範囲制約を使用するpyqbppプログラム) と同じ制約 $5 \leq 4a + 9b + 15c \leq 14$ を連鎖記法で書いたものです:
+
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (5 <= 4 * a + 9 * b + 15 * c) & (qbpp.same <= 14)
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+
+`qbpp.constrain(4*a + 9*b + 15*c, between=(5, 14))` を使った版と同一の出力が得られます。
+
+### 配列に対する連鎖記法
+
+`qbpp.same` は式の配列に対しても使えます。配列の各要素に同じ範囲制約が適用され、制約式の配列が返されます:
+
+{% raw %}
+```python
+x = qbpp.var("x", shape=3)
+fs = qbpp.array([2 * x[0], x[1] + x[2], 3 * x[0] + x[1]])
+constraints = (1 <= fs) & (qbpp.same <= 2)   # fs の各要素に 1 ≤ ... ≤ 2 を適用
+total = qbpp.sum(constraints)
+```
+{% endraw %}
+
+### サポートされない形式
+
+両側に同じ式を書いた `(l <= f) & (f <= u)` の形式はサポートされていません。連鎖記法では片側を `qbpp.same` にしてください。

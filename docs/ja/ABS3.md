@@ -173,6 +173,7 @@ for (const auto& sol : result.sols) {
 - **`best_sol()`** — 現在の最良解への `const qbpp::Sol&` を返します。`.energy`、`.tts`、`.get(var)` などが使用できます。
 - **`event()`** — このコールバックをトリガーしたイベントを返します
 - **`hint(sol)`** — 探索中にソルバーにヒント解を提供します（[Solution Hint](#solution-hint)を参照）
+- **`terminate()`** — 現在の探索を協調的に中断します（下記[探索の中断](#探索の中断)を参照）
 
 ### タイマー制御
 
@@ -214,6 +215,63 @@ int main() {
   auto solver = MySolver(f);
   auto sol = solver.search({{"time_limit", 5}, {"target_energy", 0}});
   std::cout << "energy=" << sol.energy() << std::endl;
+}
+```
+{% endraw %}
+
+## 探索の中断
+
+`terminate()` を呼び出すと、実行中の `search()` を協調的に中断させ、これまでに発見した最良解を保持したまま即座に return させることができます。
+
+呼び出せる場所：
+- **`callback()` の内部** — `best_sol().energy` などを観察して停止を判断
+- **別スレッド** — 外部からのキャンセル、シグナルハンドラ、ウォッチドッグなど
+
+`terminate()` の利点は、**現在の最良解を見て柔軟に停止条件を組み立てられる** ことです。`target_energy` は事前に閾値を1つ固定する必要がありますが、`terminate()` なら：
+- 任意の `energy` 条件（例：`energy <= 0`, `energy < prev_best * 0.99`）
+- 経過時間と組み合わせた条件（例：「5秒以内に改善が無ければ停止」）
+- 制約違反量と目的関数の重み付け（例：`onehot_violation == 0 && objective <= threshold`）
+- 外部要因（GUI のキャンセルボタン、別ソルバーの完了通知など）
+
+など、**実行時に評価できる任意の条件**で停止を制御できます。
+
+同じインスタンスで再度 `search()` を呼び出すと、停止フラグは自動的にクリアされます。
+
+### 例: energy が 0 になったら停止
+
+`target_energy` を使わず、コールバックで `energy == 0` を観測した瞬間に `terminate()` を呼び出します。
+
+{% raw %}
+```cpp
+#include <atomic>
+#include <iostream>
+#include <qbpp/qbpp.hpp>
+#include <qbpp/abs3_solver.hpp>
+
+class TerminateOnZero : public qbpp::ABS3Solver {
+ public:
+  using ABS3Solver::ABS3Solver;
+  mutable std::atomic<bool> fired{false};
+
+  void callback() const override {
+    if (event() == qbpp::CallbackEvent::BestUpdated) {
+      std::cout << "energy=" << best_sol().energy
+                << " tts=" << best_sol().tts << "s" << std::endl;
+      if (best_sol().energy == 0 && !fired.exchange(true)) {
+        terminate();  // 即座に search() から戻る
+      }
+    }
+  }
+};
+
+int main() {
+  auto x = qbpp::var("x", 10);
+  auto f = qbpp::sqr(qbpp::sum(x) - 5);
+  f.simplify_as_binary();
+  TerminateOnZero solver(f);
+  // target_energy は指定しない。callback の terminate() のみで停止する
+  auto sol = solver.search({{"time_limit", 60}});
+  std::cout << "final energy=" << sol.energy() << std::endl;
 }
 ```
 {% endraw %}

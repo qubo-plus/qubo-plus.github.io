@@ -411,3 +411,65 @@ applied element-wise and an array of constraint expressions is returned.
 > with an explicit `between=` range. Variable-identity comparisons such as `var1 == var2`
 > (returning a boolean for use as dictionary keys) are unaffected, as the operator overloads
 > are defined only on `Expr` and arrays of expressions.
+
+## Chained Range Constraint with `qbpp.same`
+
+As an alternative to `qbpp.constrain(f, between=(l, u))`, you can join an upper-bound
+constraint and a lower-bound constraint with **`&`**, using the placeholder
+**`qbpp.same`** to refer to **the expression `f` on the other side of `&`**:
+
+```python
+(l <= f) & (qbpp.same <= u)        # equivalent to qbpp.constrain(f, between=(l, u))
+(qbpp.same >= l) & (f <= u)        # same
+```
+
+The direction of `<=` / `>=` and the left/right placement do not matter; `qbpp.same` may
+appear on either side of `&` and any consistent combination of `<=` and `>=` is accepted.
+
+The point of using `qbpp.same` is that even when `f` is a large expression or array,
+**only one set of auxiliary variables** is introduced for the two-sided constraint.
+The resulting QUBO is identical to `qbpp.constrain(f, between=(l, u))`.
+
+### PyQBPP Program Using the Chained Syntax
+
+The following program imposes the same constraint $5 \leq 4a + 9b + 15c \leq 14$
+as in the [PyQBPP Program Using the Range Constraint](#pyqbpp-program-using-the-range-constraint),
+but expressed with the chained syntax:
+
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (5 <= 4 * a + 9 * b + 15 * c) & (qbpp.same <= 14)
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+
+This produces the same output as the `qbpp.constrain(4*a + 9*b + 15*c, between=(5, 14))` version.
+
+### Chained Syntax on Arrays
+
+`qbpp.same` also works with arrays of expressions. The same range is applied element-wise,
+and an array of constraint expressions is returned:
+
+{% raw %}
+```python
+x = qbpp.var("x", shape=3)
+fs = qbpp.array([2 * x[0], x[1] + x[2], 3 * x[0] + x[1]])
+constraints = (1 <= fs) & (qbpp.same <= 2)   # apply 1 ≤ ... ≤ 2 to each element of fs
+total = qbpp.sum(constraints)
+```
+{% endraw %}
+
+### Unsupported Forms
+
+The form `(l <= f) & (f <= u)`, where the same expression appears on both sides of `&`,
+is not supported. Use `qbpp.same` on one side instead.
