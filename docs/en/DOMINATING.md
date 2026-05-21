@@ -164,7 +164,7 @@ The constraint above can be described as a QUBO++ program as follows:
     for (size_t j : adj[i]) {
       t += x[j];
     }
-    constraint += 1 <= t <= +qbpp::inf;
+    constraint += t >= 1;
   }
 ```
 In this code, `t` stores the expression

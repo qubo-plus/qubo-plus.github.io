@@ -226,17 +226,12 @@ This example does not use `target_energy`. Instead the callback observes `energy
 import pyqbpp as qbpp
 
 class TerminateOnZero(qbpp.ABS3Solver):
-    def __init__(self, *a, **kw):
-        super().__init__(*a, **kw)
-        self.fired = False
-
     def callback(self):
         if self.event() == qbpp.ABS3Solver.EVENT_BEST_UPDATED:
             sol = self.best_sol()
             print(f"energy={sol.energy} tts={sol.tts:.3f}s")
-            if sol.energy == 0 and not self.fired:
-                self.fired = True
-                self.terminate()    # search() returns immediately
+            if sol.energy == 0:
+                self.terminate()    # fires only once: BestUpdated is strictly monotonic
 
 x = qbpp.var("x", shape=10)
 f = qbpp.sqr(qbpp.sum(x) - 5)

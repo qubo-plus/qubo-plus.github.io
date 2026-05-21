@@ -59,8 +59,8 @@ import pyqbpp as qbpp
 n = 8
 x = qbpp.var("x", shape=(n, n))
 
-f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1)) + \
-    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1))
+f = qbpp.sum(qbpp.vector_sum(x, axis=0) == 1) + \
+    qbpp.sum(qbpp.vector_sum(x, axis=1) == 1)
 
 m = 2 * n - 3
 a = qbpp.expr(shape=m)
@@ -79,8 +79,8 @@ for i in range(m):
         if 0 <= c < n:
             b[i] += x[r][c]
 
-f += qbpp.sum(qbpp.constrain(a, between=(0, 1)))
-f += qbpp.sum(qbpp.constrain(b, between=(0, 1)))
+f += qbpp.sum((0 <= a) & (qbpp.same <= 1))
+f += qbpp.sum((0 <= b) & (qbpp.same <= 1))
 
 f.simplify_as_binary()
 
@@ -94,14 +94,14 @@ for i in range(n):
 {% endraw %}
 `n`$\times$`n` のバイナリ変数の行列 `x` を導入し、`x[i][j] = 1` は行 `i`、列 `j` にクイーンが配置されていることを示します。
 列方向の和は `qbpp.vector_sum(x, axis=0)` を用いて計算され、`n` 個の式のベクトル（各列に1つ）を返します。
-`qbpp.constrain(..., equal=1)` を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が1に等しい場合にのみ0と評価されます。
+`... == 1` を要素ごとに適用すると、ペナルティ式のベクトルが生成されます。各式は、対応する列の和が1に等しい場合にのみ0と評価されます。
 同様に、`qbpp.vector_sum(x, axis=1)` を用いて行方向の one-hot 制約を課すことができます。
 ペナルティ式のベクトルを `qbpp.sum(...)` で包むことで、各ベクトルは単一のスカラー式に集約され、`f` に組み込まれます。
 
 対角線制約を課すために、長さ `m = 2*n - 3` の2つの式ベクトル `a` と `b` を `qbpp.expr(shape=m)` を用いて構築します。`qbpp.expr(shape=m)` はゼロ式からなる1次元配列を生成します。
 各インデックス `i` について、`a[i]` は `r + c` の値が固定された対角線（左上から右下）上の変数を累積します（長さ1の対角線は除外）。
 同様に、`b[i]` は `c - r` の値が固定された反対角線（右上から左下）上の変数を累積します（長さ1の対角線は除外）。
-要素ごとの範囲制約 `qbpp.constrain(a, between=(0, 1))`（`b` も同様）は、各対角線/反対角線に最大1つのクイーンが含まれる場合にのみ0となるペナルティ式のベクトルを生成します。
+要素ごとの範囲制約 `(0 <= a) & (qbpp.same <= 1)`（`b` も同様）は、各対角線/反対角線に最大1つのクイーンが含まれる場合にのみ0となるペナルティ式のベクトルを生成します。
 これらのペナルティは `qbpp.sum(...)` で集約され、`f` に加算されます。
 
 インプレース呼び出し `f.simplify_as_binary()` で式をバイナリ QUBO 形式に変換した後、`search()` にキーワード引数 `target_energy=0` を渡して Easy Solver が目標エネルギー 0 の解を探索します。

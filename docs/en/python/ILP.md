@@ -29,9 +29,9 @@ import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=3, between=(0, 5))
 objective = 2 * x[0] + 5 * x[1] + 5 * x[2]
-c1 = qbpp.constrain(x[0] + 3 * x[1] + x[2], between=(0, 12))
-c2 = qbpp.constrain(x[0] + 2 * x[2], between=(0, 5))
-c3 = qbpp.constrain(x[1] + x[2], between=(0, 4))
+c1 = (0 <= x[0] + 3 * x[1] + x[2]) & (qbpp.same <= 12)
+c2 = (0 <= x[0] + 2 * x[2]) & (qbpp.same <= 5)
+c3 = (0 <= x[1] + x[2]) & (qbpp.same <= 4)
 
 f = -objective + 100 * (c1 + c2 + c3)
 f.simplify_as_binary()

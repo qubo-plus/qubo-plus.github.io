@@ -143,7 +143,7 @@ for i in range(N):
     t = x[i]
     for j in adj[i]:
         t += x[j]
-    constraint += qbpp.constrain(t, between=(1, len(adj[i]) + 1))
+    constraint += (1 <= t) & (qbpp.same <= len(adj[i]) + 1)
 ```
 In this code, `t` stores the expression
 
@@ -151,7 +151,7 @@ $$
 \sum_{j\in N[i]}x_j
 $$
 
-and `qbpp.constrain()` creates a penalty expression for
+and `(1 <= t) & (qbpp.same <= len(adj[i]) + 1)` creates a penalty expression for
 
 $$
 1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1,

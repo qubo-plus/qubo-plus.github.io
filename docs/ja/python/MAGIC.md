@@ -73,14 +73,14 @@ import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=(3, 3, 9))
 
-c1 = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+c1 = qbpp.sum(qbpp.vector_sum(x) == 1)
 
 temp = qbpp.expr(shape=9)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             temp[k] += x[i][j][k]
-c2 = qbpp.sum(qbpp.constrain(temp, equal=1))
+c2 = qbpp.sum(temp == 1)
 
 row = qbpp.expr(shape=3)
 column = qbpp.expr(shape=3)
@@ -89,7 +89,7 @@ for i in range(3):
         for k in range(9):
             row[i] += (k + 1) * x[i][j][k]
             column[j] += (k + 1) * x[i][j][k]
-c3 = qbpp.sum(qbpp.constrain(row, equal=15)) + qbpp.sum(qbpp.constrain(column, equal=15))
+c3 = qbpp.sum(row == 15) + qbpp.sum(column == 15)
 
 diag = 0
 for k in range(9):
@@ -97,7 +97,7 @@ for k in range(9):
 anti_diag = 0
 for k in range(9):
     anti_diag += (k + 1) * (x[0][2][k] + x[1][1][k] + x[2][0][k])
-c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
+c4 = (diag == 15) + (anti_diag == 15)
 
 f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
@@ -153,14 +153,14 @@ import pyqbpp as qbpp
 
 x = qbpp.var("x", shape=(3, 3, 9))
 
-c1 = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+c1 = qbpp.sum(qbpp.vector_sum(x) == 1)
 
 temp = qbpp.expr(shape=9)
 for i in range(3):
     for j in range(3):
         for k in range(9):
             temp[k] += x[i][j][k]
-c2 = qbpp.sum(qbpp.constrain(temp, equal=1))
+c2 = qbpp.sum(temp == 1)
 
 row = qbpp.expr(shape=3)
 column = qbpp.expr(shape=3)
@@ -169,7 +169,7 @@ for i in range(3):
         for k in range(9):
             row[i] += (k + 1) * x[i][j][k]
             column[j] += (k + 1) * x[i][j][k]
-c3 = qbpp.sum(qbpp.constrain(row, equal=15)) + qbpp.sum(qbpp.constrain(column, equal=15))
+c3 = qbpp.sum(row == 15) + qbpp.sum(column == 15)
 
 diag = 0
 for k in range(9):
@@ -177,7 +177,7 @@ for k in range(9):
 anti_diag = 0
 for k in range(9):
     anti_diag += (k + 1) * (x[0][2][k] + x[1][1][k] + x[2][0][k])
-c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
+c4 = (diag == 15) + (anti_diag == 15)
 
 f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
@@ -224,13 +224,13 @@ for i in range(3):
 vals = qbpp.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 # c2: 各値 k がちょうど 1 回現れる. temp[k] = Σ_{i,j} x[i,j,k]
-c2 = qbpp.sum(qbpp.constrain(qbpp.einsum("ijk->k", x), equal=1))
+c2 = qbpp.sum(qbpp.einsum("ijk->k", x) == 1)
 
 # c3: row[i] = Σ_{j,k} (k+1) x[i,j,k]、column[j] = Σ_{i,k} (k+1) x[i,j,k]
 row    = qbpp.einsum("k,ijk->i", vals, x)
 column = qbpp.einsum("k,ijk->j", vals, x)
-c3 = qbpp.sum(qbpp.constrain(row,    equal=15)) + \
-     qbpp.sum(qbpp.constrain(column, equal=15))
+c3 = qbpp.sum(row    == 15) + \
+     qbpp.sum(column == 15)
 
 # c4: 対角線 Σ_k (k+1) Σ_i x[i,i,k]  — "ii" で軸 0 と軸 1 を結合
 diag = qbpp.einsum("k,iik->", vals, x)
@@ -239,7 +239,7 @@ diag = qbpp.einsum("k,iik->", vals, x)
 # スライスと concat で x を軸 1 に沿って反転する。
 x_flip = qbpp.concat([x[:, 2:3, :], x[:, 1:2, :], x[:, 0:1, :]], axis=1)
 anti_diag = qbpp.einsum("k,iik->", vals, x_flip)
-c4 = qbpp.constrain(diag, equal=15) + qbpp.constrain(anti_diag, equal=15)
+c4 = (diag == 15) + (anti_diag == 15)
 ```
 
 各 subscript の読み方:

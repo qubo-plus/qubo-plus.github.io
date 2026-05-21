@@ -106,12 +106,12 @@ x = qbpp.var("x", shape=(workers, days + 2))
 workers_each_day = qbpp.vector_sum(x, axis=0)
 each_day_4_workers = 0
 for j in range(1, days + 1):
-    each_day_4_workers += qbpp.constrain(workers_each_day[j], equal=4)
+    each_day_4_workers += (workers_each_day[j] == 4)
 
 workers_working_days = qbpp.vector_sum(x)
 work_20_21_days = 0
 for i in range(workers):
-    work_20_21_days += qbpp.constrain(workers_working_days[i], between=(20, 21))
+    work_20_21_days += (20 <= workers_working_days[i]) & (qbpp.same <= 21)
 
 no_more_than_6_consecutive_working_days = 0
 for w in range(workers):

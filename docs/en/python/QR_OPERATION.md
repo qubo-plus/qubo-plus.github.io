@@ -35,8 +35,10 @@ For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` wi
 | Division               | `f / n`                                           | Global   | expression                        | expression, integer        |
 | Compound division      | `f /= n`                                          | In-place | expression                        | integer                    |
 | Unary operators        | `+f`, `-f`                                        | Global   | expression                        | expression                 |
-| Equality constraint    | `qbpp.constrain(f, equal=n)`                      | Global   | constraint expression             | expression, integer        |
-| Range constraint       | `qbpp.constrain(f, between=(l, u))`               | Global   | constraint expression             | expression, integer, integer |
+| Equality constraint    | `qbpp.constrain(f, equal=n)` or `f == n`          | Global   | constraint expression             | expression, integer        |
+| Range constraint       | `qbpp.constrain(f, between=(l, u))` or `(l <= f) & (qbpp.same <= u)` | Global   | constraint expression             | expression, integer, integer |
+| Upper-bound constraint | `qbpp.constrain(f, between=(None, u))` or `f <= u` | Global   | constraint expression             | expression, integer        |
+| Lower-bound constraint | `qbpp.constrain(f, between=(l, None))` or `f >= l` | Global   | constraint expression             | expression, integer        |
 | Square                 | `qbpp.sqr(f)`                                     | Global   | expression                        | expression                 |
 | Square                 | `f.sqr()`                                         | In-place | expression                        | —                          |
 | GCD                    | `qbpp.gcd(f)`                                     | Global   | integer                           | expression                 |
@@ -164,6 +166,46 @@ The object `g` returned by `constrain()` is a `pyqbpp.Expr` carrying penalty + b
 
 - **`g`** is the penalty expression itself and can be used like any expression — evaluated, simplified, or passed to solvers.
 - **`g.body`** returns the original expression `f` before the constraint was applied.
+
+### Operator shortcuts: `==`, `<=`, `>=`, `qbpp.same`
+The same four constraint forms can be written more concisely using Python comparison operators.
+The shortcut and the explicit `constrain()` call build the **same penalty expression**, so they can be mixed freely.
+
+| Shortcut                        | Equivalent to                                | Meaning            |
+|---------------------------------|----------------------------------------------|--------------------|
+| `f == n`                        | `qbpp.constrain(f, equal=n)`                 | $f = n$            |
+| `(l <= f) & (qbpp.same <= u)`   | `qbpp.constrain(f, between=(l, u))`          | $l \le f \le u$    |
+| `f <= u`                        | `qbpp.constrain(f, between=(None, u))`       | $f \le u$          |
+| `f >= l`                        | `qbpp.constrain(f, between=(l, None))`       | $l \le f$          |
+
+`f` is an expression; `n`, `l`, `u` are integers. Each form returns the same constraint expression (with `.body` available) as the corresponding `constrain()` call.
+
+The two-sided form uses **`qbpp.same`** as a placeholder meaning *"the same expression as on the other side of `&`"*. For a long body like `2 * x + 3 * y`, this saves you from typing it twice as in `(0 <= 2 * x + 3 * y) & (2 * x + 3 * y <= 12)` and eliminates the risk of accidentally typing two different expressions on the two sides. (Writing the body twice is also explicitly rejected: `(l <= f) & (f <= u)` raises `TypeError`, even when both sides happen to be the same Python object — the body comparison is intentionally identity-based, since two textually identical inline expressions are distinct objects.)
+
+The shortcuts also work **element-wise on arrays**: `arr == 1` and `(0 <= arr) & (qbpp.same <= 1)` return arrays of constraint expressions, just like `qbpp.constrain(arr, ...)`.
+
+> **NOTE**
+> The `&` operator in Python has **higher precedence than `<=`/`>=`**, so the two-sided form
+> *requires* parentheses around each comparison:
+> `(l <= f) & (qbpp.same <= u)`, not `l <= f & qbpp.same <= u`.
+> The same applies when combining shortcuts with `+`, `*`, etc. — for example, write
+> `100 * ((0 <= f) & (qbpp.same <= u))`, not `100 * (0 <= f) & (qbpp.same <= u)`.
+
+### Example
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+
+eq    = (x + y == 5)                              # x + y = 5
+range_= (0 <= 2 * x + 3 * y) & (qbpp.same <= 12)  # 0 <= 2x + 3y <= 12
+upper = (x + y <= 8)                              # x + y <= 8
+lower = (x + y >= 2)                              # x + y >= 2
+
+f = -x - y + 100 * (eq + range_ + upper + lower)
+f.simplify_as_binary()
+```
 
 ## Square function: `sqr()`
 For an expression `f`:

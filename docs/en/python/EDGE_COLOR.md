@@ -88,7 +88,7 @@ m = max_degree
 s = len(edges)
 x = qbpp.var("x", shape=(s, m))
 
-onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
 different = 0
 for i in range(n):
     for u in adj[i]:
@@ -117,7 +117,7 @@ In this program, we first build the incidence list `adj`, where `adj[i]` stores 
 We then compute the maximum degree $\Delta$ and set `m=`$\Delta$.
 Next, we define an `s`$\times$`m` matrix `x` of binary variables, where `x[i][j]=1` means that edge `i` is assigned color `j`.
 We construct the expressions `onehot`, `different`, and `f` as follows:
-- `onehot` enforces that each edge is assigned exactly one color, using `qbpp.constrain(..., equal=1)` on each row via `qbpp.vector_sum(x)`.
+- `onehot` enforces that each edge is assigned exactly one color, using `qbpp.vector_sum(x) == 1` on each row.
 - `different` penalizes pairs of edges that share an endpoint and are assigned the same color, using `x[u] * x[v]` to form the elementwise product of the two rows and `qbpp.sum()` to sum across the `m` color columns.
 - `f = onehot + different` is the QUBO objective, which attains the minimum value 0 if and only if a valid `m`-edge-coloring is found.
 

@@ -51,7 +51,7 @@ t = qbpp.var("t", between=(0, 4))
 z = 2 * t + 1
 v = x * 100 + y * 10 + z
 
-f = qbpp.constrain(x * y * z, equal=252)
+f = (x * y * z == 252)
 
 f.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(f)

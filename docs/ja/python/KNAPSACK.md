@@ -36,7 +36,7 @@ $$
 $$
 
 ## PyQBPPプログラム
-制約は PyQBPP が提供する**範囲演算子** `qbpp.constrain(..., between=(lo, hi))` を用いて表現できます。
+制約は PyQBPP が提供する**範囲演算子** `(lo <= expr) & (qbpp.same <= hi)` を用いて表現できます。
 結果として得られるQUBO目的関数は次のように定義されます：
 
 $$
@@ -58,7 +58,7 @@ capacity = 50
 
 x = qbpp.var("x", shape=len(w))
 
-constraint = qbpp.constrain(qbpp.sum(w * x), between=(0, capacity))
+constraint = (0 <= qbpp.sum(w * x)) & (qbpp.same <= capacity)
 objective = qbpp.sum(v * x)
 
 f = -objective + 1000 * constraint

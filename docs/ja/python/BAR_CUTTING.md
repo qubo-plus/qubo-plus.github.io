@@ -67,7 +67,7 @@ for j in range(N):
     for i in range(M):
         col_sum += x[i][j]
     order_fulfilled_count.append(col_sum)
-    order_constraint += qbpp.constrain(col_sum, equal=c[j])
+    order_constraint += (col_sum == c[j])
 
 # 棒制約：各棒で使用される合計長は L を超えてはならない
 bar_length_used = []
@@ -77,7 +77,7 @@ for i in range(M):
     for j in range(N):
         used += x[i][j] * l[j]
     bar_length_used.append(used)
-    bar_constraint += qbpp.constrain(used, between=(0, L))
+    bar_constraint += (0 <= used) & (qbpp.same <= L)
 
 f = order_constraint + bar_constraint
 f.simplify_as_binary()
@@ -98,9 +98,9 @@ for j in range(N):
 
 制約は以下のように定義されます：
 - `order_fulfilled_count`: $N$ 個の式のリストで、`order_fulfilled_count[j]` は注文 $j$ について生産されたピースの合計数を表します。
-- `order_constraint`: `qbpp.constrain(col_sum, equal=c[j])` で構築された $N$ 個の制約式の和で、すべての $j$ に対して `col_sum == c[j]` を強制します。
+- `order_constraint`: `(col_sum == c[j])` で構築された $N$ 個の制約式の和で、すべての $j$ に対して `col_sum == c[j]` を強制します。
 - `bar_length_used`: $M$ 個の式のリストで、`bar_length_used[i]` は棒 $i$ で使用された合計長を表します。
-- `bar_constraint`: `qbpp.constrain(used, between=(0, L))` で構築された $M$ 個の制約式の和で、すべての $i$ に対して `0 <= bar_length_used[i] <= L` を強制します。
+- `bar_constraint`: `(0 <= used) & (qbpp.same <= L)` で構築された $M$ 個の制約式の和で、すべての $i$ に対して `0 <= bar_length_used[i] <= L` を強制します。
 - `f`: すべての制約式の和です。`f.simplify_as_binary()` を呼び出した後、Easy Solverはターゲットエネルギー0（すなわちすべての制約が満たされた状態）の解を探索します。
 
 以下の出力は実行可能解の例です：

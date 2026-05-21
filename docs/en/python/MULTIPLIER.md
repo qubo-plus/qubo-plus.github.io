@@ -41,10 +41,10 @@ To do this, we implement functions that construct a full adder, an adder, and a 
 The following QUBO expression simulates a full adder with three input bits `a`, `b`, and `i`, and two output bits: carry-out `o` and sum `s`:
 ```python
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 ```
 The function `fa` returns an expression that enforces consistency between the input and output bits of a full adder.
-`qbpp.constrain(expr, equal=0)` returns a QUBO expression whose minimum value is 0 exactly when `expr == 0` holds, i.e., when the full adder is consistent.
+`expr == 0` returns a QUBO expression whose minimum value is 0 exactly when `expr == 0` holds, i.e., when the full adder is consistent.
 
 ### Adder
 Assume that lists `a`, `b`, and `s` represent integers.
@@ -88,7 +88,7 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
+    f += (z[0] - x[0] * y[0] == 0)
 
     ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
     ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
@@ -113,7 +113,7 @@ The following program constructs a 4-bit multiplier with
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 
 def adder(a, b, s):
     N = len(a)
@@ -141,7 +141,7 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
+    f += (z[0] - x[0] * y[0] == 0)
 
     ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
     ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})

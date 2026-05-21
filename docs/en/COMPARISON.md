@@ -80,7 +80,16 @@ which is fully supported.
 
 
 ## Range operator
-The range operator of the form $l\leq f \leq u$ ($l\leq u$) creates an expression that attains the minimum value of 0 if and only if the constraint is satisfied.
+QUBO++ supports the **two-sided range operator** of the form $l\leq f \leq u$ ($l\leq u$):
+- **Range operator**: $l \leq f \leq u$ — written as `l <= expr <= u`
+
+It creates an expression that attains the minimum value of 0 if and only if the constraint is satisfied.
+
+> **NOTE**
+> The `l <= expr <= u` chain syntax requires both bounds to be integer literals on the outside.
+> When one of the bounds should be infinite, use the **one-sided operators** described later
+> (`expr >= l` for no upper bound, `expr <= u` for no lower bound) — these are the preferred
+> forms instead of the chain `l <= expr <= +qbpp::inf` / `-qbpp::inf <= expr <= u`.
 
 We consider the following cases depending on the values of $l$ and $u$.
 - **Case 1**: **$u=l$**
@@ -288,19 +297,20 @@ a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1}
 {% endraw %}
 
 ## Lower and upper bound operators
-QUBO++ does not directly support the following **one-sided bound operators**:
-- **Lower-bound operator**: $l\leq f$
-- **Upper-bound operator**: $f\leq u$
+QUBO++ supports the following **one-sided bound operators**:
+- **Lower-bound operator**: $l\leq f$ — written as `expr >= n` (instead of `n <= expr <= +qbpp::inf`)
+- **Upper-bound operator**: $f\leq u$ — written as `expr <= n` (instead of `-qbpp::inf <= expr <= n`)
 
-Instead, QUBO++ provides a symbolic representation of **infinity** ($\infty$)
-and these constraints are implemented using **the range operator** as follows:
-- **Lower-bound operator**: $l\leq f\leq +\infty$
-- **Upper-bound operator**: $-\infty \leq f\leq u$
+> **NOTE**
+> The reversed forms **`n <= expr`** and **`n >= expr`** (integer on the left)
+> are compile errors. Always place the expression on the left side
+> of `<=` / `>=` when writing one-sided constraints.
 
-Since the range operator internally introduces auxiliary variables,
-true infinite values cannot be represented explicitly.
-Therefore, QUBO++ estimates **finite maximum and minimum values** of the expression
-$f$ and substitutes them for $+\infty$ and $-\infty$, respectively.
+The range operator internally introduces auxiliary variables, so true infinite
+values cannot be represented explicitly. When `qbpp::inf` is used in the chain
+form (kept available for backward compatibility), QUBO++ estimates the
+**finite maximum and minimum values** of the expression $f$ and substitutes them
+for $+\infty$ and $-\infty$, respectively.
 
 For example, consider the expression
 
@@ -315,14 +325,7 @@ The minimum and maximum possible values of $f$ are 0 and 24, respectively.
 Thus, QUBO++ uses 0 and 24 as substitutes for $-\infty$ and $+\infty$
 when constructing the corresponding range constraints.
 
-> **NOTE**
-> QUBO++ intentionally requires both lower and upper bounds to be specified in inequality constraints.
-> This avoids ambiguity between **MIP-style interpretations** (e.g.,
-> $f\leq u$ meaning $0\leq f\leq u$) and **QUBO-style interpretations** (e.g., $f\leq u$ meaning $-\infty\leq f\leq u$),
-> which could otherwise lead to subtle modeling errors.
-
 ### QUBO++ program for lower and upper bound operators
-In QUBO++, an infinite value is represented by **`qbpp::inf`**.
 
 The following program demonstrates **the lower-bound operator**:
 {% raw %}
@@ -334,7 +337,7 @@ int main() {
   auto a = qbpp::var("a");
   auto b = qbpp::var("b");
   auto c = qbpp::var("c");
-  auto f = 14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf;
+  auto f = 4 * a + 9 * b + 11 * c >= 14;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
@@ -346,8 +349,7 @@ int main() {
 }
 ```
 {% endraw %}
-In this program, **`+qbpp::inf`** represents a positive infinite value,
-which is automatically replaced by 24.
+In this program, `f` is built with the single-sided lower-bound operator `>=`. Internally, the upper bound is set to `expr.pos_sum() = 24` (the largest value the body can take), so `f` is equivalent to writing `14 <= 4 * a + 9 * b + 11 * c <= +qbpp::inf`.
 
 This program produces the following output:
 {% raw %}
@@ -366,7 +368,7 @@ int main() {
   auto a = qbpp::var("a");
   auto b = qbpp::var("b");
   auto c = qbpp::var("c");
-  auto f = -qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14;
+  auto f = 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sols = solver.search({{"best_energy_sols", 1}});
@@ -378,8 +380,7 @@ int main() {
 }
 ```
 {% endraw %}
-In this program, **`-qbpp::inf`** represents a negative infinite value,
-which is automatically replaced by 0.
+In this program, `f` is built with the single-sided upper-bound operator `<=`. Internally, the lower bound is set to `expr.neg_sum() = 0` (the smallest value the body can take), so `f` is equivalent to writing `-qbpp::inf <= 4 * a + 9 * b + 11 * c <= 14`.
 
 This program produces the following output:
 {% raw %}

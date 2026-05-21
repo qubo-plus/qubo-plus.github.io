@@ -44,7 +44,7 @@ import pyqbpp as qbpp
 p = qbpp.var("p", between=(2, 5))
 q = qbpp.var("q", between=(6, 17))
 
-f = qbpp.constrain(p * q, equal=35)
+f = (p * q == 35)
 f.simplify_as_binary()
 print("f =", f)
 print("f.body =", f.body)
@@ -59,7 +59,7 @@ print("f(sol) =", f(sol))
 print("f.body(sol) =", f.body(sol))
 ```
 
-In this program, `qbpp.var("p", between=(2, 5))` creates an integer variable $p$ whose value ranges over $\{2, 3, 4, 5\}$, internally represented as a linear combination of binary variables `p[0]`, `p[1]`. Similarly, `q` ranging over $\{6, 7, \dots, 17\}$ is expanded into binary variables `q[0]`, `q[1]`, `q[2]`, `q[3]`. The expression `qbpp.constrain(p * q, equal=35)` is automatically converted into `sqr(p * q - 35)`, which achieves an energy value of 0 when the equality is satisfied. `f` is a constraint expression that holds both the expanded penalty `sqr(p * q - 35)` and the original expression `p * q`. `f` itself represents the expression `sqr(p * q - 35)`, while `f.body` returns the original expression `p * q`. `f.simplify_as_binary()` simplifies both `f` itself (the penalty) and `f.body` (the original expression) at the same time. Because the integer variables are linear in the underlying binary variables, their product $pq$ is quadratic and the squared penalty $f(p,q)$ is quartic.
+In this program, `qbpp.var("p", between=(2, 5))` creates an integer variable $p$ whose value ranges over $\{2, 3, 4, 5\}$, internally represented as a linear combination of binary variables `p[0]`, `p[1]`. Similarly, `q` ranging over $\{6, 7, \dots, 17\}$ is expanded into binary variables `q[0]`, `q[1]`, `q[2]`, `q[3]`. The expression `(p * q == 35)` is automatically converted into `sqr(p * q - 35)`, which achieves an energy value of 0 when the equality is satisfied. `f` is a constraint expression that holds both the expanded penalty `sqr(p * q - 35)` and the original expression `p * q`. `f` itself represents the expression `sqr(p * q - 35)`, while `f.body` returns the original expression `p * q`. `f.simplify_as_binary()` simplifies both `f` itself (the penalty) and `f.body` (the original expression) at the same time. Because the integer variables are linear in the underlying binary variables, their product $pq$ is quadratic and the squared penalty $f(p,q)$ is quartic.
 
 The output of this program is as follows:
 ```
@@ -77,7 +77,7 @@ The solver correctly finds the prime factors $p=5$ and $q=7$.
 ## Unlimited large coefficients for prime factorization of large numbers
 By default, the PyQBPP module `pyqbpp` (alias of `pyqbpp.c32e64`) uses 32-bit coefficients and 64-bit energy values, which runs fastest.
 For factorizing large composite numbers whose penalty coefficients may exceed 32 bits, we switch to arbitrary precision integer arithmetic by importing `pyqbpp.cppint`, which sets both `coeff_t` and `energy_t` to `cpp_int`.
-In PyQBPP, the type selection is made by importing the appropriate submodule (`pyqbpp.c32e64`, `pyqbpp.cppint`, etc.). All subsequent `qbpp.var`, `qbpp.constrain`, `qbpp.EasySolver` calls then use the chosen coefficient/energy types consistently.
+In PyQBPP, the type selection is made by importing the appropriate submodule (`pyqbpp.c32e64`, `pyqbpp.cppint`, etc.). All subsequent `qbpp.var`, `==`/`<=`/`>=` constraints, `qbpp.EasySolver` calls then use the chosen coefficient/energy types consistently.
 
 The following program factorizes the product of two large prime numbers:
 ```python
@@ -86,7 +86,7 @@ import pyqbpp.cppint as qbpp
 p = qbpp.var("p", between=(2, 2000000))
 q = qbpp.var("q", between=(2, 2000000))
 
-f = qbpp.constrain(p * q, equal=1000039 * 1000079)
+f = (p * q == 1000039 * 1000079)
 f.simplify_as_binary()
 print("f =", f)
 

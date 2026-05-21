@@ -83,7 +83,7 @@ m = max_degree
 s = len(edges)
 x = qbpp.var("x", shape=(s, m))
 
-onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
 different = 0
 for i in range(n):
     for u in adj[i]:
@@ -112,7 +112,7 @@ for i in range(s):
 次に、最大次数 $\Delta$ を計算し、`m=`$\Delta$ と設定します。
 そして、`s`$\times$`m` のバイナリ変数行列 `x` を定義します。`x[i][j]=1` は辺 `i` に色 `j` が割り当てられることを意味します。
 式 `onehot`、`different`、`f` を以下のように構築します：
-- `onehot` は各辺にちょうど1つの色が割り当てられることを強制します。`qbpp.vector_sum(x)` で各行の総和を取り、`qbpp.constrain(..., equal=1)` で各行に対する制約を作成します。
+- `onehot` は各辺にちょうど1つの色が割り当てられることを強制します。`qbpp.vector_sum(x)` で各行の総和を取り、`qbpp.vector_sum(x) == 1` で各行に対する制約を作成します。
 - `different` は端点を共有し同じ色が割り当てられた辺のペアにペナルティを課します。`x[u] * x[v]` で2つの行の要素積を取り、`qbpp.sum()` で `m` 個の色の列にわたって和を取ります。
 - `f = onehot + different` は QUBO 目的関数であり、有効な `m`-辺彩色が見つかった場合にのみ最小値 0 を達成します。
 

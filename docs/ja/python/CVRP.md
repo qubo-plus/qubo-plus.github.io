@@ -205,7 +205,7 @@ V = len(vehicle_capacity)
 
 a = qbpp.var("a", shape=(V, N, N))
 
-row_constraint = qbpp.sum(qbpp.constrain(qbpp.vector_sum(a), equal=1))
+row_constraint = qbpp.sum(qbpp.vector_sum(a) == 1)
 
 column_sum = [0 for _ in range(N - 1)]
 for v in range(V):
@@ -214,7 +214,7 @@ for v in range(V):
             column_sum[i - 1] += a[v][t][i]
 column_constraint = 0
 for i in range(N - 1):
-    column_constraint += qbpp.constrain(column_sum[i], equal=1)
+    column_constraint += (column_sum[i] == 1)
 
 consecutive_constraint = 0
 for v in range(V):
@@ -227,7 +227,7 @@ for v in range(V):
     for t in range(N):
         for i in range(1, N):
             vehicle_load[v] += a[v][t][i] * locations[i][2]
-    capacity_constraint += qbpp.constrain(vehicle_load[v], between=(0, vehicle_capacity[v]))
+    capacity_constraint += (0 <= vehicle_load[v]) & (qbpp.same <= vehicle_capacity[v])
 
 objective = 0
 for v in range(V):

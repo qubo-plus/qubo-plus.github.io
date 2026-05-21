@@ -164,7 +164,7 @@ $$
     for (size_t j : adj[i]) {
       t += x[j];
     }
-    constraint += 1 <= t <= +qbpp::inf;
+    constraint += t >= 1;
   }
 ```
 このコードでは、`t` に式

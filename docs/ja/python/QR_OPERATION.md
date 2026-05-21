@@ -33,8 +33,10 @@ hreflang_lang: "en"
 | 除算                   | `f / n`                                           | Global   | 式              | 式, 整数               |
 | 複合除算                | `f /= n`                                          | In-place | 式              | 整数                   |
 | 単項演算子              | `+f`, `-f`                                        | Global   | 式              | 式                     |
-| 等価制約                | `qbpp.constrain(f, equal=n)`                      | Global   | 制約式          | 式, 整数               |
-| 範囲制約                | `qbpp.constrain(f, between=(l, u))`               | Global   | 制約式          | 式, 整数, 整数         |
+| 等価制約                | `qbpp.constrain(f, equal=n)` または `f == n`        | Global   | 制約式          | 式, 整数               |
+| 範囲制約                | `qbpp.constrain(f, between=(l, u))` または `(l <= f) & (qbpp.same <= u)` | Global   | 制約式          | 式, 整数, 整数         |
+| 上限制約                | `qbpp.constrain(f, between=(None, u))` または `f <= u` | Global   | 制約式          | 式, 整数               |
+| 下限制約                | `qbpp.constrain(f, between=(l, None))` または `f >= l` | Global   | 制約式          | 式, 整数               |
 | 二乗                   | `qbpp.sqr(f)`                                     | Global   | 式              | 式                     |
 | 二乗                   | `f.sqr()`                                         | In-place | 式              | —                      |
 | 最大公約数              | `qbpp.gcd(f)`                                     | Global   | 整数            | 式                     |
@@ -160,6 +162,45 @@ g = qbpp.constrain(f, between=(None, u)) # f <= u のペナルティ式（下限
 
 - **`g`** はペナルティ式そのものを表し、通常の式として評価・簡約化・ソルバー入力に使えます。
 - **`g.body`** は制約を作る前の元の式 `f` を返します。
+
+### 演算子による省略記法: `==`, `<=`, `>=`, `qbpp.same`
+上記の4種類の制約は Python の比較演算子を用いてより簡潔に書けます。
+省略記法と明示的な `constrain()` 呼び出しは**同じペナルティ式**を構築するため、どちらを使っても自由に混在させられます。
+
+| 省略記法                          | 同等の `constrain()` 呼び出し                | 意味               |
+|----------------------------------|----------------------------------------------|--------------------|
+| `f == n`                         | `qbpp.constrain(f, equal=n)`                 | $f = n$            |
+| `(l <= f) & (qbpp.same <= u)`    | `qbpp.constrain(f, between=(l, u))`          | $l \le f \le u$    |
+| `f <= u`                         | `qbpp.constrain(f, between=(None, u))`       | $f \le u$          |
+| `f >= l`                         | `qbpp.constrain(f, between=(l, None))`       | $l \le f$          |
+
+`f` は式、`n` / `l` / `u` は整数です。いずれも対応する `constrain()` 呼び出しと同じ制約式（`.body` も同じ）を返します。
+
+両側制約では **`qbpp.same`** をプレースホルダとして用い、「`&` の反対側と同じ式」を意味します。`2 * x + 3 * y` のような長い式を `(0 <= 2 * x + 3 * y) & (2 * x + 3 * y <= 12)` のように二度書く手間を省け、左右で異なる式を書いてしまうミスも防げます。（なお `(l <= f) & (f <= u)` のように body を二度書く形式は `TypeError` として明示的に拒否されます。たとえ両辺が見た目には同じでも、別々にインラインで書かれた式は別オブジェクトになるため、body の比較は意図的にオブジェクト同一性で行っています。）
+
+省略記法は **配列に対しても要素ごとに動作**します。`arr == 1` や `(0 <= arr) & (qbpp.same <= 1)` は、`qbpp.constrain(arr, ...)` と同じく制約式の配列を返します。
+
+> **注釈**
+> Python では `&` の優先順位が `<=`/`>=` より**高い**ため、両側制約は必ず各比較を**括弧で囲んで**ください:
+> `(l <= f) & (qbpp.same <= u)` であって `l <= f & qbpp.same <= u` ではありません。
+> 省略記法を `+`, `*` などと組み合わせる際も同様で、例えば
+> `100 * ((0 <= f) & (qbpp.same <= u))` のように括弧が必要です（`100 * (0 <= f) & (qbpp.same <= u)` は誤り）。
+
+### 例
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+
+eq    = (x + y == 5)                              # x + y = 5
+range_= (0 <= 2 * x + 3 * y) & (qbpp.same <= 12)  # 0 <= 2x + 3y <= 12
+upper = (x + y <= 8)                              # x + y <= 8
+lower = (x + y >= 2)                              # x + y >= 2
+
+f = -x - y + 100 * (eq + range_ + upper + lower)
+f.simplify_as_binary()
+```
 
 ## 二乗関数: `sqr()`
 式 `f` に対して:

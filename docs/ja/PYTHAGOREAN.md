@@ -32,7 +32,7 @@ int main() {
   auto y = 1 <= qbpp::var_int("y") <= 16;
   auto z = 1 <= qbpp::var_int("z") <= 16;
   auto f = x * x + y * y - z * z == 0;
-  auto c = 1 <= y - x <= +qbpp::inf;
+  auto c = y - x >= 1;
   auto g = f + c;
   g.simplify_as_binary();
   auto solver = qbpp::EasySolver(g);

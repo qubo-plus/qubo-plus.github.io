@@ -243,7 +243,6 @@ int main() {
 
 {% raw %}
 ```cpp
-#include <atomic>
 #include <iostream>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
@@ -251,14 +250,13 @@ int main() {
 class TerminateOnZero : public qbpp::ABS3Solver {
  public:
   using ABS3Solver::ABS3Solver;
-  mutable std::atomic<bool> fired{false};
 
   void callback() const override {
     if (event() == qbpp::CallbackEvent::BestUpdated) {
       std::cout << "energy=" << best_sol().energy
                 << " tts=" << best_sol().tts << "s" << std::endl;
-      if (best_sol().energy == 0 && !fired.exchange(true)) {
-        terminate();  // 即座に search() から戻る
+      if (best_sol().energy == 0) {
+        terminate();  // 同じ energy で再び呼ばれることはないので 1 回限り
       }
     }
   }

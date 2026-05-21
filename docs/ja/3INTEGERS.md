@@ -56,8 +56,8 @@ int main() {
   auto z = 1 <= qbpp::var_int("z") <= 10;
 
   auto c1 = x * y + y * z + z * x - x * y * z == 0;
-  auto c2 = 1 <= y - x <= +qbpp::inf;
-  auto c3 = 1 <= z - y <= +qbpp::inf;
+  auto c2 = y - x >= 1;
+  auto c3 = z - y >= 1;
 
   auto f = c1 + c2 + c3;
   f.simplify_as_binary();

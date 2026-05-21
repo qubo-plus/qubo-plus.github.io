@@ -43,7 +43,7 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+fa = ((a + b + i) - (2 * o + s) == 0)
 fa.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(fa)
 result = solver.search(best_energy_sols=0)
@@ -51,7 +51,7 @@ for idx, sol in enumerate(result.sols):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
     print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
-In this program, the constraint $fa(a,b,i,c,s)$ is implemented using `qbpp.constrain(..., equal=0)`, which intuitively represents the constraint $a+b+i=2o+s$.
+In this program, the constraint $fa(a,b,i,c,s)$ is implemented using `... == 0`, which intuitively represents the constraint $a+b+i=2o+s$.
 Setting `best_energy_sols=0` collects all solutions that achieve the minimum (best) energy with no upper bound on their count.
 The program produces the following output, confirming that the expression correctly models a full adder:
 ```
@@ -103,7 +103,7 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+fa = ((a + b + i) - (2 * o + s) == 0)
 
 x = qbpp.var("x", shape=4)
 y = qbpp.var("y", shape=4)
@@ -146,7 +146,7 @@ Alternatively, we can define a Python function `fa` to construct full-adder cons
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 
 x = qbpp.var("x", shape=4)
 y = qbpp.var("y", shape=4)

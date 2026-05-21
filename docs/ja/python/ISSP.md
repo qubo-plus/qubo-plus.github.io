@@ -105,7 +105,7 @@ v = [qbpp.var(f"v{i}", between=(lower[i], upper[i])) for i in range(n)]
 s = qbpp.var("s", shape=n)
 
 total = qbpp.sum(v * s)
-constraint = qbpp.constrain(total, between=(0, T))
+constraint = (0 <= total) & (qbpp.same <= T)
 f = -total + 1000 * constraint
 f.simplify_as_binary()
 
@@ -233,7 +233,7 @@ constraint1 = 0
 for i in range(n):
     constraint1 += ~s[i] * a[i]
 
-constraint2 = qbpp.constrain(total, between=(0, T))
+constraint2 = (0 <= total) & (qbpp.same <= T)
 f = -total + 1000 * (constraint1 + constraint2)
 f.simplify_as_binary()
 

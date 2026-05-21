@@ -22,10 +22,10 @@ This equation has three integer solutions: $x = -13, 2, 11$.
 ## PyQBPP program for solving the cubic equation
 In the following PyQBPP program, we define an integer variable x that takes values in $[-100, 100]$, and we enumerate all optimal solutions using the Exhaustive Solver:
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x", between=(-100, 100))
-f = qbpp.constrain(x * x * x - 147 * x + 286, equal=0)
+f = (x * x * x - 147 * x + 286 == 0)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
@@ -46,11 +46,7 @@ $$
 
 Since the integer variable `x` is implemented as a linear expression of binary variables, `f` becomes a polynomial of degree 6.
 
-Since Python integers have unlimited precision, there is usually no need to specify special integer types.
-However, when coefficients become very large, you can import the `pyqbpp.cppint` submodule for arbitrary-precision integer arithmetic as follows:
-```python
-import pyqbpp.cppint as qbpp
-```
+Note that we use `import pyqbpp.cppint as qbpp` instead of the default `import pyqbpp as qbpp` here. The default module `pyqbpp` (alias of `pyqbpp.c32e64`) stores coefficients as 32-bit integers, but the constant term of $f$ at $x=-100$ is $(-100^3 + 147\cdot 100 + 286)^2 \approx 9.7\times 10^{11}$, which exceeds the 32-bit range and overflows. The `pyqbpp.cppint` submodule uses arbitrary-precision integers for both coefficients and energy values, so the polynomial is represented exactly and the solver can find the energy-0 solutions. As a rough rule of thumb, switch to `pyqbpp.cppint` whenever any coefficient of the expanded HUBO/QUBO polynomial may exceed $2^{31}-1\approx 2.1\times 10^9$.
 
 This program produces the following output:
 {% raw %}

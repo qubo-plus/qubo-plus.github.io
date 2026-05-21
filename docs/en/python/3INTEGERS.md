@@ -51,9 +51,9 @@ x = qbpp.var("x", between=(1, 10))
 y = qbpp.var("y", between=(1, 10))
 z = qbpp.var("z", between=(1, 10))
 
-c1 = qbpp.constrain(x * y + y * z + z * x - x * y * z, equal=0)
-c2 = qbpp.constrain(y - x, between=(1, 9))
-c3 = qbpp.constrain(z - y, between=(1, 9))
+c1 = (x * y + y * z + z * x - x * y * z == 0)
+c2 = (1 <= y - x) & (qbpp.same <= 9)
+c3 = (1 <= z - y) & (qbpp.same <= 9)
 
 f = c1 + c2 + c3
 f.simplify_as_binary()

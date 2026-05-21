@@ -110,7 +110,7 @@ def I(c):
 
 x = qbpp.var("x", shape=(L, 10))
 
-onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
 
 different = 0
 for i in range(L - 1):
@@ -125,7 +125,7 @@ for k in range(10):
     more += k * (1000 * x[I('M')][k] + 100 * x[I('O')][k] + 10 * x[I('R')][k] + x[I('E')][k])
     money += k * (10000 * x[I('M')][k] + 1000 * x[I('O')][k] + 100 * x[I('N')][k] + 10 * x[I('E')][k] + x[I('Y')][k])
 
-equal = qbpp.constrain(send + more - money, equal=0)
+equal = (send + more - money == 0)
 
 P = 10000
 f = P * (onehot + different) + equal

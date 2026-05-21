@@ -39,22 +39,35 @@ print(sol.energy, sol.info)
 
 ## At a glance
 
-| Solver | Backend | Install | Token | `time_limit` | HUBO |
-|---|---|---|---|---|---|
-| [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (cloud — Fixstars AE, Fujitsu DA, etc.) | `pip install amplify` | yes (default Fixstars AE) | yes | ✅ (auto-quadratized by SDK) |
-| [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, via Ocean SDK) | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | **no** — use `num_reads` | ❌ degree ≤ 2 |
-| [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | yes | ❌ degree ≤ 2 |
-| [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — classical SA, **not a quantum solver** | `pip install dwave-samplers` | **no** | **no** — use `num_reads` | ❌ degree ≤ 2 |
-| [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — classical Tabu search | `pip install dwave-samplers` | **no** | **no** — use `timeout` (ms) | ❌ degree ≤ 2 |
-| [`DWaveSteepestDescentSolver`](#dwavesteepestdescentsolver) | D-Wave samplers — greedy local descent | `pip install dwave-samplers` | **no** | **no** — use `num_reads` | ❌ degree ≤ 2 |
-| [`DimodExactSolver`](#dimodexactsolver) | dimod brute-force enumeration (≤ ~20 vars) | `pip install dimod` | **no** | **no** | ❌ degree ≤ 2 |
-| [`OpenJijSolver`](#openjijsolver) | OpenJij (local SA / SQA, open-source) | `pip install openjij` | **no** | **no** — use `num_reads` | ✅ via `sample_hubo` (SASampler) |
-| [`HobotanMikasSolver`](#hobotanmikassolver) | TYTAN-SDK MIKASAmpler — HUBO-native PyTorch SA | `pip install -U git+https://github.com/tytansdk/tytan` (+ `torch`) | **no** | **no** — use `shots` | ✅ dense tensor |
-| [`QubovertSolver`](#qubovertsolver) | qubovert.sim.anneal_pubo — pure-Python HUBO SA | `pip install qubovert` | **no** | **no** — use `num_anneals` | ✅ sparse PUBO |
-| [`SimulatedBifurcationSolver`](#simulatedbifurcationsolver) | Toshiba SB algorithm (PyTorch CPU/GPU) | `pip install simulated-bifurcation` | **no** | **no** — use `timeout` / `max_steps` | ❌ degree ≤ 2 |
-| [`CplexSolver`](#cplexsolver) | IBM CPLEX MIQP (commercial) | `pip install cplex` (license required) | **no** (license) | yes | ❌ degree ≤ 2 |
-| [`QiskitOptimizationSolver`](#qiskitoptimizationsolver) | IBM Qiskit Optimization (classical or QAOA / VQE) | `pip install qiskit qiskit-optimization qiskit-algorithms` | **no** | **no** — configure on eigensolver | ❌ degree ≤ 2 |
-| [`OrToolsCpSatSolver`](#ortoolscpsatsolver) | Google OR-Tools CP-SAT (HUBO via Boolean encoding) | `pip install ortools` | **no** | yes | ✅ via Boolean AND |
+| Solver | Backend | Install | Token | `time_limit` | HUBO | Negated literals |
+|---|---|---|---|---|---|---|
+| [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (cloud — Fixstars AE, Fujitsu DA, etc.) | `pip install amplify` | yes (default Fixstars AE) | yes | ✅ (auto-quadratized by SDK) | ❌ requires `all_positive=True` |
+| [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, via Ocean SDK) | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
+| [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | yes | ❌ degree ≤ 2 | — |
+| [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — classical SA, **not a quantum solver** | `pip install dwave-samplers` | **no** | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
+| [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — classical Tabu search | `pip install dwave-samplers` | **no** | **no** — use `timeout` (ms) | ❌ degree ≤ 2 | — |
+| [`DWaveSteepestDescentSolver`](#dwavesteepestdescentsolver) | D-Wave samplers — greedy local descent | `pip install dwave-samplers` | **no** | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
+| [`DimodExactSolver`](#dimodexactsolver) | dimod brute-force enumeration (≤ ~20 vars) | `pip install dimod` | **no** | **no** | ❌ degree ≤ 2 | — |
+| [`OpenJijSolver`](#openjijsolver) | OpenJij (local SA / SQA, open-source) | `pip install openjij` | **no** | **no** — use `num_reads` | ✅ via `sample_hubo` (SASampler) | ❌ requires `all_positive=True` |
+| [`HobotanMikasSolver`](#hobotanmikassolver) | TYTAN-SDK MIKASAmpler — HUBO-native PyTorch SA | `pip install -U git+https://github.com/tytansdk/tytan` (+ `torch`) | **no** | **no** — use `shots` | ✅ dense tensor | ❌ requires `all_positive=True` |
+| [`QubovertSolver`](#qubovertsolver) | qubovert.sim.anneal_pubo — pure-Python HUBO SA | `pip install qubovert` | **no** | **no** — use `num_anneals` | ✅ sparse PUBO | ❌ requires `all_positive=True` |
+| [`SimulatedBifurcationSolver`](#simulatedbifurcationsolver) | Toshiba SB algorithm (PyTorch CPU/GPU) | `pip install simulated-bifurcation` | **no** | **no** — use `timeout` / `max_steps` | ❌ degree ≤ 2 | — |
+| [`CplexSolver`](#cplexsolver) | IBM CPLEX MIQP (commercial) | `pip install cplex` (license required) | **no** (license) | yes | ❌ degree ≤ 2 | — |
+| [`QiskitOptimizationSolver`](#qiskitoptimizationsolver) | IBM Qiskit Optimization (classical or QAOA / VQE) | `pip install qiskit qiskit-optimization qiskit-algorithms` | **no** | **no** — configure on eigensolver | ❌ degree ≤ 2 | — |
+| [`OrToolsCpSatSolver`](#ortoolscpsatsolver) | Google OR-Tools CP-SAT (HUBO via Boolean encoding) | `pip install ortools` | **no** | yes | ✅ via Boolean AND | ✅ native (`BoolVar.Not()`) |
+
+**About negated literals.** PyQBPP expressions (`Expr`) can hold `~x`
+literals inside terms of degree ≥ 3, but solvers marked "❌ requires
+`all_positive=True`" target backends that cannot represent `~x` directly.
+For those you must pre-process the expression with
+`qbpp.simplify_as_binary(expr, all_positive=True)` to expand every `~x`
+into `(1 - x)` before constructing the solver; otherwise solver
+construction raises `RuntimeError`. Solvers marked `—` only accept
+degree ≤ 2, where Model construction already rejects any `~x`, so
+`all_positive=True` never enters the picture for them.
+`OrToolsCpSatSolver` is the sole HUBO solver in this list that handles
+`~x` natively via `BoolVar.Not()`, so passing `all_positive=True` is
+unnecessary (and would blow up the term count, so it's discouraged).
 
 The D-Wave QPU, D-Wave Neal, OpenJij, and TYTAN-SDK samplers do not
 have a wall-clock time limit concept. PyQBPP rejects `time_limit=...`

@@ -58,7 +58,7 @@ m = 4
 
 x = qbpp.var("x", shape=(n, m))
 
-onehot = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x), equal=1))
+onehot = qbpp.sum(qbpp.vector_sum(x) == 1)
 different = 0
 for u, v in edges:
     different += qbpp.sum(x[u] * x[v])

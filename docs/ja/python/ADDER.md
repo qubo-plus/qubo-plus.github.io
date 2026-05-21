@@ -42,7 +42,7 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+fa = ((a + b + i) - (2 * o + s) == 0)
 fa.simplify_as_binary()
 solver = qbpp.ExhaustiveSolver(fa)
 result = solver.search(best_energy_sols=0)
@@ -50,7 +50,7 @@ for idx, sol in enumerate(result.sols):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
     print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
-この PyQBPP プログラムでは、制約 $fa(a,b,i,c,s)$ は `qbpp.constrain(..., equal=0)` を使って実装されており、直感的に制約 $a+b+i=2o+s$ を表しています。
+この PyQBPP プログラムでは、制約 $fa(a,b,i,c,s)$ は `... == 0` を使って実装されており、直感的に制約 $a+b+i=2o+s$ を表しています。
 `best_energy_sols=0` を指定することで、最小（最良）エネルギーを達成するすべての解を個数制限なしで収集します。
 プログラムは以下の出力を生成し、式が全加算器を正しくモデル化していることを確認します:
 ```
@@ -102,7 +102,7 @@ b = qbpp.var("b")
 i = qbpp.var("i")
 o = qbpp.var("o")
 s = qbpp.var("s")
-fa = qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+fa = ((a + b + i) - (2 * o + s) == 0)
 
 x = qbpp.var("x", shape=4)
 y = qbpp.var("y", shape=4)
@@ -145,7 +145,7 @@ for idx, sol in enumerate(result.sols):
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 
 x = qbpp.var("x", shape=4)
 y = qbpp.var("y", shape=4)

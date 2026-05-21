@@ -22,10 +22,10 @@ $$
 ## 3次方程式を解く PyQBPP プログラム
 以下の PyQBPP プログラムでは、$[-100, 100]$ の値を取る整数変数 x を定義し、全探索ソルバーを使ってすべての最適解を列挙します:
 ```python
-import pyqbpp as qbpp
+import pyqbpp.cppint as qbpp
 
 x = qbpp.var("x", between=(-100, 100))
-f = qbpp.constrain(x * x * x - 147 * x + 286, equal=0)
+f = (x * x * x - 147 * x + 286 == 0)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
@@ -46,11 +46,7 @@ $$
 
 整数変数 `x` はバイナリ変数の線形式として実装されるため、`f` は6次の多項式になります。
 
-Python の整数は任意精度であるため、通常は特別な整数型を指定する必要はありません。
-ただし、係数が非常に大きくなる場合は、任意精度整数演算のための `pyqbpp.cppint` サブモジュールを次のようにインポートできます:
-```python
-import pyqbpp.cppint as qbpp
-```
+ここではデフォルトの `import pyqbpp as qbpp` ではなく `import pyqbpp.cppint as qbpp` を使っている点に注意してください。デフォルトモジュール `pyqbpp`（`pyqbpp.c32e64` の別名）は係数を 32 ビット整数で保持しますが、$f$ の定数項は $x=-100$ において $(-100^3 + 147\cdot 100 + 286)^2 \approx 9.7\times 10^{11}$ となり、32 ビット範囲を超えてオーバーフローしてしまいます。`pyqbpp.cppint` サブモジュールは係数とエネルギー値の両方を任意精度整数で扱うため、多項式が正確に表現され、ソルバーがエネルギー 0 の解を見つけられます。目安として、展開後の HUBO/QUBO 多項式の係数が $2^{31}-1 \approx 2.1 \times 10^9$ を超え得る場合は `pyqbpp.cppint` に切り替えるとよいでしょう。
 
 このプログラムは以下の出力を生成します:
 {% raw %}

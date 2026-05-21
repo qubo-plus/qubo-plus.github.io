@@ -92,7 +92,7 @@ for u, v in edges:
         t += x[idx]
     for idx in adj[v]:
         t += x[idx]
-    constraint += qbpp.constrain(t, between=(1, 2))
+    constraint += (1 <= t) & (qbpp.same <= 2)
 
 f = objective + constraint
 

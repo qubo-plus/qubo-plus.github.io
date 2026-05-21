@@ -63,8 +63,8 @@ import pyqbpp as qbpp
 n = 8
 x = qbpp.var("x", shape=(n, n))
 
-f = qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=0), equal=1)) + \
-    qbpp.sum(qbpp.constrain(qbpp.vector_sum(x, axis=1), equal=1))
+f = qbpp.sum(qbpp.vector_sum(x, axis=0) == 1) + \
+    qbpp.sum(qbpp.vector_sum(x, axis=1) == 1)
 
 m = 2 * n - 3
 a = qbpp.expr(shape=m)
@@ -83,8 +83,8 @@ for i in range(m):
         if 0 <= c < n:
             b[i] += x[r][c]
 
-f += qbpp.sum(qbpp.constrain(a, between=(0, 1)))
-f += qbpp.sum(qbpp.constrain(b, between=(0, 1)))
+f += qbpp.sum((0 <= a) & (qbpp.same <= 1))
+f += qbpp.sum((0 <= b) & (qbpp.same <= 1))
 
 f.simplify_as_binary()
 
@@ -98,14 +98,14 @@ for i in range(n):
 {% endraw %}
 An `n`$\times$`n` matrix `x` of binary variables is introduced, where `x[i][j] = 1` indicates that a queen is placed at row `i` and column `j`.
 The column-wise sums are computed using `qbpp.vector_sum(x, axis=0)`, which returns a vector of `n` expressions (one per column).
-Applying `qbpp.constrain(..., equal=1)` element-wise produces a vector of penalty expressions; each expression evaluates to 0 if and only if the corresponding column sum equals 1.
+Applying `... == 1` element-wise produces a vector of penalty expressions; each expression evaluates to 0 if and only if the corresponding column sum equals 1.
 Similarly, we can enforce the row-wise one-hot constraints using `qbpp.vector_sum(x, axis=1)`.
 Wrapping both vectors of penalty expressions with `qbpp.sum(...)` reduces each vector to a single scalar expression, which is then combined into `f`.
 
 To enforce diagonal constraints, we build two vectors of expressions, `a` and `b`, each of length `m = 2*n - 3`, using `qbpp.expr(shape=m)` which creates a one-dimensional array of zero expressions.
 For each index `i`, `a[i]` accumulates variables on a diagonal with a fixed value of `r + c` (diagonals from top-left to bottom-right), excluding diagonals of length 1.
 Similarly, `b[i]` accumulates variables on an anti-diagonal with a fixed value of `c - r` (diagonals from top-right to bottom-left), again excluding diagonals of length 1.
-The element-wise range constraint `qbpp.constrain(a, between=(0, 1))` (and similarly for `b`) produces a vector of penalty expressions that become 0 if and only if each diagonal/anti-diagonal contains at most one queen.
+The element-wise range constraint `(0 <= a) & (qbpp.same <= 1)` (and similarly for `b`) produces a vector of penalty expressions that become 0 if and only if each diagonal/anti-diagonal contains at most one queen.
 These penalties are reduced with `qbpp.sum(...)` and added to `f`.
 
 After converting the expression into a binary QUBO form with the in-place call `f.simplify_as_binary()`, the Easy Solver searches for a solution with target energy 0 by passing `target_energy=0` as a keyword argument to `search()`.

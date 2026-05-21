@@ -28,8 +28,8 @@ import pyqbpp as qbpp
 x = qbpp.var("x", between=(1, 16))
 y = qbpp.var("y", between=(1, 16))
 z = qbpp.var("z", between=(1, 16))
-f = qbpp.constrain(x * x + y * y - z * z, equal=0)
-c = qbpp.constrain(y - x, between=(1, +qbpp.inf))
+f = (x * x + y * y - z * z == 0)
+c = (y - x >= 1)
 g = f + c
 g.simplify_as_binary()
 

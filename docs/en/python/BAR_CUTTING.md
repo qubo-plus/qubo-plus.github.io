@@ -69,7 +69,7 @@ for j in range(N):
     for i in range(M):
         col_sum += x[i][j]
     order_fulfilled_count.append(col_sum)
-    order_constraint += qbpp.constrain(col_sum, equal=c[j])
+    order_constraint += (col_sum == c[j])
 
 # Bar constraint: total length used in each bar must not exceed L
 bar_length_used = []
@@ -79,7 +79,7 @@ for i in range(M):
     for j in range(N):
         used += x[i][j] * l[j]
     bar_length_used.append(used)
-    bar_constraint += qbpp.constrain(used, between=(0, L))
+    bar_constraint += (0 <= used) & (qbpp.same <= L)
 
 f = order_constraint + bar_constraint
 f.simplify_as_binary()
@@ -100,9 +100,9 @@ The program creates an `M`$\times$`N` matrix `x` of bounded integer variables, w
 
 The constraints are defined as follows:
 - `order_fulfilled_count`: a list of $N$ expressions where `order_fulfilled_count[j]` represents the total number of pieces produced for order $j$.
-- `order_constraint`: the sum of $N$ constraint expressions enforcing `col_sum == c[j]` for all $j$, constructed with `qbpp.constrain(col_sum, equal=c[j])`.
+- `order_constraint`: the sum of $N$ constraint expressions enforcing `col_sum == c[j]` for all $j$, constructed with `(col_sum == c[j])`.
 - `bar_length_used`: a list of $M$ expressions where `bar_length_used[i]` represents the total length used in bar $i$.
-- `bar_constraint`: the sum of $M$ constraint expressions enforcing `0 <= bar_length_used[i] <= L` for all $i$, constructed with `qbpp.constrain(used, between=(0, L))`.
+- `bar_constraint`: the sum of $M$ constraint expressions enforcing `0 <= bar_length_used[i] <= L` for all $i$, constructed with `(0 <= used) & (qbpp.same <= L)`.
 - `f`: the sum of all constraint expressions. After calling `f.simplify_as_binary()`, the Easy Solver searches for a solution with target energy 0 (i.e., all constraints satisfied).
 
 The following output is an example feasible solution:

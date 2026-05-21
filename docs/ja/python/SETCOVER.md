@@ -164,12 +164,12 @@ for i in range(m):
     for j in cover[i]:
         c[j] += x[i]
 
-constraint = qbpp.sum(qbpp.constrain(c[j], between=(1, m)) for j in range(n))
+constraint = qbpp.sum((1 <= c[j]) & (qbpp.same <= m) for j in range(n))
 ```
-このプログラムでは、すべての `j` に対して制約式 `qbpp.constrain(c[j], between=(1, m))` が作成され、その和が `constraint` に格納されます。
+このプログラムでは、すべての `j` に対して制約式 `(1 <= c[j]) & (qbpp.same <= m)` が作成され、その和が `constraint` に格納されます。
 
 > **注釈**
-> 式 `qbpp.constrain(c[j], between=(1, m))` は内部的に補助バイナリ変数を導入する場合があります。
+> 式 `(1 <= c[j]) & (qbpp.same <= m)` は内部的に補助バイナリ変数を導入する場合があります。
 > その結果、最終的な式はQUBOソルバーで扱うことができ、
 > 被覆制約の意味は保持されます。
 

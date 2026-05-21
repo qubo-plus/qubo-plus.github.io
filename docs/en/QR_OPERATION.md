@@ -141,6 +141,37 @@ For the returned constraint-expression `qbpp::Expr` object `g`:
 - **`g`** represents the constraint expression `(f - a)(f - (a + 1))`, and
 - **`g.body()`** returns the underlying expression `f`.
 
+## One-sided Comparison: `<=`, `>=`
+For a non-integer ExprType `f` and an integer `n`, single-sided constraint operators are provided:
+
+```cpp
+f <= n   // equivalent to: f.neg_sum() <= f <= n
+f >= n   // equivalent to: n <= f <= f.pos_sum()
+```
+
+Each returns a constraint expression whose minimum value is 0 when the one-sided constraint is satisfied.
+Internally, the missing bound is set to `f.neg_sum()` (the minimum possible value of `f`) or `f.pos_sum()` (the maximum possible value of `f`), so the resulting auxiliary integer variable has the smallest meaningful range.
+
+The single-sided operators and the chain form with `qbpp::inf` produce the same constraint expression:
+
+| Single-sided form | Equivalent chain form        |
+|-------------------|------------------------------|
+| `f <= n`          | `-qbpp::inf <= f <= n`       |
+| `f >= n`          | `n <= f <= +qbpp::inf`       |
+
+The single-sided form is the preferred notation for new code. The chain form is retained for cases where a richer infinite-bound notation is desired (e.g., generic templated code).
+
+> **NOTE**
+> Single-sided constraints must be written with the **expression on the left side**.
+> `n >= expr` is a compile error (explicitly deleted, so the message reads
+> *"use of deleted function"*).
+> The reverse direction `n <= expr` is not flagged because that token sequence
+> is also the start of a chain `n <= expr <= m`; if used standalone, the
+> result is a `std::pair` that has no `+`, `*`, `sqr()`, `simplify_*()`, etc.,
+> so any subsequent use produces a clean compile error.
+
+For an array `arr`, `arr <= n` and `arr >= n` also operate element-wise. Each element's `pos_sum()` / `neg_sum()` is used as the implicit other bound, so the auxiliary integer variable's range is sized per element rather than uniformly.
+
 ## Square functions: `sqr()`
 For a qbpp::Expr object `f`:
 - **`qbpp::sqr(f)`** (global function): Returns the expression `f * f`.

@@ -167,13 +167,13 @@ for i in range(m):
     for j in cover[i]:
         c[j] += x[i]
 
-constraint = qbpp.sum(qbpp.constrain(c[j], between=(1, m)) for j in range(n))
+constraint = qbpp.sum((1 <= c[j]) & (qbpp.same <= m) for j in range(n))
 ```
-In this program, the constraint expressions `qbpp.constrain(c[j], between=(1, m))` are created for all
+In this program, the constraint expressions `(1 <= c[j]) & (qbpp.same <= m)` are created for all
 `j`, and their sum is stored in `constraint`.
 
 > **Remark**.
-> The expression `qbpp.constrain(c[j], between=(1, m))` may introduce auxiliary binary variables
+> The expression `(1 <= c[j]) & (qbpp.same <= m)` may introduce auxiliary binary variables
 > internally. As a result, the final expression can be handled by a QUBO solver,
 > while preserving the intended meaning of the coverage constraint.
 

@@ -39,10 +39,10 @@ hreflang_lang: "en"
 以下の QUBO 式は、3つの入力ビット `a`、`b`、`i` と、2つの出力ビット: キャリーアウト `o` および和 `s` を持つ全加算器をシミュレートします:
 ```python
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 ```
 関数 `fa` は、全加算器の入力ビットと出力ビットの間の整合性を強制する式を返します。
-`qbpp.constrain(expr, equal=0)` は、`expr == 0`（すなわち全加算器が整合している状態）のときに限り最小値 0 を取る QUBO 式を返します。
+`expr == 0` は、`expr == 0`（すなわち全加算器が整合している状態）のときに限り最小値 0 を取る QUBO 式を返します。
 
 ### 加算器
 リスト `a`、`b`、`s` が整数を表すとします。
@@ -86,7 +86,7 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
+    f += (z[0] - x[0] * y[0] == 0)
 
     ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
     ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})
@@ -111,7 +111,7 @@ def multiplier(x, y, z):
 import pyqbpp as qbpp
 
 def fa(a, b, i, o, s):
-    return qbpp.constrain((a + b + i) - (2 * o + s), equal=0)
+    return ((a + b + i) - (2 * o + s) == 0)
 
 def adder(a, b, s):
     N = len(a)
@@ -139,7 +139,7 @@ def multiplier(x, y, z):
         s_vec = [c[i][j] for j in range(N + 1)]
         f += adder(a_vec, b_vec, s_vec)
 
-    f += qbpp.constrain(z[0] - x[0] * y[0], equal=0)
+    f += (z[0] - x[0] * y[0] == 0)
 
     ml = {c[i][0]: z[i + 1] for i in range(N - 2)}
     ml.update({c[N - 2][i]: z[N + i - 1] for i in range(N + 1)})

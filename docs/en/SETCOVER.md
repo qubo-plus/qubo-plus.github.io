@@ -178,13 +178,15 @@ Based on this formulation, the QUBO++ program can be modified as follows:
     }
   }
 
-  auto constraint = qbpp::sum(1 <= c <= +qbpp::inf);
+  auto constraint = qbpp::sum(c >= 1);
 ```
-In this program, the expressions `1 <= c[j] <= +qbpp::inf` are created for all
-`j`, and their sum is stored in `constraint`.
+In this program, the expressions `c[j] >= 1` are created element-wise for all
+`j`, and their sum is stored in `constraint`. Each element's auxiliary integer
+variable is automatically sized to that element's own `pos_sum()` (i.e., the
+exact number of subsets that contain `j`), so no manual upper bound is needed.
 
 > **Remark**.
-> The term `1 <= c[j] <= +qbpp::inf` may introducing auxiliary binary variables
+> The term `c[j] >= 1` may introduce auxiliary binary variables
 > internally. As a result, the final expression can be handled by a QUBO solver,
 > while preserving the intended meaning of the coverage constraint.
 

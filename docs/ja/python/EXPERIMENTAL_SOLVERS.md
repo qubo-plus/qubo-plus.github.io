@@ -40,22 +40,24 @@ print(sol.energy, sol.info)
 
 ## 一覧
 
-| ソルバー | バックエンド | インストール | トークン | `time_limit` | HUBO |
-|---|---|---|---|---|---|
-| [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (クラウド: Fixstars AE, Fujitsu DA など) | `pip install amplify` | 必要（既定: Fixstars AE） | 対応 | ✅ (SDK が自動 quadratize) |
-| [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, Ocean SDK 経由) | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 |
-| [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | 対応 | ❌ degree ≤ 2 |
-| [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — 古典 SA、**量子ソルバーではない** | `pip install dwave-samplers` | **不要** | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 |
-| [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — 古典 Tabu サーチ | `pip install dwave-samplers` | **不要** | **非対応** — `timeout` (ms) を使う | ❌ degree ≤ 2 |
-| [`DWaveSteepestDescentSolver`](#dwavesteepestdescentsolver) | D-Wave samplers — Greedy ローカル降下 | `pip install dwave-samplers` | **不要** | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 |
-| [`DimodExactSolver`](#dimodexactsolver) | dimod 全数列挙（〜20 変数まで） | `pip install dimod` | **不要** | **非対応** | ❌ degree ≤ 2 |
-| [`OpenJijSolver`](#openjijsolver) | OpenJij (ローカル SA / SQA、オープンソース) | `pip install openjij` | **不要** | **非対応** — `num_reads` を使う | ✅ `sample_hubo` 経由 (SASampler) |
-| [`HobotanMikasSolver`](#hobotanmikassolver) | TYTAN-SDK MIKASAmpler — HUBO ネイティブ PyTorch SA | `pip install -U git+https://github.com/tytansdk/tytan` (+ `torch`) | **不要** | **非対応** — `shots` を使う | ✅ 密テンソル |
-| [`QubovertSolver`](#qubovertsolver) | qubovert.sim.anneal_pubo — Pure Python HUBO SA | `pip install qubovert` | **不要** | **非対応** — `num_anneals` を使う | ✅ 疎 PUBO |
-| [`SimulatedBifurcationSolver`](#simulatedbifurcationsolver) | Toshiba SB アルゴリズム (PyTorch CPU/GPU) | `pip install simulated-bifurcation` | **不要** | **非対応** — `timeout` / `max_steps` を使う | ❌ degree ≤ 2 |
-| [`CplexSolver`](#cplexsolver) | IBM CPLEX MIQP（商用） | `pip install cplex`（ライセンス必要） | **不要**（ライセンス） | 対応 | ❌ degree ≤ 2 |
-| [`QiskitOptimizationSolver`](#qiskitoptimizationsolver) | IBM Qiskit Optimization（古典 or QAOA / VQE） | `pip install qiskit qiskit-optimization qiskit-algorithms` | **不要** | **非対応** — eigensolver 側で設定 | ❌ degree ≤ 2 |
-| [`OrToolsCpSatSolver`](#ortoolscpsatsolver) | Google OR-Tools CP-SAT（HUBO は Boolean 変換） | `pip install ortools` | **不要** | 対応 | ✅ Boolean AND 経由 |
+| ソルバー | バックエンド | インストール | トークン | `time_limit` | HUBO | 否定リテラル |
+|---|---|---|---|---|---|---|
+| [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (クラウド: Fixstars AE, Fujitsu DA など) | `pip install amplify` | 必要（既定: Fixstars AE） | 対応 | ✅ (SDK が自動 quadratize) | ❌ 要 `all_positive=True` |
+| [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, Ocean SDK 経由) | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
+| [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | 対応 | ❌ degree ≤ 2 | — |
+| [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — 古典 SA、**量子ソルバーではない** | `pip install dwave-samplers` | **不要** | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
+| [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — 古典 Tabu サーチ | `pip install dwave-samplers` | **不要** | **非対応** — `timeout` (ms) を使う | ❌ degree ≤ 2 | — |
+| [`DWaveSteepestDescentSolver`](#dwavesteepestdescentsolver) | D-Wave samplers — Greedy ローカル降下 | `pip install dwave-samplers` | **不要** | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
+| [`DimodExactSolver`](#dimodexactsolver) | dimod 全数列挙（〜20 変数まで） | `pip install dimod` | **不要** | **非対応** | ❌ degree ≤ 2 | — |
+| [`OpenJijSolver`](#openjijsolver) | OpenJij (ローカル SA / SQA、オープンソース) | `pip install openjij` | **不要** | **非対応** — `num_reads` を使う | ✅ `sample_hubo` 経由 (SASampler) | ❌ 要 `all_positive=True` |
+| [`HobotanMikasSolver`](#hobotanmikassolver) | TYTAN-SDK MIKASAmpler — HUBO ネイティブ PyTorch SA | `pip install -U git+https://github.com/tytansdk/tytan` (+ `torch`) | **不要** | **非対応** — `shots` を使う | ✅ 密テンソル | ❌ 要 `all_positive=True` |
+| [`QubovertSolver`](#qubovertsolver) | qubovert.sim.anneal_pubo — Pure Python HUBO SA | `pip install qubovert` | **不要** | **非対応** — `num_anneals` を使う | ✅ 疎 PUBO | ❌ 要 `all_positive=True` |
+| [`SimulatedBifurcationSolver`](#simulatedbifurcationsolver) | Toshiba SB アルゴリズム (PyTorch CPU/GPU) | `pip install simulated-bifurcation` | **不要** | **非対応** — `timeout` / `max_steps` を使う | ❌ degree ≤ 2 | — |
+| [`CplexSolver`](#cplexsolver) | IBM CPLEX MIQP（商用） | `pip install cplex`（ライセンス必要） | **不要**（ライセンス） | 対応 | ❌ degree ≤ 2 | — |
+| [`QiskitOptimizationSolver`](#qiskitoptimizationsolver) | IBM Qiskit Optimization（古典 or QAOA / VQE） | `pip install qiskit qiskit-optimization qiskit-algorithms` | **不要** | **非対応** — eigensolver 側で設定 | ❌ degree ≤ 2 | — |
+| [`OrToolsCpSatSolver`](#ortoolscpsatsolver) | Google OR-Tools CP-SAT（HUBO は Boolean 変換） | `pip install ortools` | **不要** | 対応 | ✅ Boolean AND 経由 | ✅ ネイティブ (`BoolVar.Not()`) |
+
+**否定リテラルについて。** PyQBPP の式 (`Expr`) は `~x` を degree 3 以上の項にそのまま保持できますが、上表で「❌ 要 `all_positive=True`」のソルバーはバックエンドが否定リテラルを表現できないため、**ユーザーが事前に `qbpp.simplify_as_binary(expr, all_positive=True)` を呼んで `~x` を展開**してから渡す必要があります。怠ると Solver 構築時に `RuntimeError` が送出されます。`—` のソルバーは degree ≤ 2 のみを受け付け、その範囲では Model 構築時に `~x` を含む式が自動的に拒否されるため、`all_positive=True` を意識する必要はありません。`OrToolsCpSatSolver` だけは HUBO で `~x` をネイティブに扱えるので、`all_positive=True` は不要です（むしろ展開すると項数が爆発するので非推奨）。
 
 D-Wave QPU、D-Wave Neal、OpenJij、TYTAN-SDK のサンプラはハードウェア／
 アルゴリズムの仕組み上、壁時計の打ち切り (wall-clock time limit) という

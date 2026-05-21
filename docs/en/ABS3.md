@@ -244,7 +244,6 @@ This example does not use `target_energy`. Instead the callback observes `energy
 
 {% raw %}
 ```cpp
-#include <atomic>
 #include <iostream>
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
@@ -252,14 +251,13 @@ This example does not use `target_energy`. Instead the callback observes `energy
 class TerminateOnZero : public qbpp::ABS3Solver {
  public:
   using ABS3Solver::ABS3Solver;
-  mutable std::atomic<bool> fired{false};
 
   void callback() const override {
     if (event() == qbpp::CallbackEvent::BestUpdated) {
       std::cout << "energy=" << best_sol().energy
                 << " tts=" << best_sol().tts << "s" << std::endl;
-      if (best_sol().energy == 0 && !fired.exchange(true)) {
-        terminate();  // search() returns immediately
+      if (best_sol().energy == 0) {
+        terminate();  // fires only once: BestUpdated is strictly monotonic
       }
     }
   }

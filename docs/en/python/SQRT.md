@@ -53,7 +53,7 @@ import pyqbpp.cppint as qbpp
 c = 2
 s = 10**20
 x = qbpp.var("x", between=(s, c * s))
-f = qbpp.constrain(x * x, equal=c * s * s)
+f = (x * x == c * s * s)
 f.simplify_as_binary()
 solver = qbpp.EasySolver(f)
 sol = solver.search(time_limit=10.0)
