@@ -44,6 +44,7 @@ print(sol.energy, sol.info)
 |---|---|---|---|---|---|---|
 | [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (クラウド: Fixstars AE, Fujitsu DA など) | `pip install amplify` | 必要（既定: Fixstars AE） | 対応 | ✅ (SDK が自動 quadratize) | ❌ 要 `all_positive=True` |
 | [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, Ocean SDK 経由) | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
+| [`DWaveNativeSolver`](#dwavenativesolver) | D-Wave QPU — ネイティブトポロジー、**埋め込みなし** | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
 | [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | 必要（D-Wave Leap） | 対応 | ❌ degree ≤ 2 | — |
 | [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — 古典 SA、**量子ソルバーではない** | `pip install dwave-samplers` | **不要** | **非対応** — `num_reads` を使う | ❌ degree ≤ 2 | — |
 | [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — 古典 Tabu サーチ | `pip install dwave-samplers` | **不要** | **非対応** — `timeout` (ms) を使う | ❌ degree ≤ 2 | — |
@@ -178,6 +179,59 @@ sol = qbpp.DWaveSolver(e, sampler=SimulatedAnnealingSampler()
 `num_reads` × `annealing_time` (μs) で決まります。
 `time_limit=...` を渡すと `RuntimeError` で拒否されます
 （壁時計予算が黙って無視される事故を防ぐためです）。
+
+## DWaveNativeSolver
+
+**QPU のネイティブトポロジー上に既に配置された問題**を、指定した
+Advantage アニーラへ **minor embedding なし**で投入します。`DWaveSolver`
+（minorminer が論理問題を任意の量子ビットに配置する）と異なり、各変数を
+`qubit_map` で **特定の1物理量子ビット**に対応づけ、chain 長 1 の自明な
+embedding で投入します。したがってインスタンスの相互作用グラフは対象 QPU
+の working graph の部分グラフである必要があり、**既定では投入前に検証**します。
+
+ハードウェアのカプラーグラフ上に直接生成したベンチマーク（例: Advantage の
+Pegasus グラフ上のランダム Ising スピングラス）のように、変数インデックスが
+既に物理量子ビットに対応していて再埋め込みが不要な場合に使います。
+
+```python
+import pyqbpp as qbpp
+
+# Advantage のネイティブグラフ上に直接配置した Ising：各変数のインデックスが
+# 物理量子ビット番号、J のキーは実在するカプラー。
+s = qbpp.var("s", num_qubits)
+E = qbpp.expr()
+for (i, j), c in couplers.items():     # i, j は物理量子ビット番号
+    E += c * s[i] * s[j]
+for i, hi in fields.items():
+    E += hi * s[i]
+qubo = qbpp.spin_to_binary(E)          # spin -> binary QUBO（値は保存される）
+
+# 各変数を物理量子ビットに対応づけ、埋め込みなしで投入。
+qubit_map = {s[i]: i for i in qubits}
+sol = qbpp.DWaveNativeSolver(qubo, qubit_map,
+                             token="DEV-...", solver="Advantage_system4.1"
+                             ).search(num_reads=1000, annealing_time=20)
+print(sol.energy)
+```
+
+- **`qubit_map`** は各 qbpp 変数（または整数インデックス）を対象ソルバの
+  物理量子ビット番号に対応づけます。例: `{s[i]: i for i in qubits}`。
+- **`validate=True`**（既定）は投入前に、全ての対応量子ビットが QPU の
+  `nodelist` に、全ての 2 次相互作用が `edgelist` に存在するか検証し、
+  working graph に収まらない場合は欠落した量子ビット・カプラーを列挙した
+  `RuntimeError` を送出します。`validate=False` で検証を省略できます。
+
+QPU なしのオフライン検証には、structured なモックを子サンプラとして注入します:
+
+```python
+import dimod
+from dwave.samplers import SimulatedAnnealingSampler
+child = dimod.StructureComposite(SimulatedAnnealingSampler(), nodelist, edgelist)
+sol = qbpp.DWaveNativeSolver(qubo, qubit_map, sampler=child).search(num_reads=100)
+```
+
+`DWaveSolver` と同様、degree ≤ 2 が必要で、`time_limit` は **非対応**
+（`num_reads` / `annealing_time` を使う）です。
 
 ## DWaveHybridSolver
 

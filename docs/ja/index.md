@@ -12,7 +12,7 @@ mode_shared: true
 
 **QUBO++** は、組合せ最適化問題をバイナリ変数の多項式（QUBO/HUBO）として定式化・求解するフレームワークです。
 
-- **C++ と Python** — C++（[QUBO++](DOCUMENT)）でもPython（[PyQBPP](python/)）でも使えます。
+- **C++ と Python** — C++（[QUBO++](DOCUMENT)）でもPython（[PyQBPP](python/DOCUMENT)）でも使えます。
 - **シンボリックDSL** — 行列のインデックスではなく、数式を書くように最適化モデルを構築。自然なforループで制約を記述することも、ベクトル演算でループなしに記述することもできます。
 - **簡単インストール** — C++は `sudo apt install qbpp`、Pythonは `pip install pyqbpp`。ソースからのビルドは不要です。
 - **次数無制限のHUBO** — 二次だけでなく任意の次数の高次項をサポート。否定リテラル（`~x`）をネイティブにサポートし、$\overline{x}$ を $1-x$ に置き換えることによる項数爆発を回避します。

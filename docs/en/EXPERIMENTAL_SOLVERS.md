@@ -39,3 +39,4 @@ The following built-in solvers are available from both C++ and PyQBPP:
 - [Exhaustive Solver](EXHAUSTIVE) — complete search (CPU + GPU)
 - [ABS3 Solver](ABS3) — high-performance heuristic (CPU + GPU)
 - [Gurobi Optimizer](GUROBI) — exact solver via Gurobi (license required)
+- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — experimental open-source exact solvers

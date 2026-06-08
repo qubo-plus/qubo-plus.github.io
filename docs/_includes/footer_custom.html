@@ -21,7 +21,7 @@
   } else {
     var base = path.replace(/\.html$/, '').replace(/\/$/, '');
     var name = base.substring(base.lastIndexOf('/') + 1);
-    var noPython = ['index','DEMOS','DOCUMENT','GUROBI','HUBO_QUBO','LICENSE_MANAGEMENT','WSL','PORTAL_TOS','TERMS'];
+    var noPython = ['index','DEMOS','GUROBI','HUBO_QUBO','LICENSE_MANAGEMENT','WSL','PORTAL_TOS','TERMS'];
     if (name && noPython.indexOf(name) === -1) {
       crossLink = document.createElement('a');
       crossLink.href = 'python/' + name;

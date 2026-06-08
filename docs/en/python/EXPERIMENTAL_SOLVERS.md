@@ -43,6 +43,7 @@ print(sol.energy, sol.info)
 |---|---|---|---|---|---|---|
 | [`AmplifySolver`](#amplifysolver) | Fixstars Amplify SDK (cloud — Fixstars AE, Fujitsu DA, etc.) | `pip install amplify` | yes (default Fixstars AE) | yes | ✅ (auto-quadratized by SDK) | ❌ requires `all_positive=True` |
 | [`DWaveSolver`](#dwavesolver) | D-Wave QPU (Advantage, via Ocean SDK) | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
+| [`DWaveNativeSolver`](#dwavenativesolver) | D-Wave QPU — native topology, **no minor-embedding** | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
 | [`DWaveHybridSolver`](#dwavehybridsolver) | D-Wave Leap Hybrid Sampler | `pip install dwave-ocean-sdk` | yes (D-Wave Leap) | yes | ❌ degree ≤ 2 | — |
 | [`DWaveNealSolver`](#dwavenealsolver) | D-Wave Neal — classical SA, **not a quantum solver** | `pip install dwave-samplers` | **no** | **no** — use `num_reads` | ❌ degree ≤ 2 | — |
 | [`DWaveTabuSolver`](#dwavetabusolver) | D-Wave samplers — classical Tabu search | `pip install dwave-samplers` | **no** | **no** — use `timeout` (ms) | ❌ degree ≤ 2 | — |
@@ -188,6 +189,63 @@ HUBO raises a `RuntimeError`.
 `num_reads` and `annealing_time` (microseconds per anneal). Passing
 `time_limit=...` raises a `RuntimeError` to prevent the wall-clock budget
 from being silently ignored.
+
+## DWaveNativeSolver
+
+Submits a problem that is **already laid out on the QPU's native topology**
+to a specified Advantage annealer **without minor-embedding**. Unlike
+`DWaveSolver` (which lets minorminer place a logical problem onto arbitrary
+qubits), each variable is mapped onto **one specific physical qubit** via
+`qubit_map`, using a trivial chain-length-1 embedding. The instance's
+interaction graph must therefore be a subgraph of the target QPU's working
+graph — by default this is **validated before submission**.
+
+This is the right solver for benchmarks generated directly on the hardware
+coupler graph (e.g. a random Ising spin glass on the Advantage Pegasus
+graph), where the variable indices already correspond to physical qubits, so
+no re-embedding is wanted.
+
+```python
+import pyqbpp as qbpp
+
+# Ising laid out directly on the Advantage native graph: the index of each
+# variable is the physical qubit number; J keys are existing couplers.
+s = qbpp.var("s", num_qubits)
+E = qbpp.expr()
+for (i, j), c in couplers.items():     # i, j are physical qubit indices
+    E += c * s[i] * s[j]
+for i, hi in fields.items():
+    E += hi * s[i]
+qubo = qbpp.spin_to_binary(E)          # spin -> binary QUBO (value preserved)
+
+# Map each variable to its physical qubit and submit with NO embedding.
+qubit_map = {s[i]: i for i in qubits}
+sol = qbpp.DWaveNativeSolver(qubo, qubit_map,
+                             token="DEV-...", solver="Advantage_system4.1"
+                             ).search(num_reads=1000, annealing_time=20)
+print(sol.energy)
+```
+
+- **`qubit_map`** maps each qbpp variable (or its integer index) to a physical
+  qubit index on the target solver, e.g. `{s[i]: i for i in qubits}`.
+- **`validate=True`** (default) checks that every mapped qubit is in the QPU
+  `nodelist` and every degree-2 interaction is in its `edgelist` before
+  submission, raising a `RuntimeError` that lists the missing qubits/couplers
+  if the instance does not fit the working graph. Set `validate=False` to skip
+  the check.
+
+For offline testing without a QPU, inject a structured mock as the child
+sampler:
+
+```python
+import dimod
+from dwave.samplers import SimulatedAnnealingSampler
+child = dimod.StructureComposite(SimulatedAnnealingSampler(), nodelist, edgelist)
+sol = qbpp.DWaveNativeSolver(qubo, qubit_map, sampler=child).search(num_reads=100)
+```
+
+Like `DWaveSolver`, requires degree ≤ 2, and `time_limit` is **not
+supported** (use `num_reads` / `annealing_time`).
 
 ## DWaveHybridSolver
 

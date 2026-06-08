@@ -1,25 +1,27 @@
 ---
 layout: default
-title: "QUBO++ (C++)"
+title: "PyQBPP (Python)"
 nav_order: 5
 lang: en
-hreflang_alt: "ja/DOCUMENT"
+hreflang_alt: "ja/python/DOCUMENT"
 hreflang_lang: "ja"
-mode_counterpart: "/en/python/DOCUMENT.html"
+mode_counterpart: "/en/DOCUMENT.html"
 ---
 
-# QUBO++ (C++) Documentation
+# PyQBPP Document
+This documentation for PyQBPP (Python binding of QUBO++) is currently under development.
+Some pages may contain incomplete or provisional information.
 
 ## Getting Started
-1. [HUBO and QUBO](HUBO_QUBO)
+1. [HUBO and QUBO](../HUBO_QUBO)
 2. [Quick Start](QUICK)
-3. [Installation and License Management](INSTALL)
+3. [Installation](INSTALL)
 
 ## Basics
-This section provides a step-by-step introduction to QUBO++.
+This section provides a step-by-step introduction to PyQBPP.
 By reading the pages in order, you will learn how to define variables and expressions,
-model optimization problems, and solve them using QUBO++.
-After completing this tutorial, you should be able to use QUBO++ for most typical applications.
+model optimization problems, and solve them using PyQBPP.
+After completing this tutorial, you should be able to use PyQBPP for most typical applications.
 
 1. [Defining Variables and Creating Expressions](VARIABLE)
 2. [Solving Expressions](SOLVE)
@@ -31,24 +33,22 @@ After completing this tutorial, you should be able to use QUBO++ for most typica
 8. [Range Constraints and Solving Integer Linear Programming](RANGE)
 
 ## Topics
-This section provides topic-wise explanations of selected features of QUBO++.
+This section provides topic-wise explanations of selected features of PyQBPP.
 Each page focuses on a specific topic and offers deeper insights into design decisions,
 usage patterns, and, where appropriate, internal implementations.
-This section is not intended to be exhaustive, but to complement the Tutorial and Reference
-sections by providing a deeper understanding of QUBO++.
 
 1. [Data Types of Variables and Expressions](VAREXPR)
 2. [Basic Operators and Functions](OPERATOR)
 3. [Basic Operators and Functions for Arrays](OPVECTOR)
-4. [Multi-dimensional Integers, Variables, and Expressions](MULTIDIM)
-5. [Comparison Operators](COMPARISON)
+4. [Multi-dimensional Variables and Expressions](MULTIDIM)
+5. [Comparison Constraints](COMPARISON)
 6. [Expression Classes](EXPRESSION)
 7. [Evaluating Expressions](EVAL)
-8. [Replace functions](REPLACE)
+8. [Replace Functions](REPLACE)
 9. [Negated Literals](NEGATIVE)
 10. [Sum Functions for Multi-dimensional Arrays](SUM)
 11. [Einsum Function for Tensor Contraction](EINSUM)
-12. [Slice and Concat Functions](SLICE_CONCAT)
+12. [Slice and Concat](SLICE_CONCAT)
 13. [One-Hot to Integer Conversion](ONEHOT)
 14. [Easy Solver Usage](EASYSOLVER)
 15. [Exhaustive Solver Usage](EXHAUSTIVE)
@@ -57,19 +57,19 @@ sections by providing a deeper understanding of QUBO++.
 18. [Performance Tips](TIPS)
 
 ## Case Studies
-This section provides examples of solving optimization, mathematical, and graph problems using QUBO++.
+This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.
 See the [Case Studies](CASE_STUDIES) page for the full list.
 
 ## Quick References
 1. [Variables and Expressions](QR_VARIABLE)
-2. [Operators and Functions for Expressions](QR_OPERATION)
+2. [Operators and Functions](QR_OPERATION)
 3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
 4. [Solutions](QR_SOLUTION)
 
 ## Experimental Solver Integrations
-QUBO++ can also use a number of external solvers, experimentally (their APIs may
+PyQBPP can also use a number of external solvers, experimentally (their APIs may
 change without notice, and each solver must be installed separately).
 
 - [Gurobi Optimizer Usage](GUROBI) — commercial exact solver (license required)
 - [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — open-source exact MILP solvers
-- [Experimental Solver Support](EXPERIMENTAL_SOLVERS) — CPLEX / Amplify / D-Wave / … from PyQBPP
+- [Experimental Solver Support](EXPERIMENTAL_SOLVERS) — Fixstars Amplify, D-Wave (Advantage / Leap Hybrid / Neal / Tabu / Steepest Descent), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT

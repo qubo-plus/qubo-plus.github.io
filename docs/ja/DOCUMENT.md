@@ -5,7 +5,7 @@ nav_order: 5
 lang: ja
 hreflang_alt: "en/DOCUMENT"
 hreflang_lang: "en"
-mode_counterpart: "/ja/python/"
+mode_counterpart: "/ja/python/DOCUMENT.html"
 ---
 
 # QUBO++ (C++) ドキュメント
@@ -53,9 +53,8 @@ mode_counterpart: "/ja/python/"
 14. [Easy Solver の使い方](EASYSOLVER)
 15. [Exhaustive Solver の使い方](EXHAUSTIVE)
 16. [ABS3 Solver の使い方](ABS3)
-17. [Gurobi Optimizer の使い方](GUROBI)
-18. [探索パラメータ](PARAMS)
-19. [高速化のための Tips](TIPS)
+17. [探索パラメータ](PARAMS)
+18. [高速化のための Tips](TIPS)
 
 
 
@@ -68,3 +67,10 @@ mode_counterpart: "/ja/python/"
 2. [式の演算子と関数](QR_OPERATION)
 3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
 4. [解](QR_SOLUTION)
+
+## 実験的なソルバー連携
+QUBO++ は実験的に外部ソルバーとも連携できます（API は予告なく変更される可能性があります。各ソルバーは別途インストールが必要です）。
+
+- [Gurobi Optimizer の使い方](GUROBI) — 商用の厳密ソルバー（ライセンス要）
+- [MILP ソルバー (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — OSS の厳密 MILP ソルバー
+- [実験的なソルバーサポート](EXPERIMENTAL_SOLVERS) — PyQBPP からの CPLEX / Amplify / D-Wave ほか
