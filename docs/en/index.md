@@ -21,7 +21,7 @@ as polynomials of binary variables (QUBO/HUBO).
 - **CPU parallel acceleration** — All solvers run multithreaded on multicore CPUs.
 - **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 32-bit to thousands of digits.
 - **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
-- **Experimental third-party solver support** (PyQBPP only) — Call Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools CP-SAT through a unified `Solver.search()` protocol. See [Experimental Solver Support](python/EXPERIMENTAL_SOLVERS).
+- **Experimental third-party solver support** (PyQBPP only) — Call Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools CP-SAT through a unified `Solver.search()` protocol. See [QUBO/HUBO Solvers](python/QUBO_HUBO_SOLVERS) and [CP Solvers](python/CP_SOLVERS).
 - **Run anywhere** — From a Raspberry Pi to a laptop, GPU servers, and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
 
 # QUBO++ Solvers: Easy Solver, Exhaustive Solver, ABS3 Solver
@@ -85,27 +85,14 @@ The following libraries are linked into the QUBO++ shared objects (`qbpp_*.so`):
 
 # Optional Solver Backends
 
-QUBO++ can call a number of external solvers through dynamic loading
-(C++: `dlopen`; Python: lazy `import`). None of these packages are
-bundled with QUBO++ — install only the ones you need. Each ships
-under its own license. The **stable** backend (Gurobi) has been
-supported for several releases; **experimental** backends were added
-in 2026.05.07 and the API may evolve.
+Besides the three built-in solvers, QUBO++ can hand a model to a number of
+external solvers, grouped by the model form each one consumes:
 
-| Solver | Status | Languages | License | Source / docs |
-|---|---|---|---|---|
-| **Gurobi Optimizer** | stable | C++ + Python | proprietary (free academic) | <https://www.gurobi.com> · [C++ usage](GUROBI) · [Python usage](python/GUROBI) |
-| **Fixstars Amplify** | experimental | Python | proprietary (cloud SDK) | <https://amplify.fixstars.com/> |
-| **D-Wave Ocean** (6 solvers: QPU / Hybrid / Neal / Tabu / Steepest / Exact) | experimental | Python | Apache 2.0 | <https://github.com/dwavesystems/dwave-ocean-sdk> |
-| **OpenJij** (+ `jij-cimod`) | experimental | Python | Apache 2.0 | <https://github.com/OpenJij/OpenJij> |
-| **TYTAN-SDK** (MIKASAmpler) | experimental | Python | MIT | <https://github.com/tytansdk/tytan> |
-| **qubovert** | experimental | Python | Apache 2.0 | <https://github.com/jiosue/qubovert> |
-| **Simulated Bifurcation** | experimental | Python | MIT | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
-| **IBM CPLEX** | experimental | Python | proprietary (license required) | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
-| **IBM Qiskit Optimization** (+ `qiskit-algorithms`) | experimental | Python | Apache 2.0 | <https://github.com/Qiskit/qiskit> |
-| **Google OR-Tools CP-SAT** | experimental | Python | Apache 2.0 | <https://github.com/google/or-tools> |
-| **PyTorch** (transitive dep of TYTAN-SDK / Simulated Bifurcation) | — | Python | BSD 3-Clause | <https://pytorch.org/> |
+- **[QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS)** — the model is taken directly (Gurobi, D-Wave, Fixstars Amplify, OpenJij, IBM CPLEX, …).
+- **[MILP Solvers](MILP_SOLVERS)** — the QUBO is linearized into a pure MILP first (SCIP, HiGHS, GLPK, CBC).
+- **[CP Solvers](CP_SOLVERS)** — constraint programming (Google OR-Tools CP-SAT).
 
-For experimental-backend usage, the unified `num_reads` / `time_limit`
-semantics, and per-backend caveats, see
-[Experimental Solver Support](python/EXPERIMENTAL_SOLVERS).
+Each backend must be **installed separately** and ships under its own license
+(some require a commercial or academic license). These integrations are
+**experimental** — their APIs may change without notice. See each page above for
+the full solver list, installation, and per-backend caveats.

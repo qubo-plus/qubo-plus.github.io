@@ -13,7 +13,14 @@ hreflang_lang: "en"
 QUBO++ は複数のサードパーティ製**厳密 MILP ソルバー**で QUBO 式を解くことが
 できます。これらは共通インタフェースを持つヘッダオンリーのソルバーとして
 ラップされており、**クラス名を変えるだけ**で互いに、また
-`qbpp::GurobiSolver` / `qbpp::ABS3Solver` とも切り替えられます。
+`qbpp::ABS3Solver` とも切り替えられます。
+
+これらは**線形**の目的関数を最小化するため、二次の QUBO は渡す前に
+**線形化**する必要があります（後述）。これがこのページの判定基準です。
+二次目的関数を**直接**受け取れるソルバー（Gurobi, IBM CPLEX — いずれも MIQP）は
+ここには含まれず、[QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS) にまとめています。
+制約プログラミングエンジンの OR-Tools CP-SAT は [CP ソルバー](CP_SOLVERS) を
+参照してください。
 
 > **実験的機能。** これらは実験・ベンチマーク用途で提供されます。API は予告なく
 > 変更される可能性があり、各ソルバーは別途インストールが必要です（[セットアップ](#setup)参照）。
@@ -31,8 +38,9 @@ QUBO を純粋な MILP としてソルバーに渡します。返される解の
 | [GLPK](https://www.gnu.org/software/glpk/) | `qbpp::GlpkSolver` | GPL (OSS) | 軽量 |
 | [CBC](https://github.com/coin-or/Cbc) | `qbpp::CbcSolver` | EPL (OSS) | COIN-OR branch & cut |
 
-商用の厳密ソルバーは [Gurobi Optimizer](GUROBI) を参照してください。IBM CPLEX は
-PyQBPP からのみ利用できます（[Experimental Solver Support](EXPERIMENTAL_SOLVERS) 参照）。
+二次目的関数を直接受け取れる商用の厳密ソルバー（Gurobi, IBM CPLEX）は
+[QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS) を参照してください（Gurobi は C++・PyQBPP
+両対応、CPLEX は PyQBPP のみ）。
 
 ## 使い方
 
@@ -58,13 +66,13 @@ int main() {
   auto sol = solver.search({{"time_limit", 10.0}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
-  std::cout << "bound  = " << sol.info().get("bound") << std::endl;
-  std::cout << "status = " << sol.info().get("status") << std::endl;
+  std::cout << "bound  = " << sol.info("bound") << std::endl;
+  std::cout << "status = " << sol.info("status") << std::endl;
 }
 ```
 {% endraw %}
 
-エネルギーが下界 `sol.info().get("bound")` と一致すれば、その解は最適であることが
+エネルギーが下界 `sol.info("bound")` と一致すれば、その解は最適であることが
 保証されます:
 
 ```

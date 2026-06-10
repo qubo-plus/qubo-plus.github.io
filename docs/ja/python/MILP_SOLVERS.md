@@ -12,7 +12,13 @@ hreflang_lang: "en"
 
 PyQBPP は複数のサードパーティ製**厳密 MILP ソルバー**で QUBO 式を解くことが
 できます。これらは共通インタフェースを持ち、**クラス名を変えるだけ**で互いに、
-また `pyqbpp.GurobiSolver` / `pyqbpp.ABS3Solver` とも切り替えられます。
+また `pyqbpp.ABS3Solver` とも切り替えられます。
+
+これらは**線形**の目的関数を最小化するため、二次の QUBO は渡す前に
+**線形化**する必要があります（後述）。二次目的関数を**直接**受け取れる
+ソルバー（Gurobi, IBM CPLEX — いずれも MIQP）はここには含まれず、
+[QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS) にまとめています。制約プログラミング
+エンジンの OR-Tools CP-SAT は [CP ソルバー](CP_SOLVERS) を参照してください。
 
 > **実験的機能。** これらは実験・ベンチマーク用途で提供されます。API は予告なく
 > 変更される可能性があり、各ソルバーの Python バインディングは別途インストールが
@@ -31,8 +37,8 @@ PyQBPP は複数のサードパーティ製**厳密 MILP ソルバー**で QUBO 
 | [GLPK](https://www.gnu.org/software/glpk/) | `pyqbpp.GlpkSolver` | swiglpk | GPL |
 | [CBC](https://github.com/coin-or/Cbc) | `pyqbpp.CbcSolver` | python-mip | EPL |
 
-商用の厳密ソルバーは [Gurobi](GUROBI) と
-[IBM CPLEX](EXPERIMENTAL_SOLVERS) を参照してください。
+二次目的関数を直接受け取れる商用の厳密ソルバーは
+[Gurobi と IBM CPLEX](QUBO_HUBO_SOLVERS) を参照してください。
 
 ## 使い方
 

@@ -259,6 +259,7 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 - **シンプルな構文**: `#include`、`#define`、`main()`、`auto`、名前空間修飾子などの定型コードが不要です。
 - **簡単なインストール**: 仮想環境内で `pip install pyqbpp` するだけで、`sudo` は不要です。
 - **データサイエンスエコシステム**: NumPy、pandas、matplotlib などの Python ライブラリとシームレスに連携し、データの前処理や結果の分析が容易です。
+- **対応する外部ソルバーが多い**: PyQBPP はより多くの外部ソルバーにモデルを渡せます。C++ からも使える Gurobi と MILP ソルバー（SCIP, HiGHS, GLPK, CBC）に加え、Fixstars Amplify, D-Wave (Advantage / Native / Leap Hybrid / Neal / Tabu / Steepest Descent), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT に対応します（いずれも同じ `solver.search()` プロトコルで呼べます）。[QUBO/HUBO ソルバー](python/QUBO_HUBO_SOLVERS) と [CP ソルバー](python/CP_SOLVERS) を参照してください。
 
 ### まとめ
 
@@ -268,5 +269,6 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 | **ソルバー速度** | 同じ | 同じ |
 | **使いやすさ** | 普通 | 簡単 |
 | **対話的利用** | 不可 | 可能（Jupyter、REPL） |
+| **外部ソルバー** | Gurobi + MILP（SCIP / HiGHS / GLPK / CBC） | C++ に**加えて** Amplify, D-Wave, OpenJij, TYTAN, qubovert, Simulated Bifurcation, CPLEX, Qiskit, OR-Tools CP-SAT |
 
 **推奨**: まず **PyQBPP（Python）** でプロトタイピングや学習を始め、大規模問題での式構築の高速化が必要になったら **C++（QUBO++）** に移行してください。

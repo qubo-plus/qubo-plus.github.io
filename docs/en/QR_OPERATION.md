@@ -23,6 +23,7 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Unary Operators               | `+`, `-`                                             | Global        | `qbpp::Expr`     | `ExprType`               |
 | Comparison (Equality)         | `==`                                                 | Global        | `qbpp::Expr` (constraint) | `ExprType`-`Int`           |
 | Comparison (Range Comparison) | `<= <=`                                              | Global        | `qbpp::Expr` (constraint) | `IntInf`-`ExprType`-`IntInf` |
+| Comparison (One-sided)        | `<=`, `>=`                                           | Global        | `qbpp::Expr` (constraint) | `ExprType`-`Int`           |
 | Square                        | `sqr()`                                                | Global        | `qbpp::Expr`     | `ExprType`               |
 | Square                        | `sqr()`                                                | Member        | `qbpp::Expr`     | -                      |
 | GCD                           | `gcd()`                                                | Global        | `Int`            | `ExprType`               |
@@ -33,6 +34,8 @@ The table below summarizes the operators and functions available for `qbpp::Expr
 | Replace                       | `replace()`                                            | Member        | `qbpp::Expr`     | `qbpp::MapList`                |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Global        | `qbpp::Expr`     | `ExprType`               |
 | Binary/Spin Conversion        | `binary_to_spin()`, `spin_to_binary()`                   | Member        | `qbpp::Expr`     | -                      |
+| HUBO→QUBO Reduction           | `reduce()`                                              | Global        | `qbpp::Expr`     | `ExprType`               |
+| HUBO→QUBO Reduction           | `reduce()`                                              | Member        | `qbpp::Expr`     | -                      |
 | Slice (tuple indexing)        | `operator()`                                             | Member        | `Array`          | -                        |
 | Concatenation                 | `concat()`                                               | Global        | `Array`          | `Array`-`Array`     |
 | Concatenation (with scalar)   | `concat()`                                               | Global        | `Array`          | `Expr`-`Array`         |
@@ -260,6 +263,35 @@ Therefore, the entire expression is multiplied by
 $2^d$ where $d$ is the maximum degree of all terms, so that all coefficients become integers.
 
 As with `spin_to_binary()`, both global and member function variants of `binary_to_spin()` are provided.
+
+## HUBO→QUBO reduction function: `reduce()`
+The **`reduce()`** function converts a HUBO expression (a polynomial whose terms may have degree three or higher) into an **equivalent QUBO expression** (degree at most two).
+Every term of degree greater than two is rewritten as a quadratic expression by introducing fresh auxiliary binary variables.
+
+The reduction preserves the optimal value: for every assignment of the original variables, the minimum of the reduced expression over the auxiliary variables equals the value of the original HUBO. Consequently, a minimizer of the reduced QUBO, restricted to the original variables, is a minimizer of the original HUBO. HUBO expressions with negated literals are handled automatically, and the reduced QUBO uses positive literals only.
+
+- **`qbpp::reduce(f)`**:
+Produces and returns a new degree-at-most-two `qbpp::Expr` object equivalent to `f`.
+- **`f.reduce()`**:
+Updates `f` in place using `qbpp::reduce(f)` and returns the updated expression.
+
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto a = qbpp::var("a");
+  auto b = qbpp::var("b");
+  auto c = qbpp::var("c");
+  auto d = qbpp::var("d");
+  qbpp::Expr f = a * b * c * d - 2 * a * b + 3;   // HUBO with a degree-4 term
+  std::cout << "f = " << f << std::endl;
+  qbpp::Expr g = qbpp::reduce(f);                 // equivalent QUBO
+  std::cout << "g = " << g << std::endl;
+  std::cout << "max degree = " << g.max_degree() << std::endl;
+}
+```
+
+This is useful when a model must be solved by a QUBO-only backend (for example, certain physical annealers) that accepts quadratic models only.
 
 ## Tuple indexing `a(...)`
 

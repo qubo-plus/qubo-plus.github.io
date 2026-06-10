@@ -259,6 +259,7 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 - **Simpler syntax**: Less boilerplate — no `#include`, `#define`, `main()`, `auto`, or namespace qualifiers.
 - **Easy installation**: `pip install pyqbpp` in a virtual environment, no `sudo` required.
 - **Data science ecosystem**: Seamless integration with NumPy, pandas, matplotlib, and other Python libraries for data preparation and result analysis.
+- **More external solver backends**: PyQBPP can dispatch a model to a much wider range of external solvers. In addition to Gurobi and the MILP solvers (SCIP, HiGHS, GLPK, CBC) that are also available from C++, PyQBPP adds Fixstars Amplify, D-Wave (Advantage / Native / Leap Hybrid / Neal / Tabu / Steepest Descent), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools CP-SAT — each behind the same `solver.search()` protocol. See [QUBO/HUBO Solvers](python/QUBO_HUBO_SOLVERS) and [CP Solvers](python/CP_SOLVERS).
 
 ### Summary
 
@@ -268,5 +269,6 @@ sol = Sol(energy=0, {a: 1, b: 0, c: 1})
 | **Solver speed** | Same | Same |
 | **Ease of use** | Moderate | Easy |
 | **Interactive use** | No | Yes (Jupyter, REPL) |
+| **External solvers** | Gurobi + MILP (SCIP / HiGHS / GLPK / CBC) | All of C++'s, **plus** Amplify, D-Wave, OpenJij, TYTAN, qubovert, Simulated Bifurcation, CPLEX, Qiskit, OR-Tools CP-SAT |
 
 **Recommendation**: Start with **PyQBPP (Python)** for prototyping and learning. Switch to **C++ (QUBO++)** if you need faster expression building for large-scale problems.

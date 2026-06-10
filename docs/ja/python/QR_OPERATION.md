@@ -54,6 +54,8 @@ hreflang_lang: "en"
 | スピン → バイナリ変換    | `f.spin_to_binary()`                              | In-place | 式              | —                      |
 | バイナリ → スピン変換    | `qbpp.binary_to_spin(f)`                          | Global   | 式              | 式                     |
 | バイナリ → スピン変換    | `f.binary_to_spin()`                              | In-place | 式              | —                      |
+| HUBO→QUBO 変換          | `qbpp.reduce(f)`                                  | Global   | 式              | 式                     |
+| HUBO→QUBO 変換          | `f.reduce()`                                      | In-place | 式              | —                      |
 | スライス                | `v[from:to]`, `v[:, from:to]`                     | Global   | array         | array                |
 | 連結                   | `qbpp.concat([a, b, ...], axis=0)`                | Global   | array         | array/スカラーのリスト |
 
@@ -366,6 +368,28 @@ b = qbpp.var("b")
 h = 2 * b + 1
 k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 2)
 ```
+
+## HUBO→QUBO 変換関数: `reduce()`
+**`reduce()`** 関数は、HUBO 式（3 次以上の項を含みうる多項式）を**等価な QUBO 式**（次数 2 以下）に変換します。次数が 3 以上のすべての項について、新しい補助二値変数を導入して二次式に書き換えます。
+
+この変換は最適値を保存します。元の変数の任意の割当に対して、変換後の式を補助変数について最小化した値が、元の HUBO の値に一致します。したがって変換後 QUBO の最小解を元の変数に射影したものは、元の HUBO の最小解になります。否定リテラルを含む式も自動的に処理され、変換後の QUBO は正リテラルのみになります。
+
+`reduce()` はグローバル関数（非破壊）とメンバ関数（in-place）の両方が提供されます。
+
+### 例
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+d = qbpp.var("d")
+f = a * b * c * d - 2 * a * b + 3   # 4 次の項を含む HUBO
+g = qbpp.reduce(f)                  # 等価な QUBO
+print("max degree =", g.max_degree)
+```
+
+二次のモデルしか受け付けないバックエンド（例: 一部の物理アニーラ）でモデルを解く場合に有用です。
 
 ## スライス関数: `v[from:to]`
 

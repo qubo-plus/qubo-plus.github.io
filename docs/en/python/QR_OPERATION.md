@@ -56,6 +56,8 @@ For example, `qbpp.gcd(f)` returns an integer, while `f.gcd()` overwrites `f` wi
 | Spin → binary          | `f.spin_to_binary()`                              | In-place | expression                        | —                          |
 | Binary → spin          | `qbpp.binary_to_spin(f)`                          | Global   | expression                        | expression                 |
 | Binary → spin          | `f.binary_to_spin()`                              | In-place | expression                        | —                          |
+| HUBO→QUBO reduction    | `qbpp.reduce(f)`                                  | Global   | expression                        | expression                 |
+| HUBO→QUBO reduction    | `f.reduce()`                                      | In-place | expression                        | —                          |
 | Slice                  | `v[from:to]`, `v[:, from:to]`                     | Global   | array                           | array                    |
 | Concatenation          | `qbpp.concat([a, b, ...], axis=0)`                | Global   | array                           | list of arrays/scalars |
 
@@ -375,6 +377,28 @@ b = qbpp.var("b")
 h = 2 * b + 1
 k = qbpp.binary_to_spin(h)   # 4 + 2*b  (replaced b with (b+1)/2, multiplied by 2)
 ```
+
+## HUBO→QUBO reduction function: `reduce()`
+The **`reduce()`** function converts a HUBO expression (whose terms may have degree three or higher) into an **equivalent QUBO expression** (degree at most two), introducing fresh auxiliary binary variables for every term of degree greater than two.
+
+The reduction preserves the optimal value: for every assignment of the original variables, the minimum of the reduced expression over the auxiliary variables equals the value of the original HUBO. Therefore a minimizer of the reduced QUBO, restricted to the original variables, is a minimizer of the original HUBO. Expressions with negated literals are handled automatically, and the reduced QUBO uses positive literals only.
+
+`reduce()` is available as a global function (non-destructive) and a member function (in-place).
+
+### Example
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+d = qbpp.var("d")
+f = a * b * c * d - 2 * a * b + 3   # HUBO with a degree-4 term
+g = qbpp.reduce(f)                  # equivalent QUBO
+print("max degree =", g.max_degree)
+```
+
+This is useful when a model must be solved by a QUBO-only backend (for example, certain physical annealers) that accepts quadratic models only.
 
 ## Slice functions: `v[from:to]`
 

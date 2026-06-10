@@ -20,7 +20,7 @@ mode_shared: true
 - **CPU並列加速** — すべてのソルバーがマルチコアCPU上でマルチスレッド並列実行されます。
 - **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。32ビットから数千桁まで、オーバーフローの心配なく計算可能。
 - **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
-- **実験的なサードパーティソルバー連携**（PyQBPP のみ）— Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。詳細は [実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) をご覧ください。
+- **実験的なサードパーティソルバー連携**（PyQBPP のみ）— Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。詳細は [QUBO/HUBO ソルバー](python/QUBO_HUBO_SOLVERS) と [CP ソルバー](python/CP_SOLVERS) をご覧ください。
 - **どこでも実行** — Raspberry PiからノートPC、GPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
 
 # QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver
@@ -80,27 +80,15 @@ QUBO++ をインストールしたら `qbpp-license -s` を実行して本日の
 
 # オプションのソルバーバックエンド
 
-QUBO++ は外部のソルバーを動的ロード経由で呼び出すことができます
-（C++: `dlopen`；Python: 遅延 `import`）。**いずれも QUBO++ には同梱
-されません** — 必要なものだけインストールしてください。各パッケージは
-独自のライセンスで配布されています。**Stable**（Gurobi）はリリースを
-重ねて成熟済み、**Experimental**（その他）は 2026.05.07 で追加された
-新機能で、API は今後変更される可能性があります。
+3 つの組み込みソルバーに加え、QUBO++ は外部ソルバーへモデルを渡せます。
+各ソルバーが受け取るモデルの形でグループ分けしています:
 
-| ソルバー | Status | 言語 | ライセンス | ソース / ドキュメント |
-|---|---|---|---|---|
-| **Gurobi Optimizer** | stable | C++ + Python | プロプライエタリ（アカデミック無償） | <https://www.gurobi.com> · [C++ の使い方](GUROBI) · [Python の使い方](python/GUROBI) |
-| **Fixstars Amplify** | experimental | Python | プロプライエタリ（クラウド SDK） | <https://amplify.fixstars.com/> |
-| **D-Wave Ocean** (6 ソルバー: QPU / Hybrid / Neal / Tabu / Steepest / Exact) | experimental | Python | Apache 2.0 | <https://github.com/dwavesystems/dwave-ocean-sdk> |
-| **OpenJij** (+ `jij-cimod`) | experimental | Python | Apache 2.0 | <https://github.com/OpenJij/OpenJij> |
-| **TYTAN-SDK** (MIKASAmpler) | experimental | Python | MIT | <https://github.com/tytansdk/tytan> |
-| **qubovert** | experimental | Python | Apache 2.0 | <https://github.com/jiosue/qubovert> |
-| **Simulated Bifurcation** | experimental | Python | MIT | <https://github.com/bqth29/simulated-bifurcation-algorithm> |
-| **IBM CPLEX** | experimental | Python | プロプライエタリ（ライセンス必要） | <https://www.ibm.com/products/ilog-cplex-optimization-studio> |
-| **IBM Qiskit Optimization** (+ `qiskit-algorithms`) | experimental | Python | Apache 2.0 | <https://github.com/Qiskit/qiskit> |
-| **Google OR-Tools CP-SAT** | experimental | Python | Apache 2.0 | <https://github.com/google/or-tools> |
-| **PyTorch**（TYTAN-SDK / Simulated Bifurcation の推移依存） | — | Python | BSD 3-Clause | <https://pytorch.org/> |
+- **[QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS)** — モデルを直接受け取る（Gurobi, D-Wave, Fixstars Amplify, OpenJij, IBM CPLEX ほか）。
+- **[MILP ソルバー](MILP_SOLVERS)** — QUBO を純 MILP に線形化してから渡す（SCIP, HiGHS, GLPK, CBC）。
+- **[CP ソルバー](CP_SOLVERS)** — 制約プログラミング（Google OR-Tools CP-SAT）。
 
-experimental バックエンドの使い方、統一 `num_reads` / `time_limit` の
-セマンティクス、各バックエンドの注意点については
-[実験的なソルバー連携](python/EXPERIMENTAL_SOLVERS) を参照してください。
+各バックエンドは**別途インストール**が必要で、それぞれ独自のライセンスで配布
+されています（商用・アカデミックライセンスが必要なものもあります）。これらの
+連携は **Experimental** で、仕様（API）は将来予告なく変更される可能性が
+あります。ソルバーの全一覧・インストール方法・注意点は上記の各ページを
+参照してください。

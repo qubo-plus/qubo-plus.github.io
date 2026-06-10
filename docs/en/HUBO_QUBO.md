@@ -56,3 +56,26 @@ the expansion produces $2^n$ terms including a constant term.
 QUBO++ can create HUBO expressions involving negated literals.
 All three solvers bundled with QUBO++ handle them natively without expanding into positive literals.
 This decreases the expression evaluation cost significantly and can enhance search performance.
+
+## Reducing a HUBO to an equivalent QUBO
+
+Some external solvers (for example, certain physical annealers and QUBO-only
+backends) accept only quadratic models. QUBO++ provides `reduce()` to convert a
+HUBO expression into an **equivalent QUBO** by rewriting every term of degree
+greater than two into degree-at-most-two terms, introducing fresh auxiliary
+binary variables.
+
+In C++ the free function `qbpp::reduce(f)` returns a new expression, and
+`f.reduce()` reduces `f` in place. In Python, `qbpp.reduce(f)` returns a new
+expression and `f.reduce()` reduces it in place.
+
+The reduction preserves the optimal value: for every assignment of the original
+variables, the minimum of the reduced QUBO over the auxiliary variables equals
+the value of the original HUBO. Consequently a minimizer of the QUBO, restricted
+to the original variables, is a minimizer of the HUBO. HUBO expressions with
+negated literals are handled automatically; the reduced QUBO uses positive
+literals only.
+
+For example, the cubic term $abc$ is reduced to a quadratic expression over
+$a$, $b$, $c$ and one or more auxiliary variables that, when minimized over the
+auxiliaries, reproduces $abc$ for every assignment of $a$, $b$, $c$.

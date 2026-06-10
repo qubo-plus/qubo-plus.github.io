@@ -68,9 +68,13 @@ mode_counterpart: "/ja/python/DOCUMENT.html"
 3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
 4. [解](QR_SOLUTION)
 
-## 実験的なソルバー連携
-QUBO++ は実験的に外部ソルバーとも連携できます（API は予告なく変更される可能性があります。各ソルバーは別途インストールが必要です）。
+## 外部ソルバー連携
+3 つの組み込みソルバーに加え、QUBO++ は外部ソルバーへモデルを渡せます。
+各ソルバーが受け取るモデルの形でグループ分けしています:
 
-- [Gurobi Optimizer の使い方](GUROBI) — 商用の厳密ソルバー（ライセンス要）
-- [MILP ソルバー (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — OSS の厳密 MILP ソルバー
-- [実験的なソルバーサポート](EXPERIMENTAL_SOLVERS) — PyQBPP からの CPLEX / Amplify / D-Wave ほか
+- [QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS) — QUBO/HUBO モデルを**直接**受け取る（線形化不要）ソルバー。C++ では [Gurobi Optimizer](QUBO_HUBO_SOLVERS) のみ。PyQBPP は多数のヒューリスティックなサンプラ・アニーラやその他の厳密バックエンドを追加で提供します。
+- [MILP ソルバー (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — QUBO を純 MILP に**線形化**してから解く厳密ソルバー。
+- [CP ソルバー (OR-Tools CP-SAT)](CP_SOLVERS) — 制約プログラミングエンジン（PyQBPP のみ）。
+
+> これらの連携は各ソルバーを別途インストールする必要があり、API は予告なく
+> 変更される可能性があります。

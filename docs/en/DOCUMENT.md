@@ -66,10 +66,13 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
 4. [Solutions](QR_SOLUTION)
 
-## Experimental Solver Integrations
-QUBO++ can also use a number of external solvers, experimentally (their APIs may
-change without notice, and each solver must be installed separately).
+## External Solver Integrations
+Besides the three built-in solvers, QUBO++ can hand a model to a number of
+external solvers, grouped by the model form each one consumes:
 
-- [Gurobi Optimizer Usage](GUROBI) — commercial exact solver (license required)
-- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — open-source exact MILP solvers
-- [Experimental Solver Support](EXPERIMENTAL_SOLVERS) — CPLEX / Amplify / D-Wave / … from PyQBPP
+- [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS) — solvers that take the QUBO/HUBO model **directly** (no linearization). From C++ this is the [Gurobi Optimizer](QUBO_HUBO_SOLVERS); PyQBPP adds many heuristic samplers/annealers and other exact backends.
+- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — exact solvers that require **linearization** of the QUBO into a pure MILP.
+- [CP Solvers (OR-Tools CP-SAT)](CP_SOLVERS) — constraint-programming engine (PyQBPP only).
+
+> These integrations require each solver to be installed separately, and their
+> APIs may change without notice.

@@ -23,6 +23,7 @@ hreflang_lang: "en"
 | 単項演算子                     | `+`, `-`                                             | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | 比較（等値）                    | `==`                                                 | グローバル     | `qbpp::Expr`（制約式） | `ExprType`-`Int`           |
 | 比較（範囲比較）                | `<= <=`                                              | グローバル     | `qbpp::Expr`（制約式） | `IntInf`-`ExprType`-`IntInf` |
+| 比較（片側）                    | `<=`, `>=`                                           | グローバル     | `qbpp::Expr`（制約式） | `ExprType`-`Int`           |
 | 二乗                          | `sqr()`                                                | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | 二乗                          | `sqr()`                                                | メンバ         | `qbpp::Expr`     | -                      |
 | 最大公約数                     | `gcd()`                                                | グローバル     | `Int`            | `ExprType`               |
@@ -33,6 +34,8 @@ hreflang_lang: "en"
 | 置換                          | `replace()`                                            | メンバ         | `qbpp::Expr`     | `qbpp::MapList`                |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | グローバル     | `qbpp::Expr`     | `ExprType`               |
 | バイナリ/スピン変換              | `binary_to_spin()`, `spin_to_binary()`                   | メンバ         | `qbpp::Expr`     | -                      |
+| HUBO→QUBO 変換                 | `reduce()`                                              | グローバル     | `qbpp::Expr`     | `ExprType`               |
+| HUBO→QUBO 変換                 | `reduce()`                                              | メンバ         | `qbpp::Expr`     | -                      |
 | スライス（タプルインデックス）     | `operator()`                                             | メンバ         | `Array`          | -                        |
 | 連結                            | `concat()`                                               | グローバル     | `Array`          | `Array`-`Array`     |
 | 連結（スカラー付き）              | `concat()`                                               | グローバル     | `Array`          | `Expr`-`Array`         |
@@ -256,6 +259,34 @@ $f(s)$をスピン変数$s$の関数とします。
 そのため、すべての係数が整数になるように、式全体が$2^d$（$d$はすべての項の最大次数）で乗算されます。
 
 `spin_to_binary()`と同様に、`binary_to_spin()`にもグローバル関数とメンバ関数の両方のバリアントが提供されています。
+
+## HUBO→QUBO 変換関数: `reduce()`
+**`reduce()`**関数は、HUBO 式（3 次以上の項を含みうる多項式）を**等価な QUBO 式**（次数 2 以下）に変換します。次数が 3 以上のすべての項は、新しい補助二値変数を導入して二次式に書き換えられます。
+
+この変換は最適値を保存します。元の変数の任意の割当に対して、変換後の式を補助変数について最小化した値が、元の HUBO の値に一致します。したがって変換後 QUBO の最小解を元の変数に射影したものは、元の HUBO の最小解になります。否定リテラルを含む HUBO 式も自動的に処理され、変換後の QUBO は正リテラルのみになります。
+
+- **`qbpp::reduce(f)`**:
+`f`と等価な、次数 2 以下の新しい`qbpp::Expr`オブジェクトを生成して返します。
+- **`f.reduce()`**:
+`qbpp::reduce(f)`を使用して`f`をその場で更新し、更新された式を返します。
+
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto a = qbpp::var("a");
+  auto b = qbpp::var("b");
+  auto c = qbpp::var("c");
+  auto d = qbpp::var("d");
+  qbpp::Expr f = a * b * c * d - 2 * a * b + 3;   // 4 次の項を含む HUBO
+  std::cout << "f = " << f << std::endl;
+  qbpp::Expr g = qbpp::reduce(f);                 // 等価な QUBO
+  std::cout << "g = " << g << std::endl;
+  std::cout << "max degree = " << g.max_degree() << std::endl;
+}
+```
+
+二次のモデルしか受け付けないバックエンド（例: 一部の物理アニーラ）でモデルを解く場合に有用です。
 
 ## タプルインデックス `a(...)`
 

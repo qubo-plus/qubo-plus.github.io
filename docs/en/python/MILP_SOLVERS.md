@@ -12,8 +12,14 @@ hreflang_lang: "ja"
 
 PyQBPP can solve QUBO expressions with several third-party **exact MILP
 solvers**. They share a single interface, so user code can switch between them —
-and with `pyqbpp.GurobiSolver` / `pyqbpp.ABS3Solver` — by changing only the class
-name.
+and with `pyqbpp.ABS3Solver` — by changing only the class name.
+
+These solvers minimize a **linear** objective, so the quadratic QUBO must be
+**linearized** before it is handed over (see below). Solvers that accept the
+quadratic objective **directly** (Gurobi, IBM CPLEX — both MIQP) do **not**
+appear here; they are documented under [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS).
+The constraint-programming engine OR-Tools CP-SAT is documented under
+[CP Solvers](CP_SOLVERS).
 
 > **Experimental.** These integrations are provided for experimentation and
 > benchmarking. Their API may change without notice, and each solver's Python
@@ -33,8 +39,8 @@ the original QUBO.
 | [GLPK](https://www.gnu.org/software/glpk/) | `pyqbpp.GlpkSolver` | swiglpk | GPL |
 | [CBC](https://github.com/coin-or/Cbc) | `pyqbpp.CbcSolver` | python-mip | EPL |
 
-For the commercial exact solvers, see [Gurobi](GUROBI) and
-[IBM CPLEX](EXPERIMENTAL_SOLVERS).
+For the commercial exact solvers that accept the quadratic objective directly,
+see [Gurobi and IBM CPLEX](QUBO_HUBO_SOLVERS).
 
 ## Usage
 

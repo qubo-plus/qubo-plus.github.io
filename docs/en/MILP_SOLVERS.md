@@ -13,7 +13,14 @@ hreflang_lang: "ja"
 QUBO++ can solve QUBO expressions with several third-party **exact MILP
 solvers**. They are wrapped as header-only solvers that share a single
 interface, so user code can switch between them — and with
-`qbpp::GurobiSolver` / `qbpp::ABS3Solver` — by changing only the class name.
+`qbpp::ABS3Solver` — by changing only the class name.
+
+These solvers minimize a **linear** objective, so the quadratic QUBO must be
+**linearized** before it is handed over (see below). This is the defining
+characteristic of this page: solvers that accept the quadratic objective
+**directly** (Gurobi, IBM CPLEX — both MIQP) do **not** appear here; they are
+documented under [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS). The constraint-programming
+engine OR-Tools CP-SAT is documented under [CP Solvers](CP_SOLVERS).
 
 > **Experimental.** These integrations are provided for experimentation and
 > benchmarking. Their API may change without notice, and each solver must be
@@ -34,8 +41,9 @@ objective.
 | [GLPK](https://www.gnu.org/software/glpk/) | `qbpp::GlpkSolver` | GPL (OSS) | lightweight |
 | [CBC](https://github.com/coin-or/Cbc) | `qbpp::CbcSolver` | EPL (OSS) | COIN-OR branch & cut |
 
-For the commercial exact solver, see [Gurobi Optimizer](GUROBI). IBM CPLEX is
-available from PyQBPP only (see [Experimental Solver Support](EXPERIMENTAL_SOLVERS)).
+For the commercial exact solvers that accept the quadratic objective directly
+(Gurobi, IBM CPLEX), see [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS) (Gurobi is
+available from both C++ and PyQBPP; CPLEX from PyQBPP only).
 
 ## Usage
 
@@ -61,13 +69,13 @@ int main() {
   auto sol = solver.search({{"time_limit", 10.0}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
-  std::cout << "bound  = " << sol.info().get("bound") << std::endl;
-  std::cout << "status = " << sol.info().get("status") << std::endl;
+  std::cout << "bound  = " << sol.info("bound") << std::endl;
+  std::cout << "status = " << sol.info("status") << std::endl;
 }
 ```
 {% endraw %}
 
-When the energy equals the lower bound (`sol.info().get("bound")`), the solution
+When the energy equals the lower bound (`sol.info("bound")`), the solution
 is proven optimal:
 
 ```

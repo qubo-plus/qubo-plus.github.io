@@ -66,10 +66,13 @@ See the [Case Studies](CASE_STUDIES) page for the full list.
 3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
 4. [Solutions](QR_SOLUTION)
 
-## Experimental Solver Integrations
-PyQBPP can also use a number of external solvers, experimentally (their APIs may
-change without notice, and each solver must be installed separately).
+## External Solver Integrations
+Besides the three built-in solvers, PyQBPP can hand a model to a number of
+external solvers, grouped by the model form each one consumes:
 
-- [Gurobi Optimizer Usage](GUROBI) — commercial exact solver (license required)
-- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — open-source exact MILP solvers
-- [Experimental Solver Support](EXPERIMENTAL_SOLVERS) — Fixstars Amplify, D-Wave (Advantage / Leap Hybrid / Neal / Tabu / Steepest Descent), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT
+- [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS) — solvers that take the QUBO/HUBO model **directly** (no linearization): Gurobi, IBM CPLEX, dimod ExactSolver, IBM Qiskit Optimization (exact / quadratic-direct), plus Fixstars Amplify, D-Wave (Advantage / Native / Leap Hybrid / Neal / Tabu / Steepest Descent), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation (heuristic samplers / annealers).
+- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — exact solvers that require **linearization** of the QUBO into a pure MILP.
+- [CP Solvers (OR-Tools CP-SAT)](CP_SOLVERS) — constraint-programming engine; HUBO of any degree and negated literals handled natively.
+
+> These integrations require each solver to be installed separately, and their
+> APIs may change without notice.

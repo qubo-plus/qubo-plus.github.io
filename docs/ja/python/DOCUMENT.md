@@ -66,9 +66,13 @@ PyQBPPを使った求解方法を学ぶことができます。
 3. [整数変数と制約に関する演算と関数](QR_INTCONSTRAINT)
 4. [解](QR_SOLUTION)
 
-## 実験的なソルバー連携
-PyQBPP は実験的に外部ソルバーとも連携できます（API は予告なく変更される可能性があります。各ソルバーは別途インストールが必要です）。
+## 外部ソルバー連携
+3 つの組み込みソルバーに加え、PyQBPP は外部ソルバーへモデルを渡せます。
+各ソルバーが受け取るモデルの形でグループ分けしています:
 
-- [Gurobi Optimizerの使い方](GUROBI) — 商用の厳密ソルバー（ライセンス要）
-- [MILP ソルバー (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — OSS の厳密 MILP ソルバー
-- [実験的なソルバーサポート](EXPERIMENTAL_SOLVERS) — Fixstars Amplify, D-Wave (Advantage / Leap Hybrid / Neal / Tabu / Steepest Descent), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT
+- [QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS) — QUBO/HUBO モデルを**直接**受け取る（線形化不要）ソルバー: Gurobi, IBM CPLEX, dimod ExactSolver, IBM Qiskit Optimization（厳密・二次直接）、および Fixstars Amplify, D-Wave (Advantage / Native / Leap Hybrid / Neal / Tabu / Steepest Descent), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation（ヒューリスティックなサンプラ・アニーラ）。
+- [MILP ソルバー (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — QUBO を純 MILP に**線形化**してから解く厳密ソルバー。
+- [CP ソルバー (OR-Tools CP-SAT)](CP_SOLVERS) — 制約プログラミングエンジン。任意次数の HUBO と否定リテラルをネイティブに扱えます。
+
+> これらの連携は各ソルバーを別途インストールする必要があり、API は予告なく
+> 変更される可能性があります。

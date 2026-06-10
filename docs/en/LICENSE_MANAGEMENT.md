@@ -61,11 +61,13 @@ To re-activate or change the key, simply run the command again with a new key.
 
 ### Method 2: Environment Variable
 
-Set the `QBPP_LICENSE_KEY` environment variable. This is useful for Docker/CI environments where the local cache is not persistent.
+Set the `QBPP_LICENSE_KEY` environment variable to supply the key without writing it to the local cache — for example, to inject it from a deployment script or a CI secret:
 
 ```bash
 export QBPP_LICENSE_KEY=XXXXXX-XXXXXX-XXXXXX-XXXXXX
 ```
+
+> **Node-locked licenses are not recommended for Docker, VMs, or other ephemeral environments, even via this environment variable.** Activation still binds to a machine fingerprint that is unstable in such environments, so a node-locked key cannot reliably run there. For Docker/VM/CI, use a [floating license](#floating-licenses), which is not bound to a machine and reads the same `QBPP_LICENSE_KEY` variable.
 
 ### Priority
 
@@ -169,10 +171,22 @@ Floating licenses allow shared access across multiple machines within an organiz
 - If the program crashes or the network is lost, the lease expires automatically after a timeout period.
 - **Virtual environments (Docker, VMs, ephemeral containers, etc.) are fully supported.** Floating licenses do not bind to a machine fingerprint, so rebuilding a container or starting a fresh VM does not strand any activation slot.
 
-Usage is the same as node-locked licenses:
+A floating license key can be supplied in two ways.
+
+**Activate and cache (persistent machines):**
 
 ```bash
 qbpp-license -k F-XXXXXX-XXXXXX-XXXXXX-XXXXXX -a
 ```
 
-The floating license key is also cached locally, so subsequent runs do not require setting the key again.
+The key is encrypted and cached locally, so subsequent runs pick it up automatically — convenient on a long-lived workstation or server.
+
+**Environment variable (recommended for Docker, CI, and other ephemeral environments):**
+
+```bash
+export QBPP_LICENSE_KEY=F-XXXXXX-XXXXXX-XXXXXX-XXXXXX
+```
+
+The activation cache from `qbpp-license -a` is stored in the home directory, so it is **lost whenever a container or VM is rebuilt** — you would otherwise have to re-run `qbpp-license -a` on every fresh start. Setting `QBPP_LICENSE_KEY` avoids this entirely: each QUBO++ program reads the key directly from the environment and acquires its lease, with **no local activation cache required**. Because a floating license is not bound to a machine fingerprint, the same key can be shared across any number of containers without consuming or stranding per-machine activation slots — making the environment variable the preferred way to inject a floating key into a Docker image, `docker run -e`, Kubernetes secret, or CI job.
+
+> The `QBPP_LICENSE_KEY` value is used only if it is a **valid** key; a stale or malformed value is ignored (with a warning) and QUBO++ falls back to the cached key, so a bad environment variable never breaks an already-activated machine.

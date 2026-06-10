@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Gurobi Solver"
+title: "QUBO/HUBO Solvers"
 nav_exclude: true
 redirect_to: "/en/QUBO_HUBO_SOLVERS"
 sitemap: false
