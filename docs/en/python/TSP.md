@@ -111,6 +111,24 @@ This program produces the following output:
 Tour: [7, 8, 5, 2, 4, 1, 0, 3, 6]
 ```
 
+### Optimizing exact (double) distances
+
+The `dist` function above rounds each Euclidean distance to the nearest integer with `round()`, because the
+default coefficient type is integer. To optimize the **exact** tour length without rounding, use the
+[double frontend](VAREXPR#real-double-coefficients): import `pyqbpp.d` and drop the `round()`:
+
+```python
+import pyqbpp.d as qbpp        # instead of: import pyqbpp as qbpp
+
+def dist(i, j):
+    dx = nodes[i][0] - nodes[j][0]
+    dy = nodes[i][1] - nodes[j][1]
+    return math.sqrt(dx * dx + dy * dy)   # no round()
+```
+
+The rest of the program is unchanged. The solver finds the same optimal tour, and `sol.energy` now returns
+the exact tour length as a `float` (e.g. `960.443`) instead of the sum of rounded distances.
+
 ## A more concise objective using slicing, `concat`, and `einsum`
 
 The triple for-loop that builds `objective` is a direct translation of the formula

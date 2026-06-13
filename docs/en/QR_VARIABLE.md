@@ -31,6 +31,10 @@ compiler flag `-D...`):
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
+Coefficients can also be **`double`** — define `DOUBLE_TYPE` (or `DOUBLE_TYPE_C128E128` for higher
+precision); the energy is then returned as a `double`. See
+[Real (double) Coefficients](VAREXPR#real-double-coefficients).
+
 In addition, the `MAXDEG*` macro controls how each `qbpp::Term` stores its variables.
 Fixed-length modes eliminate heap allocation and improve performance when the maximum degree
 is known in advance:

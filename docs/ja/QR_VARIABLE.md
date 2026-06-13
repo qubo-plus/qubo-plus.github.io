@@ -30,6 +30,8 @@ hreflang_lang: "en"
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
+係数は **`double`** にもできます。`DOUBLE_TYPE`（高精度が必要なら `DOUBLE_TYPE_C128E128`）を定義すると、エネルギーも `double` で返されます。詳しくは [実数（double）係数](VAREXPR#real-double-coefficients) を参照してください。
+
 さらに、各 `qbpp::Term` が変数をどう格納するかを制御する `MAXDEG*` マクロも指定できます。
 最大次数が事前に分かっている場合、固定長モードを使うとヒープ確保が不要になり性能が向上します:
 

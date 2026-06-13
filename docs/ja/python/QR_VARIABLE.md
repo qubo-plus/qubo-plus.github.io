@@ -33,6 +33,8 @@ import pyqbpp as qbpp                # デフォルト: c32e64
 | `import pyqbpp.c128e128` | 128ビット | 128ビット | 非常に大規模な問題 |
 | `import pyqbpp.cppint` | 無制限 | 無制限 | 任意精度 (`cpp_int`) |
 
+**`double`**（Python の `float`）係数には、`pyqbpp.d`（高精度が必要なら `pyqbpp.dc128e128`）をインポートします。`sol.energy` は `float` になります。詳しくは [実数（double）係数](VAREXPR#real-double-coefficients) を参照してください。
+
 さらに各バリアントに VarArray モード接尾辞 `m0` / `m2` / `m4` / `m6` を付けて、
 `qbpp::Term` の変数格納方式を選択できます
 （例: `import pyqbpp.c32e64m4 as qbpp`）:

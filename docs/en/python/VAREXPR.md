@@ -174,6 +174,36 @@ To use a different type, import a different submodule:
 | `import pyqbpp.c128e128` | 128-bit | 128-bit |
 | `import pyqbpp.cppint` | unlimited | unlimited |
 
+### Real (double) coefficients
+
+Coefficients and energy can also be **`double`** (Python `float`). Import one of the following submodules:
+
+| Import | Solved with |
+|---|---|
+| `import pyqbpp.d` or `import pyqbpp.double` | 64-bit integer solver |
+| `import pyqbpp.dc64e64` | 64-bit integer solver |
+| `import pyqbpp.dc128e128` | 128-bit integer solver (higher precision) |
+
+```python
+import pyqbpp.d as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = -1.5 * x - 2.5 * y + 4.0 * x * y          # real (double) coefficients
+```
+
+Expressions are built in `float`. When a problem is solved, QUBO++ automatically scales the coefficients to
+integers, solves with the integer solver, and returns the energy as a `float` (`sol.energy` is a `float`) —
+so you work entirely in `float` without dealing with the integer backend. Dyadic coefficients
+(1, 1/2, 1/4, …) are represented exactly.
+
+A coefficient that is vastly smaller than the largest one may fall below the scaling precision; it is then
+treated as `0` and its term is dropped (PyQBPP prints a short notice rather than failing). A variable left
+without any term has no effect on the objective — reading it from the solution (`sol(x)`, `sol(x[i])`)
+returns `0`, and `sol.has(x[i])` reports whether it is still present. The same holds for a variable that
+cancels out during `simplify_as_binary()`. For a wider dynamic range use `import pyqbpp.dc128e128`; a
+genuine overflow of the energy range is still reported as an error.
+
 ### VarArray mode
 
 Each type variant is also available with a VarArray mode suffix (e.g., `import pyqbpp.c32e64m4`).

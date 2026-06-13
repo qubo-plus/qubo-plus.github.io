@@ -13,14 +13,16 @@ mode_shared: true
 **QUBO++** は、組合せ最適化問題をバイナリ変数の多項式（QUBO/HUBO）として定式化・求解するフレームワークです。
 
 - **C++ と Python** — C++（[QUBO++](DOCUMENT)）でもPython（[PyQBPP](python/DOCUMENT)）でも使えます。
-- **シンボリックDSL** — 行列のインデックスではなく、数式を書くように最適化モデルを構築。自然なforループで制約を記述することも、ベクトル演算でループなしに記述することもできます。
 - **簡単インストール** — C++は `sudo apt install qbpp`、Pythonは `pip install pyqbpp`。ソースからのビルドは不要です。
+- **シンボリックDSL** — 行列のインデックスではなく、数式を書くように最適化モデルを構築。自然なforループで制約を記述することも、ベクトル演算でループなしに記述することもできます。
 - **次数無制限のHUBO** — 二次だけでなく任意の次数の高次項をサポート。否定リテラル（`~x`）をネイティブにサポートし、$\overline{x}$ を $1-x$ に置き換えることによる項数爆発を回避します。
+- **大規模な変数数** — 1つのモデルで最大 **2,147,483,647** 個（$2^{31}-1$）のバイナリ変数を扱えます。
+- **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。32ビットから数千桁まで、オーバーフローの心配なく計算可能。
+- **実数（double）係数** — 整数だけでなく `double` 係数もサポート。式は `double` のまま構築し、求解時に自動で整数ソルバーへスケーリング・量子化され、エネルギーも `double` で返るため、整数バックエンドを意識せず実数で計算できます。
+- **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
 - **GPU加速** — 内蔵のABS3ソルバーがGPUリソースをフル活用して並列探索を実行。マルチGPUにも対応。Exhaustive SolverもCUDA GPUを自動的に使用します。
 - **CPU並列加速** — すべてのソルバーがマルチコアCPU上でマルチスレッド並列実行されます。
-- **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。32ビットから数千桁まで、オーバーフローの心配なく計算可能。
-- **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
-- **実験的なサードパーティソルバー連携**（PyQBPP のみ）— Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。詳細は [QUBO/HUBO ソルバー](python/QUBO_HUBO_SOLVERS) と [CP ソルバー](python/CP_SOLVERS) をご覧ください。
+- **実験的なサードパーティソルバー連携** — Gurobi, SCIP, HiGHS, GLPK, CBC, IBM CPLEX, IBM Qiskit Optimization, dimod ExactSolver, Fixstars Amplify, D-Wave Ocean (Advantage / ネイティブ QPU / Leap Hybrid / Neal / Tabu / Steepest), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。Gurobi・SCIP・HiGHS・GLPK・CBC は C++（QUBO++）からも利用でき、その他は PyQBPP から利用できます。詳細は [QUBO/HUBO ソルバー](QUBO_HUBO_SOLVERS)、[MILP ソルバー](MILP_SOLVERS)、[CP ソルバー](CP_SOLVERS) をご覧ください。
 - **どこでも実行** — Raspberry PiからノートPC、GPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
 
 # QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver

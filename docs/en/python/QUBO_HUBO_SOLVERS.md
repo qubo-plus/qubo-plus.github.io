@@ -32,11 +32,12 @@ Ising form) straight to the backend. They fall into two groups:
 > under [MILP Solvers](MILP_SOLVERS). Google OR-Tools CP-SAT, a
 > constraint-programming engine, is documented under [CP Solvers](CP_SOLVERS).
 
-> **Experimental — PyQBPP only.** Except for Gurobi (also available from C++),
-> the solvers on this page have **no C++ entry point**, and their wrapper API may
-> change without notice. Each backend ships only as a Python package and is
-> imported lazily when a solver is instantiated; PyQBPP does not depend on these
-> packages directly.
+> **Experimental.** These integrations are provided for experimentation and
+> benchmarking, and their wrapper API may change without notice. Except for
+> Gurobi (also available from C++), the solvers on this page have **no C++ entry
+> point**. Each backend ships only as a Python package and is imported lazily
+> when a solver is instantiated; PyQBPP does not depend on these packages
+> directly.
 
 All solvers return the standard PyQBPP solution object and follow the same
 `search()` protocol as [`qbpp.EasySolver`](EASYSOLVER) /

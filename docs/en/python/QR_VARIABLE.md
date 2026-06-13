@@ -33,6 +33,10 @@ Available type variants:
 | `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
 | `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision (`cpp_int`) |
 
+For **`double`** (Python `float`) coefficients, import `pyqbpp.d` (or `pyqbpp.dc128e128` for higher
+precision); `sol.energy` is then a `float`. See
+[Real (double) coefficients](VAREXPR#real-double-coefficients).
+
 Each variant can also be combined with a VarArray mode suffix `m0` / `m2` / `m4` / `m6`,
 which controls how each `qbpp::Term` stores its variables
 (e.g. `import pyqbpp.c32e64m4 as qbpp`):

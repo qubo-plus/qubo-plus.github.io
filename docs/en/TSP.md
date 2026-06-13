@@ -137,6 +137,29 @@ This program produces the following output:
 Tour: {7,8,5,2,4,1,0,3,6}
 ```
 
+### Optimizing exact (double) distances
+
+The `dist` function above rounds each Euclidean distance to the nearest integer with `std::llround`,
+because the default `coeff_t` is an integer type. To optimize the **exact** tour length without rounding,
+use the [double frontend](VAREXPR#real-double-coefficients): define `DOUBLE_TYPE` before including the
+header and let `dist` return a `double`:
+
+{% raw %}
+```cpp
+#define DOUBLE_TYPE          // before #include <qbpp/qbpp.hpp>
+
+  double dist(std::size_t i, std::size_t j) const {
+    auto [x1, y1] = nodes[i];
+    auto [x2, y2] = nodes[j];
+    const double dx = x1 - x2, dy = y1 - y2;
+    return std::sqrt(dx * dx + dy * dy);   // no rounding
+  }
+```
+{% endraw %}
+
+The rest of the program is unchanged. The solver finds the same optimal tour, and `sol.energy()` now
+returns the exact tour length as a `double` (e.g. `960.443`) instead of the sum of rounded distances.
+
 ## A more concise objective using `slice`, `concat`, and `einsum`
 
 The triple for-loop that builds `objective` is a direct translation of the formula

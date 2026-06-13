@@ -136,6 +136,25 @@ int main() {
 Tour: {7,8,5,2,4,1,0,3,6}
 ```
 
+### 正確な距離（double）で最適化する
+
+上の `dist` 関数は、デフォルトの `coeff_t` が整数型のため、各ユークリッド距離を `std::llround` で最も近い整数に丸めています。丸めずに**正確な**ツアー長を最適化したい場合は、[実数（double）係数](VAREXPR#real-double-coefficients) を使います。ヘッダのインクルード前に `DOUBLE_TYPE` を定義し、`dist` が `double` を返すようにするだけです:
+
+{% raw %}
+```cpp
+#define DOUBLE_TYPE          // #include <qbpp/qbpp.hpp> の前
+
+  double dist(std::size_t i, std::size_t j) const {
+    auto [x1, y1] = nodes[i];
+    auto [x2, y2] = nodes[j];
+    const double dx = x1 - x2, dy = y1 - y2;
+    return std::sqrt(dx * dx + dy * dy);   // 丸めなし
+  }
+```
+{% endraw %}
+
+プログラムの残りは変更不要です。ソルバーは同じ最適巡回路を発見し、`sol.energy()` は丸めた距離の和ではなく、**正確なツアー長**を `double`（例: `960.443`）で返します。
+
 ## `slice`、`concat`、`einsum` を使った簡潔な目的関数
 
 `objective` を構築する三重 for ループは数式

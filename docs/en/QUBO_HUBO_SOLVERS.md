@@ -1,14 +1,14 @@
 ---
 layout: default
 nav_exclude: true
-title: "QUBO/HUBO Solvers"
+title: "QUBO/HUBO Solvers (Experimental)"
 nav_order: 22
 lang: en
 hreflang_alt: "ja/QUBO_HUBO_SOLVERS"
 hreflang_lang: "ja"
 ---
 
-# QUBO/HUBO Solvers — Gurobi
+# QUBO/HUBO Solvers — Gurobi (Experimental)
 
 This page covers external solvers that consume a **QUBO/HUBO model directly**,
 with no linearization step — the quadratic objective is handed to the backend
@@ -27,6 +27,12 @@ PyQBPP (Python)** — see the [PyQBPP QUBO/HUBO Solvers page](python/QUBO_HUBO_S
 > under [MILP Solvers](MILP_SOLVERS). Google OR-Tools CP-SAT, a
 > constraint-programming engine (PyQBPP only), is documented under
 > [CP Solvers](CP_SOLVERS).
+
+> **Experimental.** This integration is provided for experimentation and
+> benchmarking. The wrapper API may change without notice, and Gurobi must be
+> installed separately with a valid license (see [Setup](#setup)). It solves
+> **QUBO (degree ≤ 2) only** — reduce a HUBO to QUBO first, or use
+> `qbpp::ABS3Solver` / `qbpp::EasySolver`, which support arbitrary degree.
 
 # Gurobi Optimizer Usage
 QUBO++ can solve QUBO expressions using the [Gurobi Optimizer](https://www.gurobi.com).

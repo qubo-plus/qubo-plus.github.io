@@ -176,6 +176,38 @@ To use a different type, define one of the following macros before including the
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
+### Real (double) Coefficients
+
+Coefficients and energy values can also be **`double`**. Define one of the following macros before
+including the header (or pass it as a compiler flag `-D...`):
+
+| Macro | Solved with |
+|---|---|
+| `DOUBLE_TYPE` (default double) | 64-bit integer solver |
+| `DOUBLE_TYPE_C64E64` | 64-bit integer solver |
+| `DOUBLE_TYPE_C128E128` | 128-bit integer solver (higher precision) |
+
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = -1.5 * x - 2.5 * y + 4.0 * x * y;   // real (double) coefficients
+```
+
+Expressions are built and simplified in `double`. When a problem is solved, QUBO++ automatically scales
+the coefficients to integers, solves with the integer solver, and returns the energy as a `double`
+(for example, `sol.energy()` returns a `double`) — so you work entirely in `double` without dealing with
+the integer backend. Dyadic coefficients (1, 1/2, 1/4, …) are represented exactly.
+
+A coefficient that is vastly smaller than the largest one may fall below the scaling precision; it is then
+treated as `0` and its term is dropped (QUBO++ prints a short notice rather than failing). A variable left
+without any term has no effect on the objective — reading it from the solution (`sol(x)`, `sol(x[i])`)
+returns `0`, and `sol.has(x[i])` reports whether it is still present. The same holds for a variable that
+cancels out during `simplify_as_binary`. For a wider dynamic range use `DOUBLE_TYPE_C128E128`; a genuine
+overflow of the energy range is still reported as an error.
+
 ### VarArray Mode
 
 The `MAXDEG` macro controls how variables within each term are stored internally.

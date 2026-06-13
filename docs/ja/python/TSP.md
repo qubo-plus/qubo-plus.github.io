@@ -110,6 +110,21 @@ print(f"Tour: {tour}")
 Tour: [7, 8, 5, 2, 4, 1, 0, 3, 6]
 ```
 
+### 正確な距離（double）で最適化する
+
+上の `dist` 関数は、デフォルトの係数型が整数のため、各ユークリッド距離を `round()` で最も近い整数に丸めています。丸めずに**正確な**ツアー長を最適化したい場合は、[実数（double）係数](VAREXPR#real-double-coefficients) を使います。`pyqbpp.d` をインポートし、`round()` を外すだけです:
+
+```python
+import pyqbpp.d as qbpp        # import pyqbpp as qbpp の代わりに
+
+def dist(i, j):
+    dx = nodes[i][0] - nodes[j][0]
+    dy = nodes[i][1] - nodes[j][1]
+    return math.sqrt(dx * dx + dy * dy)   # round() なし
+```
+
+プログラムの残りは変更不要です。ソルバーは同じ最適巡回路を発見し、`sol.energy` は丸めた距離の和ではなく、**正確なツアー長**を `float`（例: `960.443`）で返します。
+
 ## スライス、`concat`、`einsum` を使った簡潔な目的関数
 
 `objective` を構築する三重 for ループは数式

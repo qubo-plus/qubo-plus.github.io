@@ -43,11 +43,15 @@ import pyqbpp as qbpp              # Default: c32e64 (32-bit coeff, 64-bit energ
 import pyqbpp.cppint as qbpp       # Arbitrary precision (cpp_int)
 ```
 
+Coefficients can also be **`double`**: in C++ define `DOUBLE_TYPE` (or `DOUBLE_TYPE_C128E128` for higher
+precision); in Python `import pyqbpp.d` (or `pyqbpp.dc128e128`). The energy is then returned as a `double`.
+
 | | C++ | Python |
 |---|---|---|
 | **Default coefficient** | `int32_t` (32-bit) | `int32_t` (32-bit) |
 | **Default energy** | `int64_t` (64-bit) | `int64_t` (64-bit) |
 | **Changing precision** | `#define INTEGER_TYPE_CPP_INT` etc. | `import pyqbpp.cppint` at import time |
+| **Double coefficients** | `#define DOUBLE_TYPE` | `import pyqbpp.d` |
 | **Details** | [C++ Data Types](VAREXPR) | [Python Data Types](python/VAREXPR) |
 
 ### Large Integer Constants

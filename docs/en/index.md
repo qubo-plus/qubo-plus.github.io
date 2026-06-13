@@ -14,14 +14,16 @@ mode_shared: true
 as polynomials of binary variables (QUBO/HUBO).
 
 - **C++ and Python** — Use QUBO++ from C++ ([QUBO++](DOCUMENT)) or Python ([PyQBPP](python/DOCUMENT)).
-- **Symbolic DSL** — Write optimization models as mathematical expressions, not matrix indices. Use natural for-loops to build constraints, or leverage vector operations for loop-free formulations.
 - **Easy installation** — `sudo apt install qbpp` for C++, `pip install pyqbpp` for Python. No build from source required.
+- **Symbolic DSL** — Write optimization models as mathematical expressions, not matrix indices. Use natural for-loops to build constraints, or leverage vector operations for loop-free formulations.
 - **Unlimited-degree HUBO** — Supports high-order terms of any degree, not just quadratic. Native support for negated literals (`~x`) avoids the term explosion caused by replacing $\overline{x}$ with $1-x$.
+- **Massive variable capacity** — A single model can use up to **2,147,483,647** ($2^{31}-1$) binary variables.
+- **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 32-bit to thousands of digits.
+- **Real (double) coefficients** — Besides integers, coefficients can be `double`. Expressions are built in `double` and automatically quantized to the integer solver when solved, with the energy returned as a `double` — so you work entirely in real numbers without dealing with the integer backend.
+- **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
 - **GPU-accelerated solving** — The built-in ABS3 solver fully utilizes GPU resources for parallel search, with multi-GPU scaling. The Exhaustive Solver also automatically uses CUDA GPUs when available.
 - **CPU parallel acceleration** — All solvers run multithreaded on multicore CPUs.
-- **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 32-bit to thousands of digits.
-- **Three built-in solvers** — Easy Solver (fast heuristic), Exhaustive Solver (complete search with optimality guarantee), and ABS3 (GPU+CPU heuristic).
-- **Experimental third-party solver support** (PyQBPP only) — Call Fixstars Amplify, D-Wave Ocean (Advantage / Leap Hybrid / Neal / Tabu / Steepest), dimod ExactSolver, OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, IBM CPLEX, IBM Qiskit Optimization, and Google OR-Tools CP-SAT through a unified `Solver.search()` protocol. See [QUBO/HUBO Solvers](python/QUBO_HUBO_SOLVERS) and [CP Solvers](python/CP_SOLVERS).
+- **Experimental third-party solver support** — Call Gurobi, SCIP, HiGHS, GLPK, CBC, IBM CPLEX, IBM Qiskit Optimization, dimod ExactSolver, Fixstars Amplify, D-Wave Ocean (Advantage / native QPU / Leap Hybrid / Neal / Tabu / Steepest), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, and Google OR-Tools CP-SAT through a unified `Solver.search()` protocol. Gurobi, SCIP, HiGHS, GLPK, and CBC are available from C++ (QUBO++) as well; the others are available from PyQBPP. See [QUBO/HUBO Solvers](QUBO_HUBO_SOLVERS), [MILP Solvers](MILP_SOLVERS), and [CP Solvers](CP_SOLVERS).
 - **Run anywhere** — From a Raspberry Pi to a laptop, GPU servers, and supercomputers. Available for amd64 (x86_64) and arm64 Linux.
 
 # QUBO++ Solvers: Easy Solver, Exhaustive Solver, ABS3 Solver

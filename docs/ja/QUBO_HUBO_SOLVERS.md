@@ -1,14 +1,14 @@
 ---
 layout: default
 nav_exclude: true
-title: "QUBO/HUBO ソルバー"
+title: "QUBO/HUBO Solvers (Experimental)"
 nav_order: 22
 lang: ja
 hreflang_alt: "en/QUBO_HUBO_SOLVERS"
 hreflang_lang: "en"
 ---
 
-# QUBO/HUBO ソルバー — Gurobi
+# QUBO/HUBO ソルバー — Gurobi（実験的）
 
 このページは、**QUBO/HUBO モデルを直接** 受け取る（線形化を行わない）外部
 ソルバーを扱います。二次目的関数はそのままバックエンドへ渡されます。
@@ -26,6 +26,12 @@ Amplify, D-Wave, OpenJij, TYTAN-SDK, qubovert, Simulated Bifurcation）や
 > 必要があるソルバー（SCIP, HiGHS, GLPK, CBC）は [MILP ソルバー](MILP_SOLVERS)
 > に、制約プログラミングエンジンの OR-Tools CP-SAT（PyQBPP のみ）は
 > [CP ソルバー](CP_SOLVERS) にまとめています。
+
+> **実験的機能。** この統合は実験・ベンチマーク用途で提供されます。ラッパ API は
+> 予告なく変更される可能性があり、Gurobi は有効なライセンスとともに別途
+> インストールが必要です（[セットアップ](#setup)参照）。対応は
+> **QUBO（次数 ≤ 2）のみ**です。HUBO は事前に QUBO へ削減するか、任意次数に
+> 対応する `qbpp::ABS3Solver` / `qbpp::EasySolver` を使ってください。
 
 # Gurobi Optimizer の使い方
 QUBO++ は [Gurobi Optimizer](https://www.gurobi.com) を使用して QUBO 式を解くことができます。
