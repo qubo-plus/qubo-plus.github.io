@@ -117,7 +117,7 @@ $$
 
 $$
 \begin{aligned}
-\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} (1-a_{v,t})a_{v,t+1}
+\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} a_{v,t}(1-a_{v,t+1})
 \end{aligned}
 $$
 
@@ -142,7 +142,7 @@ $$
 各車両 $v$ の配送需要の合計は
 
 $$
-\sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ix_{t,i},
+\sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ia_{v,t,i},
 $$
 
 であり、$q_v$ 以下でなければなりません。
@@ -150,7 +150,7 @@ $$
 
 $$
 \begin{aligned}
-\text{capacity}\_\text{constraint} &= \sum_{v=0}^{V-1}\Bigr(0\leq \sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ix_{t,i}\leq q_v\Bigl)
+\text{capacity}\_\text{constraint} &= \sum_{v=0}^{V-1}\Bigr(0\leq \sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ia_{v,t,i}\leq q_v\Bigl)
 \end{aligned}
 $$
 
@@ -163,11 +163,11 @@ $$
 
 $$
 \begin{aligned}
-\text{objective} &= \sum_{v=0}^{V-1}\sum_{t=0}^{N-1}\sum_{i=0}^{N-1}\sum_{j=0}^{N-1}c_{i,j}x_{v,t,i}x_{v,(t+1)\bmod N, j}
+\text{objective} &= \sum_{v=0}^{V-1}\sum_{t=0}^{N-1}\sum_{i=0}^{N-1}\sum_{j=0}^{N-1}c_{i,j}a_{v,t,i}a_{v,(t+1)\bmod N, j}
 \end{aligned}
 $$
 
-車両 $v$ が時間ステップ $t$ で場所 $i$ を訪問し、時間ステップ $(t+1)\bmod N$ で場所 $j$ に移動する場合、$x_{v,t,i}=x_{v,(t+1)\bmod N, j}=1$ となります。
+車両 $v$ が時間ステップ $t$ で場所 $i$ を訪問し、時間ステップ $(t+1)\bmod N$ で場所 $j$ に移動する場合、$a_{v,t,i}=a_{v,(t+1)\bmod N, j}=1$ となります。
 この場合、対応する項は $c_{i,j}$ を和に寄与します。したがって、すべての制約が満たされている（各 $(v,t)$ にちょうど1つのアクティブな場所がある）とき、$\text{objective}$ はすべての車両の総移動コストに等しくなります。
 
 ユークリッドメトリックの下では、すべての $i$ に対して $c_{i,i}=0$ であるため、同じ場所に留まっても追加コストは発生しません。
@@ -336,7 +336,7 @@ int main() {
 row_constraint = 0
 column_constraint = 0
 consecutive_constraint = 0
-vehicle_constraint = 0
+capacity_constraint = 0
 objective = 2142
 Vehicle 0 : load = 91 / 100 : 0 -> 4(91) -> 0
 Vehicle 1 : load = 177 / 200 : 0 -> 6(59) -> 5(66) -> 8(52) -> 0

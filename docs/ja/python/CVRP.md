@@ -117,7 +117,7 @@ $$
 
 $$
 \begin{aligned}
-\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} (1-a_{v,t})a_{v,t+1}
+\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} a_{v,t}(1-a_{v,t+1})
 \end{aligned}
 $$
 

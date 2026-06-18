@@ -119,7 +119,7 @@ This is enforced by penalizing the forbidden transition $1\rightarrow 0$:
 
 $$
 \begin{aligned}
-\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} (1-a_{v,t})a_{v,t+1}
+\text{consecutive}\_\text{constraint} &= \sum_{v=0}^{V-1}\sum_{t=1}^{N-2} a_{v,t}(1-a_{v,t+1})
 \end{aligned}
 $$
 
@@ -145,7 +145,7 @@ $$
 For each vehicle $v$, the total delivered demand is
 
 $$
-\sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ix_{t,i},
+\sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ia_{v,t,i},
 $$
 
 which must be at most $q_v$.
@@ -153,7 +153,7 @@ Then the following constraint must be 0:
 
 $$
 \begin{aligned}
-\text{capacity}\_\text{constraint} &= \sum_{v=0}^{V-1}\Bigr(0\leq \sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ix_{t,i}\leq q_v\Bigl)
+\text{capacity}\_\text{constraint} &= \sum_{v=0}^{V-1}\Bigr(0\leq \sum_{t=1}^{N-1}\sum_{i=1}^{N-1}d_ia_{v,t,i}\leq q_v\Bigl)
 \end{aligned}
 $$
 
@@ -166,11 +166,11 @@ The total tour cost is computed from consecutive visited locations:
 
 $$
 \begin{aligned}
-\text{objective} &= \sum_{v=0}^{V-1}\sum_{t=0}^{N-1}\sum_{i=0}^{N-1}\sum_{j=0}^{N-1}c_{i,j}x_{v,t,i}x_{v,(t+1)\bmod N, j}
+\text{objective} &= \sum_{v=0}^{V-1}\sum_{t=0}^{N-1}\sum_{i=0}^{N-1}\sum_{j=0}^{N-1}c_{i,j}a_{v,t,i}a_{v,(t+1)\bmod N, j}
 \end{aligned}
 $$
 
-If vehicle $v$ visits location $i$ at time step $t$ and then moves to location $j$ at time step $(t+1)\bmod N$, we have $x_{v,t,i}=x_{v,(t+1)\bmod N, j}=1$.
+If vehicle $v$ visits location $i$ at time step $t$ and then moves to location $j$ at time step $(t+1)\bmod N$, we have $a_{v,t,i}=a_{v,(t+1)\bmod N, j}=1$.
 In this case, the corresponding term contributes $c_{i,j}$ to the sum. Therefore, when all constraints are satisfied (so that each $(v,t)$ has exactly one active location),
 $\text{objective}$ equals the total travel cost of all vehicles.
 
@@ -343,7 +343,7 @@ For example, the program prints the following results:
 row_constraint = 0
 column_constraint = 0
 consecutive_constraint = 0
-vehicle_constraint = 0
+capacity_constraint = 0
 objective = 2142
 Vehicle 0 : load = 91 / 100 : 0 -> 4(91) -> 0
 Vehicle 1 : load = 177 / 200 : 0 -> 6(59) -> 5(66) -> 8(52) -> 0
