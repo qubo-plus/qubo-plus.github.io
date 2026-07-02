@@ -16,7 +16,7 @@ QUBO++ supports the following basic binary operators for constructing expression
 - **`-`**: Returns the difference of the operands.
 - **`*`**: Returns the product of the operands.
 - **`/`**: Returns the quotient of the operands.
-The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor.
+The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor. With the [double frontend](VAREXPR#real-double-coefficients) (`DOUBLE_TYPE*`) there is no divisibility requirement — the coefficients are simply divided as real numbers.
 - unary **`-`**: Returns the negation of the operand.
 
 The precedence of these operators follows the standard C++ operator precedence rules.
@@ -47,7 +47,7 @@ Also the following compound operators to update qbpp::Expr objects are supported
 - **`+=`** : Adds the righthand size operand to the lefthand side.
 - **`-=`** : Subtract the righthand size operand from the lefthand side.
 - **`*=`** : Multiply the righthand side operand to the lefthand side.
-- **`/=`** : Divides the lefthand side operand by the righthand side. The righthand side operand must be an integer and the constant term integer and all coefficiets of the lefthand side must be divisible.
+- **`/=`** : Divides the lefthand side operand by the righthand side. The righthand side operand must be an integer and the constant term integer and all coefficiets of the lefthand side must be divisible. With the double frontend there is no divisibility requirement (real division).
 
 The following program demonstrates how to construct expressions using these compound operators:
 ```cpp

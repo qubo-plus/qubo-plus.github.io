@@ -113,6 +113,35 @@ rowsum = [6, 15]
 total  = 21
 ```
 
+### double フロントエンドと numpy 入力
+
+[double フロントエンド](VAREXPR#実数double係数)のモジュール（`pyqbpp.d`、`pyqbpp.dc64e64`、
+`pyqbpp.dc128e128`）では、係数配列は Python の `float` 値を保持します。`qbpp.array()` には
+float のリストに加えて **numpy の ndarray** を直接渡すこともでき、ネイティブコードで変換されます。
+また、ndarray は（通常のリストと同様に）**`einsum` に直接渡す**こともでき、自動的に変換されます。
+数値計算で得られた密な係数行列 — 例えば FMQA 型のブラックボックス最適化で学習した
+代理モデルの二次形式 — を `einsum` に渡す最速の方法です:
+
+```python
+import numpy as np
+import pyqbpp.d as qbpp
+
+n = 100
+x = qbpp.var("x", n)
+rng = np.random.default_rng(0)
+V = rng.normal(size=(n, 8))
+W = V @ V.T                                      # 学習済みモデル由来の (n, n) float 行列
+f = qbpp.einsum("i,ij,j->", x, np.triu(W, 1), x)   # Σ W[i][j]·x[i]·x[j]
+print(f.term_count())
+```
+
+同じ二次形式を二重 Python ループで構築すると項ごとにライブラリを呼び出すことになりますが、
+`einsum` は縮約全体をネイティブコードで実行するため、密な行列では通常数倍高速です。
+
+自動変換は**呼び出しのたびに**行われます（numpy 配列は書き換え可能なため、変換結果は
+キャッシュされません）。同じ係数行列を多数の `einsum` 呼び出しで使う場合は、
+`qbpp.array(W)` で一度変換し、変換済み配列を再利用してください。
+
 ## 3 つ以上の入力
 
 `einsum` は任意個数の入力配列を受け取れます。組合せ最適化での代表例は

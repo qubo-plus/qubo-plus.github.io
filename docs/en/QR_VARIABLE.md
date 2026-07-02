@@ -31,9 +31,39 @@ compiler flag `-D...`):
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-Coefficients can also be **`double`** — define `DOUBLE_TYPE` (or `DOUBLE_TYPE_C128E128` for higher
-precision); the energy is then returned as a `double`. See
-[Real (double) Coefficients](VAREXPR#real-double-coefficients).
+### Real (double) coefficients
+
+Coefficients can also be **`double`** (real numbers). Define one of the following `DOUBLE_TYPE*`
+macros instead of `INTEGER_TYPE_*`; `coeff_t` and `energy_t` then both become `double`:
+
+| Macro | `coeff_t` | `energy_t` | Solved with |
+|---|---|---|---|
+| `DOUBLE_TYPE` (= `DOUBLE_TYPE_C64E64`) | `double` | `double` | 64-bit integer solver |
+| `DOUBLE_TYPE_C128E128` | `double` | `double` | 128-bit integer solver (higher precision) |
+
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = -1.5 * x - 2.5 * y + 4.0 * x * y;   // real (double) coefficients
+```
+
+- Expressions are built, simplified, and evaluated entirely in `double`;
+  `sol.energy()` returns a `double`.
+- When a problem is solved, the coefficients are **automatically scaled to integers** and handed
+  to the integer solver listed above — no manual quantization is needed.
+- Dyadic coefficients (1, 1/2, 1/4, ...) are represented exactly. A coefficient vastly smaller
+  than the largest one may fall below the scaling precision and is then dropped with a short
+  notice; `DOUBLE_TYPE_C128E128` gives a much wider dynamic range.
+- Division (`/`, `/=`) is real division — the divisibility requirement of the integer
+  variants does not apply.
+- `MAXDEG*` can be combined as with the integer variants (e.g. `DOUBLE_TYPE` + `MAXDEG2`).
+- Constant arrays and `qbpp::einsum` accept `double` values as well
+  (see [MULTIDIM](MULTIDIM) / [EINSUM](EINSUM)).
+
+See [Real (double) Coefficients](VAREXPR#real-double-coefficients) for details.
 
 In addition, the `MAXDEG*` macro controls how each `qbpp::Term` stores its variables.
 Fixed-length modes eliminate heap allocation and improve performance when the maximum degree

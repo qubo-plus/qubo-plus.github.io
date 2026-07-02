@@ -30,7 +30,36 @@ hreflang_lang: "en"
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
-係数は **`double`** にもできます。`DOUBLE_TYPE`（高精度が必要なら `DOUBLE_TYPE_C128E128`）を定義すると、エネルギーも `double` で返されます。詳しくは [実数（double）係数](VAREXPR#real-double-coefficients) を参照してください。
+### 実数（double）係数
+
+係数は **`double`**（実数）にもできます。`INTEGER_TYPE_*` の代わりに次の `DOUBLE_TYPE*` マクロの
+いずれかを定義すると、`coeff_t` と `energy_t` はともに `double` になります:
+
+| マクロ | `coeff_t` | `energy_t` | 求解に使うソルバー |
+|---|---|---|---|
+| `DOUBLE_TYPE`（= `DOUBLE_TYPE_C64E64`） | `double` | `double` | 64ビット整数ソルバー |
+| `DOUBLE_TYPE_C128E128` | `double` | `double` | 128ビット整数ソルバー（高精度） |
+
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = -1.5 * x - 2.5 * y + 4.0 * x * y;   // 実数（double）係数
+```
+
+- 式の構築・簡約・評価はすべて `double` で行われ、`sol.energy()` も `double` を返します。
+- 求解時には係数が**自動的に整数へスケーリング**され、上記の整数ソルバーに渡されます —
+  手動の量子化は不要です。
+- 2進小数の係数（1, 1/2, 1/4, ...）は厳密に表現されます。最大係数よりはるかに小さい係数は
+  スケーリング精度を下回ると通知付きでドロップされます。`DOUBLE_TYPE_C128E128` を使うと
+  ダイナミックレンジが大幅に広がります。
+- 除算（`/`, `/=`）は実数除算です — 整数バリアントの割り切れ要件は適用されません。
+- `MAXDEG*` は整数バリアントと同様に組み合わせ可能です（例: `DOUBLE_TYPE` + `MAXDEG2`）。
+- 定数配列や `qbpp::einsum` にも `double` 値を渡せます（[MULTIDIM](MULTIDIM) / [EINSUM](EINSUM) 参照）。
+
+詳しくは [実数（double）係数](VAREXPR#実数double係数) を参照してください。
 
 さらに、各 `qbpp::Term` が変数をどう格納するかを制御する `MAXDEG*` マクロも指定できます。
 最大次数が事前に分かっている場合、固定長モードを使うとヒープ確保が不要になり性能が向上します:

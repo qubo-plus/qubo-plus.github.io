@@ -33,9 +33,38 @@ Available type variants:
 | `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
 | `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision (`cpp_int`) |
 
-For **`double`** (Python `float`) coefficients, import `pyqbpp.d` (or `pyqbpp.dc128e128` for higher
-precision); `sol.energy` is then a `float`. See
-[Real (double) coefficients](VAREXPR#real-double-coefficients).
+### Real (double) coefficients
+
+Coefficients can also be **`double`** (Python `float`). Import one of the following submodules
+instead of an integer variant:
+
+| Import | Coefficient | Energy | Solved with |
+|---|---|---|---|
+| `import pyqbpp.d` / `pyqbpp.double` / `pyqbpp.dc64e64` | `float` | `float` | 64-bit integer solver |
+| `import pyqbpp.dc128e128` | `float` | `float` | 128-bit integer solver (higher precision) |
+
+```python
+import pyqbpp.d as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = -1.5 * x - 2.5 * y + 4.0 * x * y          # real (float) coefficients
+```
+
+- Expressions are built, simplified, and evaluated entirely in `float`;
+  `sol.energy` is a `float`.
+- When a problem is solved, the coefficients are **automatically scaled to integers** and handed
+  to the integer solver listed above — no manual quantization is needed.
+- Dyadic coefficients (1, 1/2, 1/4, ...) are represented exactly. A coefficient vastly smaller
+  than the largest one may fall below the scaling precision and is then dropped with a short
+  notice; `pyqbpp.dc128e128` gives a much wider dynamic range.
+- Division (`/`, `/=`) is real division — the divisibility requirement of the integer
+  variants does not apply.
+- The VarArray mode suffix can be combined as usual (e.g. `import pyqbpp.dc64e64m2`).
+- `qbpp.array()`, `qbpp.einsum()`, and the element-wise array operators accept `float` lists and
+  **numpy ndarrays** directly (see [MULTIDIM](MULTIDIM) / [EINSUM](EINSUM)).
+
+See [Real (double) coefficients](VAREXPR#real-double-coefficients) for details.
 
 Each variant can also be combined with a VarArray mode suffix `m0` / `m2` / `m4` / `m6`,
 which controls how each `qbpp::Term` stores its variables

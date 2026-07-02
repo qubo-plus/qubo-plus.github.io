@@ -59,6 +59,18 @@ Passing a Python list to **`qbpp.array(list)`** creates an array whose element t
 | `qbpp.array([v1, v2])` | 1D binary variable array | Binary variable array |
 | `qbpp.array([e1, e2])` | 1D expression array | Expression array |
 
+With a [double frontend](VAREXPR#real-double-coefficients) module (`pyqbpp.d`, `pyqbpp.dc64e64`,
+`pyqbpp.dc128e128`), constant arrays hold `float` values and float lists are accepted
+(`qbpp.array([1.5, 2.5])`); in the integer variants a float element raises `TypeError`.
+A **numpy ndarray** (integer or float `dtype`) can also be passed directly —
+`qbpp.array(np_matrix)` — and is converted in native code, which is much faster than a nested
+Python list for large matrices. An ndarray can likewise be used directly as the other operand of
+the element-wise operators (`x * W`, `W * x`, `x + W`, `W - x`, ...) and of the compound
+assignments (`e += W`, `e -= W`, `e *= W`): it is converted automatically and the result is a
+regular qbpp array. The one unsupported direction is a compound assignment whose **left-hand side
+is the ndarray** (`W += x`): numpy refuses the in-place update (a float array cannot hold
+expressions) — write `W = W + x` instead, which rebinds `W` to a qbpp array.
+
 Integer constant arrays can be used in element-wise operations with variable arrays. The following program computes the sum of the element-wise product of a $2\times 2$ integer constant matrix `c` and a binary variable matrix `x`:
 ```python
 import pyqbpp as qbpp

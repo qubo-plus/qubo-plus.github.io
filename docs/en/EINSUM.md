@@ -150,6 +150,29 @@ rowsum = 6 15
 total = 21
 ```
 
+### Double frontend
+
+With the [double frontend](VAREXPR#real-double-coefficients) (`DOUBLE_TYPE*`), `coeff_t` is `double`:
+coefficient arrays hold real values, and `qbpp::array()` accepts `double` values directly
+(1-D / 2-D initializer lists and `std::vector<double>`). This is convenient when the coefficient
+matrix comes from numerical computation — for example, handing a learned surrogate model's
+quadratic form to a solver in FMQA-style black-box optimization:
+
+{% raw %}
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x", 3);
+auto W = qbpp::array({{0.0, 1.5, -0.5}, {0.0, 0.0, 2.25}, {0.0, 0.0, 0.0}});
+auto f = qbpp::einsum<0>("i,ij,j->", x, W, x);   // sum of W[i][j]*x[i]*x[j], double coefficients
+```
+{% endraw %}
+
+Building the same quadratic form with a double `for` loop adds terms one at a time;
+`einsum` performs the whole contraction in native code and is typically several times
+faster for dense coefficient matrices.
+
 ## Three or more inputs
 
 `einsum` accepts any number of input arrays. A common use case in

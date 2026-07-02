@@ -64,6 +64,11 @@ template parameter may be omitted.
 The shape-only form (`qbpp::array<T>(s1, s2, ...)`) requires the template
 parameter explicitly because `T` cannot be deduced from the dimensions alone.
 
+With the [double frontend](VAREXPR#real-double-coefficients) (`DOUBLE_TYPE*`), `coeff_t` is
+`double`, and the constant-array factories also accept `double` values — 1-D / 2-D initializer
+lists (`qbpp::array({1.5, 2.5})`) and `std::vector<double>`. In the integer frontends, passing
+`double` values is a compile-time error.
+
 Integer constant arrays can be used in element-wise operations with variable arrays. The following program computes the sum of the element-wise product of a $2\times 2$ integer constant matrix `c` and a binary variable matrix `x`:
 {% raw %}
 ```cpp

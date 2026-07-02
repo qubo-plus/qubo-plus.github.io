@@ -150,6 +150,28 @@ rowsum = 6 15
 total = 21
 ```
 
+### double フロントエンド
+
+[double フロントエンド](VAREXPR#実数double係数)（`DOUBLE_TYPE*`）では `coeff_t` は `double` であり、
+係数配列は実数値を保持します。`qbpp::array()` にも `double` 値を直接渡せます
+（1次元・2次元の初期化子リストと `std::vector<double>`）。係数行列が数値計算の結果として
+得られる場合 — 例えば FMQA 型のブラックボックス最適化で学習した代理モデルの二次形式を
+ソルバーに渡す場合 — に便利です:
+
+{% raw %}
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x", 3);
+auto W = qbpp::array({{0.0, 1.5, -0.5}, {0.0, 0.0, 2.25}, {0.0, 0.0, 0.0}});
+auto f = qbpp::einsum<0>("i,ij,j->", x, W, x);   // Σ W[i][j]·x[i]·x[j]（double 係数）
+```
+{% endraw %}
+
+同じ二次形式を二重 `for` ループで構築すると項を 1 つずつ追加することになりますが、
+`einsum` は縮約全体をネイティブコードで実行するため、密な係数行列では通常数倍高速です。
+
 ## 3 つ以上の入力
 
 `einsum` は任意個数の入力配列を受け取れます。組合せ最適化での代表例は

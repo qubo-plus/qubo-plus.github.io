@@ -33,7 +33,36 @@ import pyqbpp as qbpp                # デフォルト: c32e64
 | `import pyqbpp.c128e128` | 128ビット | 128ビット | 非常に大規模な問題 |
 | `import pyqbpp.cppint` | 無制限 | 無制限 | 任意精度 (`cpp_int`) |
 
-**`double`**（Python の `float`）係数には、`pyqbpp.d`（高精度が必要なら `pyqbpp.dc128e128`）をインポートします。`sol.energy` は `float` になります。詳しくは [実数（double）係数](VAREXPR#real-double-coefficients) を参照してください。
+### 実数（double）係数
+
+係数は **`double`**（Python の `float`）にもできます。整数バリアントの代わりに
+次のサブモジュールをインポートします:
+
+| インポート | 係数 | エネルギー | 求解に使うソルバー |
+|---|---|---|---|
+| `import pyqbpp.d` / `pyqbpp.double` / `pyqbpp.dc64e64` | `float` | `float` | 64ビット整数ソルバー |
+| `import pyqbpp.dc128e128` | `float` | `float` | 128ビット整数ソルバー（高精度） |
+
+```python
+import pyqbpp.d as qbpp
+
+x = qbpp.var("x")
+y = qbpp.var("y")
+f = -1.5 * x - 2.5 * y + 4.0 * x * y          # 実数（float）係数
+```
+
+- 式の構築・簡約・評価はすべて `float` で行われ、`sol.energy` も `float` になります。
+- 求解時には係数が**自動的に整数へスケーリング**され、上記の整数ソルバーに渡されます —
+  手動の量子化は不要です。
+- 2進小数の係数（1, 1/2, 1/4, ...）は厳密に表現されます。最大係数よりはるかに小さい係数は
+  スケーリング精度を下回ると通知付きでドロップされます。`pyqbpp.dc128e128` を使うと
+  ダイナミックレンジが大幅に広がります。
+- 除算（`/`, `/=`）は実数除算です — 整数バリアントの割り切れ要件は適用されません。
+- VarArray モード接尾辞も通常どおり組み合わせ可能です（例: `import pyqbpp.dc64e64m2`）。
+- `qbpp.array()`・`qbpp.einsum()`・配列の要素ごと演算子には `float` のリストや
+  **numpy の ndarray** を直接渡せます（[MULTIDIM](MULTIDIM) / [EINSUM](EINSUM) 参照）。
+
+詳しくは [実数（double）係数](VAREXPR#実数double係数) を参照してください。
 
 さらに各バリアントに VarArray モード接尾辞 `m0` / `m2` / `m4` / `m6` を付けて、
 `qbpp::Term` の変数格納方式を選択できます

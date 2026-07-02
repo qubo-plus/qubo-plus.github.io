@@ -113,6 +113,36 @@ rowsum = [6, 15]
 total  = 21
 ```
 
+### Double frontend and numpy input
+
+With a [double frontend](VAREXPR#real-double-coefficients) module (`pyqbpp.d`, `pyqbpp.dc64e64`,
+`pyqbpp.dc128e128`), coefficient arrays hold Python `float` values, and `qbpp.array()` accepts
+float lists as well as a **numpy ndarray** directly (converted in native code). A numpy ndarray
+(like a plain list) can also be passed **straight to `einsum`**, which converts it automatically.
+This is the fast way to hand a dense coefficient matrix from numerical computation — for example,
+a learned surrogate model's quadratic form in FMQA-style black-box optimization — to `einsum`:
+
+```python
+import numpy as np
+import pyqbpp.d as qbpp
+
+n = 100
+x = qbpp.var("x", n)
+rng = np.random.default_rng(0)
+V = rng.normal(size=(n, 8))
+W = V @ V.T                                      # (n, n) float matrix from a learned model
+f = qbpp.einsum("i,ij,j->", x, np.triu(W, 1), x)   # sum of W[i][j]*x[i]*x[j]
+print(f.term_count())
+```
+
+Building the same quadratic form with a double Python loop calls into the library once per term;
+`einsum` performs the whole contraction in native code and is typically several times faster for
+dense matrices.
+
+The automatic conversion runs on **every call** (numpy arrays are mutable, so the result is never
+cached). When the same coefficient matrix is used in many `einsum` calls, convert it once with
+`qbpp.array(W)` and reuse the converted array.
+
 ## Three or more inputs
 
 `einsum` accepts any number of input arrays. A common use case in

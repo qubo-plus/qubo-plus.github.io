@@ -16,7 +16,7 @@ PyQBPP supports the following basic binary operators for constructing expression
 - **`-`**: Returns the difference of the operands.
 - **`*`**: Returns the product of the operands.
 - **`/`**: Returns the quotient of the operands.
-The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor.
+The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor. With a [double frontend](VAREXPR#real-double-coefficients) module (`pyqbpp.d` etc.) there is no divisibility requirement — the coefficients are simply divided as real numbers.
 - unary **`-`**: Returns the negation of the operand.
 - unary **`~`**: Returns the negated literal of a variable (i.e., `~x` represents $1-x$ for a binary variable `x`).
 
@@ -48,7 +48,7 @@ The following compound operators for updating expressions are also supported:
 - **`+=`**: Adds the right-hand side operand to the left-hand side.
 - **`-=`**: Subtracts the right-hand side operand from the left-hand side.
 - **`*=`**: Multiplies the right-hand side operand to the left-hand side.
-- **`/=`**: Divides the left-hand side operand by the right-hand side. The right-hand side operand must be an integer, and the constant term and all coefficients of the left-hand side must be divisible by it.
+- **`/=`**: Divides the left-hand side operand by the right-hand side. The right-hand side operand must be an integer, and the constant term and all coefficients of the left-hand side must be divisible by it. With a double frontend module there is no divisibility requirement (real division).
 
 The following program demonstrates how to update expressions using these compound operators:
 ```python
