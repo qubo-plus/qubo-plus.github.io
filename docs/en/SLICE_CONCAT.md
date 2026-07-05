@@ -48,7 +48,7 @@ int main() {
   std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sol = solver.search({{"best_energy_sols", 1}});
+  auto sol = solver.search({{"best_energy_sols", 0}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "solutions = " << sol.sols.size() << std::endl;
@@ -212,7 +212,7 @@ To extract a sub-array from a multi-dimensional array, use `Array::operator()`. 
 | `qbpp::slice(i)` | Single element `[i, i+1)` (shorthand for `slice(i, i+1)`) | Axis kept |
 | `qbpp::end` / `qbpp::end - n` | Position computed from the axis size | Fix or range endpoint |
 
-Trailing axes not given are implicitly `qbpp::all`. The output is built with a single call to the unified `view` C ABI, so the copy cost is **O(output_size)**, independent of the input size.
+Trailing axes not given are implicitly `qbpp::all`. The output is built with a single internal call, so the copy cost is **O(output_size)**, independent of the input size.
 
 ### Examples
 
@@ -250,5 +250,5 @@ auto mid   = x(qbpp::all, qbpp::slice(1, qbpp::end - 1));      // interior only
 ```
 
 > **NOTE**
-> `operator[]` is for accessing scalar elements by specifying all dimensions. It cannot be used to extract sub-arrays at intermediate dimensions.
+> `operator[]` at an intermediate dimension returns a lightweight **view**. Views can be printed and used in element-wise arithmetic, but cannot be passed directly to template functions such as `qbpp::sum()`.
 > Use `a(...)` tuple indexing to obtain sub-arrays.

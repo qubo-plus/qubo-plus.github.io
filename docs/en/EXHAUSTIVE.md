@@ -13,7 +13,7 @@ The **Exhaustive Solver** is a complete-search solver for QUBO/HUBO expressions.
 Since all possible assignments are examined, the optimality of the solutions is guaranteed.
 The search is parallelized using CPU threads, and if a CUDA GPU is available, GPU acceleration is automatically enabled to further speed up the search.
 
-Solving a problem with the Exhaustive Solver consists of the following three steps:
+Solving a problem with the Exhaustive Solver consists of the following two steps:
 1. Create an Exhaustive Solver (`qbpp::ExhaustiveSolver`) object.
 2. Call the `search()` member function, optionally passing parameters as an initializer list.
 
@@ -39,7 +39,7 @@ The following parameters are available:
 | `verbose` | `"1"` or `"true"` | Displays the search progress as a percentage, which is helpful for estimating the total runtime. |
 | `enable_default_callback` | `"1"` or `"true"` | Enables the default callback function, which prints newly obtained best solutions. |
 | `topk_sols` | integer string | Collects the top-k solutions with the lowest energy. |
-| `best_energy_sols` | `"1"` | Collects all optimal solutions (those with the minimum energy). |
+| `best_energy_sols` | `"0"` | Collects optimal solutions (those with the minimum energy). The value is the maximum number to keep; `0` means unlimited (collect all). |
 | `all_sols` | `"1"` or `"true"` | Collects all $2^n$ solutions. |
 
 ## Searching Solutions
@@ -81,28 +81,37 @@ int main() {
 The output of this program is as follows:
 {% raw %}
 ```
-TTS = 0.000s Energy = 1506
-TTS = 0.000s Energy = 1030
-TTS = 0.000s Energy = 502
-TTS = 0.000s Energy = 446
-TTS = 0.000s Energy = 234
-TTS = 0.000s Energy = 110
-TTS = 0.001s Energy = 106
-TTS = 0.001s Energy = 74
-TTS = 0.001s Energy = 66
-TTS = 0.001s Energy = 42
-TTS = 0.001s Energy = 34
-TTS = 0.004s Energy = 26
-26: --++-++----+----+-+-
+TTS = 0.001s Energy = 1786
+TTS = 0.001s Energy = 1546
+TTS = 0.001s Energy = 926
+TTS = 0.001s Energy = 422
+TTS = 0.001s Energy = 350
+TTS = 0.001s Energy = 282
+TTS = 0.001s Energy = 266
+TTS = 0.001s Energy = 254
+TTS = 0.002s Energy = 226
+TTS = 0.002s Energy = 158
+TTS = 0.002s Energy = 150
+TTS = 0.002s Energy = 122
+TTS = 0.002s Energy = 114
+TTS = 0.002s Energy = 110
+TTS = 0.002s Energy = 98
+TTS = 0.002s Energy = 82
+TTS = 0.002s Energy = 74
+TTS = 0.002s Energy = 66
+TTS = 0.003s Energy = 58
+TTS = 0.008s Energy = 34
+TTS = 0.023s Energy = 26
+26: -+-+----+----++-++--
 ```
 {% endraw %}
 All optimal solutions can be obtained by setting `best_energy_sols` as follows:
 {% raw %}
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sol = solver.search({{"best_energy_sols", 1}});
+  auto sol = solver.search({{"best_energy_sols", 0}});
   for (const auto& s : sol.sols) {
-    std::cout << s.energy << ": ";
+    std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -129,7 +138,7 @@ The top-k solutions with the lowest energy can be obtained by setting `topk_sols
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"topk_sols", 10}});
   for (const auto& s : sol.sols) {
-    std::cout << s.energy << ": ";
+    std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }
@@ -161,7 +170,7 @@ Use this only when $n$ is small enough.
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
   for (const auto& s : sol.sols) {
-    std::cout << s.energy << ": ";
+    std::cout << s.energy() << ": ";
     for (auto val : s(x)) {
       std::cout << (val == 0 ? "-" : "+");
     }

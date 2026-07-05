@@ -83,7 +83,7 @@ An `Expr` has three "faces":
 | Arithmetic (RHS constraint) | `ee1 + ee2` | `Expr` | penalty + penalty |
 | Global functions | `qbpp.sqr(ee)`, `qbpp.simplify_as_binary(ee)`, `qbpp.replace(ee, ml)` | `Expr` | applied to penalty |
 | Properties | `ee.body`, `str(ee)` | `Expr` / `str` | clones |
-| Evaluation by Sol | `sol(ee)` (evaluate penalty), `sol(ee.body)` (evaluate body) | `coeff_t` | for constraint verification |
+| Evaluation by Sol | `sol(ee)` (evaluate penalty), `sol(ee.body)` (evaluate body) | `int` | for constraint verification |
 | **Compound assignment** | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee //= 2`, `ee /= 2` | (`ee` becomes a plain expression) | **body no longer reachable** |
 | **Square** | `ee.sqr()` | (`ee` becomes a plain expression) | |
 | **Replace** | `ee.replace(ml)` | (`ee` becomes a plain expression) | |
@@ -141,7 +141,7 @@ Per-element `body` access: `arr[i].body`.
 Both C++ and Python allow `+=` etc. on these forms, but the semantics differ slightly:
 
 - **C++**: the same object's internal state changes to a plain expression. Face-specific accessors raise a runtime error afterward.
-- **Python**: the same `_handle` is rewritten in place; Python object identity is preserved, but face-specific accessors raise a runtime error too.
+- **Python**: the same object is rewritten in place; Python object identity is preserved, but face-specific accessors raise a runtime error too.
 
 ---
 

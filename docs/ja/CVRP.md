@@ -19,7 +19,7 @@ hreflang_lang: "en"
 $c_{i,j}$ を場所 $i$ と $j$ の間の距離（コスト）とします。
 
 ## QUBO++定式化：バイナリ変数の配列
-CVRPをQUBO式として定式化するために、$V\times N\times N$ のバイナリ変数配列 $A=(a_{v,t,i})$（$0\leq v\leq V, 0\leq t,i\leq N-1$）を使用します。
+CVRPをQUBO式として定式化するために、$V\times N\times N$ のバイナリ変数配列 $A=(a_{v,t,i})$（$0\leq v\leq V-1, 0\leq t,i\leq N-1$）を使用します。
 ここで $a_{v,t,i}$ は、車両 $v$ の $t$ 番目に訪問する場所が場所 $i$ である場合にのみ1となります。
 
 以下は $V=3$、$N=10$ における $A=(a_{v,t,i})$ の割り当ての例で、CVRPの解を表しています。

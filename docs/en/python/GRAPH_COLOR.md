@@ -96,7 +96,7 @@ When running with $m=3$, the program produces:
 onehot = 1
 different = 0
 ```
-This output indicates that the solver failed to assign a color to exactly one node (i.e., one row is not one-hot).
+This graph is not 3-colorable (its chromatic number is 4), so no valid 3-coloring exists: the penalty-minimizing solution necessarily leaves exactly one node without a consistent color (one row is not one-hot).
 
 ## Visualization using matplotlib
 The following code visualizes the Graph Coloring solution:

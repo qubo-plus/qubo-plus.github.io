@@ -116,6 +116,7 @@ This program produces the following output:
 ```
 objective = 6
 constraint = 0
+Selected edges: (1, 3) (2, 5) (4, 6) (9, 10) (12, 14) (13, 15)
 ```
 Thus, $S$ contains 6 edges, forming a minimum maximal matching.
 

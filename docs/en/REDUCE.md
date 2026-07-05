@@ -29,7 +29,7 @@ degree greater than two as a degree-at-most-two expression by introducing fresh
 `reduce()` is available as a global function (non-destructive) and as an
 in-place member function:
 
-- **`qbpp::reduce(f)`** returns a new degree-≤2 expression equivalent to `f`.
+- **`qbpp::reduce(f)`** returns a new degree-≤2 expression equivalent to `f`. A single product term can be passed directly, e.g. `qbpp::reduce(2*a*b*c*d)` (implicit conversion).
 - **`f.reduce()`** updates `f` in place and returns it.
 - **`qbpp::reduce(a)`** also accepts an `Array` of expressions (element-wise).
 
@@ -87,7 +87,7 @@ the number of its variables that are 1.
 ### Positive coefficient ($c > 0$) — Ishikawa rule
 
 An **auxiliary integer** $a \in [0, d-2]$ is introduced (represented internally
-by about $\lceil \log_2 (d-1) \rceil$ binary variables) and the term is rewritten as
+by about $\lfloor \log_2 (d-1) \rfloor$ binary variables) and the term is rewritten as
 
 $$
 c\,x_1 x_2 \cdots x_d \;=\; \frac{c\,(S-a)(S-a-1)}{2}.
@@ -139,7 +139,7 @@ product.
 
 | term | rule | auxiliary binary variables |
 |---|---|---|
-| positive, degree $d$ | Ishikawa | $\approx \lceil \log_2 (d-1) \rceil$ (1 for $d=3,4$; 2 for $d=5\text{–}8$; 3 for $d=9\text{–}16$) |
+| positive, degree $d$ | Ishikawa | $\approx \lfloor \log_2 (d-1) \rfloor$ (1 for $d=3,4$; 2 for $d=5\text{–}8$; 3 for $d=9\text{–}16$) |
 | negative, any degree | Freedman | exactly 1 |
 
 ## Negated literals

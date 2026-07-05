@@ -33,6 +33,8 @@ Available type variants:
 | `import pyqbpp.c128e128` | 128-bit | 128-bit | Very large problems |
 | `import pyqbpp.cppint` | unlimited | unlimited | Arbitrary precision (`cpp_int`) |
 
+> **NOTE — Overflow.** The coefficient width bounds each coefficient and the energy width bounds the accumulated energy (the sum of active terms). A fixed-width variant does **not** detect overflow: if the total energy exceeds the energy width, it silently wraps around. Use a wider variant (or `pyqbpp.cppint`, arbitrary precision) when the energy can be large.
+
 ### Real (double) coefficients
 
 Coefficients can also be **`double`** (Python `float`). Import one of the following submodules
@@ -179,5 +181,5 @@ For an integer variable `x` (a `pyqbpp.Expr`), the following are available:
 
 The following expression is equivalent to the expression stored in `x`:
 ```python
-x.min_val + qbpp.sum(x.vars * x.coeffs)
+x.min_val + sum(v * c for v, c in zip(x.vars, x.coeffs))
 ```

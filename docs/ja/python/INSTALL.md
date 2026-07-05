@@ -68,7 +68,7 @@ pip install pyqbpp-<VERSION>-py3-none-manylinux_2_31_x86_64.whl
 `<VERSION>` は実際のリリースバージョンに置き換え、CPU アーキテクチャに応じて wheel を選択してください（amd64 なら `x86_64`、arm64 なら `aarch64`）。
 
 環境変数の設定は不要です。
-wheel には共有ライブラリ（`qbpp_*.so`、`easysolver_*.so`、`exhaustive_*.so`）と `qbpp-license` コマンドがすべて同梱されており、`pip` が仮想環境内に自動的に配置します。
+wheel には共有ライブラリ（`qbpp_*.so`、`easysolver_*.so`、`exhaustive_*.so`、`abs3_*.so`）と `qbpp-license` コマンドがすべて同梱されており、`pip` が仮想環境内に自動的に配置します。
 
 ## PyQBPP のインポート
 

@@ -63,7 +63,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols.sols[k];
     std::cout << "Solution " << k << " : " << sol(x) << std::endl;
@@ -139,7 +139,7 @@ int main() {
            qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 0) - 1));
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols.sols[k];
     const auto& row = qbpp::onehot_to_int(x(sol), 1);
@@ -149,7 +149,7 @@ int main() {
 }
 ```
 {% endraw %}
-このプログラムでは、`x(sol)` は `sol` における `x` に割り当てられた値の行列を返します。これは整数のサイズの行列です。
+このプログラムでは、`x(sol)` は `sol` における `x` に割り当てられた値の行列を返します。これは `x` と同じ形状の整数値の行列です。
 `qbpp::onehot_to_int()` は軸に沿ったone-hot配列を対応する整数に変換します。
 - **`qbpp::onehot_to_int(x(sol), 1)`**: 各行に対応する整数を計算し、4つの整数の配列として返します。これが置換を表します。
 - **`qbpp::onehot_to_int(x(sol), 0)`**: 各列に対応する整数を返し、4つの整数の配列として返します。これが置換の逆を表します。
@@ -207,7 +207,7 @@ $$
 
 $$
 \begin{aligned}
- h(X) &= P\cdot f(x)+g(x) \\
+ h(X) &= P\cdot f(X)+g(X) \\
      &=P\left(\sum_{i=0}^{n-1}\left(1-\sum_{j=0}^{n-1}x_{i,j}\right)^2+\sum_{j=0}^{n-1}\left(1-\sum_{i=0}^{n-1}x_{i,j}\right)^2\right)+\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}c_{i,j}x_{i,j}
 \end{aligned}
 $$
@@ -219,7 +219,7 @@ $$
 このプログラムでは、サイズ $4\times4$ の固定行列 $C$ が整数定数の配列として与えられます。
 `qbpp::array({...})` は入れ子の初期化子リストから整数定数配列を構築します。形状はリストの入れ子の深さから自動判定され（リストのリストなら 2 次元配列になる）、ここでは $4\times4$ の `Array<2, coeff_t>` が生成されます。
 $f(X)$ と $g(X)$ の式は配列関数と演算を使用して定義されます。
-ここで、`qbpp::vector_sum(x, 1) == 1` は等式が満たされた場合に最小値0を取るQUBO式を返します。
+ここで、`qbpp::vector_sum(x, 1) == 1` は等式が満たされた場合に最小値0を取るQUBO式の配列を返します。
 実際には、`qbpp::sqr(qbpp::vector_sum(x, 1) - 1)` と同じQUBO式を返します。
 また、`c * x` は `c` と `x` の要素ごとの積を計算して得られる行列を返すため、`qbpp::sum(c * x)` は `g(X)` を返します。
 

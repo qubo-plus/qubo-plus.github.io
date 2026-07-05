@@ -142,8 +142,8 @@ print("f =", f)
 ```
 This program produces the following output:
 ```
-t = 1 +2*x*y +x
-f = 2 +2*x*y +x
+t = 1 +x +2*x*y
+f = 2 +x +2*x*y
 ```
 
 ## Integer Ranges: Coefficient and Energy Types
@@ -173,6 +173,13 @@ To use a different type, import a different submodule:
 | `import pyqbpp.c64e128` | 64-bit | 128-bit |
 | `import pyqbpp.c128e128` | 128-bit | 128-bit |
 | `import pyqbpp.cppint` | unlimited | unlimited |
+
+Coefficients and constants are **range-checked at input**: passing an integer that does not fit
+the selected variant's `coeff_t` / `energy_t` (e.g. `1654971540019 * x` with the default 32-bit
+coefficients) raises `OverflowError` with a suggestion to use a wider variant, instead of
+silently wrapping around. Arithmetic *inside* the solver library (sums and products computed
+during `simplify()` or energy evaluation) is still unchecked for performance — pick a variant
+wide enough for the intermediate values, or use `pyqbpp.cppint` to be safe.
 
 ### Real (double) coefficients
 
@@ -236,7 +243,7 @@ In Python, integer literals are arbitrary precision by construction, so writing 
 Each such literal is converted to the current `coeff_t` type at the moment it participates in an operation.
 If the value does not fit, an exception is raised.
 
-For very large integer-string conversions inside a hot loop, bind the value to a variable once instead of materializing it on every iteration:
+For repeated computations of very large integer values inside a hot loop (e.g. powers such as `10**12`), bind the value to a variable once instead of materializing it on every iteration:
 ```python
 K = 10**12   # computed once
 for i in range(n):

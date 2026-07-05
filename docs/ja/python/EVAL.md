@@ -111,13 +111,14 @@ print("flipped energy =", sol.energy)
 {% endraw %}
 このプログラムでは、`sol.energy` は正しく 0 を返します。
 しかし、変数 `z` をフリップした後、キャッシュされたエネルギー値は無効になります。
-エネルギーを再計算せずに `sol.energy` にアクセスすると、以下のように
-**ランタイムエラー**が発生します:
+キャッシュが無効な状態では、`sol.energy` へのアクセスだけでなく `print(sol)` による表示も
+エネルギーを読むため、以下のように**ランタイムエラー**が発生します（この例ではフリップ直後の
+出力行で発生）:
 {% raw %}
 ```
-sol = 0:{{x,1},{y,0},{z,1}}
+sol = Sol(energy=0, {x: 1, y: 0, z: 1})
 energy = 0
-RuntimeError: energy is not up to date; call comp_energy() after modifying the solution
+RuntimeError: Sol.energy: energy is invalid (variable changed after last computation). Call comp_energy() first.
 ```
 {% endraw %}
 この問題を解決するには、解を変更した後に **`sol.comp_energy()`** を呼び出して
@@ -134,10 +135,10 @@ print("flipped energy =", sol.energy)
 このプログラムは以下の出力を生成します:
 {% raw %}
 ```
-sol = 0:{{x,1},{y,0},{z,1}}
+sol = Sol(energy=0, {x: 1, y: 0, z: 1})
 energy = 0
 sol.comp_energy() = 9
-flipped sol = 9:{{x,1},{y,0},{z,0}}
+flipped sol = Sol(energy=9, {x: 1, y: 0, z: 0})
 flipped energy = 9
 ```
 {% endraw %}

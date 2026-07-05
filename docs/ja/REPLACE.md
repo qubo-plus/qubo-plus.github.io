@@ -47,6 +47,7 @@ int main() {
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
+  full_sol.comp_energy();
 
   std::cout << "sol = " << sol << std::endl;
   std::cout << "ml = " << ml << std::endl;
@@ -85,7 +86,7 @@ int main() {
 {% raw %}
 ```
 sol = 4:{{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
-ml = {{x[0],1},{x[1],0}}
+ml = {x[0]: 1, x[1]: 0}
 full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
 f(full_sol) = 4
 p(full_sol) = 206
@@ -111,6 +112,7 @@ Q : 27 74 63 40
   auto sol = solver.search();
 
   auto full_sol = qbpp::Sol(f).set(sol, ml);
+  full_sol.comp_energy();
 ```
 {% endraw %}
 このプログラムでは、変数 `x[0]` が否定リテラル `~x[1]` に置換されるように qbpp::MapList オブジェクト ml を定義しています。
@@ -185,6 +187,7 @@ int main() {
   auto sol = solver.search({{"target_energy", 0}});
 
   auto full_sol = qbpp::Sol(f).set(sol).set(ml);
+  full_sol.comp_energy();
   std::cout << "p= " << full_sol(p) << ", q= " << full_sol(q)
             << ", r= " << full_sol(r) << std::endl;
 }

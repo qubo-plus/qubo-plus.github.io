@@ -36,6 +36,8 @@ The output of this program is as follows:
 f = x[0] +x[1] +x[2] +x[3] +x[4]
 ```
 
+> **NOTE** — `x[i]` raises `IndexError` for an out-of-range index. Element-wise array operations require **matching shapes**; combining arrays of different shapes raises an exception.
+
 ## Sum function
 Using the utility function **`sum()`**, you can obtain the sum of an array of binary variables.
 The following program uses `sum()` to compute the sum of all variables in the array `x`:

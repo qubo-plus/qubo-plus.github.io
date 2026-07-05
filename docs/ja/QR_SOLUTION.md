@@ -53,7 +53,7 @@ sol.set(ml);
 ```
 {% endraw %}
 
-`set` メソッドは `Sol&` を返すため、チェーンが可能です:
+`set(Sol&)` と `set(ml)` メソッドは `Sol&` を返すため、チェーンが可能です:
 ```cpp
 auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 ```
@@ -63,7 +63,7 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
 | `sol.energy()` | `energy_t` | 格納されたエネルギー値を返す |
-| `sol.comp_energy()` | `energy_t` | 現在の変数値からエネルギーを再計算して格納 |
+| `sol.comp_energy()` | `energy_t` | エネルギーを返す（無効な場合のみ現在の変数値から再計算して格納） |
 | `sol.tts()` | `double` | 求解時間（秒） |
 
 `sol.energy()` はソルバーが解を見つけた時点で格納されたエネルギー値を返します。
@@ -71,6 +71,7 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 `sol.set()` で変数値を変更した後は、格納されたエネルギーは**無効**になります。
 この状態で `sol.energy()` を呼び出すとエラーが発生します。
 `sol.comp_energy()` を呼んでエネルギーを再計算・更新してからアクセスしてください。
+エネルギーが既に有効な場合、`comp_energy()` は再計算せずにキャッシュ値を返します。
 
 ## 解からの整数の抽出
 
@@ -97,7 +98,7 @@ auto full_sol = qbpp::Sol(f).set(sol).set(ml);
 |------------|-------------|-------------|
 | `sol.info()` | `const KeyValueVector&` | ソルバー情報のキーバリューペア |
 | `sol.sols` | `const std::vector<Sol>&` | 収集された全解 |
-| `sol.size` | `size_t` | 収集された解の数 |
+| `sol.size()` | `size_t` | 収集された解の数 |
 | `sol.sols[i]` | `const Sol&` | $i$ 番目の解にアクセス |
 
 `info()` オブジェクトはソルバーのメタデータを文字列のキーバリューペアとして格納しています。

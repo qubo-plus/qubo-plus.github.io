@@ -29,7 +29,7 @@ A full adder can be formulated using the following expression:
 
 $$
 \begin{aligned}
-fa(a,b,i,c,s) &=((a+b+i)-(2o+s))^2
+fa(a,b,i,o,s) &=((a+b+i)-(2o+s))^2
 \end{aligned}
 $$
 
@@ -51,17 +51,17 @@ for idx, sol in enumerate(result.sols):
     vals = {v: sol(v) for v in [a, b, i, o, s]}
     print(f"({idx}) {sol.energy}: a={vals[a]}, b={vals[b]}, i={vals[i]}, o={vals[o]}, s={vals[s]}")
 ```
-In this program, the constraint $fa(a,b,i,c,s)$ is implemented using `... == 0`, which intuitively represents the constraint $a+b+i=2o+s$.
+In this program, the constraint $fa(a,b,i,o,s)$ is implemented using `... == 0`, which intuitively represents the constraint $a+b+i=2o+s$.
 Setting `best_energy_sols=0` collects all solutions that achieve the minimum (best) energy with no upper bound on their count.
 The program produces the following output, confirming that the expression correctly models a full adder:
 ```
 (0) 0: a=0, b=0, i=0, o=0, s=0
-(1) 0: a=0, b=0, i=1, o=0, s=1
-(2) 0: a=0, b=1, i=0, o=0, s=1
+(1) 0: a=1, b=1, i=0, o=1, s=0
+(2) 0: a=1, b=0, i=1, o=1, s=0
 (3) 0: a=0, b=1, i=1, o=1, s=0
 (4) 0: a=1, b=0, i=0, o=0, s=1
-(5) 0: a=1, b=0, i=1, o=1, s=0
-(6) 0: a=1, b=1, i=0, o=1, s=0
+(5) 0: a=0, b=1, i=0, o=0, s=1
+(6) 0: a=0, b=0, i=1, o=0, s=1
 (7) 0: a=1, b=1, i=1, o=1, s=1
 ```
 Each line shows the index, the energy (0 for valid assignments), and the value of every variable. All eight rows of the full-adder truth table appear as optimal solutions.
@@ -71,6 +71,10 @@ For example, the three input bits can be fixed using the `qbpp.replace()` functi
 ```python
 fa2 = qbpp.replace(fa, {a: 1, b: 1, i: 0})
 fa2.simplify_as_binary()
+solver2 = qbpp.ExhaustiveSolver(fa2)
+result2 = solver2.search(best_energy_sols=0)
+for idx, sol in enumerate(result2.sols):
+    print(f"({idx}) {sol.energy}: o={sol(o)}, s={sol(s)}")
 ```
 `qbpp.replace(expr, mapping)` returns a new expression with every key in the dict substituted by its value (a constant or another variable or expression). The original `fa` is left unchanged. Then solve with `qbpp.ExhaustiveSolver(fa2)`.
 
@@ -84,12 +88,16 @@ Conversely, if the two output bits are fixed:
 ```python
 fa2 = qbpp.replace(fa, {o: 1, s: 0})
 fa2.simplify_as_binary()
+solver2 = qbpp.ExhaustiveSolver(fa2)
+result2 = solver2.search(best_energy_sols=0)
+for idx, sol in enumerate(result2.sols):
+    print(f"({idx}) {sol.energy}: a={sol(a)}, b={sol(b)}, i={sol(i)}")
 ```
 the program produces all valid combinations of the input bits:
 ```
-(0) 0: a=0, b=1, i=1
+(0) 0: a=1, b=1, i=0
 (1) 0: a=1, b=0, i=1
-(2) 0: a=1, b=1, i=0
+(2) 0: a=0, b=1, i=1
 ```
 
 ## Simulating a ripple carry adder using multiple full adders
@@ -130,14 +138,14 @@ The Exhaustive Solver is then used to enumerate all optimal solutions; `sol(x)`,
 This program produces 512 valid solutions, corresponding to all possible input combinations of a 4-bit adder:
 ```
 (0) 0: x=[0, 0, 0, 0], y=[0, 0, 0, 0], c=[0, 0, 0, 0, 0], z=[0, 0, 0, 0]
-(1) 0: x=[0, 0, 0, 0], y=[0, 0, 0, 0], c=[1, 0, 0, 0, 0], z=[1, 0, 0, 0]
-(2) 0: x=[0, 0, 0, 0], y=[1, 0, 0, 0], c=[0, 0, 0, 0, 0], z=[1, 0, 0, 0]
-(3) 0: x=[0, 0, 0, 0], y=[1, 0, 0, 0], c=[1, 0, 0, 0, 0], z=[0, 1, 0, 0]
+(1) 0: x=[0, 0, 0, 1], y=[0, 0, 0, 1], c=[0, 0, 0, 0, 1], z=[0, 0, 0, 0]
+(2) 0: x=[0, 0, 1, 1], y=[0, 0, 1, 0], c=[0, 0, 0, 1, 1], z=[0, 0, 0, 0]
+(3) 0: x=[0, 0, 1, 0], y=[0, 0, 1, 1], c=[0, 0, 0, 1, 1], z=[0, 0, 0, 0]
 
-... omitted ...
+...
 
-(510) 0: x=[1, 1, 1, 1], y=[1, 1, 1, 1], c=[0, 1, 1, 1, 1], z=[1, 1, 1, 1]
-(511) 0: x=[1, 1, 1, 1], y=[1, 1, 1, 1], c=[1, 1, 1, 1, 1], z=[0, 0, 0, 0]
+(510) 0: x=[1, 1, 1, 0], y=[1, 1, 1, 0], c=[1, 1, 1, 1, 0], z=[1, 1, 1, 1]
+(511) 0: x=[1, 1, 1, 1], y=[1, 1, 1, 1], c=[1, 1, 1, 1, 1], z=[1, 1, 1, 1]
 ```
 The 512 solutions correspond to every combination of the 4-bit inputs `x`, `y`, and the initial carry-in `c[0]` (2<sup>4</sup> x 2<sup>4</sup> x 2 = 512).
 
@@ -174,11 +182,16 @@ ml = {c[4]: 1, c[0]: 0, z[3]: 1,
       z[2]: 1, z[1]: 0, z[0]: 1}
 adder = qbpp.replace(adder, ml)
 adder.simplify_as_binary()
+solver2 = qbpp.ExhaustiveSolver(adder)
+result2 = solver2.search(best_energy_sols=0)
+for idx, sol in enumerate(result2.sols):
+    print(f"({idx}) {sol.energy}: x={sol(x)}, y={sol(y)}, c={sol(c)}, z={sol(z)}")
 ```
 This assigns the 4-bit sum `z = 1101` (binary, LSB first: `z[0]=1, z[1]=0, z[2]=1, z[3]=1`) with carry-in `c[0]=0` and carry-out `c[4]=1`, i.e. the sum $x + y = 11101_{2} = 29$ with no initial carry.
 The resulting program produces the following output:
 ```
-(0) 0: x=[0, 1, 1, 1], y=[1, 1, 1, 1], c=[0, 0, 1, 1, 1], z=[1, 0, 1, 1]
-(1) 0: x=[1, 1, 1, 1], y=[0, 1, 1, 1], c=[0, 0, 1, 1, 1], z=[1, 0, 1, 1]
+(0) 0: x=[1, 1, 1, 1], y=[0, 1, 1, 1], c=[0, 0, 1, 1, 0], z=[0, 0, 0, 0]
+(1) 0: x=[0, 1, 1, 1], y=[1, 1, 1, 1], c=[0, 0, 1, 1, 0], z=[0, 0, 0, 0]
 ```
 Both solutions correspond to $14 + 15 = 29$ and $15 + 14 = 29$, the only two ways to obtain a 4-bit sum of `1101` with the prescribed carry pattern.
+Note that `z` and the fixed carry bits print as `0` in the output: `replace()` substitutes the fixed variables out of the model, so `sol(z)` / `sol(c[4])` read back their defaults instead of the assigned `1101` / `1`. The variables actually solved for are `x` and `y`.

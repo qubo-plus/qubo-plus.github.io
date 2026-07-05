@@ -169,9 +169,9 @@ auto f = qbpp::einsum<0>("i,ij,j->", x, W, x);   // sum of W[i][j]*x[i]*x[j], do
 ```
 {% endraw %}
 
-Building the same quadratic form with a double `for` loop adds terms one at a time;
-`einsum` performs the whole contraction in native code and is typically several times
-faster for dense coefficient matrices.
+The same quadratic form can also be built with a double `for` loop. In C++ the
+performance of a hand-written loop and `einsum` is roughly the same; the benefit of
+`einsum` is expressing the whole contraction in a single readable line.
 
 ## Three or more inputs
 
@@ -188,8 +188,8 @@ qbpp::Expr obj = qbpp::einsum<0>("a,kl,ak,al->", f, d, x, x);
 ```
 {% endraw %}
 
-This single line replaces a quadruple nested for-loop and is internally
-parallelized over multiple CPU threads.
+This single line replaces a quadruple nested for-loop. For large inputs it is
+internally parallelized over multiple CPU threads.
 
 ## When to use `einsum`
 

@@ -11,7 +11,7 @@ hreflang_lang: "ja"
 # Sum Functions for Multi-dimensional Arrays
 PyQBPP provides two sum functions for multi-dimensional arrays of variables or expressions:
 - **`sum()`**: Computes the sum of all elements in the array.
-- **`vector_sum()`**: Computes the sum along the lowest (innermost) dimension.
+- **`vector_sum()`**: Computes the sum along the lowest (innermost) dimension. The input array must have dimension 2 or higher (a 1-D array raises `ValueError`).
 The resulting array has one fewer dimension than the input array.
 
 The following program demonstrates the difference between `sum()` and `vector_sum()`:
@@ -59,7 +59,7 @@ y[1][1][2] = 1 +x[1][1][2]
 y[1][2][0] = 1 +x[1][2][0]
 y[1][2][1] = 1 +x[1][2][1]
 y[1][2][2] = 1 +x[1][2][2]
-sum(y) = 18 +x[0][0][0] +x[0][0][1] +x[0][0][2] +x[0][1][0] +x[0][1][1] +x[0][1][2] +x[0][2][0] +x[0][2][1] +x[0][2][2] +x[1][0][0] +x[1][0][1] +x[1][0][2] +x[1][1][0] +x[1][1][1] +x[1][1][2] +x[1][2][0] +x[1][2][1] +x[1][2][2]
+qbpp.sum(y) = 18 +x[0][0][0] +x[0][0][1] +x[0][0][2] +x[0][1][0] +x[0][1][1] +x[0][1][2] +x[0][2][0] +x[0][2][1] +x[0][2][2] +x[1][0][0] +x[1][0][1] +x[1][0][2] +x[1][1][0] +x[1][1][1] +x[1][1][2] +x[1][2][0] +x[1][2][1] +x[1][2][2]
 vector_sum[0][0] = 3 +x[0][0][0] +x[0][0][1] +x[0][0][2]
 vector_sum[0][1] = 3 +x[0][1][0] +x[0][1][1] +x[0][1][2]
 vector_sum[0][2] = 3 +x[0][2][0] +x[0][2][1] +x[0][2][2]
@@ -68,7 +68,7 @@ vector_sum[1][1] = 3 +x[1][1][0] +x[1][1][1] +x[1][1][2]
 vector_sum[1][2] = 3 +x[1][2][0] +x[1][2][1] +x[1][2][2]
 ```
 The same results can be obtained using explicit for-loops.
-However, for large arrays, it is recommended to use `sum()` and `vector_sum()`, since these functions internally exploit multithreading to accelerate computation.
+However, for large arrays, it is recommended to use `sum()` and `vector_sum()`, since these functions exploit internal multithreading for large arrays (`sum()` of expression arrays and `vector_sum()`) to accelerate computation.
 
 ## Accepting iterables
 

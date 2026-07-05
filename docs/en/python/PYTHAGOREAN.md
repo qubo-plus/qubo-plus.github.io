@@ -52,7 +52,7 @@ They are combined into `g`.
 The expression `g` attains its minimum value 0 when all constraints are satisfied.
 
 An Exhaustive Solver object `solver` is created for `g`.
-The call to `search_optimal_solutions()` returns a list of all optimal solutions.
+Calling `search(best_energy_sols=0)` keeps every best-energy (optimal) solution; they are read from `result.sols`.
 
 Because integer variables are encoded by multiple binary variables, the same
 $(x,y,z)$ assignment may appear multiple times.

@@ -43,7 +43,7 @@ int main() {
   std::cout << "f.body() = " << f.body() << std::endl;
 
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", f.body() = " << f.body(sol) << std::endl;
@@ -241,8 +241,8 @@ This program produces the following output:
 ```
 f1 = 1 -2*f +f*f
 f2 = 2 -3*f +f*f
-f3 = 2 -3*f +3*{0} +f*f -2*f*{0} +{0}*{0}
-f4 = 2 -3*f +6*{1}[0] +3*{1}[1] +f*f -4*f*{1}[0] -2*f*{1}[1] +4*{1}[0]*{1}[0] +4*{1}[0]*{1}[1] +{1}[1]*{1}[1]
+f3 = 2 -3*f +3*{s0} +f*f -2*f*{s0} +{s0}*{s0}
+f4 = 2 -3*f +3*{s1}[0] +6*{s1}[1] +f*f -2*f*{s1}[0] -4*f*{s1}[1] +{s1}[0]*{s1}[0] +4*{s1}[0]*{s1}[1] +4*{s1}[1]*{s1}[1]
 ```
 These outputs correspond to the following expressions:
 
@@ -269,7 +269,7 @@ int main() {
   auto f = 5 <= 4 * a + 9 * b + 15 * c <= 14;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
@@ -283,7 +283,7 @@ this program searches for solutions satisfying the constraint
 
 $$
 \begin{aligned}
-5\leq 4a+9b+15c \leq 15
+5\leq 4a+9b+15c \leq 14
 \end{aligned}
 $$
 
@@ -302,9 +302,11 @@ QUBO++ supports the following **one-sided bound operators**:
 - **Upper-bound operator**: $f\leq u$ — written as `expr <= n` (instead of `-qbpp::inf <= expr <= n`)
 
 > **NOTE**
-> The reversed forms **`n <= expr`** and **`n >= expr`** (integer on the left)
-> are compile errors. Always place the expression on the left side
-> of `<=` / `>=` when writing one-sided constraints.
+> The reversed form **`n >= expr`** (integer on the left) is a compile error.
+> **`n <= expr`** returns an intermediate value reserved for the chained form
+> `l <= expr <= u`, so it cannot be used as a standalone one-sided constraint.
+> Always place the expression on the left side of `<=` / `>=` when writing
+> one-sided constraints.
 
 The range operator internally introduces auxiliary variables, so true infinite
 values cannot be represented explicitly. When `qbpp::inf` is used in the chain
@@ -340,7 +342,7 @@ int main() {
   auto f = 4 * a + 9 * b + 11 * c >= 14;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
@@ -354,10 +356,13 @@ In this program, `f` is built with the single-sided lower-bound operator `>=`. I
 This program produces the following output:
 {% raw %}
 ```
-a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
-a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],0}}
-a = 1, b = 0, c = 1, f = 0, f.body() = 15, sol = 0:{{a,1},{b,0},{c,1},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
-a = 1, b = 1, c = 1, f = 0, f.body() = 24, sol = 0:{{a,1},{b,1},{c,1},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
+a = 1, b = 0, c = 1, f = 0, f.body() = 15, sol = 0:{{a,1},{b,0},{c,1},{{s0}[0],0},{{s0}[1],0},{{s0}[2],0},{{s0}[3],0}}
+a = 1, b = 0, c = 1, f = 0, f.body() = 15, sol = 0:{{a,1},{b,0},{c,1},{{s0}[0],1},{{s0}[1],0},{{s0}[2],0},{{s0}[3],0}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{s0}[0],1},{{s0}[1],0},{{s0}[2],1},{{s0}[3],0}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{s0}[0],0},{{s0}[1],1},{{s0}[2],1},{{s0}[3],0}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{s0}[0],1},{{s0}[1],1},{{s0}[2],0},{{s0}[3],1}}
+a = 0, b = 1, c = 1, f = 0, f.body() = 20, sol = 0:{{a,0},{b,1},{c,1},{{s0}[0],0},{{s0}[1],0},{{s0}[2],1},{{s0}[3],1}}
+a = 1, b = 1, c = 1, f = 0, f.body() = 24, sol = 0:{{a,1},{b,1},{c,1},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1},{{s0}[3],1}}
 ```
 {% endraw %}
 
@@ -371,7 +376,7 @@ int main() {
   auto f = 4 * a + 9 * b + 11 * c <= 14;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (const auto& sol : sols) {
     std::cout << "a = " << a(sol) << ", b = " << b(sol) << ", c = " << c(sol)
               << ", f = " << f(sol) << ", f.body() = " << f.body(sol)
@@ -385,10 +390,14 @@ In this program, `f` is built with the single-sided upper-bound operator `<=`. I
 This program produces the following output:
 {% raw %}
 ```
-a = 0, b = 0, c = 0, f = 0, f.body() = 0, sol = 0:{{a,0},{b,0},{c,0},{{0}[0],0},{{0}[1],0},{{0}[2],0}}
-a = 0, b = 0, c = 1, f = 0, f.body() = 11, sol = 0:{{a,0},{b,0},{c,1},{{0}[0],0},{{0}[1],1},{{0}[2],1}}
-a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{0}[0],1},{{0}[1],0},{{0}[2],1}}
-a = 1, b = 0, c = 0, f = 0, f.body() = 4, sol = 0:{{a,1},{b,0},{c,0},{{0}[0],0},{{0}[1],1},{{0}[2],0}}
-a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{0}[0],1},{{0}[1],1},{{0}[2],1}}
+a = 0, b = 0, c = 0, f = 0, f.body() = 0, sol = 0:{{a,0},{b,0},{c,0},{{s0}[0],0},{{s0}[1],0},{{s0}[2],0},{{s0}[3],0}}
+a = 1, b = 0, c = 0, f = 0, f.body() = 4, sol = 0:{{a,1},{b,0},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],0},{{s0}[3],0}}
+a = 1, b = 0, c = 0, f = 0, f.body() = 4, sol = 0:{{a,1},{b,0},{c,0},{{s0}[0],0},{{s0}[1],0},{{s0}[2],1},{{s0}[3],0}}
+a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{s0}[0],0},{{s0}[1],1},{{s0}[2],0},{{s0}[3],1}}
+a = 0, b = 1, c = 0, f = 0, f.body() = 9, sol = 0:{{a,0},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],0},{{s0}[3],1}}
+a = 0, b = 0, c = 1, f = 0, f.body() = 11, sol = 0:{{a,0},{b,0},{c,1},{{s0}[0],0},{{s0}[1],0},{{s0}[2],1},{{s0}[3],1}}
+a = 0, b = 0, c = 1, f = 0, f.body() = 11, sol = 0:{{a,0},{b,0},{c,1},{{s0}[0],1},{{s0}[1],0},{{s0}[2],1},{{s0}[3],1}}
+a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{s0}[0],0},{{s0}[1],1},{{s0}[2],1},{{s0}[3],1}}
+a = 1, b = 1, c = 0, f = 0, f.body() = 13, sol = 0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1},{{s0}[3],1}}
 ```
 {% endraw %}

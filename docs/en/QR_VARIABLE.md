@@ -31,6 +31,8 @@ compiler flag `-D...`):
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
+> **NOTE — Overflow.** `coeff_t` bounds each coefficient and `energy_t` bounds the accumulated energy (the sum of active terms). A fixed-width type does **not** detect overflow: if the total energy exceeds `energy_t`, it silently wraps around, exactly like built-in C++ integer arithmetic. Choose a variant whose `energy_t` covers your worst-case energy; `INTEGER_TYPE_CPP_INT` (arbitrary precision) never overflows.
+
 ### Real (double) coefficients
 
 Coefficients can also be **`double`** (real numbers). Define one of the following `DOUBLE_TYPE*`
@@ -160,19 +162,19 @@ The following functions are provided to create integer variables:
 ### Integer variable member functions
 For an integer variable `x` (a `qbpp::Expr`), the following member functions are available:
 
-- **`energy_t x.min_val`**:
+- **`energy_t x.min_val()`**:
   Returns the minimum value `l` of `x`.
 
-- **`energy_t x.max_val`**:
+- **`energy_t x.max_val()`**:
   Returns the maximum value `u` of `x`.
 
-- **`x.vars`**:
+- **`Array<1, Var> x.vars()`**:
   Returns the `qbpp::Var` object array used to represent the integer variable.
 
-- **`x.coeffs`**:
+- **`Array<1, coeff_t> x.coeffs()`**:
   Returns the integer coefficient array.
 
 The following expression is equivalent to the expression stored in `x`:
 ```cpp
-x.min_val + qbpp::sum(x.coeffs * x.vars)
+qbpp::sum(x.coeffs() * x.vars()) + x.min_val()
 ```

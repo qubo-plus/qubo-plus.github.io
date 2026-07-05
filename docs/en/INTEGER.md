@@ -52,7 +52,7 @@ int main() {
 ```
 
 An integer variable is defined using the **range operator** **`<= <=`**, which specifies the integer range that the variable can take.
-The function **`qbpp::var_int("name")`** creates a **`qbpp::Expr`** object with the given `name`, representing the linear expression encoded by binary variables.
+The whole range expression combining **`qbpp::var_int("name")`** with the range operators creates a **`qbpp::Expr`** object with the given `name`, representing the linear expression encoded by binary variables.
 The program outputs the following expressions:
 ```
 x = 1 +x[0] +2*x[1] +4*x[2] uses 3 variables.

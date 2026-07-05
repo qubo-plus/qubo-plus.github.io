@@ -116,6 +116,7 @@ Exhaustive Solver を用いて `f` の最適解を求めます。
 ```
 objective = 6
 constraint = 0
+Selected edges: (1, 3) (2, 5) (4, 6) (9, 10) (12, 14) (13, 15)
 ```
 したがって、$S$ は6本の辺を含み、最小極大マッチングを形成しています。
 

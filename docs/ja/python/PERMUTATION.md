@@ -136,7 +136,7 @@ for k, sol in enumerate(result.sols):
     column = qbpp.onehot_to_int(sol(x), axis=0)
     print(f"Solution {k}: {row}, {column}")
 ```
-このプログラムでは、`sol(x)` は `sol` における `x` に割り当てられた値の行列を返します。これは整数のサイズの行列です。
+このプログラムでは、`sol(x)` は `sol` における `x` に割り当てられた値の行列を返します。これは `x` と同じ形状の整数値の行列です。
 `qbpp.onehot_to_int()` は軸に沿ったone-hot配列を対応する整数に変換します。
 - **`qbpp.onehot_to_int(sol(x), axis=1)`**: 各行に対応する整数を計算し、4つの整数の配列として返します。これが置換を表します。
 - **`qbpp.onehot_to_int(sol(x), axis=0)`**: 各列に対応する整数を返し、4つの整数の配列として返します。これが置換の逆を表します。

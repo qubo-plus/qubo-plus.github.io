@@ -17,7 +17,7 @@ QUBO++ provides the following fundamental classes:
 Internally, a 32-bit unsigned integer is used as its identifier.
 - **`qbpp::Term`**: Represents a product term consisting of an integer coefficient and one or more `qbpp::Var` objects.
 The coefficient type is `qbpp::coeff_t` (default `int32_t`); it is selected at build time via one of the `INTEGER_TYPE_*` macros (see below).
-Each `qbpp::Term` stores its variables using a static array (inline buffer of 2 elements) combined with dynamic allocation for higher-degree terms, allowing terms of arbitrary degree with no upper limit.
+Each `qbpp::Term` stores its variables using a static array (inline buffer of 2 elements) combined with dynamic allocation for higher-degree terms, allowing terms of arbitrary degree with no upper limit in the default variable-length mode (see the fixed-length VarArray modes below).
 - **`qbpp::Expr`**: Represents an expanded expression consisting of an integer constant term and zero or more `qbpp::Term` objects.
 The constant-term type is `qbpp::energy_t` (default `int64_t`), also selected at build time via the `INTEGER_TYPE_*` macros.
 
@@ -42,7 +42,7 @@ This program produces the following output:
 x = x
 y = y
 t = 2*x*y
-f = 1 -x +2*x*y
+f = 1 +2*x*y -x
 ```
 If the data types are to be explicitly specified, the program can be rewritten as follows:
 ```cpp
@@ -86,9 +86,9 @@ int main() {
 This program prints the following output:
 ```
 t = 2*x*y
-f = 1 -x +2*x*y
+f = 1 +2*x*y -x
 t = 6*x*y*x
-f = 1 -x +2*x*y +2*y
+f = 1 +2*x*y -x +2*y
 ```
 
 ### Aliasing and Copying

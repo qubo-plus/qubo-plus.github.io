@@ -94,6 +94,7 @@ The return value is a solution that provides `sol.energy` (energy value), `sol(x
 | **`thread_count`** | int | Number of threads per CUDA block |
 | **`topk_sols`** | int | Returns the top-K solutions with the best energies |
 | **`best_energy_sols`** | int | Max count (`0` = unlimited). Returns all solutions with the best energy found |
+| **`seed`** | int | Random seed (`0` = unset, default: non-deterministic). Fixes the random streams used for initial solutions and proposals. Note: fully reproducible runs are only guaranteed in serial configurations (e.g. `cpu_thread_count=1` with no GPU) — with many threads or a GPU, timing nondeterminism still affects the outcome |
 
 ## Collecting Multiple Solutions
 
@@ -161,7 +162,7 @@ The callback is invoked with one of the following events:
 | `2` | `Timer` | Called periodically at a configurable interval |
 
 Inside `callback()`, the following methods are available:
-- **`self.event()`** — the event that triggered this callback (int: 0=Start, 1=BestUpdated, 2=Timer)
+- **`self.event()`** — the event that triggered this callback, as an integer that compares equal to the `EVENT_*` constants (`EVENT_START`=0, `EVENT_BEST_UPDATED`=1, `EVENT_TIMER`=2). Compare it against those constants, e.g. `if self.event() == self.EVENT_BEST_UPDATED:`
 - **`self.best_sol()`** — returns the current best solution. Use `.energy`, `.tts`, `.get(var)`, etc.
 - **`self.timer(seconds)`** — set the timer interval in seconds for periodic `Timer` callbacks. `0` disables the timer (see below)
 - **`self.hint(sol)`** — provide a hint solution to the solver during the search (see [Solution Hint](#solution-hint))

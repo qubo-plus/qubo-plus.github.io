@@ -43,9 +43,9 @@ The following parameters are shared by all three solvers:
 | Parameter | Type | Description |
 |---|---|---|
 | `target_energy` | int | Stop when a solution with energy ≤ this value is found. |
-| `enable_default_callback` | int (`0`/`1`) | Print newly obtained best solutions to stderr. Default: `0`. |
+| `enable_default_callback` | int (`0`/`1`) | Print newly obtained best solutions to stdout. Default: `0`. |
 | `topk_sols` | int | Keep up to N top-k solutions during the search. |
-| `best_energy_sols` | int (`0`/`1`) | Keep all solutions with the best energy. `0` = unlimited count. |
+| `best_energy_sols` | int | Maximum number of best-energy solutions to keep. `0` = unlimited count. |
 
 ## EasySolver Parameters
 
@@ -73,7 +73,7 @@ The ExhaustiveSolver does not have a `time_limit` parameter because it performs 
 | `verbose` | int (`0`/`1`) | Display search progress percentage. | `0` |
 | `enable_default_callback` | int (`0`/`1`) | Print progress. | `0` |
 | `topk_sols` | int | Top-k solutions to keep. | (disabled) |
-| `best_energy_sols` | int (`0`/`1`) | Keep all optimal solutions. | (disabled) |
+| `best_energy_sols` | int | Keep optimal solutions (value = max count, `0` = unlimited). | (disabled) |
 | `all_sols` | int (`0`/`1`) | Keep all feasible solutions. | (disabled) |
 
 Example:
@@ -97,7 +97,7 @@ for s in sol.sols:
 | `target_energy` | int | Target energy. | (none) |
 | `enable_default_callback` | int (`0`/`1`) | Print progress. | `0` |
 | `topk_sols` | int | Top-k solutions to keep. | (disabled) |
-| `best_energy_sols` | int (`0`/`1`) | Keep all optimal solutions. | (disabled) |
+| `best_energy_sols` | int | Keep optimal solutions (value = max count, `0` = unlimited). | (disabled) |
 | `cpu_enable` | int (`0`/`1`) | Enable/disable CPU solver. | `1` |
 | `cpu_thread_count` | int | Number of CPU threads. | (auto) |
 | `block_count` | int | Number of GPU blocks. | (auto) |

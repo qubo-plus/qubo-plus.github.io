@@ -73,7 +73,7 @@ This program prints:
 Instances of this class can represent any of the following three forms, depending on how it is constructed:
 - **Expression** — an integer constant term plus zero or more `Term` objects.
 - **Integer variable** — an integer value in a specified range, internally encoded by binary variables.
-- **Constraint expression** — produced by comparison or range operators (typically via `qbpp.constrain()`), holding a penalty and a body.
+- **Constraint expression** — produced by comparison operators or `qbpp.constrain()` (ranges via `between=`), holding a penalty and a body.
 
 All three forms share the same `pyqbpp.Expr` type, so arithmetic operations and global functions work uniformly regardless of which form an `Expr` carries.
 
@@ -109,7 +109,7 @@ print(f)
 ```
 This program prints:
 ```
--6 +x*x +y*x -2*x*y -2*y*y +3*x +3*y -2*x +4*y
+-6 -2*x +4*y +3*x +3*y +x*x -2*x*y +y*x -2*y*y
 ```
 Note that these mathematical operations only expand the expression. To simplify it, call the simplification function explicitly as shown below.
 ```python
@@ -148,7 +148,7 @@ f = qbpp.sqr(x + y - 7)              # use it directly in arithmetic
 In addition to the embedded expression, an integer variable carries metadata: `min_val`, `max_val`, and the underlying binary variables. Details and usage examples are in [Integer Variables](INTEGER).
 
 ### Constraint expression
-A `pyqbpp.Expr` can also represent a **constraint expression**, produced by comparison or range operators applied to an expression. A constraint expression holds two parts:
+A `pyqbpp.Expr` can also represent a **constraint expression**, produced by applying comparison operators or `qbpp.constrain()` (range constraints via `between=`) to an expression. A constraint expression holds two parts:
 - **`penalty`**: an `Expr` that equals 0 when the constraint is satisfied and is positive otherwise
 - **`body`**: the original expression (useful for inspecting the actual value under a solution)
 

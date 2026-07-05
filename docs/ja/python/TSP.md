@@ -45,7 +45,7 @@ $d_{i,j}$ を頂点 $i$ と $j$ の間の距離とします。
 
 $$
 \begin{aligned}
-{\rm objective}: &\sum_{k=0}^{k-1} d_{i,j}x_{k,i}x_{(k+1)\bmod n,j}
+{\rm objective}: &\sum_{k=0}^{n-1}\sum_{i=0}^{n-1}\sum_{j=0}^{n-1} d_{i,j}x_{k,i}x_{(k+1)\bmod n,j}
 \end{aligned}
 $$
 
@@ -128,7 +128,7 @@ def dist(i, j):
 ## スライス、`concat`、`einsum` を使った簡潔な目的関数
 
 `objective` を構築する三重 for ループは数式
-$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$ をそのまま書き下したものですが、
+$\sum_{i,j,k} d_{j,k}\, x_{i,j}\, x_{(i+1) \bmod n, k}$ をそのまま書き下したものですが、
 2 つの補助配列を用意すれば
 [`qbpp.einsum`](EINSUM) の 1 行で書き換えられます。
 
@@ -227,7 +227,7 @@ print(f"Tour: {tour}")
 
 このプログラムは頂点0から始まる以下の巡回路を生成します:
 ```
-Tour: [0, 3, 6, 7, 8, 5, 2, 1, 4]
+Tour: [0, 3, 6, 7, 8, 5, 2, 4, 1]
 ```
 
 ## matplotlibによる可視化

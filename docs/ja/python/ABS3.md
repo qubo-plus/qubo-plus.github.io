@@ -93,6 +93,7 @@ TTS = 4.364s Energy = 834
 | **`thread_count`** | int | CUDAブロック当たりのスレッド数 |
 | **`topk_sols`** | int | 最良エネルギーのtop-K解を返します |
 | **`best_energy_sols`** | int | 最大数（`0` = 無制限）。見つかった最良エネルギーを持つすべての解を返します |
+| **`seed`** | int | 乱数シード（`0` = 未指定、既定は非決定）。初期解や提案に使う乱数列を固定します。注: 完全な実行再現は直列構成（例: `cpu_thread_count=1` かつ GPU なし）でのみ保証されます — 多スレッドや GPU ではタイミングの非決定性が残ります |
 
 ## 複数解の収集
 
@@ -160,7 +161,7 @@ for s in sol.sols:
 | `2` | `Timer` | 設定可能な間隔で定期的に呼び出されます |
 
 `callback()` 内では、以下のメソッドが利用可能です:
-- **`self.event()`** — コールバックを発火したイベント（int: 0=Start, 1=BestUpdated, 2=Timer）
+- **`self.event()`** — コールバックを発火したイベント。`EVENT_*` 定数（`EVENT_START`=0, `EVENT_BEST_UPDATED`=1, `EVENT_TIMER`=2）と比較できる整数を返します。これらの定数と比較してください（例: `if self.event() == self.EVENT_BEST_UPDATED:`）
 - **`self.best_sol()`** — 現在の最良解を返します。`.energy`, `.tts`, `.get(var)` などが使用できます
 - **`self.timer(seconds)`** — 定期的な `Timer` コールバックの間隔を秒単位で設定。`0` でタイマーを無効化（下記参照）
 - **`self.hint(sol)`** — 探索中にソルバーにヒント解を提供（[Solution Hint](#solution-hint) を参照）

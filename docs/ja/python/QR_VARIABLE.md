@@ -33,6 +33,8 @@ import pyqbpp as qbpp                # デフォルト: c32e64
 | `import pyqbpp.c128e128` | 128ビット | 128ビット | 非常に大規模な問題 |
 | `import pyqbpp.cppint` | 無制限 | 無制限 | 任意精度 (`cpp_int`) |
 
+> **注意 — オーバーフロー.** 係数の幅は各係数を、エネルギーの幅は累積エネルギー（有効な項の総和）を制限します。固定幅のバリアントは**オーバーフローを検出しません**。累積エネルギーがエネルギー幅を超えると**黙って折り返します**。エネルギーが大きくなり得る場合は、より広いバリアント（または任意精度の `pyqbpp.cppint`）を使ってください。
+
 ### 実数（double）係数
 
 係数は **`double`**（Python の `float`）にもできます。整数バリアントの代わりに
@@ -176,5 +178,5 @@ z = qbpp.var("z", shape=(2, 3), between=(1, 8))      # 2x3 matrix of integer var
 
 以下の式は `x` に格納されている式と等価です。
 ```python
-x.min_val + qbpp.sum(x.vars * x.coeffs)
+x.min_val + sum(v * c for v, c in zip(x.vars, x.coeffs))
 ```

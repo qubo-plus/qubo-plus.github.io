@@ -42,7 +42,7 @@ sudo apt update
 sudo apt install qbpp
 ```
 
-これにより、ヘッダファイルが `/usr/local/include/qbpp/` に、共有ライブラリが `/usr/local/lib/` に、`qbpp-license` コマンドが `/usr/local/bin/` に自動的にインストールされます。
+これにより、ヘッダファイルが `/usr/include/qbpp/` に、共有ライブラリが `/usr/lib/qbpp/` に（`ldconfig` に登録）、`qbpp-license` コマンドが `/usr/bin/` に自動的にインストールされます。
 環境変数の設定は不要です。
 
 ### アップグレード

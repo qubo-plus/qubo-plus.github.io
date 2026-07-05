@@ -53,8 +53,8 @@ This program defines a $5 \times 5$ permutation matrix and decodes it into a per
 
 {% raw %}
 ```
-x = {{0,0,0,1,0},{1,0,0,0,0},{0,0,1,0,0},{0,1,0,0,0},{0,0,0,0,1}}
-onehot_to_int = {3,0,2,1,4}
+x = [[0, 0, 0, 1, 0], [1, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 1, 0, 0, 0], [0, 0, 0, 0, 1]]
+onehot_to_int = [3, 0, 2, 1, 4]
 ```
 {% endraw %}
 
@@ -69,8 +69,8 @@ For a 2D array of size $n \times m$:
 - **`onehot_to_int(arr, axis=0)`**: decodes each column, returns $m$ integers in $[0, n-1]$.
 
 ```python
-row_result = qbpp.onehot_to_int(sol(x))          # {3,0,2,1,4}
-col_result = qbpp.onehot_to_int(sol(x), axis=0)  # {1,3,2,0,4}
+row_result = qbpp.onehot_to_int(sol(x))          # [3, 0, 2, 1, 4]
+col_result = qbpp.onehot_to_int(sol(x), axis=0)  # [1, 3, 2, 0, 4]
 ```
 
 When `x` is a permutation matrix, `onehot_to_int(sol(x))` gives the permutation $\sigma$,
@@ -84,7 +84,7 @@ or $-1$ if the input is not a valid one-hot vector.
 ```python
 v = qbpp.var("v", shape=4)
 # ... solve so that v = {0, 0, 1, 0} ...
-idx = qbpp.onehot_to_int(sol(v))  # {2}
+idx = qbpp.onehot_to_int(sol(v))  # [2]
 ```
 
 ### Higher-Dimensional Arrays

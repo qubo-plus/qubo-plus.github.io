@@ -45,7 +45,7 @@ An `Expr` has three "faces":
 | Constraint (== int) | `vi == 5` | `Expr` (constraint) | constraint generation |
 | Constraint (range) | `2 <= vi <= 5` | `Expr` (constraint) | between constraint |
 | Global functions | `qbpp::sqr(vi)`, `qbpp::simplify(vi)`, `qbpp::sqr(vi - 3)` | `Expr` | |
-| Integer-specific metadata | `vi.min_val()`, `vi.max_val()` | `coeff_t` | read-only |
+| Integer-specific metadata | `vi.min_val()`, `vi.max_val()` | `energy_t` | read-only |
 | Integer-specific structure | `vi.var_count()`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | various | read-only |
 | Array accessors | `vi.vars()`, `vi.coeffs()` | `Array<1, ...>` | read-only |
 | **Compound assignment** | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi /= 2` | `Expr&` | **becomes a plain expression** (metadata discarded) |
@@ -78,7 +78,7 @@ An `Expr` has three "faces":
 | Arithmetic (RHS constraint) | `ee1 + ee2`, `ee * ee` | `Expr` | penalty + penalty |
 | Global functions | `qbpp::sqr(ee)`, `qbpp::simplify_as_binary(ee)`, `qbpp::replace(ee, ml)` | `Expr` | applied to penalty |
 | Body access | `ee.body()` | `Expr` | clones |
-| Evaluation by Sol | `sol(ee)` (evaluate penalty), `ee.body(sol)` (evaluate body) | `coeff_t` | for constraint verification |
+| Evaluation by Sol | `sol(ee)` (evaluate penalty), `ee.body(sol)` (evaluate body) | `energy_t` | for constraint verification |
 | **Compound assignment** | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee /= 2` | `Expr&` | **becomes a plain expression** (body no longer reachable) |
 | **Square** | `ee.sqr()` | `Expr&` | **becomes a plain expression** |
 | **Replace** | `ee.replace(ml)` | `Expr&` | **becomes a plain expression** |
@@ -126,7 +126,7 @@ auto onehot = (rows == 1);                     // Array<1, Expr> of constraints
 auto penalty = qbpp::sum(onehot);              // Expr (sum of all constraint penalties)
 ```
 
-Per-element `body` access: `*arr[i]`.
+Per-element `body` access: `qbpp::Expr(arr[i]).body()`.
 
 ---
 

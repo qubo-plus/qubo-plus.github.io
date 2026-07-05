@@ -139,7 +139,7 @@ for k, sol in enumerate(result.sols):
     column = qbpp.onehot_to_int(sol(x), axis=0)
     print(f"Solution {k}: {row}, {column}")
 ```
-In this program, `sol(x)` returns a matrix of assigned values to `x` in `sol`, which is a matrix of integers.
+In this program, `sol(x)` returns a matrix of assigned values to `x` in `sol`, which is a matrix of integer values with the same shape as `x`.
 `qbpp.onehot_to_int()` converts one-hot arrays along the axis to the corresponding integers.
 - **`qbpp.onehot_to_int(sol(x), axis=1)`**: Computes the integer corresponding to each row and returns them as an array of 4 integers, which represents the permutation.
 - **`qbpp.onehot_to_int(sol(x), axis=0)`**: returns the integer corresponding to each column and returns them as an array of 4 integers, which represents the inverse of the permutation.

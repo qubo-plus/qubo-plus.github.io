@@ -29,7 +29,7 @@ f = (x * x * x - 147 * x + 286 == 0)
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
-result = solver.search(best_energy_sols=1)
+result = solver.search(best_energy_sols=0)
 
 for sol in result.sols:
     print(f"x = {sol(x)} sol = {sol}")
@@ -51,12 +51,12 @@ Note that we use `import pyqbpp.cppint as qbpp` instead of the default `import p
 This program produces the following output:
 {% raw %}
 ```
-x = 11 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],0},{x[4],0},{x[5],1},{x[6],0},{x[7],1}}
-x = 2 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],0},{x[4],0},{x[5],1},{x[6],1},{x[7],0}}
-x = -13 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],1},{x[4],0},{x[5],0},{x[6],0},{x[7],1}}
-x = 2 sol = 0:{{x[0],1},{x[1],0},{x[2],1},{x[3],1},{x[4],1},{x[5],0},{x[6],0},{x[7],1}}
-x = -13 sol = 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],0},{x[4],1},{x[5],0},{x[6],1},{x[7],0}}
-x = 11 sol = 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],1},{x[4],0},{x[5],1},{x[6],1},{x[7],0}}
+x = 11 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, x[4]: 0, x[5]: 1, x[6]: 0, x[7]: 1})
+x = 2 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, x[4]: 0, x[5]: 1, x[6]: 1, x[7]: 0})
+x = -13 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 1, x[4]: 0, x[5]: 0, x[6]: 0, x[7]: 1})
+x = 2 sol = Sol(energy=0, {x[0]: 1, x[1]: 0, x[2]: 1, x[3]: 1, x[4]: 1, x[5]: 0, x[6]: 0, x[7]: 1})
+x = -13 sol = Sol(energy=0, {x[0]: 1, x[1]: 1, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 0, x[6]: 1, x[7]: 0})
+x = 11 sol = Sol(energy=0, {x[0]: 1, x[1]: 1, x[2]: 1, x[3]: 1, x[4]: 0, x[5]: 1, x[6]: 1, x[7]: 0})
 ```
 {% endraw %}
 The first line indicates that the integer variable `x` is encoded using 8 binary variables.
@@ -76,8 +76,8 @@ for sol in result.sols:
 This modified program outputs the following unique solutions:
 {% raw %}
 ```
-x = 11 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],0},{x[4],0},{x[5],1},{x[6],0},{x[7],1}}
-x = 2 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],0},{x[4],0},{x[5],1},{x[6],1},{x[7],0}}
-x = -13 sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],1},{x[4],0},{x[5],0},{x[6],0},{x[7],1}}
+x = 11 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, x[4]: 0, x[5]: 1, x[6]: 0, x[7]: 1})
+x = 2 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, x[4]: 0, x[5]: 1, x[6]: 1, x[7]: 0})
+x = -13 sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 1, x[4]: 0, x[5]: 0, x[6]: 0, x[7]: 1})
 ```
 {% endraw %}

@@ -11,9 +11,9 @@ hreflang_lang: "ja"
 # Easy Solver Usage
 The **Easy Solver** is a heuristic solver for QUBO/HUBO expressions.
 
-Solving a problem with the Easy Solver consists of the following three steps:
+Solving a problem with the Easy Solver consists of the following two steps:
 1. Create an Easy Solver (or `qbpp::EasySolver`) object.
-2. Search for solutions by calling the `search()` member function, passing parameters as an initializer list. It returns a `qbpp::easy_solver::Sols` object.
+2. Search for solutions by calling the `search()` member function, passing parameters as an initializer list. It returns a `qbpp::easy_solver::EasySolverSol` object.
 
 ## Creating Easy Solver object
 To use the Easy Solver, an Easy Solver object (or `qbpp::EasySolver`) is constructed with an expression (or `qbpp::Expr`) object as follows:
@@ -34,6 +34,7 @@ The following parameters are available:
 | `enable_default_callback` | Set to `1` to print newly obtained best solutions. | `0` |
 | `topk_sols` | Number of top-k solutions to keep. | (disabled) |
 | `best_energy_sols` | Keep solutions with the best energy. `0` for unlimited count. | (disabled) |
+| `seed` | Random seed. Fixes the random streams used for initial solutions and proposals. Fully reproducible runs are only guaranteed in serial configurations (e.g. `thread_count=1`); with many threads, timing nondeterminism still affects the outcome. | `0` (non-deterministic) |
 
 Parameters are passed as an initializer list to `search()`:
 {% raw %}
@@ -88,62 +89,62 @@ or when a solution with energy 900 or less is found.
 
 For example, this program produces the following output:
 ```
-TTS = 0.000s Energy = 300162 thread = 0 Random
-TTS = 0.000s Energy = 273350 thread = 0 Random(neighbor)
-TTS = 0.000s Energy = 248706 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 226086 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 205274 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 186142 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 168442 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 152134 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 137162 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 123374 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 110650 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 98990 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 88346 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 78678 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 69802 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 61798 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 54626 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 47982 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 42034 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 36598 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 31778 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 27446 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 23658 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 20286 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 17250 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 14614 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 12306 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 10350 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 8682 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 7214 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 5994 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 4990 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 4130 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 3478 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2882 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2414 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2122 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1822 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1706 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1574 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1442 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1350 thread = 0 Greedy(neighbor)
-TTS = 0.007s Energy = 1306 thread = 7 MoveTo
-TTS = 0.008s Energy = 1274 thread = 12 Greedy
-TTS = 0.008s Energy = 1262 thread = 12 Greedy(neighbor)
-TTS = 0.008s Energy = 1202 thread = 12 Greedy(neighbor)
-TTS = 0.016s Energy = 1170 thread = 20 PosMin
-TTS = 0.018s Energy = 1166 thread = 23 PosMin
-TTS = 0.018s Energy = 994 thread = 23 PosMin(neighbor)
-TTS = 0.066s Energy = 986 thread = 7 Greedy
-TTS = 0.066s Energy = 982 thread = 7 Greedy(neighbor)
-TTS = 0.184s Energy = 954 thread = 10 PosMin
-TTS = 0.371s Energy = 942 thread = 12 PosMin
-TTS = 0.912s Energy = 930 thread = 4 PosMin
-TTS = 0.913s Energy = 902 thread = 4 PosMin(neighbor)
-TTS = 2.691s Energy = 898 thread = 15 PosMin
+TTS = 0.000s Energy = 300162
+TTS = 0.000s Energy = 273350
+TTS = 0.000s Energy = 248706
+TTS = 0.000s Energy = 226086
+TTS = 0.000s Energy = 205274
+TTS = 0.000s Energy = 186142
+TTS = 0.000s Energy = 168442
+TTS = 0.000s Energy = 152134
+TTS = 0.000s Energy = 137162
+TTS = 0.000s Energy = 123374
+TTS = 0.001s Energy = 110650
+TTS = 0.001s Energy = 98990
+TTS = 0.001s Energy = 88346
+TTS = 0.001s Energy = 78678
+TTS = 0.001s Energy = 69802
+TTS = 0.001s Energy = 61798
+TTS = 0.001s Energy = 54626
+TTS = 0.001s Energy = 47982
+TTS = 0.001s Energy = 42034
+TTS = 0.001s Energy = 36598
+TTS = 0.001s Energy = 31778
+TTS = 0.001s Energy = 27446
+TTS = 0.001s Energy = 23658
+TTS = 0.002s Energy = 20286
+TTS = 0.002s Energy = 17250
+TTS = 0.002s Energy = 14614
+TTS = 0.002s Energy = 12306
+TTS = 0.002s Energy = 10350
+TTS = 0.002s Energy = 8682
+TTS = 0.002s Energy = 7214
+TTS = 0.002s Energy = 5994
+TTS = 0.002s Energy = 4990
+TTS = 0.002s Energy = 4130
+TTS = 0.002s Energy = 3478
+TTS = 0.003s Energy = 2882
+TTS = 0.003s Energy = 2414
+TTS = 0.003s Energy = 2122
+TTS = 0.003s Energy = 1822
+TTS = 0.003s Energy = 1706
+TTS = 0.003s Energy = 1574
+TTS = 0.003s Energy = 1442
+TTS = 0.003s Energy = 1350
+TTS = 0.007s Energy = 1306
+TTS = 0.008s Energy = 1274
+TTS = 0.008s Energy = 1262
+TTS = 0.008s Energy = 1202
+TTS = 0.016s Energy = 1170
+TTS = 0.018s Energy = 1166
+TTS = 0.018s Energy = 994
+TTS = 0.066s Energy = 986
+TTS = 0.066s Energy = 982
+TTS = 0.184s Energy = 954
+TTS = 0.371s Energy = 942
+TTS = 0.912s Energy = 930
+TTS = 0.913s Energy = 902
+TTS = 2.691s Energy = 898
 898: ++-++-----+--+--++++++---++-+-+--++-------++-++-+-+-+-+-++-++++-++-+++++-+-+--++++++---+++--+++---++
 ```
 
@@ -153,11 +154,11 @@ TTS = 2.691s Energy = 898 thread = 15 PosMin
 The Easy Solver can store **multiple top-k solutions** found during the search.
 To enable this feature, set the `topk_sols` parameter.
 
-Once this parameter is set, the `Sols` object returned by `search()` contains the stored top-k solutions.
-For the returned object sols, you can access the stored solutions using either indices or iterators:
-- **`sols[i]`**: Returns the `i`-th `qbpp::Sol` object.
-- **`size()`**: Returns the number of stored solutions.
-- **`begin()`**, **`end()`**, **`cbegin()`**, **`cend()`**: Iterators that allow you to access each solution in turn using a range-based for loop.
+Once this parameter is set, the `EasySolverSol` object returned by `search()` contains the stored top-k solutions.
+Given the returned object `sols`, you can access the stored solutions by index or by iteration:
+- **`sols.sols[i]`**: Returns the `i`-th `qbpp::Sol` object (indexing the `sols` member vector).
+- **`sols.size()`**: Returns the number of stored solutions.
+- **`begin()`**, **`end()`**: Iterators that let you visit each solution with a range-based for loop (`for (const auto& sol : sols)`).
 
 The following program solves the Low Autocorrelation Binary Sequence (LABS) problem using the Easy Solver.
 Since `topk_sols` is set to `20`, the solver keeps **up to 20 top-k solutions**.

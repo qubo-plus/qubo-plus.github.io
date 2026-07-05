@@ -211,7 +211,7 @@ The callback is invoked with one of the following events:
 | `2` | `EVENT_TIMER` | Called periodically at the interval set by `self.timer(seconds)` |
 
 Inside `callback()`, the following methods are available:
-- **`self.event()`** — current event (int: 0=Start, 1=BestUpdated, 2=Timer)
+- **`self.event()`** — current event, as an integer that compares equal to the `EVENT_*` constants (`EVENT_START`=0, `EVENT_BEST_UPDATED`=1, `EVENT_TIMER`=2)
 - **`self.best_sol()`** — current best solution. Use `.energy`, `.tts`, `.get(var)`, etc. Valid during `BestUpdated`; cached afterwards for `Timer`. Undefined during `Start`.
 - **`self.bound()`** — best objective bound (LP relaxation lower bound, `float`) known to Gurobi at this moment. Refreshed on each Gurobi callback firing. Returns `float("-inf")` until Gurobi has produced its first bound (e.g., during `Start` or before the root LP is solved). Note that `BestUpdated` often fires from a heuristic before the LP runs, so `bound()` may still be `-inf` there; use `Timer` events (which fire after LP processing) to read meaningful bounds.
 - **`self.timer(seconds)`** — set/disable the Timer interval (effective on the next callback boundary)
@@ -272,9 +272,11 @@ For ARM64 Linux, replace `linux64` with `armlinux64`.
 [IBM CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio)
 MIQP — the commercial sibling of Gurobi. A valid CPLEX license is
 required at runtime; the free Community Edition is limited to ~1000
-variables. BQM only::
+variables. BQM only:
 
-    sol = qbpp.CplexSolver(e).search(time_limit=10.0)
+```python
+sol = qbpp.CplexSolver(e).search(time_limit=10.0)
+```
 
 Recognized `search()` kwargs: `time_limit` (s, mapped to
 `parameters.timelimit`), `thread_count` (`parameters.threads`),
@@ -287,12 +289,14 @@ Brute-force enumeration of all `2**n` assignments via
 [`dimod.ExactSolver`](https://docs.ocean.dwavesys.com/projects/dimod/en/latest/reference/sampler_composites/samplers.html).
 Feasible only for small problems (typically `n <= 20`); returns every
 assignment in the SampleSet sorted by energy. Ideal for **verifying**
-a small model or **benchmarking** heuristics::
+a small model or **benchmarking** heuristics:
 
-    sol = qbpp.DimodExactSolver(e).search()
-    print(sol.energy)
-    for s in sol.sols:
-        print(s.energy)
+```python
+sol = qbpp.DimodExactSolver(e).search()
+print(sol.energy)
+for s in sol.sols:
+    print(s.energy)
+```
 
 BQM only; no kwargs (the search is exhaustive).
 
@@ -303,12 +307,15 @@ BQM only; no kwargs (the search is exhaustive).
 a configurable :class:`MinimumEigenOptimizer`. The default eigensolver
 is the **classical** :class:`NumPyMinimumEigensolver` (exact — useful
 for verifying small models). Inject ``QAOA`` / ``VQE`` for quantum
-simulation::
+simulation:
 
-    from qiskit_algorithms import QAOA
-    from qiskit.primitives import Sampler
-    sol = qbpp.QiskitOptimizationSolver(
-        e, eigensolver=QAOA(Sampler(), reps=2)).search()
+```python
+from qiskit_algorithms import QAOA
+from qiskit_algorithms.optimizers import COBYLA
+from qiskit.primitives import Sampler
+sol = qbpp.QiskitOptimizationSolver(
+    e, eigensolver=QAOA(Sampler(), COBYLA(), reps=2)).search()
+```
 
 BQM only — Qiskit's `QuadraticProgram` is quadratic by definition. For
 HUBO via QAOA/VQE you'd need to construct a Pauli Hamiltonian directly;
@@ -367,12 +374,14 @@ parameter:
 
 The native key is still accepted; if both are passed, the native key
 takes precedence. This lets solver-agnostic code use a single
-parameter name across the entire experimental solver suite::
+parameter name across the entire experimental solver suite:
 
-    for cls in [qbpp.DWaveNealSolver, qbpp.OpenJijSolver,
-                qbpp.QubovertSolver, qbpp.HobotanMikasSolver]:
-        sol = cls(e).search(num_reads=200)
-        print(cls.__name__, sol.energy)
+```python
+for cls in [qbpp.DWaveNealSolver, qbpp.OpenJijSolver,
+            qbpp.QubovertSolver, qbpp.HobotanMikasSolver]:
+    sol = cls(e).search(num_reads=200)
+    print(cls.__name__, sol.energy)
+```
 
 ## Platform support
 
@@ -549,16 +558,18 @@ sol = qbpp.DWaveNealSolver(e).search(num_reads=1000)
 
 Common `search()` kwargs (forwarded to
 `SimulatedAnnealingSampler.sample(bqm, **kwargs)`): `num_reads`,
-`num_sweeps`, `beta_range`, `beta_schedule_type`. Like `DWaveSolver`,
+`num_sweeps`, `beta_range`, `beta_schedule_type`, `seed`. Like `DWaveSolver`,
 `time_limit` is rejected and degree must be ≤ 2.
 
 ## DWaveTabuSolver
 
 Tabu-search heuristic via the [`dwave-samplers`](https://docs.ocean.dwavesys.com/en/stable/docs_samplers/)
 package. Classical, local, no token / network. Useful as a non-SA
-baseline alongside `DWaveNealSolver` and `OpenJijSolver`::
+baseline alongside `DWaveNealSolver` and `OpenJijSolver`:
 
-    sol = qbpp.DWaveTabuSolver(e).search(num_reads=10, timeout=2000)
+```python
+sol = qbpp.DWaveTabuSolver(e).search(num_reads=10, timeout=2000)
+```
 
 Common `search()` kwargs forwarded to `TabuSampler.sample()`:
 `num_reads`, `timeout` (milliseconds, *per restart*), `tenure`,
@@ -569,9 +580,11 @@ rejected.
 
 Greedy local descent via `dwave-samplers`. Each initial state is
 descended monotonically to a local minimum — deterministic given the
-seed, fast, and a useful baseline::
+seed, fast, and a useful baseline:
 
-    sol = qbpp.DWaveSteepestDescentSolver(e).search(num_reads=100)
+```python
+sol = qbpp.DWaveSteepestDescentSolver(e).search(num_reads=100)
+```
 
 Common `search()` kwargs: `num_reads`, `initial_states`, `seed`,
 `large_sparse_opt`. BQM only.
@@ -600,18 +613,21 @@ import openjij as oj
 
 # QUBO via SA
 x = qbpp.var("x", 4)
-sol = qbpp.OpenJijSolver(qbpp.sqr(x[0]+x[1]+x[2]+x[3]-1)).search(num_reads=1000)
+f = qbpp.sqr(x[0] + x[1] + x[2] + x[3] - 1)
+f.simplify_as_binary()
+sol = qbpp.OpenJijSolver(f).search(num_reads=1000)
 
 # HUBO degree 3 — sample_hubo() is used automatically
-e = qbpp.Expr(x[0]*x[1]*x[2]) - qbpp.Expr(x[0])
+e = x[0] * x[1] * x[2] - x[0]
+e.simplify_as_binary()
 sol = qbpp.OpenJijSolver(e).search(num_reads=200)
 
-# SQA — only for QUBO; HUBO would error
-sol = qbpp.OpenJijSolver(e_quad, sampler=oj.SQASampler()).search(num_reads=100)
+# SQA — QUBO only (passing the HUBO e would error)
+sol = qbpp.OpenJijSolver(f, sampler=oj.SQASampler()).search(num_reads=100)
 ```
 
 Common `search()` kwargs (forwarded to the underlying sample call):
-`num_reads`, `num_sweeps`, `beta_min`, `beta_max`, `schedule`.
+`num_reads`, `num_sweeps`, `beta_min`, `beta_max`, `schedule`, `seed`.
 `time_limit` is rejected; control runtime via `num_reads` / `num_sweeps`.
 
 ## HobotanMikasSolver
@@ -622,17 +638,21 @@ a PyTorch-based simulated-annealing sampler that handles **HUBO directly**
 token / license / network is required — MIKAS runs locally on CPU or
 GPU (CUDA / MPS) via PyTorch.
 
-Install (the SDK is published only on GitHub, not PyPI)::
+Install (the SDK is published only on GitHub, not PyPI):
 
-    pip install -U git+https://github.com/tytansdk/tytan
-    pip install torch          # CPU build; PyTorch CUDA / MPS auto-detected
+```bash
+pip install -U git+https://github.com/tytansdk/tytan
+pip install torch          # CPU build; PyTorch CUDA / MPS auto-detected
+```
 
-Use::
+Use:
 
-    import pyqbpp as qbpp
-    x = qbpp.var("x", 4)
-    e = qbpp.Expr(x[0]*x[1]*x[2]) + qbpp.Expr(x[1]*x[2]*x[3]) - qbpp.Expr(x[0])
-    sol = qbpp.HobotanMikasSolver(e).search(shots=100)
+```python
+import pyqbpp as qbpp
+x = qbpp.var("x", 4)
+e = qbpp.Expr(x[0]*x[1]*x[2]) + qbpp.Expr(x[1]*x[2]*x[3]) - qbpp.Expr(x[0])
+sol = qbpp.HobotanMikasSolver(e).search(shots=100)
+```
 
 Common `search()` kwargs (forwarded to `MIKASAmpler.run(hobo, **kwargs)`):
 `shots`, `mode` (`"CPU"` / `"GPU"`), `T_init`, `T_end`, `num_sweep`.
@@ -651,9 +671,11 @@ runtime via `shots` / `num_sweep`.
 toolkit. ``QubovertSolver`` uses `qubovert.sim.anneal_pubo` — classical
 simulated annealing on a sparse PUBO (Polynomial Unconstrained Binary
 Optimization) representation, supporting **any degree** with no tensor
-blow-up::
+blow-up:
 
-    sol = qbpp.QubovertSolver(e).search(num_anneals=100)
+```python
+sol = qbpp.QubovertSolver(e).search(num_anneals=100)
+```
 
 No token, no GPU, no native deps — just `pip install qubovert`.
 Negated literals are auto-expanded via `simplify_as_binary(e, all_positive=True)`.
@@ -667,9 +689,11 @@ Common `search()` kwargs (forwarded to `anneal_pubo`):
 [simulated-bifurcation](https://github.com/bqth29/simulated-bifurcation-algorithm)
 implements Toshiba's **Simulated Bifurcation (SB)** algorithm — a fast
 classical heuristic for QUBO/Ising, often competitive with SA on dense
-quadratic problems. PyTorch-based; runs on CPU or GPU::
+quadratic problems. PyTorch-based; runs on CPU or GPU:
 
-    sol = qbpp.SimulatedBifurcationSolver(e).search(agents=128, max_steps=10000)
+```python
+sol = qbpp.SimulatedBifurcationSolver(e).search(agents=128, max_steps=10000)
+```
 
 Common `search()` kwargs (forwarded to `sb.minimize`):
 `agents`, `max_steps`, `mode` (`"ballistic"` / `"discrete"`), `heated`,

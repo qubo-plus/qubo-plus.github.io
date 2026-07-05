@@ -68,7 +68,7 @@ zg1 = qbpp.concat([1, z, 0], axis=1)   # axis=1: guard cols -> 3 x 6
 
 ### Pythonic alternative using `*` (unpack operator)
 
-Python's unpack operator `*` can replace `concat()` by unpacking an array inside an `Array()` constructor:
+Python's unpack operator `*` can replace `concat()` by unpacking an array inside the `qbpp.array()` factory:
 
 ```python
 # 1D: equivalent to concat([1, x, 0])
@@ -94,7 +94,7 @@ For $n$ binary variables, there are exactly $n+1$ domain wall patterns
 (including the all-1 and all-0 patterns),
 so a domain wall can represent an integer in the range $[0, n]$.
 
-Using `concat`, Python slicing (or `head`/`tail`), and `sqr`, we can construct a
+Using `concat`, Python slicing, and `sqr`, we can construct a
 QUBO expression whose minimum-energy solutions are exactly the domain wall
 patterns.
 
@@ -122,8 +122,8 @@ solver = qbpp.ExhaustiveSolver(f)
 sol = solver.search(best_energy_sols=0)
 
 print("energy =", sol.energy)
-print("solutions =", len(sol.all_solutions()))
-for s in sol.all_solutions():
+print("solutions =", len(sol.sols))
+for s in sol.sols:
     bits = "".join(str(s(x[i])) for i in range(n))
     print(f"  {bits}  (sum = {s(qbpp.sum(x))})")
 ```
@@ -132,7 +132,7 @@ for s in sol.all_solutions():
 
 **Step 1: Guard bits with `concat`**
 
-`concat(1, concat(x, 0))` constructs the extended vector:
+`qbpp.concat([1, x, 0])` constructs the extended vector:
 
 $$
 y = (1,\; x_0,\; x_1,\; \ldots,\; x_{n-1},\; 0)
@@ -232,9 +232,9 @@ for i in range(n):
 
 ### How it works
 
-1. **`x`** is $(n{-}1) \times n$. Adding guard rows via `concat(1, concat(x, 0, 0), 0)` along `axis=0` gives $(n{+}1) \times n$, where each column is a domain wall ($1\cdots 1\, 0\cdots 0$). Taking `xg[:n] - xg[-n:]` (equivalent to `head - tail` along `axis=0`) produces an $n \times n$ matrix `x_oh` where each **column** is one-hot.
+1. **`x`** is $(n{-}1) \times n$. Adding guard rows via `qbpp.concat([ones, x, zeros], axis=0)` gives $(n{+}1) \times n$, where each column is a domain wall ($1\cdots 1\, 0\cdots 0$). Taking `xg[:n] - xg[-n:]` (the first $n$ rows minus the last $n$ rows) produces an $n \times n$ matrix `x_oh` where each **column** is one-hot.
 
-2. **`y`** is $n \times (n{-}1)$. Adding guard columns via `concat(1, concat(y, 0, 1), 1)` along `axis=1` gives $n \times (n{+}1)$, where each row is a domain wall. Taking `yg[:, :n] - yg[:, -n:]` (equivalent to `head - tail` along `axis=1`) produces an $n \times n$ matrix `y_oh` where each **row** is one-hot.
+2. **`y`** is $n \times (n{-}1)$. Adding guard columns via `qbpp.concat([ones, y, zeros], axis=1)` gives $n \times (n{+}1)$, where each row is a domain wall. Taking `yg[:, :n] - yg[:, -n:]` (the first $n$ columns minus the last $n$ columns) produces an $n \times n$ matrix `y_oh` where each **row** is one-hot.
 
 3. **`x_oh == y_oh`**: Both are $n \times n$, so they can be directly compared without transposition. When matched, the resulting matrix has exactly one 1 in each row and each column — a **permutation matrix**.
 
@@ -242,7 +242,7 @@ for i in range(n):
 
 - **`x[:n]` / `x[-n:]`**: Python slice notation for first/last elements.
 - **`x[:, :n]` / `x[:, -n:]`**: Tuple indexing for slicing along inner dimensions.
-- **`concat(1, x, 0)`** (`axis=0`): Adds a guard row of 1s at the top.
+- **`qbpp.concat([1, x, 0], axis=0)`**: Adds a guard row of 1s at the top.
 - **`concat(1, x, 1)`** (`axis=1`): Prepends 1 to each row.
 
 ### Output

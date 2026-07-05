@@ -45,7 +45,7 @@ Then the tour length for a permutation matrix $X$ can be written as:
 
 $$
 \begin{aligned}
-{\rm objective}: &\sum_{k=0}^{k-1} d_{i,j}x_{k,i}x_{(k+1)\bmod n,j}
+{\rm objective}: &\sum_{k=0}^{n-1}\sum_{i=0}^{n-1}\sum_{j=0}^{n-1} d_{i,j}x_{k,i}x_{(k+1)\bmod n,j}
 \end{aligned}
 $$
 
@@ -132,7 +132,7 @@ the exact tour length as a `float` (e.g. `960.443`) instead of the sum of rounde
 ## A more concise objective using slicing, `concat`, and `einsum`
 
 The triple for-loop that builds `objective` is a direct translation of the formula
-$\sum_{k} d_{j,k}\, x_{k,j}\, x_{(k+1) \bmod n, k}$,
+$\sum_{i,j,k} d_{j,k}\, x_{i,j}\, x_{(i+1) \bmod n, k}$,
 but it can also be written as a single call to
 [`qbpp.einsum`](EINSUM) once two auxiliary arrays are prepared:
 
@@ -231,7 +231,7 @@ Finally, the permutation matrix represented by `full_sol(x)` is converted into a
 
 This program produces the following tour starting from node 0:
 ```
-Tour: [0, 3, 6, 7, 8, 5, 2, 1, 4]
+Tour: [0, 3, 6, 7, 8, 5, 2, 4, 1]
 ```
 
 ## Visualization using matplotlib

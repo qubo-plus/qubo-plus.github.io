@@ -59,7 +59,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   std::set<int> s;
   for (const auto& sol : sols) {
     s.insert(static_cast<int>(sol(v)));

@@ -68,7 +68,7 @@ pip install pyqbpp-<VERSION>-py3-none-manylinux_2_31_x86_64.whl
 Replace `<VERSION>` with the actual release version and choose the wheel that matches your CPU architecture (`x86_64` for amd64, `aarch64` for arm64).
 
 No environment variable configuration is required.
-The wheel bundles all shared libraries (`qbpp_*.so`, `easysolver_*.so`, `exhaustive_*.so`) and the `qbpp-license` command inside the package; `pip` installs them under your virtual environment automatically.
+The wheel bundles all shared libraries (`qbpp_*.so`, `easysolver_*.so`, `exhaustive_*.so`, `abs3_*.so`) and the `qbpp-license` command inside the package; `pip` installs them under your virtual environment automatically.
 
 ## Importing PyQBPP
 

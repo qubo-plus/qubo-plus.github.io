@@ -233,7 +233,7 @@ In addition, arrays support the following operators for element-wise operations:
 - **`-`**: Element-wise subtraction of two arrays, or an array and a scalar.
 - **`*`**: Element-wise multiplication of two arrays, or an array and a scalar.
 - unary **`-`**: Negates all elements in the array.
-- unary **`~`**: Negates all variable literals in the array.
+- unary **`~`** (variable arrays only): Negates all variable literals in the array.
 
 Multi-dimensional arrays are implemented as a single flat array with shape information.
 For example, `x` in the following code is a 2D array of variables with shape `(2, 3)`:
@@ -267,6 +267,9 @@ Here, `f.total()` returns the total number of elements, `f.ndim()` the number of
 
 This program outputs:
 ```
+total = 6
+ndim = 2
+shape = (2, 3)
 (-1 +2*x[0][0])(-1 +2*x[0][1])(-1 +2*x[0][2])
 (-1 +2*x[1][0])(-1 +2*x[1][1])(-1 +2*x[1][2])
 ```

@@ -46,6 +46,7 @@ solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 
 print("sol =", sol)
 print("ml =", ml)
@@ -71,9 +72,9 @@ To construct a complete solution that includes all variables, we create a zero-i
 From the output below, we can confirm that 64 is placed in $P$ and 27 is placed in $Q$, as intended:
 {% raw %}
 ```
-sol = 4:{{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+sol = Sol(energy=4, {x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 ml = {x[0]: 1, x[1]: 0}
-full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+full_sol = Sol(energy=4, {x[0]: 1, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 f(full_sol) = 4
 p(full_sol) = 206
 q(full_sol) = 204
@@ -98,6 +99,7 @@ solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 ```
 In this program, a dict `ml` is defined so that the variable `x[0]` is replaced by the negated literal `~x[1]`.
 
@@ -108,14 +110,14 @@ The Exhaustive Solver is then used to find an optimal solution for `g`, which is
 Since `x[0]` does not appear in `g`, the solution `sol` also does not include an assignment for `x[0]`.
 
 To construct a complete solution over the original variables in `f`, we start with a zero-initialized solution via `qbpp.Sol(f)` and then populate it by calling `set(sol, ml)`.
-Note that `sol` and `ml` must be passed to `set()` together (as a list), because the mapping in `ml` (e.g., `x[0] = ~x[1]`) may depend on variable values contained in `sol`.
+Note that `sol` and `ml` must be passed together as the two arguments `set(sol, ml)`, because the mapping in `ml` (e.g., `x[0] = ~x[1]`) may depend on variable values contained in `sol`.
 
 This program produces the following output:
 {% raw %}
 ```
-sol = 4:{{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+sol = Sol(energy=4, {x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 ml = {x[0]: ~x[1]}
-full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+full_sol = Sol(energy=4, {x[0]: 1, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 f(full_sol) = 4
 p(full_sol) = 206
 q(full_sol) = 204
@@ -169,6 +171,7 @@ solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
 ```
 In this program, a dict `ml` is used to fix the values of the integer variables
@@ -232,11 +235,10 @@ This confirms that the division result $q=r/p=7$ is correctly obtained.
 > ```
 
 > **NOTE: `replace()` on constraint expressions**
-> The member function `replace()` is **not** available on constraint expressions.
-> Use the free function form instead:
-> ```python
-> ee2 = qbpp.replace(ee, {x: 0, y: 1})  # works with a constraint expression
-> ```
+> Applying `replace()` (either the member function or the free function) to a
+> constraint expression yields a plain expression without the constraint
+> metadata (`body`). If you need the result to act as a constraint, apply
+> `qbpp.constrain()` to the replaced expression again.
 
 > **NOTE: Mapping as a list of tuples**
 > The mapping `ml` can also be supplied as a list of `(var, value)` tuples

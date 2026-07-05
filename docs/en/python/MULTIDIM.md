@@ -101,13 +101,12 @@ import pyqbpp as qbpp
 max_vals = qbpp.array([3, 7, 15, 5])
 x = qbpp.var("x", shape=len(max_vals), equal=0)
 for i in range(len(max_vals)):
-    x[i] = qbpp.constrain(x[i], between=(0, max_vals[i]))
+    x[i] = qbpp.var(between=(0, max_vals[i]))
 for i in range(len(max_vals)):
     print(f"x[{i}] = {x[i]}")
 ```
 Here, `qbpp.var("x", shape=4, equal=0)` creates a mutable array of 4 integer variable placeholders, each initialized with the constant value 0.
-Each element is then reassigned with its own range using `qbpp.constrain(x[i], between=(0, max_vals[i]))`.
-The `qbpp.constrain()` function automatically inherits the name from the placeholder, so no explicit name is needed.
+Each element is then reassigned with an integer variable of its own range returned by `qbpp.var(between=(0, max_vals[i]))` (unnamed; auto-named `{0}`, `{1}`, ...).
 
 > **NOTE**
 > The `equal=` value can be any integer (not just 0). It allocates a mutable array in memory where each element can be individually reassigned.
@@ -236,7 +235,7 @@ You can convert a Python list into an array using `qbpp.array()`:
 w = qbpp.array([64, 27, 47, 74, 12, 83, 63, 40])
 ```
 
-Once converted, the array supports element-wise arithmetic (`+`, `-`, `*`, `/`, `~`), `sum()`, `sqr()`, `simplify()`, and other QUBO++ functions efficiently.
+Once converted, the array supports element-wise arithmetic (`+`, `-`, `*`), `sum()`, and other QUBO++ functions efficiently (`~` is for variable arrays only; `/`, `sqr()`, `simplify()` operate on expression arrays).
 
 ### When you don't need `qbpp.array()`
 

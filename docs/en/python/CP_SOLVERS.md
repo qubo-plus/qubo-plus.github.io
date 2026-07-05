@@ -33,9 +33,11 @@ minimizes the resulting linear objective. **HUBO of any degree** works
 with the same encoding, and **negated literals are handled natively**
 via CP-SAT's ``BoolVar.Not()`` — no ``all_positive`` expansion is
 applied (which would multiply each m-negation monomial into 2^m
-sub-terms)::
+sub-terms):
 
-    sol = qbpp.OrToolsCpSatSolver(e).search(time_limit=5.0)
+```python
+sol = qbpp.OrToolsCpSatSolver(e).search(time_limit=5.0)
+```
 
 This makes `OrToolsCpSatSolver` the only external solver in PyQBPP that
 accepts arbitrary-degree HUBO **and** negated literals natively while

@@ -36,7 +36,7 @@ int main() {
   auto g = f + c;
   g.simplify_as_binary();
   auto solver = qbpp::EasySolver(g);
-  auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 10}});
+  auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 0}});
   for (const auto& sol : sols) {
     std::cout << "x=" << sol(x) << ", y=" << sol(y) << ", z=" << sol(z)
               << ", f.body()=" << f.body(sol) << ", c.body()=" << c.body(sol) << std::endl;
@@ -54,7 +54,7 @@ int main() {
 
 `g` に対してEasy Solverオブジェクト `solver` を作成し、`search()` に初期化子リストとして以下のオプションを渡します:
 - `"time_limit"` を `10.0` に設定: 10秒後に探索を終了します。
-- `"best_energy_sols"` を `10` に設定: 最良（最低）エネルギーの解を最大10個保持します。
+- `"best_energy_sols"` を `0` に設定: 最良（最低）エネルギーを共有する解をすべて保持します（`0` は無制限）。
 
 `search()` の呼び出しは、最良の解を格納する `qbpp::easy_solver::Sols` オブジェクト `sols` を返します。
 `qbpp::easy_solver::Sols` は格納された最良エネルギー解へのイテレータアクセス（`begin()`、`end()`、`cbegin()`、`cend()`）を提供するため、範囲ベースのforループで出力できます。

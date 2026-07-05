@@ -83,7 +83,7 @@ hreflang_lang: "en"
 | 算術 (右辺 制約式) | `ee1 + ee2` | `Expr` | penalty 同士 |
 | グローバル関数 | `qbpp.sqr(ee)`, `qbpp.simplify_as_binary(ee)`, `qbpp.replace(ee, ml)` | `Expr` | penalty に適用 |
 | プロパティ | `ee.body`, `str(ee)` | `Expr` / `str` | clone |
-| 解での評価 | `sol(ee)` (penalty を評価), `sol(ee.body)` (body を評価) | `coeff_t` | 制約満足度の検証 |
+| 解での評価 | `sol(ee)` (penalty を評価), `sol(ee.body)` (body を評価) | `int` | 制約満足度の検証 |
 | **複合代入** | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee //= 2`, `ee /= 2` | (`ee` が通常の式相当に) | **body は参照不可に** |
 | **二乗** | `ee.sqr()` | (`ee` が通常の式相当に) | |
 | **置換** | `ee.replace(ml)` | (`ee` が通常の式相当に) | |
@@ -140,7 +140,7 @@ penalty = qbpp.sum(onehot)                       # Expr (全制約の合計)
 C++ / Python とも `+=` 等の式変更操作は許可されますが、その後の挙動が異なります:
 
 - **C++**: 同じ object の内部状態が通常の式相当に変わる。固有 accessor 呼出は runtime error
-- **Python**: 同じ `_handle` の中身が変わる。Python の object identity は保たれるが、固有 accessor は同じく runtime error
+- **Python**: 同じオブジェクトの中身が変わる。Python の object identity は保たれるが、固有 accessor は同じく runtime error
 
 ---
 

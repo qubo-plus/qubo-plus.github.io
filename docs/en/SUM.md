@@ -77,7 +77,7 @@ vector_sum[1][1] = 3 +x[1][1][0] +x[1][1][1] +x[1][1][2]
 vector_sum[1][2] = 3 +x[1][2][0] +x[1][2][1] +x[1][2][2]
 ```
 The same results can be obtained using explicit for-loops.
-However, for large arrays, it is recommended to use `qbpp::sum()` and `qbpp::vector_sum()`, since these functions internally exploit multithreading to accelerate computation.
+However, for large arrays, it is recommended to use `qbpp::sum()` and `qbpp::vector_sum()`, since these functions exploit internal multithreading for large arrays (`sum()` of expression arrays and `vector_sum()`) to accelerate computation.
 
 ## Specifying the axis in `vector_sum()`
 

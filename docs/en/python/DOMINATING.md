@@ -154,13 +154,13 @@ $$
 and `(1 <= t) & (qbpp.same <= len(adj[i]) + 1)` creates a penalty expression for
 
 $$
-1\leq \sum_{j\in N[i]}x_j \leq |N[i]|+1,
+1\leq \sum_{j\in N[i]}x_j \leq |N[i]|,
 $$
 
 which takes the minimum value 0 if and only if the inequality is satisfied.
 By minimizing `f`, the program finds a minimum dominating set.
 
-Note that PyQBPP requires an explicit finite upper bound for `between`. Using $|N[i]|+1$ is sufficient because $\sum_{j\in N[i]}x_j$ cannot exceed $|N[i]|$.
+Note that PyQBPP requires an explicit finite upper bound for `between`. Using $|N[i]|$ is sufficient because $\sum_{j\in N[i]}x_j$ cannot exceed $|N[i]|$.
 
 ## Visualization using matplotlib
 The following code visualizes the Dominating Set solution:

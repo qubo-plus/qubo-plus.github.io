@@ -103,7 +103,7 @@ Exhaustive Solver を `f` に適用して最適解を探索します。
 得られた解 `sol` は可視化され、`vertexcover.svg` として保存されます。
 
 このプログラムは以下の出力を生成します:
-```cpp
+```
 objective = 9
 constraint = 0
 ```

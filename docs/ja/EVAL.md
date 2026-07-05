@@ -39,7 +39,7 @@ int main() {
 
 {% raw %}
 ```
-{{x,0},{y,1},{z,1}}
+{x: 0, y: 1, z: 1}
 f(0,1,1) = 4
 ```
 {% endraw %}
@@ -119,12 +119,12 @@ int main() {
 {% endraw %}
 このプログラムでは、`sol.energy()` は正しく0を返します。
 しかし、変数 `z` をフリップした後、キャッシュされたエネルギー値は無効になります。
-エネルギーを再計算せずに `sol.energy()` を呼び出すと、以下のように**ランタイムエラー**が発生します:
+キャッシュが無効な状態では、`sol.energy()` の呼び出しだけでなく `std::cout << sol` による表示もエネルギーを読むため、以下のように**ランタイムエラー**が発生します（この例ではフリップ直後の出力行で発生）:
 {% raw %}
 ```
 sol = 0:{{x,1},{y,0},{z,1}}
 energy = 0
-terminate called after throwing an instance of 'std::runtime_error'
+qbpp: Sol::energy(): energy is invalid (variable changed after last computation). Call comp_energy() first.
 ```
 {% endraw %}
 この問題を解決するには、解を変更した後に **`sol.comp_energy()`** を呼び出してエネルギーを明示的に再計算する必要があります:

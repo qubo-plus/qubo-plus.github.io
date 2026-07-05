@@ -110,7 +110,7 @@ int main() {
 ```
 Bar 0:  2  0  0  3   used = 59, waste = 1
 Bar 1:  4  0  1  0   used = 60, waste = 0
-Bar 2:1  1  3  0   used = 60, waste = 0
+Bar 2:  1  1  3  0   used = 60, waste = 0
 Bar 3:  0  0  4  2   used = 54, waste = 6
 Bar 4:  2  1  0  1   used = 60, waste = 0
 Bar 5:  1  2  0  0   used = 59, waste = 1

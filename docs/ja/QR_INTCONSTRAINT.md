@@ -45,7 +45,7 @@ hreflang_lang: "en"
 | 比較 (== int) | `vi == 5` | `Expr` (制約式) | 制約生成 |
 | 比較 (範囲) | `2 <= vi <= 5` | `Expr` (制約式) | between 制約 |
 | グローバル関数 | `qbpp::sqr(vi)`, `qbpp::simplify(vi)`, `qbpp::sqr(vi - 3)` | `Expr` | |
-| 整数変数固有メタ情報 | `vi.min_val()`, `vi.max_val()` | `coeff_t` | read-only |
+| 整数変数固有メタ情報 | `vi.min_val()`, `vi.max_val()` | `energy_t` | read-only |
 | 整数変数固有構造メンバ | `vi.var_count()`, `vi.coeff(i)`, `vi.get_var(i)`, `vi[i]` | 各種 | read-only |
 | 配列アクセス | `vi.vars()`, `vi.coeffs()` | `Array<1, ...>` | read-only |
 | **複合代入** | `vi += 1`, `vi -= 1`, `vi *= 2`, `vi /= 2` | `Expr&` | **以後は通常の式相当**（固有メタは破棄） |
@@ -78,7 +78,7 @@ hreflang_lang: "en"
 | 算術 (右辺 制約式) | `ee1 + ee2`, `ee * ee` | `Expr` | penalty 同士 |
 | グローバル関数 | `qbpp::sqr(ee)`, `qbpp::simplify_as_binary(ee)`, `qbpp::replace(ee, ml)` | `Expr` | penalty に適用 |
 | body 取得 | `ee.body()` | `Expr` | clone |
-| 解での評価 | `sol(ee)` (penalty を評価), `ee.body(sol)` (body を評価) | `coeff_t` | 制約満足度の検証に使用 |
+| 解での評価 | `sol(ee)` (penalty を評価), `ee.body(sol)` (body を評価) | `energy_t` | 制約満足度の検証に使用 |
 | **複合代入** | `ee += 1`, `ee -= 1`, `ee *= 2`, `ee /= 2` | `Expr&` | **以後は通常の式相当**（body 参照不可に） |
 | **二乗** | `ee.sqr()` | `Expr&` | **以後は通常の式相当** |
 | **置換** | `ee.replace(ml)` | `Expr&` | **以後は通常の式相当** |
@@ -125,7 +125,7 @@ auto onehot = (rows == 1);                     // Array<1, Expr> の制約式
 auto penalty = qbpp::sum(onehot);              // Expr (全制約の合計)
 ```
 
-要素ごとの `body` アクセスは `*arr[i]`。
+要素ごとの `body` アクセスは `qbpp::Expr(arr[i]).body()`。
 
 ---
 

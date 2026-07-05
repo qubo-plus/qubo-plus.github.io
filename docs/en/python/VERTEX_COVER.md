@@ -94,6 +94,7 @@ This program prints the following output:
 ```
 objective = 9
 constraint = 0
+Selected nodes: 1 2 6 7 8 10 12 13 15
 ```
 An optimal solution with objective value 9 and constraint value 0 is obtained.
 

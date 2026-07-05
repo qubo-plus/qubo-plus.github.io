@@ -29,6 +29,7 @@ $$
 上記のアイデアに基づき、以下のQUBO++プログラムは2つの整数 `P = 858` と `Q = 693` の最大公約数を計算します:
 {% raw %}
 ```cpp
+#define INTEGER_TYPE_C64E64
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -39,7 +40,7 @@ int main() {
   auto q = 1 <= qbpp::var_int("q") <= 1000;
   auto r = 1 <= qbpp::var_int("r") <= 1000;
 
-  auto constraint = (p * r == Q) + (q * r == P);
+  auto constraint = (p * r == P) + (q * r == Q);
   auto f = -r + constraint * 1000;
 
   f.simplify_as_binary();
@@ -54,6 +55,7 @@ int main() {
 ```
 {% endraw %}
 このプログラムでは、`p`、`q`、`r` は $[1,1000]$ の範囲の整数変数として定義されています。
+二乗ペナルティ項を展開すると係数が $10^{13}$ 程度に達し、デフォルトの32ビット `coeff_t` を超えるため、ヘッダのインクルード前に `INTEGER_TYPE_C64E64` を定義して64ビットの係数・エネルギーを使用します（整数型マクロの一覧は [FACTORIZATION](FACTORIZATION) 参照）。
 式 constraint は、両方の制約が満たされたときにゼロに評価されるように構成されています。
 
 目的関数 `-r` はペナルティ係数 `1000` を掛けた制約項と組み合わされ、結果の式が `f` に格納されます。
@@ -62,7 +64,7 @@ EasySolverは `f` を最小化する解を探索します。
 得られた `p`、`q`、`r` の値は以下のように出力されます:
 ```
 GCD = 33
-21 * 33 = 858
-26 * 33 = 693
+26 * 33 = 858
+21 * 33 = 693
 ```
 この出力から、858と693の最大公約数が正しく33として得られたことが確認できます。

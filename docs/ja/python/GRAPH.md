@@ -104,7 +104,7 @@ print()
 ```
 objective = -7
 constraint = 0
-Selected nodes: 0 4 5 9 11 13 14
+Selected nodes: 0 3 4 5 9 11 15
 ```
 これは、得られた解が7個のノードを選択し、すべての制約を満たしていることを意味します。
 

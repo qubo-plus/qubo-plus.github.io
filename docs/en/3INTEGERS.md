@@ -37,7 +37,7 @@ The strict inequalities $x<y<z$ can be encoded as
 
 $$
 \begin{aligned}
-1 &\leq y-z \\
+1 &\leq y-x \\
 1 &\leq z-y
 \end{aligned}
 $$
@@ -62,7 +62,7 @@ int main() {
   auto f = c1 + c2 + c3;
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
 
   std::set<std::tuple<qbpp::energy_t, qbpp::energy_t, qbpp::energy_t>> seen;
   for (const auto& sol : sols) {

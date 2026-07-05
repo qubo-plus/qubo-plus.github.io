@@ -172,7 +172,7 @@ Subclass the solver and override the `callback()` virtual method:
 Inside the callback: **`event()`**, **`best_sol()`** (current best `qbpp::Sol`),
 **`bound()`** (current dual bound), **`timer(seconds)`** (set/disable the timer),
 and **`terminate()`** (stop the search at the next safe point). `hint(sol)` warm-
-starts SCIP and HiGHS; it is a no-op for GLPK.
+starts SCIP and HiGHS; it is a no-op for GLPK and CBC.
 
 {% raw %}
 ```cpp

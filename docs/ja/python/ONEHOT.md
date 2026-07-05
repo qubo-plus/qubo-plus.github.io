@@ -53,8 +53,8 @@ print("onehot_to_int =", result)
 
 {% raw %}
 ```
-x = {{0,0,0,1,0},{1,0,0,0,0},{0,0,1,0,0},{0,1,0,0,0},{0,0,0,0,1}}
-onehot_to_int = {3,0,2,1,4}
+x = [[0, 0, 0, 1, 0], [1, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 1, 0, 0, 0], [0, 0, 0, 0, 1]]
+onehot_to_int = [3, 0, 2, 1, 4]
 ```
 {% endraw %}
 
@@ -69,8 +69,8 @@ onehot_to_int = {3,0,2,1,4}
 - **`onehot_to_int(arr, axis=0)`**: 各列をデコード、$[0, n-1]$ の $m$ 個の整数を返す。
 
 ```python
-row_result = qbpp.onehot_to_int(sol(x))          # {3,0,2,1,4}
-col_result = qbpp.onehot_to_int(sol(x), axis=0)  # {1,3,2,0,4}
+row_result = qbpp.onehot_to_int(sol(x))          # [3, 0, 2, 1, 4]
+col_result = qbpp.onehot_to_int(sol(x), axis=0)  # [1, 3, 2, 0, 4]
 ```
 
 `x` が置換行列の場合、`onehot_to_int(sol(x))` は順列 $\sigma$ を、
@@ -84,7 +84,7 @@ col_result = qbpp.onehot_to_int(sol(x), axis=0)  # {1,3,2,0,4}
 ```python
 v = qbpp.var("v", shape=4)
 # ... v = {0, 0, 1, 0} となるように求解 ...
-idx = qbpp.onehot_to_int(sol(v))  # {2}
+idx = qbpp.onehot_to_int(sol(v))  # [2]
 ```
 
 ### 高次元配列

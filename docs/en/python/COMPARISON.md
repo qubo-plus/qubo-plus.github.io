@@ -272,9 +272,9 @@ $$
 This program produces output such as:
 {% raw %}
 ```
-a=0, b=1, c=0, f=0, body=9, sol=0:{{a,0},{b,1},{c,0},{{s0}[0],0},{{s0}[1],1},{{s0}[2],0}}
-a=0, b=1, c=0, f=0, body=9, sol=0:{{a,0},{b,1},{c,0},{{s0}[0],1},{{s0}[1],0},{{s0}[2],1}}
-a=1, b=1, c=0, f=0, body=13, sol=0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1}}
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
 ```
 {% endraw %}
 
@@ -336,10 +336,13 @@ which is automatically replaced by 24.
 This program produces output such as:
 {% raw %}
 ```
-a=0, b=1, c=1, f=0, body=20, sol=0:{{a,0},{b,1},{c,1},{{s0}[0],1},{{s0}[1],0},{{s0}[2],1}}
-a=0, b=1, c=1, f=0, body=20, sol=0:{{a,0},{b,1},{c,1},{{s0}[0],1},{{s0}[1],1},{{s0}[2],0}}
-a=1, b=0, c=1, f=0, body=15, sol=0:{{a,1},{b,0},{c,1},{{s0}[0],0},{{s0}[1],0},{{s0}[2],0}}
-a=1, b=1, c=1, f=0, body=24, sol=0:{{a,1},{b,1},{c,1},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1}}
+a=1, b=0, c=1, f=0, body=15, sol=Sol(energy=0, {a: 1, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0, {s0}[3]: 0})
+a=1, b=0, c=1, f=0, body=15, sol=Sol(energy=0, {a: 1, b: 0, c: 1, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 0, {s0}[3]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1, {s0}[3]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 1, {s0}[3]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 0, {s0}[3]: 1})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 1, {s0}[3]: 1})
+a=1, b=1, c=1, f=0, body=24, sol=Sol(energy=0, {a: 1, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1, {s0}[3]: 1})
 ```
 {% endraw %}
 
@@ -366,11 +369,15 @@ which is automatically replaced by 0.
 This program produces output such as:
 {% raw %}
 ```
-a=0, b=0, c=0, f=0, body=0, sol=0:{{a,0},{b,0},{c,0},{{s0}[0],0},{{s0}[1],0},{{s0}[2],0}}
-a=0, b=0, c=1, f=0, body=11, sol=0:{{a,0},{b,0},{c,1},{{s0}[0],0},{{s0}[1],1},{{s0}[2],1}}
-a=0, b=1, c=0, f=0, body=9, sol=0:{{a,0},{b,1},{c,0},{{s0}[0],1},{{s0}[1],0},{{s0}[2],1}}
-a=1, b=0, c=0, f=0, body=4, sol=0:{{a,1},{b,0},{c,0},{{s0}[0],0},{{s0}[1],1},{{s0}[2],0}}
-a=1, b=1, c=0, f=0, body=13, sol=0:{{a,1},{b,1},{c,0},{{s0}[0],1},{{s0}[1],1},{{s0}[2],1}}
+a=0, b=0, c=0, f=0, body=0, sol=Sol(energy=0, {a: 0, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0, {s0}[3]: 0})
+a=1, b=0, c=0, f=0, body=4, sol=Sol(energy=0, {a: 1, b: 0, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 0, {s0}[3]: 0})
+a=1, b=0, c=0, f=0, body=4, sol=Sol(energy=0, {a: 1, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 1, {s0}[3]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0, {s0}[3]: 1})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 0, {s0}[3]: 1})
+a=0, b=0, c=1, f=0, body=11, sol=Sol(energy=0, {a: 0, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 1, {s0}[3]: 1})
+a=0, b=0, c=1, f=0, body=11, sol=Sol(energy=0, {a: 0, b: 0, c: 1, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1, {s0}[3]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 1, {s0}[3]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1, {s0}[3]: 1})
 ```
 {% endraw %}
 
@@ -408,9 +415,10 @@ applied element-wise and an array of constraint expressions is returned.
 > **NOTE**
 > Only `int` is accepted on the right-hand side. The form `expression1 <= expression2` is
 > not supported; rewrite it as `(expression1 - expression2) <= 0`, or use `qbpp.constrain()`
-> with an explicit `between=` range. Variable-identity comparisons such as `var1 == var2`
-> (returning a boolean for use as dictionary keys) are unaffected, as the operator overloads
-> are defined only on `Expr` and arrays of expressions.
+> with an explicit `between=` range. Comparing a bare `Var`/`Term` with an integer, such as
+> `x == 3`, also builds a constraint expression. However, comparisons **between variables**
+> such as `var1 == var2` remain identity tests (returning a boolean for use as dictionary
+> keys) and do not build constraints.
 
 ## Chained Range Constraint with `qbpp.same`
 
@@ -428,7 +436,7 @@ appear on either side of `&` and any consistent combination of `<=` and `>=` is 
 
 The point of using `qbpp.same` is that even when `f` is a large expression or array,
 **only one set of auxiliary variables** is introduced for the two-sided constraint.
-The resulting QUBO is identical to `qbpp.constrain(f, between=(l, u))`.
+The resulting QUBO is exactly identical to `qbpp.constrain(f, between=(l, u))`, including the auxiliary-variable assignment — a one-sided constraint is evaluated lazily and allocates no auxiliaries until it is merged by `&`.
 
 ### PyQBPP Program Using the Chained Syntax
 

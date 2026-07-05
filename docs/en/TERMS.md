@@ -34,3 +34,4 @@ QUBO++ includes the following third-party libraries:
 
 - **Boost C++ Libraries** — Licensed under the [Boost Software License, Version 1.0](https://www.boost.org/LICENSE_1_0.txt).
 - **xxHash** — Licensed under the [BSD 2-Clause License](https://opensource.org/license/bsd-2-clause). Copyright Yann Collet.
+- **OpenSSL 1.1.1** — Licensed under the [OpenSSL License and SSLeay License](https://www.openssl.org/source/license-openssl-ssleay.txt). This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). This product includes cryptographic software written by Eric Young (eay@cryptsoft.com).

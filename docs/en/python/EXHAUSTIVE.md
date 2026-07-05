@@ -39,7 +39,7 @@ The following parameters are available:
 | `verbose` | int (0 or 1) | Set to `1` to display the search progress as a percentage, which is helpful for estimating the total runtime. | `0` |
 | `enable_default_callback` | int (0 or 1) | Set to `1` to print the energy and TTS of every newly obtained best solution. | `0` |
 | `topk_sols` | int | Collects the top-k solutions with the lowest energy. | (disabled) |
-| `best_energy_sols` | int (0 or 1) | Set to `1` to collect all optimal solutions (those with the minimum energy). | (disabled) |
+| `best_energy_sols` | int | Collects optimal solutions (those with the minimum energy). The value is the maximum number to keep; `0` means unlimited (collect all). | (disabled) |
 | `all_sols` | int (0 or 1) | Set to `1` to collect all $2^n$ solutions. Memory usage grows exponentially with the number of variables `n`, so use this only when `n` is small. | (disabled) |
 
 Parameters are passed as keyword arguments to `search()`:
@@ -87,25 +87,46 @@ print(f"{sol.energy}: {bits}")
 The output of this program is as follows:
 {% raw %}
 ```
-TTS = 0.002s Energy = 1786
-TTS = 0.003s Energy = 314
-TTS = 0.003s Energy = 206
-TTS = 0.003s Energy = 154
-TTS = 0.003s Energy = 102
-TTS = 0.003s Energy = 94
-TTS = 0.003s Energy = 74
-TTS = 0.003s Energy = 66
-TTS = 0.003s Energy = 50
-TTS = 0.006s Energy = 46
-TTS = 0.011s Energy = 34
-TTS = 0.014s Energy = 26
-26: -++---++-+---+-+++++
+TTS = 0.000s Energy = 1786
+TTS = 0.000s Energy = 1246
+TTS = 0.000s Energy = 1190
+TTS = 0.000s Energy = 890
+TTS = 0.000s Energy = 826
+TTS = 0.000s Energy = 646
+TTS = 0.000s Energy = 566
+TTS = 0.000s Energy = 542
+TTS = 0.000s Energy = 530
+TTS = 0.000s Energy = 478
+TTS = 0.000s Energy = 442
+TTS = 0.000s Energy = 410
+TTS = 0.000s Energy = 346
+TTS = 0.000s Energy = 322
+TTS = 0.000s Energy = 306
+TTS = 0.000s Energy = 290
+TTS = 0.000s Energy = 286
+TTS = 0.000s Energy = 274
+TTS = 0.000s Energy = 246
+TTS = 0.000s Energy = 214
+TTS = 0.000s Energy = 158
+TTS = 0.001s Energy = 150
+TTS = 0.001s Energy = 122
+TTS = 0.001s Energy = 114
+TTS = 0.001s Energy = 110
+TTS = 0.001s Energy = 98
+TTS = 0.001s Energy = 82
+TTS = 0.001s Energy = 74
+TTS = 0.001s Energy = 66
+TTS = 0.002s Energy = 54
+TTS = 0.004s Energy = 50
+TTS = 0.005s Energy = 34
+TTS = 0.021s Energy = 26
+26: -+-+----+----++-++--
 ```
 {% endraw %}
 All optimal solutions can be obtained by setting `best_energy_sols` as follows:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search(best_energy_sols=1)
+sol = solver.search(best_energy_sols=0)
 for s in sol.sols:
     bits = "".join("-" if s(x[i]) == 0 else "+" for i in range(size))
     print(f"{s.energy}: {bits}")

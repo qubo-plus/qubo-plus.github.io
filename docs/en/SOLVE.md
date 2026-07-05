@@ -126,11 +126,17 @@ The output of this program is as follows:
 0:{{a,0},{b,1},{c,1},{d,0}}
 ```
 {% endraw %}
+`std::cout << sol` prints only the best solution found by default.
+The list of all collected solutions is accessible through the member **`sol.sols`**, which is a list of solutions sorted in ascending order of energy.
+
 All optimal solutions can be obtained by setting the `best_energy_sols` parameter as follows:
 {% raw %}
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sol = solver.search({{"best_energy_sols", 1}});
+  auto sol = solver.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 ```
 {% endraw %}
 The output is as follows:
@@ -145,10 +151,11 @@ Furthermore, all solutions including non-optimal ones can be obtained by setting
 ```cpp
   auto solver = qbpp::ExhaustiveSolver(f);
   auto sol = solver.search({{"all_sols", 1}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 ```
-{% endraw %}
-The output is as follows:
-{% raw %}
+
 ```
 (0) 0:{{a,0},{b,1},{c,1},{d,0}}
 (1) 0:{{a,1},{b,0},{c,0},{d,1}}
@@ -178,7 +185,7 @@ The ABS3 Solver is a high-performance solver that uses CUDA GPUs and multicore C
 If no GPU is available, it automatically falls back to CPU-only mode.
 
 Usage involves two steps:
-1. Create an **`qbpp::abs3::ABS3Solver`** object for the expression.
+1. Create an **`qbpp::ABS3Solver`** object for the expression.
 2. Call the **`search()`** member function, passing parameters as an initializer list. It returns the obtained solution.
 
 {% raw %}
@@ -194,7 +201,7 @@ int main() {
   auto f = qbpp::sqr(a + 2 * b + 3 * c + 4 * d - 5);
   f.simplify_as_binary();
 
-  auto solver = qbpp::abs3::ABS3Solver(f);
+  auto solver = qbpp::ABS3Solver(f);
   auto sol = solver.search({{"time_limit", 5.0}, {"target_energy", 0}, {"enable_default_callback", 1}});
   std::cout << sol << std::endl;
 }

@@ -119,7 +119,7 @@ The complete list of collected solutions is available through the **`sol.sols`**
 All optimal solutions can be obtained by setting the `best_energy_sols` parameter as follows:
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search(best_energy_sols=1)
+sol = solver.search(best_energy_sols=0)
 for i, s in enumerate(sol.sols):
     print(f"({i}) {s}")
 ```
@@ -135,7 +135,7 @@ sol = solver.search(all_sols=1)
 for i, s in enumerate(sol.sols):
     print(f"({i}) {s}")
 ```
-The output is as follows:
+
 ```
 (0) Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 (1) Sol(energy=0, {a: 1, b: 0, c: 0, d: 1})

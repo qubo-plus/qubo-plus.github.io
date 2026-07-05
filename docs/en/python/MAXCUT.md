@@ -69,6 +69,7 @@ The Exhaustive Solver minimizes `f`, and an optimal assignment is stored in `sol
 This program prints the following output:
 ```
 objective = 22
+S: 1 5 6 7 9 10 13 15
 ```
 
 ## Visualization using matplotlib

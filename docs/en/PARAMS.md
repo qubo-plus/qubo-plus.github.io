@@ -44,9 +44,9 @@ The following parameters are shared by all three solvers:
 | Parameter | Type | Description |
 |---|---|---|
 | `target_energy` | integer | Stop when a solution with energy ≤ this value is found. |
-| `enable_default_callback` | `0`/`1` | Print newly obtained best solutions to stderr. Default: `0`. |
+| `enable_default_callback` | `0`/`1` | Print newly obtained best solutions to stdout. Default: `0`. |
 | `topk_sols` | integer | Keep up to N top-k solutions during the search. |
-| `best_energy_sols` | `0`/`1` | Keep all solutions with the best energy. `0` = unlimited count. |
+| `best_energy_sols` | `0`/integer | Maximum number of best-energy solutions to keep. `0` = unlimited count. |
 
 ## Easy Solver Parameters
 
@@ -79,7 +79,7 @@ The Exhaustive Solver does not have a `time_limit` parameter because it performs
 | `verbose` | `0`/`1` | Display search progress percentage. | `0` |
 | `enable_default_callback` | `0`/`1` | Print progress. | `0` |
 | `topk_sols` | integer | Top-k solutions to keep. | (disabled) |
-| `best_energy_sols` | `0`/`1` | Keep all optimal solutions. | (disabled) |
+| `best_energy_sols` | `0`/integer | Keep optimal solutions (value = max count, `0` = unlimited). | (disabled) |
 | `all_sols` | `0`/`1` | Keep all feasible solutions. | (disabled) |
 
 Example:
@@ -101,7 +101,7 @@ auto sol = solver.search({{"target_energy", 0}});
 | `target_energy` | integer | Target energy. | (none) |
 | `enable_default_callback` | `0`/`1` | Print progress. | `0` |
 | `topk_sols` | integer | Top-k solutions to keep. | (disabled) |
-| `best_energy_sols` | `0`/`1` | Keep all optimal solutions. | (disabled) |
+| `best_energy_sols` | `0`/integer | Keep optimal solutions (value = max count, `0` = unlimited). | (disabled) |
 | `cpu_enable` | `0`/`1` | Enable/disable CPU solver. | `1` |
 | `cpu_thread_count` | integer | Number of CPU threads. | (auto) |
 | `block_count` | integer | Number of GPU blocks. | (auto) |
@@ -113,7 +113,7 @@ Example:
 #include <qbpp/qbpp.hpp>
 #include <qbpp/abs3_solver.hpp>
 
-auto solver = qbpp::abs3::ABS3Solver(f);
+auto solver = qbpp::ABS3Solver(f);
 auto sol = solver.search({{"time_limit", 10}, {"target_energy", 0}});
 ```
 {% endraw %}

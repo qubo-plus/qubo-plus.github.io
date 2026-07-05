@@ -41,7 +41,7 @@ This program displays the follwing output:
 
 {% raw %}
 ```
-{{x,0},{y,1},{z,1}}
+{x: 0, y: 1, z: 1}
 f(0,1,1) = 4
 ```
 {% endraw %}
@@ -121,12 +121,12 @@ int main() {
 {% endraw %}
 In this program, `sol.energy()` correctly returns 0.
 However, after flipping the variable `z`, the cached energy value becomes invalid.
-Calling `sol.energy()` without recomputing the energy therefore results in **a runtime error**, as shown below:
+While the cache is invalid, not only calling `sol.energy()` but also printing via `std::cout << sol` reads the energy, and therefore results in **a runtime error**, as shown below (in this example it occurs at the print right after the flip):
 {% raw %}
 ```
 sol = 0:{{x,1},{y,0},{z,1}}
 energy = 0
-terminate called after throwing an instance of 'std::runtime_error'
+qbpp: Sol::energy(): energy is invalid (variable changed after last computation). Call comp_energy() first.
 ```
 {% endraw %}
 To resolve this issue, you must explicitly recompute the energy by calling **`sol.comp_energy()`** after modifying the solution, as follows:

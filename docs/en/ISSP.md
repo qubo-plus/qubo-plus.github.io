@@ -64,8 +64,7 @@ In QUBO++, we impose this inequality constraint via a penalty term:
 
 $$
 \begin{aligned}
- \text{constraint} &= \sum_{i=0}^{n-1} \bigr(0\leq s_iv_i \leq T\bigl) \\
-                &= (T-\sum_{i=0}^{n-1} s_iv_i)^2
+ \text{constraint} &= \bigr(0\leq \sum_{i=0}^{n-1} s_iv_i \leq T\bigl)
 \end{aligned}
 $$
 
@@ -170,7 +169,7 @@ To ensure that $v_i$ becomes 0 when $s_i=0$, we add the following penalty term u
 
 $$
 \begin{aligned}
-  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j \overline{s_i}\,a_i
+  \text{constraint1} &= \sum_{i=0}^{n-1} \overline{s_i}\,a_i
 \end{aligned}
 $$
 
@@ -191,7 +190,7 @@ Let
 
 $$
 \begin{aligned}
-\text{sum} &= \sum_{i=0}^{n-1} x_i.
+\text{sum} &= \sum_{i=0}^{n-1} v_i.
 \end{aligned}
 $$
 
@@ -199,8 +198,7 @@ The ISSP constraint is:
 
 $$
 \begin{aligned}
- \text{constraint2} &= \sum_{i=0}^{n-1} \bigr(0\leq v_i \leq T\bigl) \\
-                &= (T-\sum_{i=0}^{n-1} v_i)^2
+ \text{constraint2} &= \bigr(0\leq \sum_{i=0}^{n-1} v_i \leq T\bigl)
 \end{aligned}
 $$
 
@@ -258,7 +256,7 @@ int main() {
 First, we define an array `a` of integer variables, where each `a[i]` takes an integer value in
 `[0, upper[i] - lower[i]]`.
 We also define an array `s` of binary variables.
-Using `a` and `s`, we construct `x = s * lower + a`, which corresponds to
+Using `a` and `s`, we construct `v = s * lower + a`, which corresponds to
 $v_i = s_i * l_i+a_i$.
 The expression `constraint1 = sum(~s * a)` penalizes any solution with `a[i] > 0` when `s[i] = 0`,
 thereby enforcing `v[i] = 0` for unselected intervals.

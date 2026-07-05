@@ -13,7 +13,7 @@ Basically, operators and functions for arrays operate element-wise.
 
 
 ## Basic operators for arrays
-The basic operators **`+`**, **`-`**, **`*`**, and **`/`** work for arrays of variables and expressions.
+The basic operators **`+`**, **`-`**, and **`*`** work for arrays of variables and expressions. **`/`** (by an integer) works for arrays of expressions (convert a variable array to an expression array first, e.g. `auto f = x + 0;`).
 
 In QUBO++, these operators are applied element-wise.
 
@@ -125,7 +125,7 @@ g[2] = 2 -2*x[2]*y[2] +2*x[2] -2*y[2]
 ```
 
 ## Compound operators for arrays
-Similarly, the compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** work for arrays of variables and expressions.
+Similarly, the compound operators **`+=`**, **`-=`**, **`*=`**, and **`/=`** work for arrays of expressions (a variable array's element type cannot change in place — convert it to an expression array first).
 The following example demonstrates how these operators work for an array of size 3:
 ```cpp
 #include <qbpp/qbpp.hpp>
@@ -149,8 +149,8 @@ This program produces the following output:
 ```
 f = {4 +6*x[0] +3*y[0],4 +6*x[1] +3*y[1],4 +6*x[2] +3*y[2]}
 f = {-8 +6*x[0] +3*y[0],-8 +6*x[1] +3*y[1],-8 +6*x[2] +3*y[2]}
-f = {12*x[0]*y[0] +6*y[0]*y[0] -16*y[0],12*x[1]*y[1] +6*y[1]*y[1] -16*y[1],12*x[2]*y[2] +6*y[2]*y[2] -16*y[2]}
-f = {6*x[0]*y[0] +3*y[0]*y[0] -8*y[0],6*x[1]*y[1] +3*y[1]*y[1] -8*y[1],6*x[2]*y[2] +3*y[2]*y[2] -8*y[2]}
+f = {-16*y[0] +12*x[0]*y[0] +6*y[0]*y[0],-16*y[1] +12*x[1]*y[1] +6*y[1]*y[1],-16*y[2] +12*x[2]*y[2] +6*y[2]*y[2]}
+f = {-8*y[0] +6*x[0]*y[0] +3*y[0]*y[0],-8*y[1] +6*x[1]*y[1] +3*y[1]*y[1],-8*y[2] +6*x[2]*y[2] +3*y[2]*y[2]}
 ```
 
 ## Square functions for arrays
@@ -170,9 +170,9 @@ int main() {
 ```
 This program produces the following output:
 ```
-f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
+f = {1 +x[0]*x[0] +2*x[0],1 +x[1]*x[1] +2*x[1],1 +x[2]*x[2] +2*x[2]}
 f = {1 +x[0],1 +x[1],1 +x[2]}
-f = {1 +x[0]*x[0] +x[0] +x[0],1 +x[1]*x[1] +x[1] +x[1],1 +x[2]*x[2] +x[2] +x[2]}
+f = {1 +x[0]*x[0] +2*x[0],1 +x[1]*x[1] +2*x[1],1 +x[2]*x[2] +2*x[2]}
 ```
 
 ## Simplify functions for arrays
@@ -191,7 +191,7 @@ int main() {
 ```
 This program produces the following output:
 ```
-f = {1 +x[0]*x[0] -x[0] -x[0],1 +x[1]*x[1] -x[1] -x[1],1 +x[2]*x[2] -x[2] -x[2]}
+f = {1 +x[0]*x[0] -2*x[0],1 +x[1]*x[1] -2*x[1],1 +x[2]*x[2] -2*x[2]}
 simplified(f) = {1 -2*x[0] +x[0]*x[0],1 -2*x[1] +x[1]*x[1],1 -2*x[2] +x[2]*x[2]}
 simplified_as_binary(f) = {1 -x[0],1 -x[1],1 -x[2]}
 simplified_as_spin(f) = {2 -2*x[0],2 -2*x[1],2 -2*x[2]}

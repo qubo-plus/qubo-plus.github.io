@@ -34,10 +34,10 @@ int main() {
   f.simplify_as_binary();
 
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
 
   for (const auto& sol : sols) {
-    std::cout << "x= " << x(sol) << " sol = " << sol << std::endl;
+    std::cout << "x = " << x(sol) << " sol = " << sol << std::endl;
   }
 }
 ```

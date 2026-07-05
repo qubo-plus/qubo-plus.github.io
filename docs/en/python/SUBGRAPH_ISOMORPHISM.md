@@ -67,7 +67,7 @@ These can be combined into the following **QUBO++-style constraint**, which atta
 
 $$
 \begin{aligned}
-\text{constraint} &= \sum_{i=0}^{m-1}\Bigl(\sum_{j=0}^{n-1}x_{i,j} = 1\Bigr)+\sum_{j=0}^{m-1}\Bigl(0\leq \sum_{i=0}^{n-1}x_{i,j} \leq 1\Bigr)
+\text{constraint} &= \sum_{i=0}^{m-1}\Bigl(\sum_{j=0}^{n-1}x_{i,j} = 1\Bigr)+\sum_{j=0}^{n-1}\Bigl(0\leq \sum_{i=0}^{m-1}x_{i,j} \leq 1\Bigr)
 \end{aligned}
 $$
 
@@ -76,7 +76,7 @@ In QUBO form, we can express the same constraints as:
 $$
 \begin{aligned}
 \text{constraint}
- &=  \sum_{i=0}^{m-1}\Bigl(\sum_{j=0}^{n-1}x_{i,j} - 1\Bigr)^2+\sum_{j=0}^{m-1}\sum_{i=0}^{n-1}x_{i,j}\Bigl(\sum_{i=0}^{n-1}x_{i,j}-1\Bigr)
+ &=  \sum_{i=0}^{m-1}\Bigl(\sum_{j=0}^{n-1}x_{i,j} - 1\Bigr)^2+\sum_{j=0}^{n-1}\sum_{i=0}^{m-1}x_{i,j}\Bigl(\sum_{i=0}^{m-1}x_{i,j}-1\Bigr)
 \end{aligned}
 $$
 

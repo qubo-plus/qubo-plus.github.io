@@ -23,7 +23,7 @@ PyQBPP is distributed on PyPI and can typically be installed with:
 ```bash
 pip install pyqbpp
 ```
-PyQBPP bundles the `libqbpp*.so` shared libraries and loads them at runtime via `ctypes`.
+PyQBPP bundles the `qbpp_*.so` shared libraries and loads them at runtime.
 
 ## Create and run a sample program
 

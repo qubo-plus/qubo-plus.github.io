@@ -67,7 +67,7 @@ for i in range(N):
         if not adj[i][j]:
             constraint += x[i] * x[j]
 
-f = -objective + N * constraint
+f = -objective + 2 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
@@ -88,6 +88,7 @@ print()
 ```
 objective = 4
 constraint = 0
+Clique nodes: 4 6 12 14
 ```
 この出力から、制約を違反することなく4ノードの最大クリークが得られました。
 

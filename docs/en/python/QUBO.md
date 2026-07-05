@@ -85,5 +85,5 @@ $\sum_{i,j} W_{ij}\, x_i\, x_j$:
 The resulting expression `f`, the simplified form, and the solution are all
 identical to the for-loop version. For larger $n$ the `einsum` formulation is
 also much faster, since it runs entirely inside the C++ backend with
-multithreading — avoiding the per-iteration Python ctypes overhead of the
+multithreading — avoiding the per-iteration Python call overhead of the
 for-loop version.

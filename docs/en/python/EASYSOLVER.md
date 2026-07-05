@@ -35,6 +35,7 @@ The following parameters are available:
 | `enable_default_callback` | int (0 or 1) | Set to `1` to print the energy and TTS of every newly obtained best solution. | `0` |
 | `topk_sols` | int | Number of top-k solutions to keep. | (disabled) |
 | `best_energy_sols` | int | Keep solutions with the best energy. `0` for unlimited count. | (disabled) |
+| `seed` | int | Random seed. Fixes the random streams used for initial solutions and proposals. Fully reproducible runs are only guaranteed in serial configurations (e.g. `thread_count=1`); with many threads, timing nondeterminism still affects the outcome. | `0` (non-deterministic) |
 
 Parameters are passed as keyword arguments to `search()`:
 ```python
@@ -78,62 +79,62 @@ or when a solution with energy 900 or less is found.
 For example, this program produces output similar to the following:
 {% raw %}
 ```
-TTS = 0.000s Energy = 300162 thread = 0 Random
-TTS = 0.000s Energy = 273350 thread = 0 Random(neighbor)
-TTS = 0.000s Energy = 248706 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 226086 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 205274 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 186142 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 168442 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 152134 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 137162 thread = 0 Greedy(neighbor)
-TTS = 0.000s Energy = 123374 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 110650 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 98990 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 88346 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 78678 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 69802 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 61798 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 54626 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 47982 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 42034 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 36598 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 31778 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 27446 thread = 0 Greedy(neighbor)
-TTS = 0.001s Energy = 23658 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 20286 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 17250 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 14614 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 12306 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 10350 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 8682 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 7214 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 5994 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 4990 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 4130 thread = 0 Greedy(neighbor)
-TTS = 0.002s Energy = 3478 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2882 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2414 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 2122 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1822 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1706 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1574 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1442 thread = 0 Greedy(neighbor)
-TTS = 0.003s Energy = 1350 thread = 0 Greedy(neighbor)
-TTS = 0.007s Energy = 1306 thread = 7 MoveTo
-TTS = 0.008s Energy = 1274 thread = 12 Greedy
-TTS = 0.008s Energy = 1262 thread = 12 Greedy(neighbor)
-TTS = 0.008s Energy = 1202 thread = 12 Greedy(neighbor)
-TTS = 0.016s Energy = 1170 thread = 20 PosMin
-TTS = 0.018s Energy = 1166 thread = 23 PosMin
-TTS = 0.018s Energy = 994 thread = 23 PosMin(neighbor)
-TTS = 0.066s Energy = 986 thread = 7 Greedy
-TTS = 0.066s Energy = 982 thread = 7 Greedy(neighbor)
-TTS = 0.184s Energy = 954 thread = 10 PosMin
-TTS = 0.371s Energy = 942 thread = 12 PosMin
-TTS = 0.912s Energy = 930 thread = 4 PosMin
-TTS = 0.913s Energy = 902 thread = 4 PosMin(neighbor)
-TTS = 2.691s Energy = 898 thread = 15 PosMin
+TTS = 0.000s Energy = 300162
+TTS = 0.000s Energy = 273350
+TTS = 0.000s Energy = 248706
+TTS = 0.000s Energy = 226086
+TTS = 0.000s Energy = 205274
+TTS = 0.000s Energy = 186142
+TTS = 0.000s Energy = 168442
+TTS = 0.000s Energy = 152134
+TTS = 0.000s Energy = 137162
+TTS = 0.000s Energy = 123374
+TTS = 0.001s Energy = 110650
+TTS = 0.001s Energy = 98990
+TTS = 0.001s Energy = 88346
+TTS = 0.001s Energy = 78678
+TTS = 0.001s Energy = 69802
+TTS = 0.001s Energy = 61798
+TTS = 0.001s Energy = 54626
+TTS = 0.001s Energy = 47982
+TTS = 0.001s Energy = 42034
+TTS = 0.001s Energy = 36598
+TTS = 0.001s Energy = 31778
+TTS = 0.001s Energy = 27446
+TTS = 0.001s Energy = 23658
+TTS = 0.002s Energy = 20286
+TTS = 0.002s Energy = 17250
+TTS = 0.002s Energy = 14614
+TTS = 0.002s Energy = 12306
+TTS = 0.002s Energy = 10350
+TTS = 0.002s Energy = 8682
+TTS = 0.002s Energy = 7214
+TTS = 0.002s Energy = 5994
+TTS = 0.002s Energy = 4990
+TTS = 0.002s Energy = 4130
+TTS = 0.002s Energy = 3478
+TTS = 0.003s Energy = 2882
+TTS = 0.003s Energy = 2414
+TTS = 0.003s Energy = 2122
+TTS = 0.003s Energy = 1822
+TTS = 0.003s Energy = 1706
+TTS = 0.003s Energy = 1574
+TTS = 0.003s Energy = 1442
+TTS = 0.003s Energy = 1350
+TTS = 0.007s Energy = 1306
+TTS = 0.008s Energy = 1274
+TTS = 0.008s Energy = 1262
+TTS = 0.008s Energy = 1202
+TTS = 0.016s Energy = 1170
+TTS = 0.018s Energy = 1166
+TTS = 0.018s Energy = 994
+TTS = 0.066s Energy = 986
+TTS = 0.066s Energy = 982
+TTS = 0.184s Energy = 954
+TTS = 0.371s Energy = 942
+TTS = 0.912s Energy = 930
+TTS = 0.913s Energy = 902
+TTS = 2.691s Energy = 898
 898: ++-++-----+--+--++++++---++-+-+--++-------++-++-+-+-+-+-++-++++-++-+++++-+-+--++++++---+++--+++---++
 ```
 {% endraw %}
@@ -146,7 +147,6 @@ To enable this feature, set the `topk_sols` parameter.
 
 Once this parameter is set, the solution returned by `search()` also carries the stored top-k solutions.
 They can be retrieved via the following properties and operations:
-- **`sol.sols`**: A list of solutions sorted in increasing order of energy.
 - **`sol.sols`**: A list of stored solutions (sorted by ascending energy).
 - **`sol.sols[i]`**: Returns the `i`-th stored solution.
 - **`len(sol.sols)`**: The number of stored solutions.

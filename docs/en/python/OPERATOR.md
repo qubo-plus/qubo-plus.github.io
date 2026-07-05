@@ -36,12 +36,13 @@ print("g =", g)
 ```
 This program produces the following output:
 ```
-f = 6 -6*x*y +6*x -6*y
-g = 2 -2*x*y +2*x -2*y
+f = 6 -6*y +6*x -6*x*y
+g = 2 -2*y +2*x -2*x*y
 ```
 
 > **NOTE**
-> In PyQBPP the `+`, `-`, `*`, `/` Python operators are overloaded on the `Var`, `Term`, and `Expr` classes. The result is always an expression.
+> In PyQBPP the `+`, `-`, `*`, `/` Python operators are overloaded on the `Var`, `Term`, and `Expr` classes.
+> `+`/`-` produce an expression (`Expr`), while `*` on `Var`/`Term` operands produces a product term (`Term`). `/` (by an integer) is available only on `Term` and `Expr`.
 
 ## Compound operators
 The following compound operators for updating expressions are also supported:
@@ -74,8 +75,8 @@ This program produces the following output:
 ```
 f = 4 +6*x +3*y
 f = -8 +6*x +3*y
-f = 12*x*y +6*y*y -16*y
-f = 6*x*y +3*y*y -8*y
+f = -16*y +12*x*y +6*y*y
+f = -8*y +6*x*y +3*y*y
 ```
 
 ## Square function
@@ -98,9 +99,9 @@ print("f =", f)
 ```
 This program produces the following output:
 ```
-f = 1 +x*x +x +x
+f = 1 +x*x +2*x
 f = 1 +x
-f = 1 +x*x +x +x
+f = 1 +x*x +2*x
 ```
 
 ## Simplify functions
@@ -131,7 +132,7 @@ print("simplified_as_spin(f) =", qbpp.simplify_as_spin(f))
 ```
 This program produces the following output:
 ```
-f = 1 +x*x -x -x
+f = 1 +x*x -2*x
 simplified(f) = 1 -2*x +x*x
 simplified_as_binary(f) = 1 -x
 simplified_as_spin(f) = 2 -2*x
@@ -155,4 +156,4 @@ f = 1 -2*x +x*x
 ```
 
 > **NOTE**
-> In PyQBPP, **member functions** (e.g., `f.simplify()`, `f.sqr()`) update the object in place, whereas **global functions** (e.g., `qbpp.simplify(f)`, `qbpp.sqr(f)`) return a new object without modifying the original.
+> In PyQBPP, **member functions** of an expression (`Expr`) (e.g., `f.simplify()`, `f.sqr()`) update the object in place, whereas **global functions** (e.g., `qbpp.simplify(f)`, `qbpp.sqr(f)`) return a new object without modifying the original (member functions of expression arrays likewise update in place).

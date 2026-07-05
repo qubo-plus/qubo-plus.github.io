@@ -104,7 +104,7 @@ This program produces the following output:
 ```
 objective = -7
 constraint = 0
-Selected nodes: 0 4 5 9 11 13 14
+Selected nodes: 0 3 4 5 9 11 15
 ```
 This implies that the obtained solution selects 7 nodes and satisfies all constraints.
 

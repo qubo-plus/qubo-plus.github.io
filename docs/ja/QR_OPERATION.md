@@ -301,7 +301,7 @@ int main() {
 
 指定しなかった末尾の軸は自動的に `qbpp::all` とみなされます。
 
-出力は C ABI `view` を 1 回呼び出して構築するため、結果サイズに比例した **O(output_size)** のコピーコストになります。
+出力は内部で 1 パスで構築するため、結果サイズに比例した **O(output_size)** のコピーコストになります。
 
 ### 使用例
 
@@ -380,13 +380,13 @@ t.has(z);     // false
 
 | 式 | 戻り値の型 | 説明 |
 |------------|-------------|-------------|
-| `f.constant` | `energy_t` | 定数項を返す |
+| `f.constant()` | `energy_t` | 定数項を返す |
 | `f.term_count()` | `size_t` | 項の数を返す（定数項を除く） |
 | `f.term_count(d)` | `size_t` | 次数 `d` の項の数を返す |
 | `f.term(i)` | `qbpp::Term` | `i` 番目の項のコピーを返す |
-| `f.max_degree` | `uint32_t` | すべての項の最大次数を返す |
+| `f.max_degree()` | `uint32_t` | すべての項の最大次数を返す |
 | `f.has(v)` | `bool` | `Var` `v` が式に含まれていれば `true` を返す |
-| `f.has(vi)` | `bool` | 整数変数 `vi` のすべての変数が式に含まれていれば `true` を返す |
+| `f.has_varint(vi)` | `bool` | 整数変数 `vi` のすべての変数が式に含まれていれば `true` を返す |
 
 ### 例
 ```cpp
@@ -395,14 +395,14 @@ auto y = qbpp::var("y");
 qbpp::Expr f = qbpp::simplify(3 * x + 2 * x * y + 5);
 // f = 5 + 3*x + 2*x*y
 
-f.constant;          // 5
+f.constant();          // 5
 f.term_count();        // 2
 f.term(0);             // 3*x
 f.term(1);             // 2*x*y
 f.term(1).coeff();     // 2
 f.term(1).var(0);      // x
 f.term(1).var(1);      // y
-f.max_degree;        // 2
+f.max_degree();        // 2
 f.has(x);              // true
 f.has(y);              // true
 ```

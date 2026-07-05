@@ -48,7 +48,7 @@ int main() {
   std::cout << "f = " << f << std::endl;
 
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sol = solver.search({{"best_energy_sols", 1}});
+  auto sol = solver.search({{"best_energy_sols", 0}});
 
   std::cout << "energy = " << sol.energy() << std::endl;
   std::cout << "solutions = " << sol.sols.size() << std::endl;
@@ -210,7 +210,7 @@ y (6x5)  y_oh (6x6)
 | `qbpp::slice(i)` | 単一要素 `[i, i+1)`（`slice(i, i+1)` の短縮形）| 軸を保持 |
 | `qbpp::end` / `qbpp::end - n` | 軸サイズから計算される位置 | 固定または範囲端 |
 
-指定しなかった末尾の軸は自動的に `qbpp::all` とみなされます。統合 C ABI `view` を 1 回呼ぶだけなので、結果サイズに比例した **O(output_size)** のコピーコストになります。
+指定しなかった末尾の軸は自動的に `qbpp::all` とみなされます。内部では単一の呼び出しで処理され、コストは結果サイズに比例した **O(output_size)** のコピーコストになります。
 
 ### 例
 
@@ -248,5 +248,6 @@ auto mid   = x(qbpp::all, qbpp::slice(1, qbpp::end - 1));      // 内側のみ
 ```
 
 > **注意**
-> `operator[]` は全次元を指定してスカラー値を取得するためのもので、途中の次元で止めてサブ配列を取得することはできません。
-> サブ配列が必要な場合は `a(...)` 形式のタプルインデックスを使ってください。
+> 途中の次元で止めた `operator[]` は軽量な**ビュー**を返します。ビューは表示や要素ごとの演算には使えますが、
+> `qbpp::sum()` などのテンプレート関数へ直接渡すことはできません。
+> 独立したサブ配列が必要な場合は `a(...)` 形式のタプルインデックスを使ってください。

@@ -111,13 +111,13 @@ print("flipped energy =", sol.energy)
 {% endraw %}
 In this program, `sol.energy` correctly returns 0.
 However, after flipping the variable `z`, the cached energy value becomes invalid.
-Accessing `sol.energy` without recomputing the energy therefore results in **a runtime error**,
+While the cache is invalid, not only accessing `sol.energy` but also printing via `print(sol)` reads the energy, and therefore results in **a runtime error** (in this example it occurs at the print right after the flip),
 as shown below:
 {% raw %}
 ```
-sol = 0:{{x,1},{y,0},{z,1}}
+sol = Sol(energy=0, {x: 1, y: 0, z: 1})
 energy = 0
-RuntimeError: energy is not up to date; call comp_energy() after modifying the solution
+RuntimeError: Sol.energy: energy is invalid (variable changed after last computation). Call comp_energy() first.
 ```
 {% endraw %}
 To resolve this issue, you must explicitly recompute the energy by calling **`sol.comp_energy()`**
@@ -134,10 +134,10 @@ print("flipped energy =", sol.energy)
 This program produces the following output:
 {% raw %}
 ```
-sol = 0:{{x,1},{y,0},{z,1}}
+sol = Sol(energy=0, {x: 1, y: 0, z: 1})
 energy = 0
 sol.comp_energy() = 9
-flipped sol = 9:{{x,1},{y,0},{z,0}}
+flipped sol = Sol(energy=9, {x: 1, y: 0, z: 0})
 flipped energy = 9
 ```
 {% endraw %}

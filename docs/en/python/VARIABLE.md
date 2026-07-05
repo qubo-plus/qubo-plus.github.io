@@ -44,7 +44,7 @@ In this program, `a`, `b`, and `c` are variables and `f` is an expression.
 
 Running the program prints the expanded expression:
 ```
-f = 1 +a*b +b*b +a*c +b*c -a -b -b -c
+f = 1 -b -c -a -b +a*b +a*c +b*b +b*c
 ```
 
 > **NOTE**

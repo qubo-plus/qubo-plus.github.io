@@ -29,7 +29,7 @@ A full adder can be formulated using the following expression:
 
 $$
 \begin{aligned}
-fa(a,b,i,c,s) &=((a+b+i)-(2o+s))^2
+fa(a,b,i,o,s) &=((a+b+i)-(2o+s))^2
 \end{aligned}
 $$
 
@@ -49,22 +49,24 @@ int main() {
   auto fa = (a + b + i) - (2 * o + s) == 0;
   fa.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(fa);
-  auto sol = solver.search({{"best_energy_sols", 1}});
-  std::cout << sol << std::endl;
+  auto sol = solver.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 }
 ```
 {% endraw %}
-In this QUBO program, the constraint $fa(a,b,i,c,s)$ is implemented using the equality operator `==`, which intuitively represents the constraint $a+b+i=2o+s$.
+In this QUBO program, the constraint $fa(a,b,i,o,s)$ is implemented using the equality operator `==`, which intuitively represents the constraint $a+b+i=2o+s$.
 The program produces the following output, confirming that the expression correctly models a full adder:
 {% raw %}
 ```
 (0) 0:{{a,0},{b,0},{i,0},{o,0},{s,0}}
-(1) 0:{{a,0},{b,0},{i,1},{o,0},{s,1}}
-(2) 0:{{a,0},{b,1},{i,0},{o,0},{s,1}}
+(1) 0:{{a,1},{b,1},{i,0},{o,1},{s,0}}
+(2) 0:{{a,1},{b,0},{i,1},{o,1},{s,0}}
 (3) 0:{{a,0},{b,1},{i,1},{o,1},{s,0}}
 (4) 0:{{a,1},{b,0},{i,0},{o,0},{s,1}}
-(5) 0:{{a,1},{b,0},{i,1},{o,1},{s,0}}
-(6) 0:{{a,1},{b,1},{i,0},{o,1},{s,0}}
+(5) 0:{{a,0},{b,1},{i,0},{o,0},{s,1}}
+(6) 0:{{a,0},{b,0},{i,1},{o,0},{s,1}}
 (7) 0:{{a,1},{b,1},{i,1},{o,1},{s,1}}
 ```
 {% endraw %}
@@ -75,6 +77,11 @@ For example, the three input bits can be fixed using the global `qbpp::replace()
 ```cpp
   auto fa2 = qbpp::replace(fa, {{a, 1}, {b, 1}, {i, 0}});
   fa2.simplify_as_binary();
+  auto solver2 = qbpp::ExhaustiveSolver(fa2);
+  auto sol2 = solver2.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol2.size(); ++k) {
+    std::cout << "(" << k << ") " << sol2.sols[k] << std::endl;
+  }
 ```
 {% endraw %}
 Then solve with `qbpp::ExhaustiveSolver(fa2)`.
@@ -93,14 +100,19 @@ Conversely, if the two output bits are fixed:
 ```cpp
   auto fa2 = qbpp::replace(fa, {{o, 1}, {s, 0}});
   fa2.simplify_as_binary();
+  auto solver2 = qbpp::ExhaustiveSolver(fa2);
+  auto sol2 = solver2.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol2.size(); ++k) {
+    std::cout << "(" << k << ") " << sol2.sols[k] << std::endl;
+  }
 ```
 {% endraw %}
 the program produces all valid combinations of the input bits:
 {% raw %}
 ```
-(0) 0:{{a,0},{b,1},{i,1}}
+(0) 0:{{a,1},{b,1},{i,0}}
 (1) 0:{{a,1},{b,0},{i,1}}
-(2) 0:{{a,1},{b,1},{i,0}}
+(2) 0:{{a,0},{b,1},{i,1}}
 ```
 {% endraw %}
 
@@ -134,8 +146,10 @@ int main() {
   adder.simplify_as_binary();
 
   auto solver = qbpp::ExhaustiveSolver(adder);
-  auto sol = solver.search({{"best_energy_sols", 1}});
-  std::cout << sol << std::endl;
+  auto sol = solver.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 }
 ```
 {% endraw %}
@@ -146,13 +160,13 @@ This program produces 512 valid solutions, corresponding to all possible input c
 {% raw %}
 ```
 (0) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{y[0],0},{y[1],0},{y[2],0},{y[3],0},{c[0],0},{c[1],0},{c[2],0},{c[3],0},{c[4],0},{s[0],0},{s[1],0},{s[2],0},{s[3],0}}
-(1) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{y[0],0},{y[1],0},{y[2],0},{y[3],0},{c[0],1},{c[1],0},{c[2],0},{c[3],0},{c[4],0},{s[0],1},{s[1],0},{s[2],0},{s[3],0}}
-(2) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{y[0],0},{y[1],0},{y[2],0},{y[3],1},{c[0],0},{c[1],0},{c[2],0},{c[3],0},{c[4],0},{s[0],0},{s[1],0},{s[2],0},{s[3],1}}
-(3) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{y[0],0},{y[1],0},{y[2],0},{y[3],1},{c[0],1},{c[1],0},{c[2],0},{c[3],0},{c[4],0},{s[0],1},{s[1],0},{s[2],0},{s[3],1}}
+(1) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],1},{y[0],0},{y[1],0},{y[2],0},{y[3],1},{c[0],0},{c[1],0},{c[2],0},{c[3],0},{c[4],1},{s[0],0},{s[1],0},{s[2],0},{s[3],0}}
+(2) 0:{{x[0],0},{x[1],0},{x[2],1},{x[3],1},{y[0],0},{y[1],0},{y[2],1},{y[3],0},{c[0],0},{c[1],0},{c[2],0},{c[3],1},{c[4],1},{s[0],0},{s[1],0},{s[2],0},{s[3],0}}
+(3) 0:{{x[0],0},{x[1],0},{x[2],1},{x[3],0},{y[0],0},{y[1],0},{y[2],1},{y[3],1},{c[0],0},{c[1],0},{c[2],0},{c[3],1},{c[4],1},{s[0],0},{s[1],0},{s[2],0},{s[3],0}}
 
-... omitted ...
+...
 
-(510) 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],1},{y[0],1},{y[1],1},{y[2],1},{y[3],1},{c[0],0},{c[1],1},{c[2],1},{c[3],1},{c[4],1},{s[0],0},{s[1],1},{s[2],1},{s[3],1}}
+(510) 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],0},{y[0],1},{y[1],1},{y[2],1},{y[3],0},{c[0],1},{c[1],1},{c[2],1},{c[3],1},{c[4],0},{s[0],1},{s[1],1},{s[2],1},{s[3],1}}
 (511) 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],1},{y[0],1},{y[1],1},{y[2],1},{y[3],1},{c[0],1},{c[1],1},{c[2],1},{c[3],1},{c[4],1},{s[0],1},{s[1],1},{s[2],1},{s[3],1}}
 ```
 {% endraw %}
@@ -178,8 +192,10 @@ int main() {
   auto adder = fa0 + fa1 + fa2 + fa3;
   adder.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(adder);
-  auto sol = solver.search({{"best_energy_sols", 1}});
-  std::cout << sol << std::endl;
+  auto sol = solver.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 }
 ```
 {% endraw %}
@@ -192,12 +208,18 @@ For example, the following `qbpp::MapList` object `ml` fixes the carry-in, carry
   qbpp::MapList ml = {{c[4], 1}, {c[0], 0}, {z[3], 1},
                       {z[2], 1}, {z[1], 0}, {z[0], 1}};
   adder.replace(ml);
+  adder.simplify_as_binary();
+  auto solver2 = qbpp::ExhaustiveSolver(adder);
+  auto sol2 = solver2.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol2.size(); ++k) {
+    std::cout << "(" << k << ") " << sol2.sols[k] << std::endl;
+  }
 ```
 {% endraw %}
 The resulting program produces the following output:
 {% raw %}
 ```
-(0) 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],1},{y[0],1},{y[1],1},{y[2],1},{y[3],1},{c[1],0},{c[2],1},{c[3],1}}
-(1) 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],1},{y[0],0},{y[1],1},{y[2],1},{y[3],1},{c[1],0},{c[2],1},{c[3],1}}
+(0) 0:{{x[0],1},{x[1],1},{x[2],1},{x[3],1},{y[0],0},{y[1],1},{y[2],1},{y[3],1},{c[1],0},{c[2],1},{c[3],1}}
+(1) 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],1},{y[0],1},{y[1],1},{y[2],1},{y[3],1},{c[1],0},{c[2],1},{c[3],1}}
 ```
 {% endraw %}

@@ -18,6 +18,7 @@ QUBO++ supports the following basic binary operators for constructing expression
 - **`/`**: Returns the quotient of the operands.
 The divisor must be an integer, and both the constant term and all coefficients of the dividend must be divisible by the divisor. With the [double frontend](VAREXPR#real-double-coefficients) (`DOUBLE_TYPE*`) there is no divisibility requirement — the coefficients are simply divided as real numbers.
 - unary **`-`**: Returns the negation of the operand.
+- unary **`~`**: Returns the negated literal of a variable (`~x` = $1-x$). See [Variables](VARIABLE) for details.
 
 The precedence of these operators follows the standard C++ operator precedence rules.
 
@@ -38,8 +39,8 @@ int main() {
 ```
 This program produces the following output:
 ```
-f = 6 -6*x*y +6*x -6*y
-g = 2 -2*x*y +2*x -2*y
+f = 6 -6*y +6*x -6*x*y
+g = 2 -2*y +2*x -2*x*y
 ```
 
 ## Compound operators
@@ -75,8 +76,8 @@ This program produces the following output:
 ```
 f = 4 +6*x +3*y
 f = -8 +6*x +3*y
-f = 12*x*y +6*y*y -16*y
-f = 6*x*y +3*y*y -8*y
+f = -16*y +12*x*y +6*y*y
+f = -8*y +6*x*y +3*y*y
 ```
 
 ## Square functions
@@ -101,9 +102,9 @@ int main() {
 ```
 This program produces the following output:
 ```
-f = 1 +x*x +x +x
+f = 1 +x*x +2*x
 f = 1 +x
-f = 1 +x*x +x +x
+f = 1 +x*x +2*x
 ```
 
 ## Simplify functions
@@ -136,7 +137,7 @@ int main() {
 ```
 This program produces the following output:
 ```
-f = 1 +x*x -x -x
+f = 1 +x*x -2*x
 simplified(f) = 1 -2*x +x*x
 simplified_as_binary(f) = 1 -x
 simplified_as_spin(f) = 2 -2*x

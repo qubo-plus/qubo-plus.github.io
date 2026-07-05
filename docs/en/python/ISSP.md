@@ -63,8 +63,7 @@ In PyQBPP, we impose this inequality constraint via a penalty term:
 
 $$
 \begin{aligned}
- \text{constraint} &= \sum_{i=0}^{n-1} \bigr(0\leq s_iv_i \leq T\bigl) \\
-                &= (T-\sum_{i=0}^{n-1} s_iv_i)^2
+ \text{constraint} &= \bigr(0\leq \sum_{i=0}^{n-1} s_iv_i \leq T\bigl)
 \end{aligned}
 $$
 
@@ -122,7 +121,7 @@ We also define an array `s` of binary variables, where `s[i] = 1` means
 interval `i` is selected.
 The expression `total` represents $\sum_i v_i s_i$.
 
-The inequality constraint `constrain(total, between=(0, T))` is stored in `constraint`. In PyQBPP, such a constraint
+The inequality constraint `(0 <= total) & (qbpp.same <= T)` is stored in `constraint`. In PyQBPP, such a constraint
 is internally converted into a nonnegative penalty term that becomes zero when the constraint is satisfied.
 
 Finally, we construct the HUBO objective function `f` as
@@ -164,7 +163,7 @@ To ensure that $v_i$ becomes 0 when $s_i=0$, we add the following penalty term u
 
 $$
 \begin{aligned}
-  \text{constraint1} &= \sum_{i=0}^{n-1}\sum_j \overline{s_i}\,a_i
+  \text{constraint1} &= \sum_{i=0}^{n-1} \overline{s_i}\,a_i
 \end{aligned}
 $$
 
@@ -193,8 +192,7 @@ The ISSP constraint is:
 
 $$
 \begin{aligned}
- \text{constraint2} &= \sum_{i=0}^{n-1} \bigr(0\leq v_i \leq T\bigl) \\
-                &= (T-\sum_{i=0}^{n-1} v_i)^2
+ \text{constraint2} &= \bigr(0\leq \sum_{i=0}^{n-1} v_i \leq T\bigl)
 \end{aligned}
 $$
 
@@ -258,7 +256,7 @@ Using `a` and `s`, we construct `v[i] = s[i] * lower[i] + a[i]`, which correspon
 $v_i = s_i l_i + a_i$.
 The expression `constraint1 += ~s[i] * a[i]` penalizes any solution with `a[i] > 0` when `s[i] = 0`,
 thereby enforcing `v[i] = 0` for unselected intervals.
-The inequality constraint `constraint2 = constrain(total, between=(0, T))`
+The inequality constraint `constraint2 = (0 <= total) & (qbpp.same <= T)`
 ensures that the total selected sum does not exceed `T`.
 
 Finally, we minimize `f = -total + P * (constraint1 + constraint2)` with a sufficiently large penalty constant `P`.

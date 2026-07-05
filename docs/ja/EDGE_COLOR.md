@@ -21,17 +21,17 @@ $$
 
 グラフ辺彩色問題は QUBO 式として容易に定式化できます。
 $V=\lbrace 0,1,\ldots,n−1\rbrace$、$C=\lbrace 0,1,\ldots,m−1\rbrace$ とします。
-$e=∣E∣$ 本の辺に一意の ID $0,1,\ldots,e−1$ を割り当て、$(u_i,v_i)$ で第 $i$ 辺を表します。
+$s=∣E∣$ 本の辺に一意の ID $0,1,\ldots,s−1$ を割り当て、$(u_i,v_i)$ で第 $i$ 辺を表します。
 
-$e\times m$ のバイナリ変数行列 $X=(x_{i,j})$ を導入し、$x_{i,j}=1$ は辺 $(u_i,v_i)$ に色 $j$ が割り当てられることを表します。
+$s\times m$ のバイナリ変数行列 $X=(x_{i,j})$ を導入し、$x_{i,j}=1$ は辺 $(u_i,v_i)$ に色 $j$ が割り当てられることを表します。
 
 ### ワンホット制約
 各辺にちょうど1つの色を割り当てる必要があるため、$X$ の各行はワンホットでなければなりません：
 
 $$
 \begin{aligned}
-  \text{onehot}&= \sum_{i=0}^{e-1}\bigr(\sum_{j=0}^{m-1}x_{i,j}==1\bigl)\\
-   &=\sum_{i=0}^{e-1}\bigr(1-\sum_{j=0}^{m-1}x_{i,j}\bigl)^2
+  \text{onehot}&= \sum_{i=0}^{s-1}\bigr(\sum_{j=0}^{m-1}x_{i,j}==1\bigl)\\
+   &=\sum_{i=0}^{s-1}\bigr(1-\sum_{j=0}^{m-1}x_{i,j}\bigl)^2
 \end{aligned}
 $$
 
@@ -40,12 +40,12 @@ $$
 
 $$
 \begin{aligned}
-  \text{different}&= \sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}x_u\cdot x_v\\
-   &=\sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}\sum_{j=0}^{m-1}x_{u,j}x_{v,j}
+  \text{different}&= \sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}x_i\cdot x_k\\
+   &=\sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}\sum_{j=0}^{m-1}x_{i,j}x_{k,j}
 \end{aligned}
 $$
 
-ここで $I(u)\subseteq \lbrace 0,1,\ldots,e−1\rbrace$ はノード $u$ に接続する辺の ID の集合を表します。
+ここで $I(u)\subseteq \lbrace 0,1,\ldots,s−1\rbrace$ はノード $u$ に接続する辺の ID の集合を表します。
 
 ## QUBO 目的関数
 これらの式を組み合わせることで、QUBO 目的関数が得られます：

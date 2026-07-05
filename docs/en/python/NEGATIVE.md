@@ -64,10 +64,12 @@ f = ~x[0]*~x[1]*~x[2]*~x[3]
 g = 1 -x[0] -x[1] -x[2] -x[3] +x[0]*x[1] +x[0]*x[2] +x[0]*x[3] +x[1]*x[2] +x[1]*x[3] +x[2]*x[3] -x[0]*x[1]*x[2] -x[0]*x[1]*x[3] -x[0]*x[2]*x[3] -x[1]*x[2]*x[3] +x[0]*x[1]*x[2]*x[3]
 ```
 
-The solvers bundled with PyQBPP accept HUBO formulas with negated literals directly,
-without expanding them into positive literals.
+A HUBO whose terms may also contain negated literals is called a
+**HUBO with negated literals (nHUBO)** (see [HUBO and QUBO](HUBO_QUBO)).
+The solvers bundled with PyQBPP accept such nHUBO models directly,
+without expanding them into ordinary HUBO formulas over positive literals.
 Conventional tools, on the other hand, require using $1-x$ instead of $\bar{x}$.
-Thus, for HUBO models containing terms with many negated literals,
+Thus, for nHUBO models containing terms with many negated literals,
 PyQBPP can outperform conventional tools.
 
 ## `simplify_as_binary()` and negated literals

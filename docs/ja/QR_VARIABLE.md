@@ -30,6 +30,8 @@ hreflang_lang: "en"
 | `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
 | `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
 
+> **注意 — オーバーフロー.** `coeff_t` は各係数を、`energy_t` は累積エネルギー（有効な項の総和）を制限します。固定幅の型は**オーバーフローを検出しません**。累積エネルギーが `energy_t` を超えると、C++ の組み込み整数演算と同じく**黙って折り返します**。最悪ケースのエネルギーを収められる `energy_t` を持つバリアントを選んでください。`INTEGER_TYPE_CPP_INT`（任意精度）はオーバーフローしません。
+
 ### 実数（double）係数
 
 係数は **`double`**（実数）にもできます。`INTEGER_TYPE_*` の代わりに次の `DOUBLE_TYPE*` マクロの
@@ -157,19 +159,19 @@ std::cout << obj << std::endl;
 ### 整数変数メンバ関数
 整数変数 `x`（`qbpp::Expr`）に対して、以下のメンバ関数が利用できます:
 
-- **`energy_t x.min_val`**:
+- **`energy_t x.min_val()`**:
   `x`の最小値`l`を返します。
 
-- **`energy_t x.max_val`**:
+- **`energy_t x.max_val()`**:
   `x`の最大値`u`を返します。
 
-- **`x.vars`**:
-  整数変数を表現するために使用される`qbpp::Var`オブジェクト配列のconst参照を返します。
+- **`Array<1, Var> x.vars()`**:
+  整数変数を表現するために使用される`qbpp::Var`オブジェクト配列を返します。
 
-- **`x.coeffs`**:
+- **`Array<1, coeff_t> x.coeffs()`**:
   整数係数配列を返します。
 
 以下の式は`x`に格納されている式と等価です:
 ```cpp
-x.min_val + qbpp::sum(x.coeffs * x.vars)
+qbpp::sum(x.coeffs() * x.vars()) + x.min_val()
 ```

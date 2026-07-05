@@ -9,7 +9,7 @@ hreflang_lang: "en"
 ---
 
 # ABS3 Solverの使い方
-ABS3 Solverを使用して式 `f` を解くには、以下の3つのステップで行います：
+ABS3 Solverを使用して式 `f` を解くには、以下の2つのステップで行います：
 1. 式 `f` に対してABS3 Solver（**`qbpp::ABS3Solver`**）オブジェクトを作成します。
 2. **`search()`**メンバ関数を呼び出します。パラメータは初期化子リストとして渡します。得られた解が返されます。
 
@@ -98,6 +98,7 @@ ABS3 Solver（`qbpp::ABS3Solver`）オブジェクトは与えられた式に対
 | **`thread_count`** | CUDAブロック当たりのスレッド数 | CUDAブロック当たりのスレッド数 |
 | **`topk_sols`** | 解の数 | 最良エネルギーのtop-K解を返します |
 | **`best_energy_sols`** | 最大数（"0" = 無制限） | 見つかった最良エネルギーを持つすべての解を返します |
+| **`seed`** | 乱数シード（"0" = 未指定） | 初期解や提案に使う乱数列を固定します（既定は非決定）。完全な実行再現は直列構成（例: `cpu_thread_count=1` かつ GPU なし）でのみ保証され、多スレッドや GPU ではタイミングの非決定性が残ります |
 
 ## 複数解の収集
 
@@ -137,12 +138,12 @@ auto result = solver.search({{"best_energy_sols", 100}});  // 最大100個を収
 
 ### 収集された解へのアクセス
 
-`search()` メソッドは `ABS3Sols` オブジェクトを返し、収集された解へのアクセスを提供します：
+`search()` メソッドは `ABS3SolverSol` オブジェクトを返し、収集された解へのアクセスを提供します：
 
 ```cpp
 auto result = solver.search(params);
 
-std::cout << "Best energy: " << result.energy << std::endl;
+std::cout << "Best energy: " << result.energy() << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
 for (const auto& sol : result.sols) {
@@ -150,7 +151,7 @@ for (const auto& sol : result.sols) {
 }
 ```
 
-`ABS3Sols` オブジェクトは以下をサポートします：
+`ABS3SolverSol` オブジェクトは以下をサポートします：
 - **`size()`** — 収集された解の数
 - **`sols`** — 解ベクトルへのアクセス
 - **`operator[](i)`** — i番目の解へのアクセス
@@ -170,7 +171,7 @@ for (const auto& sol : result.sols) {
 | `CallbackEvent::Timer` | 設定可能な間隔で定期的に呼び出されます |
 
 コールバック内では、以下のメソッドが利用可能です：
-- **`best_sol()`** — 現在の最良解への `const qbpp::Sol&` を返します。`.energy`、`.tts`、`.get(var)` などが使用できます。
+- **`best_sol()`** — 現在の最良解への `const qbpp::Sol&` を返します。`.energy()`、`.tts()`、`.get(var)` などが使用できます。
 - **`event()`** — このコールバックをトリガーしたイベントを返します
 - **`hint(sol)`** — 探索中にソルバーにヒント解を提供します（[Solution Hint](#solution-hint)を参照）
 - **`terminate()`** — 現在の探索を協調的に中断します（下記[探索の中断](#探索の中断)を参照）
@@ -201,8 +202,8 @@ class MySolver : public qbpp::ABS3Solver {
       timer(1.0);  // 1秒ごとのタイマーコールバックを有効化
     }
     if (event() == qbpp::CallbackEvent::BestUpdated) {
-      std::cout << "New best: energy=" << best_sol().energy
-                << " TTS=" << best_sol().tts << "s" << std::endl;
+      std::cout << "New best: energy=" << best_sol().energy()
+                << " TTS=" << best_sol().tts() << "s" << std::endl;
     }
   }
 };
@@ -224,7 +225,7 @@ int main() {
 `terminate()` を呼び出すと、実行中の `search()` を協調的に中断させ、これまでに発見した最良解を保持したまま即座に return させることができます。
 
 呼び出せる場所：
-- **`callback()` の内部** — `best_sol().energy` などを観察して停止を判断
+- **`callback()` の内部** — `best_sol().energy()` などを観察して停止を判断
 - **別スレッド** — 外部からのキャンセル、シグナルハンドラ、ウォッチドッグなど
 
 `terminate()` の利点は、**現在の最良解を見て柔軟に停止条件を組み立てられる** ことです。`target_energy` は事前に閾値を1つ固定する必要がありますが、`terminate()` なら：
@@ -253,9 +254,9 @@ class TerminateOnZero : public qbpp::ABS3Solver {
 
   void callback() const override {
     if (event() == qbpp::CallbackEvent::BestUpdated) {
-      std::cout << "energy=" << best_sol().energy
-                << " tts=" << best_sol().tts << "s" << std::endl;
-      if (best_sol().energy == 0) {
+      std::cout << "energy=" << best_sol().energy()
+                << " tts=" << best_sol().tts() << "s" << std::endl;
+      if (best_sol().energy() == 0) {
         terminate();  // 同じ energy で再び呼ばれることはないので 1 回限り
       }
     }
@@ -310,15 +311,15 @@ int main() {
   // 実行1: 通常の探索
   const auto sol1 = solver.search({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   std::cout << "Run 1: p=" << sol1(p) << " q=" << sol1(q)
-            << " energy=" << sol1.energy << std::endl;
+            << " energy=" << sol1.energy() << std::endl;
 
   // 実行2: 前回の解をヒントとして提供
-  qbpp::abs3_solver::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
+  qbpp::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   params2.hint(sol1);
   const auto sol2 = solver.search(params2);
   std::cout << "Run 2: p=" << sol2(p) << " q=" << sol2(q)
-            << " energy=" << sol2.energy
-            << " TTS=" << sol2.tts << "s" << std::endl;
+            << " energy=" << sol2.energy()
+            << " TTS=" << sol2.tts() << "s" << std::endl;
 }
 ```
 {% endraw %}

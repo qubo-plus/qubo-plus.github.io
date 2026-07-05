@@ -28,7 +28,7 @@ $$
 ## PyQBPP プログラム
 上記の考え方に基づき、以下の PyQBPP プログラムは2つの整数 `P = 858` と `Q = 693` の GCD を計算します:
 ```python
-import pyqbpp as qbpp
+import pyqbpp.c64e64 as qbpp
 
 P = 858
 Q = 693
@@ -36,7 +36,7 @@ p = qbpp.var("p", between=(1, 1000))
 q = qbpp.var("q", between=(1, 1000))
 r = qbpp.var("r", between=(1, 1000))
 
-constraint = (p * r == Q) + (q * r == P)
+constraint = (p * r == P) + (q * r == Q)
 f = -r + constraint * 1000
 
 f.simplify_as_binary()
@@ -49,6 +49,7 @@ print(f"{sol(p)} * {sol(r)} = {P}")
 print(f"{sol(q)} * {sol(r)} = {Q}")
 ```
 このプログラムでは、`p`、`q`、`r` は範囲 $[1,1000]$ の整数変数として定義されています。
+二乗ペナルティ項を展開すると係数が $10^{13}$ 程度に達し、デフォルトの `pyqbpp` モジュールの32ビット係数を超えるため、`pyqbpp.c64e64` をインポートして64ビットの係数・エネルギーを使用します（利用可能な型バリアントは [FACTORIZATION](FACTORIZATION) 参照）。
 式 constraint は、両方の制約が満たされたときにゼロと評価されるように構築されています。
 
 目的関数 `-r` はペナルティ係数 `1000` を掛けた制約項と組み合わされ、結果の式は `f` に格納されます。
@@ -57,7 +58,7 @@ EasySolver は `f` を最小化する解を探索します。
 得られた `p`、`q`、`r` の値は以下のように出力されます:
 ```
 GCD = 33
-21 * 33 = 858
-26 * 33 = 693
+26 * 33 = 858
+21 * 33 = 693
 ```
 この出力から、858 と 693 の GCD が 33 として正しく求められたことが確認できます。

@@ -23,9 +23,9 @@ $$
 
 The graph edge coloring problem can be formulated easily as a QUBO expression.
 Let $V=\lbrace 0,1,\ldots,n−1\rbrace$ and $C=\lbrace 0,1,\ldots,m−1\rbrace$.
-We assign unique IDs $0,1,\ldots,e−1$ to the $e=∣E∣$ edges, and let $(u_i,v_i)$ denote the $i$-th edge.
+We assign unique IDs $0,1,\ldots,s−1$ to the $s=∣E∣$ edges, and let $(u_i,v_i)$ denote the $i$-th edge.
 
-We introduce an $e\times m$ matrix $X=(x_{i,j})$ of binary variables, where
+We introduce an $s\times m$ matrix $X=(x_{i,j})$ of binary variables, where
 $x_{i,j}=1$ if and only if edge $(u_i,v_i)$ is assigned color $j$.
 
 ### One-hot constraint
@@ -34,8 +34,8 @@ $X$ must be one-hot:
 
 $$
 \begin{aligned}
-  \text{onehot}&= \sum_{i=0}^{e-1}\bigr(\sum_{j=0}^{m-1}x_{i,j}==1\bigl)\\
-   &=\sum_{i=0}^{e-1}\bigr(1-\sum_{j=0}^{m-1}x_{i,j}\bigl)^2
+  \text{onehot}&= \sum_{i=0}^{s-1}\bigr(\sum_{j=0}^{m-1}x_{i,j}==1\bigl)\\
+   &=\sum_{i=0}^{s-1}\bigr(1-\sum_{j=0}^{m-1}x_{i,j}\bigl)^2
 \end{aligned}
 $$
 
@@ -44,12 +44,12 @@ For each node, any pair of distinct incident edges must not be assigned the same
 
 $$
 \begin{aligned}
-  \text{different}&= \sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}x_u\cdot x_v\\
-   &=\sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}\sum_{j=0}^{m-1}x_{u,j}x_{v,j}
+  \text{different}&= \sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}x_i\cdot x_k\\
+   &=\sum_{u\in V}\sum_{\substack{i<k\\ i,k\in I(u)}}\sum_{j=0}^{m-1}x_{i,j}x_{k,j}
 \end{aligned}
 $$
 
-where $I(u)\subseteq \lbrace 0,1,\ldots,e−1\rbrace$ denotes the set of edge IDs incident to node $u$.
+where $I(u)\subseteq \lbrace 0,1,\ldots,s−1\rbrace$ denotes the set of edge IDs incident to node $u$.
 
 ## QUBO objective
 By combining these expressions, we obtain the QUBO objective function:

@@ -182,7 +182,7 @@ c4 = (diag == 15) + (anti_diag == 15)
 f = c1 + c2 + c3 + c4
 f.simplify_as_binary()
 
-ml = {x[0][0][k]: (1 if k == 1 else 0) for k in range(9)}
+ml = {x[0][0][k]: 1 if k == 1 else 0 for k in range(9)}
 ml.update({x[i][j][1]: 0 for i in range(3) for j in range(3) if not (i == 0 and j == 0)})
 
 g = qbpp.replace(f, ml)

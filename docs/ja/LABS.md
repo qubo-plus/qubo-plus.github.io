@@ -10,7 +10,7 @@ hreflang_lang: "en"
 
 # 低自己相関バイナリ列 (LABS) 問題
 
-**低自己相関バイナリ列 (Low Autocorrelation Binary Sequence, LABS)** 問題は、自己相関を最小化するスピン列 $S=(s_i)$ ($s_i=\pm, 0\leq i\leq n-1$) を見つけることを目的とします。
+**低自己相関バイナリ列 (Low Autocorrelation Binary Sequence, LABS)** 問題は、自己相関を最小化するスピン列 $S=(s_i)$ ($s_i=\pm 1, 0\leq i\leq n-1$) を見つけることを目的とします。
 アラインメント $d$ における $S$ の自己相関は次のように定義されます：
 
 $$

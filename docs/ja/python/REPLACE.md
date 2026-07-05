@@ -45,6 +45,7 @@ solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 
 print("sol =", sol)
 print("ml =", ml)
@@ -70,9 +71,9 @@ print("Q:", Q)
 以下の出力から、意図した通り64が $P$ に、27が $Q$ に配置されていることが確認できます：
 {% raw %}
 ```
-sol = 4:{{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+sol = Sol(energy=4, {x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 ml = {x[0]: 1, x[1]: 0}
-full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+full_sol = Sol(energy=4, {x[0]: 1, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 f(full_sol) = 4
 p(full_sol) = 206
 q(full_sol) = 204
@@ -97,6 +98,7 @@ solver = qbpp.ExhaustiveSolver(g)
 sol = solver.search()
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 ```
 このプログラムでは、変数 `x[0]` が否定リテラル `~x[1]` に置換されるように辞書 `ml` を定義しています。
 
@@ -107,14 +109,14 @@ full_sol = qbpp.Sol(f).set(sol, ml)
 `x[0]` は `g` に現れないため、解 `sol` にも `x[0]` の割り当ては含まれません。
 
 `f` の元の変数に対する完全な解を構築するために、ゼロ初期化された解を `qbpp.Sol(f)` で作成し、`set(sol, ml)` を呼び出して値を設定します。
-`sol` と `ml` は `set()` に一緒にリストで渡す必要があることに注意してください。これは `ml` のマッピング（例: `x[0] = ~x[1]`）が `sol` に含まれる変数値に依存する場合があるためです。
+`sol` と `ml` は `set(sol, ml)` のように2つの引数として一緒に渡す必要があることに注意してください。これは `ml` のマッピング（例: `x[0] = ~x[1]`）が `sol` に含まれる変数値に依存する場合があるためです。
 
 このプログラムは以下の出力を生成します：
 {% raw %}
 ```
-sol = 4:{{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+sol = Sol(energy=4, {x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 ml = {x[0]: ~x[1]}
-full_sol = 4:{{x[0],1},{x[1],0},{x[2],1},{x[3],0},{x[4],1},{x[5],1},{x[6],0},{x[7],0}}
+full_sol = Sol(energy=4, {x[0]: 1, x[1]: 0, x[2]: 1, x[3]: 0, x[4]: 1, x[5]: 1, x[6]: 0, x[7]: 0})
 f(full_sol) = 4
 p(full_sol) = 206
 q(full_sol) = 204
@@ -168,6 +170,7 @@ solver = qbpp.EasySolver(g)
 sol = solver.search(target_energy=0)
 
 full_sol = qbpp.Sol(f).set(sol, ml)
+full_sol.comp_energy()
 print(f"p={full_sol(p)}, q={full_sol(q)}, r={full_sol(r)}")
 ```
 このプログラムでは、辞書 `ml` を使用して、元の式 `f` 中の整数変数 `p` と `q` の値を固定しています。
@@ -231,11 +234,9 @@ p=5, q=7, r=35
 > ```
 
 > **注意: 制約式に対する `replace()`**
-> メンバ関数の `replace()` は制約式では利用**できません**。
-> 代わりにフリー関数形式を使用してください：
-> ```python
-> ee2 = qbpp.replace(ee, {x: 0, y: 1})  # 制約式で使用可能
-> ```
+> `replace()`（メンバ関数・フリー関数のどちらも）を制約式に適用すると、
+> 結果は制約メタデータ（`body`）を持たない通常の式になります。
+> 置換後も制約として扱いたい場合は、置換した式に対して `qbpp.constrain()` を適用し直してください。
 
 > **注意: タプルのリストによるマッピング**
 > マッピング `ml` は辞書の代わりに `(変数, 値)` のタプルのリストとして渡すこともできます：

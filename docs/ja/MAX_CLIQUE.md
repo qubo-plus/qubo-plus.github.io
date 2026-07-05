@@ -81,7 +81,7 @@ int main() {
     }
   }
 
-  auto f = -objective + N * constraint;
+  auto f = -objective + 2 * constraint;
   f.simplify_as_binary();
 
   auto solver = qbpp::ExhaustiveSolver(f);

@@ -115,7 +115,7 @@ for i in range(workers):
 
 no_more_than_6_consecutive_working_days = 0
 for w in range(workers):
-    for j in range(days - 5):
+    for j in range(days - 4):
         no_more_than_6_consecutive_working_days += (
             x[w][j] * x[w][j+1] * x[w][j+2] * x[w][j+3] *
             x[w][j+4] * x[w][j+5] * x[w][j+6])

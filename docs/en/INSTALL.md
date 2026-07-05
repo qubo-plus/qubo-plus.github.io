@@ -42,7 +42,7 @@ sudo apt update
 sudo apt install qbpp
 ```
 
-This automatically installs headers to `/usr/local/include/qbpp/`, shared libraries to `/usr/local/lib/`, and the `qbpp-license` command to `/usr/local/bin/`.
+This automatically installs headers to `/usr/include/qbpp/`, shared libraries to `/usr/lib/qbpp/` (registered with `ldconfig`), and the `qbpp-license` command to `/usr/bin/`.
 No environment variable configuration is needed.
 
 ### Upgrading

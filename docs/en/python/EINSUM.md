@@ -156,8 +156,8 @@ x = qbpp.var("x", 3, 2)                        # assignment matrix
 obj = qbpp.einsum("a,kl,ak,al->", f, d, x, x)
 ```
 
-This single line replaces a quadruple nested for-loop and is internally
-parallelized over multiple CPU threads.
+This single line replaces a quadruple nested for-loop. For large inputs it is
+internally parallelized over multiple CPU threads.
 
 ## When to use `einsum`
 

@@ -105,7 +105,7 @@ The Exhaustive Solver is applied to `f` to search for an optimal solution.
 The obtained solution `sol` is visualized and saved as `vertexcover.svg`.
 
 This program prints the following output:
-```cpp
+```
 objective = 9
 constraint = 0
 ```

@@ -46,6 +46,10 @@ f = x[0] +x[1] +x[2] +x[3] +x[4]
 > Using `auto` lets the compiler deduce this type automatically; you need to write it out explicitly only when the array is stored as a non-`static` class member (C++ disallows `auto` there).
 > The array type provides overloaded operators that support element-wise operations for its elements.
 
+> **NOTE — Index bounds**
+> In C++, `x[i]` is **not bounds-checked** (the same convention as `std::vector::operator[]`): an out-of-range or negative index is undefined behavior. Keep indices within `[0, size)`. In Python, `x[i]` raises `IndexError` on an out-of-range index.
+> Element-wise array operations require **matching shapes**; combining arrays of different shapes is an error (a fatal error in C++, a raised exception in Python).
+
 ## Sum function
 Using the array utility function **`qbpp::sum()`**, you can obtain the sum of an array of binary variables.
 The following program uses `qbpp::sum()` to compute the sum of all variables in the array `x`:
@@ -83,8 +87,10 @@ int main() {
   auto f = qbpp::sqr(qbpp::sum(x) - 1);
   std::cout << "f = " << f.simplify_as_binary() << std::endl;
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sol = solver.search({{"best_energy_sols", 1}});
-  std::cout << sol << std::endl;
+  auto sol = solver.search({{"best_energy_sols", 0}});
+  for (size_t k = 0; k < sol.size(); ++k) {
+    std::cout << "(" << k << ") " << sol.sols[k] << std::endl;
+  }
 }
 ```
 {% endraw %}
@@ -94,11 +100,11 @@ The Exhaustive Solver finds all optimal solutions with energy value 0, which are
 {% raw %}
 ```
 f = 1 -x[0] -x[1] -x[2] -x[3] -x[4] +2*x[0]*x[1] +2*x[0]*x[2] +2*x[0]*x[3] +2*x[0]*x[4] +2*x[1]*x[2] +2*x[1]*x[3] +2*x[1]*x[4] +2*x[2]*x[3] +2*x[2]*x[4] +2*x[3]*x[4]
-(0) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{x[4],1}}
-(1) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],1},{x[4],0}}
+(0) 0:{{x[0],1},{x[1],0},{x[2],0},{x[3],0},{x[4],0}}
+(1) 0:{{x[0],0},{x[1],1},{x[2],0},{x[3],0},{x[4],0}}
 (2) 0:{{x[0],0},{x[1],0},{x[2],1},{x[3],0},{x[4],0}}
-(3) 0:{{x[0],0},{x[1],1},{x[2],0},{x[3],0},{x[4],0}}
-(4) 0:{{x[0],1},{x[1],0},{x[2],0},{x[3],0},{x[4],0}}
+(3) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],1},{x[4],0}}
+(4) 0:{{x[0],0},{x[1],0},{x[2],0},{x[3],0},{x[4],1}}
 ```
 {% endraw %}
 All 5 optimal solutions are displayed.

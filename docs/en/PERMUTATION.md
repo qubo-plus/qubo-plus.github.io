@@ -64,7 +64,7 @@ int main() {
 
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols.sols[k];
     std::cout << "Solution " << k << " : " << sol(x) << std::endl;
@@ -142,7 +142,7 @@ int main() {
            qbpp::sum(qbpp::sqr(qbpp::vector_sum(x, 0) - 1));
   f.simplify_as_binary();
   auto solver = qbpp::ExhaustiveSolver(f);
-  auto sols = solver.search({{"best_energy_sols", 1}});
+  auto sols = solver.search({{"best_energy_sols", 0}});
   for (size_t k = 0; k < sols.size(); k++) {
     const auto& sol = sols.sols[k];
     const auto& row = qbpp::onehot_to_int(x(sol), 1);
@@ -152,8 +152,7 @@ int main() {
 }
 ```
 {% endraw %}
-In this program, `x(sol)` returns a matrix of assigned values to `x` in `sol`, which is a matrix of integers of size
-.
+In this program, `x(sol)` returns a matrix of assigned values to `x` in `sol`, which is a matrix of integer values with the same shape as `x`.
 `qbpp::onehot_to_int()` converts one-hot arrays along the axis to the corresponding integers.
 - **`qbpp::onehot_to_int(x(sol), 1)`**: Computes the integer corresponding to each row and returns them as an array of 4 integers, which represents the permutation.
 - **`qbpp::onehot_to_int(x(sol), 0)`**: returns the integer corresponding to each column and returns them as an array of 4 integers, which represents the inverse of the permutation.
@@ -211,7 +210,7 @@ We combine the QUBO formulation for the permutation matrix, $f(X)$, and the tota
 
 $$
 \begin{aligned}
- h(X) &= P\cdot f(x)+g(x) \\
+ h(X) &= P\cdot f(X)+g(X) \\
      &=P\left(\sum_{i=0}^{n-1}\left(1-\sum_{j=0}^{n-1}x_{i,j}\right)^2+\sum_{j=0}^{n-1}\left(1-\sum_{i=0}^{n-1}x_{i,j}\right)^2\right)+\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}c_{i,j}x_{i,j}
 \end{aligned}
 $$
@@ -223,7 +222,7 @@ We are now ready to design a QUBO++ program for the assignment problem.
 In this program, a fixed matrix $C$ of size $4\times4$ is given as an array of integer constants.
 `qbpp::array({...})` builds a constant integer array from a nested initializer list; the shape is inferred from the nesting (a list-of-lists becomes a 2D array).
 The formulas for $f(X)$ and $g(X)$ are defined using array functions and operations.
-Here, `qbpp::vector_sum(x, 1) == 1` returns a QUBO expression that takes the minimum value 0 if the equality is satisfied.
+Here, `qbpp::vector_sum(x, 1) == 1` returns an array of QUBO expressions, each taking the minimum value 0 if the equality is satisfied.
 In fact, it returns the same QUBO expression as `qbpp::sqr(qbpp::vector_sum(x, 1) - 1)`.
 Also, `c * x` returns a matrix obtained by computing the element-wise product of `c` and `x`,
 and therefore `qbpp::sum(c * x)` returns `g(X)`.

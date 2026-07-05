@@ -70,7 +70,7 @@ for i in range(N):
         if not adj[i][j]:
             constraint += x[i] * x[j]
 
-f = -objective + N * constraint
+f = -objective + 2 * constraint
 f.simplify_as_binary()
 
 solver = qbpp.ExhaustiveSolver(f)
@@ -91,6 +91,7 @@ This program produces the following output:
 ```
 objective = 4
 constraint = 0
+Clique nodes: 4 6 12 14
 ```
 From this output, we obtain a maximum clique of 4 nodes without violating the constraint.
 

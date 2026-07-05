@@ -61,7 +61,7 @@ The expression stored in a **`qbpp::Expr`** object can be simplified by calling 
 ```
 With this change, the output of the program becomes:
 ```
-f.simplify() = 1 -a -2*b -c +a*b +a*c +b*b +b*c
+f = 1 -a -2*b -c +a*b +a*c +b*b +b*c
 ```
 The member function call **`f.simplify()`** simplifies the expression `f` and returns the resulting value,
 which is then printed by `std::cout`.

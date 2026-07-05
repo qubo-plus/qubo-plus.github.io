@@ -165,7 +165,7 @@ auto sol = solver.search();
 コールバック内では **`event()`**、**`best_sol()`**（現在の最良 `qbpp::Sol`）、
 **`bound()`**（現在の双対下界）、**`timer(seconds)`**（タイマー設定/無効化）、
 **`terminate()`**（次の安全点で探索を停止）が使えます。`hint(sol)` は SCIP と HiGHS を
-ウォームスタートします（GLPK では何もしません）。
+ウォームスタートします（GLPK・CBC では何もしません）。
 
 {% raw %}
 ```cpp

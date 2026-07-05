@@ -9,7 +9,7 @@ hreflang_lang: "ja"
 ---
 
 # ABS3 Solver Usage
-Solving an expression `f` using the ABS3 Solver involves the following three steps:
+Solving an expression `f` using the ABS3 Solver involves the following two steps:
 1. Create an ABS3 Solver (or **`qbpp::ABS3Solver`**) object for the expression `f`.
 2. Call the **`search()`** member function, passing parameters as an initializer list. It returns the obtained solution.
 
@@ -99,6 +99,7 @@ and `"enable_default_callback", 1` enables the built-in callback function, which
 | **`thread_count`** | thread count per CUDA block | Number of threads per CUDA block |
 | **`topk_sols`** | number of solutions | Returns the top-K solutions with the best energies |
 | **`best_energy_sols`** | max count ("0" = unlimited) | Returns all solutions with the best energy found |
+| **`seed`** | random seed ("0" = unset) | Fixes the random streams used for initial solutions and proposals (default: non-deterministic). Fully reproducible runs are only guaranteed in serial configurations (e.g. `cpu_thread_count=1` with no GPU); with many threads or a GPU, timing nondeterminism still affects the outcome |
 
 ## Collecting Multiple Solutions
 
@@ -138,12 +139,12 @@ If both are specified, the last one takes effect.
 
 ### Accessing Collected Solutions
 
-The `search()` method returns an `ABS3Sols` object, which provides access to the collected solutions:
+The `search()` method returns an `ABS3SolverSol` object, which provides access to the collected solutions:
 
 ```cpp
 auto result = solver.search(params);
 
-std::cout << "Best energy: " << result.energy << std::endl;
+std::cout << "Best energy: " << result.energy() << std::endl;
 std::cout << "Number of solutions: " << result.size() << std::endl;
 
 for (const auto& sol : result.sols) {
@@ -151,7 +152,7 @@ for (const auto& sol : result.sols) {
 }
 ```
 
-The `ABS3Sols` object supports:
+The `ABS3SolverSol` object supports:
 - **`size()`** — number of collected solutions
 - **`sols`** — access the solution vector
 - **`operator[](i)`** — access the i-th solution
@@ -171,7 +172,7 @@ The callback is invoked with one of the following events:
 | `CallbackEvent::Timer` | Called periodically at a configurable interval |
 
 Inside the callback, the following methods are available:
-- **`best_sol()`** — returns `const qbpp::Sol&` to the current best solution. Use `.energy`, `.tts`, `.get(var)`, etc.
+- **`best_sol()`** — returns `const qbpp::Sol&` to the current best solution. Use `.energy()`, `.tts()`, `.get(var)`, etc.
 - **`event()`** — returns the event that triggered this callback
 - **`hint(sol)`** — provides a hint solution to the solver during the search (see [Solution Hint](#solution-hint))
 - **`terminate()`** — cooperatively aborts the running search (see [Aborting the Search](#aborting-the-search) below)
@@ -202,8 +203,8 @@ class MySolver : public qbpp::ABS3Solver {
       timer(1.0);  // enable timer callback every 1 second
     }
     if (event() == qbpp::CallbackEvent::BestUpdated) {
-      std::cout << "New best: energy=" << best_sol().energy
-                << " TTS=" << best_sol().tts << "s" << std::endl;
+      std::cout << "New best: energy=" << best_sol().energy()
+                << " TTS=" << best_sol().tts() << "s" << std::endl;
     }
   }
 };
@@ -225,7 +226,7 @@ int main() {
 Calling `terminate()` cooperatively aborts a running `search()`. The call returns immediately with the best solution found so far.
 
 It can be called from:
-- **inside `callback()`** — inspect `best_sol().energy` and decide whether to stop
+- **inside `callback()`** — inspect `best_sol().energy()` and decide whether to stop
 - **a separate thread** — for external cancellation, signal handlers, watchdogs, etc.
 
 The advantage of `terminate()` is that **you can express stopping conditions in terms of the current best solution at runtime**. Whereas `target_energy` locks you into a single fixed threshold up front, `terminate()` lets you decide on the fly:
@@ -254,9 +255,9 @@ class TerminateOnZero : public qbpp::ABS3Solver {
 
   void callback() const override {
     if (event() == qbpp::CallbackEvent::BestUpdated) {
-      std::cout << "energy=" << best_sol().energy
-                << " tts=" << best_sol().tts << "s" << std::endl;
-      if (best_sol().energy == 0) {
+      std::cout << "energy=" << best_sol().energy()
+                << " tts=" << best_sol().tts() << "s" << std::endl;
+      if (best_sol().energy() == 0) {
         terminate();  // fires only once: BestUpdated is strictly monotonic
       }
     }
@@ -311,15 +312,15 @@ int main() {
   // Run 1: normal search
   const auto sol1 = solver.search({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   std::cout << "Run 1: p=" << sol1(p) << " q=" << sol1(q)
-            << " energy=" << sol1.energy << std::endl;
+            << " energy=" << sol1.energy() << std::endl;
 
   // Run 2: provide previous solution as a hint
-  qbpp::abs3_solver::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
+  qbpp::Params params2({{"target_energy", 0}, {"time_limit", 10}, {"enable_default_callback", 1}});
   params2.hint(sol1);
   const auto sol2 = solver.search(params2);
   std::cout << "Run 2: p=" << sol2(p) << " q=" << sol2(q)
-            << " energy=" << sol2.energy
-            << " TTS=" << sol2.tts << "s" << std::endl;
+            << " energy=" << sol2.energy()
+            << " TTS=" << sol2.tts() << "s" << std::endl;
 }
 ```
 {% endraw %}

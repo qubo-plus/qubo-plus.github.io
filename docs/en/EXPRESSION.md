@@ -67,7 +67,7 @@ with an integer coefficient `2` and variables `x` and `y`:
 ```
 This program prints:
 ```
-2*x*y`
+2*x*y
 ```
 
 ## `qbpp::Expr` class
@@ -109,7 +109,7 @@ For example, the following program creates a **`qbpp::Expr`** object **`f`** tha
 ```
 This program prints:
 ```
--6 +x*x +y*x -2*x*y -2*y*y +3*x +3*y -2*x +4*y
+-6 -2*x +4*y +3*x +3*y +x*x -2*x*y +y*x -2*y*y
 ```
 Note that these mathematical operations only expand the expression.
 To simplify the expression, you need to explicitly call a simplify function, as shown below:
@@ -179,8 +179,9 @@ because `t` is a `qbpp::Term` object:
   t += 3 * x;
   std::cout << t << std::endl;
 ```
-To store and manipulate expressions, you must explicitly create a
-`qbpp::Expr` object using the **`qbpp::toExpr()`** function, as shown below:
+To store and manipulate an expression while using `auto`, create a
+`qbpp::Expr` object explicitly with the **`qbpp::toExpr()`** function, as shown below
+(you can also state the type directly, e.g. `qbpp::Expr t = 2 * x * y;`):
 ```cpp
   auto x = qbpp::var("x");
   auto y = qbpp::var("y");

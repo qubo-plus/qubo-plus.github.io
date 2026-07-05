@@ -19,7 +19,7 @@ We assume that locations are points in the two-dimensional plane and that the tr
 Let $c_{i,j}$ denote the distance (cost) between locations $i$ and $j$.
 
 ## QUBO++ formulation: array of binary variables
-We use a $V\times N\times N$ array $A=(a_{v,t,i})$ ($0\leq v\leq V, 0\leq t,i\leq N-1$) of binary variables to formulate the CVRP as a QUBO expression,
+We use a $V\times N\times N$ array $A=(a_{v,t,i})$ ($0\leq v\leq V-1, 0\leq t,i\leq N-1$) of binary variables to formulate the CVRP as a QUBO expression,
 where $a_{v,t,i}$ is 1 if and only if the $t$-th visited location of vehicle $v$ is location $i$.
 
 Below is an example assignment of $A=(a_{v,t,i})$ with $V=3$ and $N=10$ representing

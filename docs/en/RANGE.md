@@ -30,7 +30,7 @@ $g$ achieves 0 if and only if $f$ itself takes an integer value within the same 
 
 Using this auxiliary-variable technique, QUBO++ implements range constraints.
 If $f$ is a linear expression, then $g$ becomes a QUBO expression.
-If $f$ is cubic or of higher degree, then $g$ becomes a HUBO expression.
+If $f$ is quadratic or of higher degree, then $g$ becomes a HUBO expression (the degree of $g$ is twice that of $f$).
 
 >**NOTE**
 > QUBO++ internally employs a lightweight improvement that enables range constraints to be encoded with a slightly smaller number of binary variables.

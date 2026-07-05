@@ -125,7 +125,7 @@ It then produces:
 onehot = 1
 different = 0
 ```
-This output indicates that the solver failed to assign a color to exactly one node (i.e., one row is not one-hot). The resulting graph shows that node 7 is left uncolored:
+This graph is not 3-colorable (its chromatic number is 4), so no valid 3-coloring exists: the penalty-minimizing solution necessarily leaves exactly one node without a consistent color (one row is not one-hot). The resulting graph shows that node 7 is left uncolored:
 
 <p align="center">
   <img src="../images/graph_color_m3.svg" alt="The solution of the graph coloring problem with $m=3$ colors." width="80%">

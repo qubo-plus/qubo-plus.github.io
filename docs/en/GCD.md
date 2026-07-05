@@ -30,6 +30,7 @@ Based on the idea above, the following QUBO++ program computes the GCD of two in
 `P = 858` and `Q = 693`:
 {% raw %}
 ```cpp
+#define INTEGER_TYPE_C64E64
 #include <qbpp/qbpp.hpp>
 #include <qbpp/easy_solver.hpp>
 
@@ -40,7 +41,7 @@ int main() {
   auto q = 1 <= qbpp::var_int("q") <= 1000;
   auto r = 1 <= qbpp::var_int("r") <= 1000;
 
-  auto constraint = (p * r == Q) + (q * r == P);
+  auto constraint = (p * r == P) + (q * r == Q);
   auto f = -r + constraint * 1000;
 
   f.simplify_as_binary();
@@ -55,6 +56,7 @@ int main() {
 ```
 {% endraw %}
 In this program, `p`, `q`, and `r` are defined as integer variables in the range $[1,1000]$.
+The squared penalty terms expand to coefficients on the order of $10^{13}$, which exceed the default 32-bit `coeff_t`, so `INTEGER_TYPE_C64E64` is defined before including the header to use 64-bit coefficients and energies (see [FACTORIZATION](FACTORIZATION) for the full list of integer-type macros).
 The expression constraint is constructed so that it evaluates to zero when both constraints are satisfied.
 
 The objective function `-r` is combined with the constraint term multiplied by a penalty factor of `1000`, and the resulting expression is stored in `f`.
@@ -63,7 +65,7 @@ The EasySolver searches for a solution that minimizes `f`.
 The resulting values of `p`, `q`, and `r` are printed as follows:
 ```
 GCD = 33
-21 * 33 = 858
-26 * 33 = 693
+26 * 33 = 858
+21 * 33 = 693
 ```
 This output confirms that the GCD of 858 and 693 is correctly obtained as 33.

@@ -92,6 +92,7 @@ Exhaustive Solverを `f` に適用して最適解を探索します。
 ```
 objective = 9
 constraint = 0
+Selected nodes: 1 2 6 7 8 10 12 13 15
 ```
 目的関数値9、制約値0の最適解が得られました。
 

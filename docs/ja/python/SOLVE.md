@@ -115,7 +115,7 @@ Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 すべての最適解は `best_energy_sols` パラメータを設定することで以下のように取得できます：
 ```python
 solver = qbpp.ExhaustiveSolver(f)
-sol = solver.search(best_energy_sols=1)
+sol = solver.search(best_energy_sols=0)
 for i, s in enumerate(sol.sols):
     print(f"({i}) {s}")
 ```
@@ -131,7 +131,7 @@ sol = solver.search(all_sols=1)
 for i, s in enumerate(sol.sols):
     print(f"({i}) {s}")
 ```
-出力は以下のとおりです：
+
 ```
 (0) Sol(energy=0, {a: 0, b: 1, c: 1, d: 0})
 (1) Sol(energy=0, {a: 1, b: 0, c: 0, d: 1})

@@ -148,7 +148,7 @@ The program outputs the following result:
 
 {% raw %}
 ```
-sol = 0:{{x[0],0},{x[1],1},{x[2],1},{x[3],0},{y[0],0},{y[1],0},{y[2],1},{y[3],0}}
+sol = Sol(energy=0, {x[0]: 0, x[1]: 1, x[2]: 1, x[3]: 0, y[0]: 0, y[1]: 0, y[2]: 1, y[3]: 0})
 x = x[0] +2*x[1] +4*x[2] +3*x[3] = 6
 y = y[0] +2*y[1] +4*y[2] +3*y[3] = 4
 f = 100 -19*x[0] -36*x[1] -64*x[2] -51*x[3] -19*y[0] -36*y[1] -64*y[2] -51*y[3] +4*x[0]*x[1] +8*x[0]*x[2] +6*x[0]*x[3] +2*x[0]*y[0] +4*x[0]*y[1] +8*x[0]*y[2] +6*x[0]*y[3] +16*x[1]*x[2] +12*x[1]*x[3] +4*x[1]*y[0] +8*x[1]*y[1] +16*x[1]*y[2] +12*x[1]*y[3] +24*x[2]*x[3] +8*x[2]*y[0] +16*x[2]*y[1] +32*x[2]*y[2] +24*x[2]*y[3] +6*x[3]*y[0] +12*x[3]*y[1] +24*x[3]*y[2] +18*x[3]*y[3] +4*y[0]*y[1] +8*y[0]*y[2] +6*y[0]*y[3] +16*y[1]*y[2] +12*y[1]*y[3] +24*y[2]*y[3] = 0
@@ -161,6 +161,8 @@ g.body = 2*x[0] +4*x[1] +8*x[2] +6*x[3] +4*y[0] +8*y[1] +16*y[2] +12*y[3] = 28
 Thus, we can confirm that the values of `x`, `y`, and the constraint expressions `f`, `g`, `f.body`, and `g.body` are consistent with the solution.
 
 > **WARNING**
-> PyQBPP supports the `qbpp.constrain(expr, equal=n)` form only when `expr` is an expression and `n` is an integer.
-> Equality constraints of the form `expression == expression` are not supported directly; use `qbpp.constrain(expr1 - expr2, equal=0)` instead.
+> In `qbpp.constrain(expr, equal=n)`, `n` may be an integer or an expression (`Var`/`Term`/`Expr`).
+> The penalty is `sqr(expr - n)` and the body is `expr` (e.g. `qbpp.constrain(x + y, equal=2*z)`).
+> The operator form `expression == expression` is not supported directly; use `equal=` or
+> `qbpp.constrain(expr1 - expr2, equal=0)` for equality between expressions.
 > Details are explained in [**Comparison Constraints**](COMPARISON).
