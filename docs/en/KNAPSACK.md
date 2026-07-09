@@ -114,3 +114,72 @@ Item 7: weight = 7, value =  70
 Item 9: weight = 18, value =  160
 ```
 We can observe that this instance has two optimal solutions, both achieving a total value of `480` while exactly satisfying the capacity constraint.
+
+## Using `qbpp::cons()` for the capacity constraint
+
+The capacity constraint can also be marked as a constraint by wrapping the same
+range expression in `qbpp::cons()`. This is the only change to the program above:
+`constraint` is now `qbpp::cons(0 <= qbpp::sum(w * x) <= capacity)`, and the rest,
+including `constraint.body(sol)`, stays the same. The bundled solvers then treat
+it as a constraint; with the Exhaustive Solver, only selections that satisfy the
+capacity are enumerated:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+
+  auto constraint = qbpp::cons(0 <= qbpp::sum(w * x) <= capacity);
+  auto objective = qbpp::sum(v * x);
+
+  auto f = -objective + 1000 * constraint;
+  f.simplify_as_binary();
+
+  auto solver = qbpp::ExhaustiveSolver(f);
+  auto sols = solver.search({{"best_energy_sols", 0}});
+  for (size_t i = 0; i < sols.size(); ++i) {
+    const auto& sol = sols.sols[i];
+    std::cout << "[Solution " << i << "]" << std::endl;
+    std::cout << "Energy = " << sol.energy() << std::endl;
+    std::cout << "Constraint  = " << constraint.body(sol) << std::endl;
+    std::cout << "Objective  = " << sol(objective) << std::endl;
+    for (size_t j = 0; j < w.size(); ++j) {
+      if (sol(x[j]) == 1) {
+        std::cout << "Item " << j << ": weight = " << w[j]
+                  << ", value =  " << v[j] << std::endl;
+      }
+    }
+  }
+}
+```
+{% endraw %}
+The program produces the same two optimal solutions as the range-operator
+version:
+```
+[Solution 0]
+Energy = -480
+Constraint  = 50
+Objective  = 480
+Item 3: weight = 5, value =  60
+Item 5: weight = 15, value =  150
+Item 6: weight = 12, value =  110
+Item 9: weight = 18, value =  160
+[Solution 1]
+Energy = -480
+Constraint  = 50
+Objective  = 480
+Item 3: weight = 5, value =  60
+Item 4: weight = 8, value =  80
+Item 6: weight = 12, value =  110
+Item 7: weight = 7, value =  70
+Item 9: weight = 18, value =  160
+```
+The two formulations are equivalent; wrapping the constraint in `qbpp::cons()`
+lets the bundled solvers handle it as a constraint, which also keeps larger
+knapsack instances tractable.

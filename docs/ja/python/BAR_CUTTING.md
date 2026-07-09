@@ -130,3 +130,73 @@ Order 1 fulfilled = 3, required = 4
 Order 2 fulfilled = 7, required = 8
 Order 3 fulfilled = 5, required = 6
 ```
+
+## `qbpp.cons()` で制約を表す
+
+注文制約と長さ制約は、`qbpp.cons()` で囲むことで制約として印を付けられます。
+変更は、蓄積する各制約を `qbpp.cons()` で囲むことだけです。
+`sol(bar_length_used[i])` や `sol(order_fulfilled_count[j])` による報告を含む
+残りの部分はそのままです:
+```python
+import pyqbpp as qbpp
+
+L = 60
+l = qbpp.array([13, 23, 8, 11])
+c = qbpp.array([10, 4, 8, 6])
+N = len(l)
+M = 6
+
+# 各バー i から切り出す注文 j の個数を表す整数変数 x[i][j] を作成
+x = [[qbpp.var(between=(0, c[j])) for j in range(N)] for i in range(M)]
+
+# 注文制約: 各注文の総個数は c[j] と等しくなければならない
+order_fulfilled_count = []
+order_constraint = 0
+for j in range(N):
+    col_sum = 0
+    for i in range(M):
+        col_sum += x[i][j]
+    order_fulfilled_count.append(col_sum)
+    order_constraint += qbpp.cons(col_sum == c[j])
+
+# 長さ制約: 各バーで使用する総長は L を超えてはならない
+bar_length_used = []
+bar_constraint = 0
+for i in range(M):
+    used = 0
+    for j in range(N):
+        used += x[i][j] * l[j]
+    bar_length_used.append(used)
+    bar_constraint += qbpp.cons((0 <= used) & (qbpp.same <= L))
+
+f = order_constraint + bar_constraint
+f.simplify_as_binary()
+
+solver = qbpp.EasySolver(f)
+sol = solver.search(time_limit=10.0, target_energy=0)
+
+for i in range(M):
+    pieces = "  ".join(str(sol(x[i][j])) for j in range(N))
+    used = sol(bar_length_used[i])
+    print(f"Bar {i}:  {pieces}   used = {used}, waste = {L - used}")
+
+for j in range(N):
+    fulfilled = sol(order_fulfilled_count[j])
+    print(f"Order {j} fulfilled = {fulfilled}, required = {c[j]}")
+```
+このプログラムは、例えば次のような実行可能な切り出し計画を見つけます:
+```
+Bar 0:  3  0  1  1   used = 58, waste = 2
+Bar 1:  2  1  0  1   used = 60, waste = 0
+Bar 2:  3  0  1  1   used = 58, waste = 2
+Bar 3:  1  2  0  0   used = 59, waste = 1
+Bar 4:  1  1  3  0   used = 60, waste = 0
+Bar 5:  0  0  3  3   used = 57, waste = 3
+Order 0 fulfilled = 10, required = 10
+Order 1 fulfilled = 4, required = 4
+Order 2 fulfilled = 8, required = 8
+Order 3 fulfilled = 6, required = 6
+```
+2つの定式化は等価です。制約を `qbpp.cons()` で囲むことで、バンドルされた
+ソルバーがそれらを制約として扱います。`f.cons(sol)` は違反した制約の本数を
+返します（実行可能な計画では `0`）。

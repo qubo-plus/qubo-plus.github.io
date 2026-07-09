@@ -132,3 +132,73 @@ Order 1 fulfilled = 3, required = 4
 Order 2 fulfilled = 7, required = 8
 Order 3 fulfilled = 5, required = 6
 ```
+
+## Using `qbpp.cons()` for the constraints
+
+The order and bar constraints can also be marked as constraints with
+`qbpp.cons()`. The only change is to wrap each accumulated constraint in
+`qbpp.cons()`; the rest of the program, including the `sol(bar_length_used[i])`
+and `sol(order_fulfilled_count[j])` reporting, stays the same:
+```python
+import pyqbpp as qbpp
+
+L = 60
+l = qbpp.array([13, 23, 8, 11])
+c = qbpp.array([10, 4, 8, 6])
+N = len(l)
+M = 6
+
+# Create integer variables x[i][j] for pieces of order j cut from bar i
+x = [[qbpp.var(between=(0, c[j])) for j in range(N)] for i in range(M)]
+
+# Order constraint: total pieces for each order must equal c[j]
+order_fulfilled_count = []
+order_constraint = 0
+for j in range(N):
+    col_sum = 0
+    for i in range(M):
+        col_sum += x[i][j]
+    order_fulfilled_count.append(col_sum)
+    order_constraint += qbpp.cons(col_sum == c[j])
+
+# Bar constraint: total length used in each bar must not exceed L
+bar_length_used = []
+bar_constraint = 0
+for i in range(M):
+    used = 0
+    for j in range(N):
+        used += x[i][j] * l[j]
+    bar_length_used.append(used)
+    bar_constraint += qbpp.cons((0 <= used) & (qbpp.same <= L))
+
+f = order_constraint + bar_constraint
+f.simplify_as_binary()
+
+solver = qbpp.EasySolver(f)
+sol = solver.search(time_limit=10.0, target_energy=0)
+
+for i in range(M):
+    pieces = "  ".join(str(sol(x[i][j])) for j in range(N))
+    used = sol(bar_length_used[i])
+    print(f"Bar {i}:  {pieces}   used = {used}, waste = {L - used}")
+
+for j in range(N):
+    fulfilled = sol(order_fulfilled_count[j])
+    print(f"Order {j} fulfilled = {fulfilled}, required = {c[j]}")
+```
+The program finds a feasible cutting plan, for example:
+```
+Bar 0:  3  0  1  1   used = 58, waste = 2
+Bar 1:  2  1  0  1   used = 60, waste = 0
+Bar 2:  3  0  1  1   used = 58, waste = 2
+Bar 3:  1  2  0  0   used = 59, waste = 1
+Bar 4:  1  1  3  0   used = 60, waste = 0
+Bar 5:  0  0  3  3   used = 57, waste = 3
+Order 0 fulfilled = 10, required = 10
+Order 1 fulfilled = 4, required = 4
+Order 2 fulfilled = 8, required = 8
+Order 3 fulfilled = 6, required = 6
+```
+The two formulations are equivalent; wrapping the constraints in `qbpp.cons()`
+lets the bundled solvers handle them as constraints. `f.cons(sol)` reports the
+number of violated constraints (`0` for a feasible plan).

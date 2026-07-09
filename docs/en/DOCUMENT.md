@@ -56,6 +56,7 @@ sections by providing a deeper understanding of QUBO++.
 17. [ABS3 Solver Usage](ABS3)
 18. [Search Parameters](PARAMS)
 19. [Performance Tips](TIPS)
+20. [Native Constraints](CONSTRAINTS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using QUBO++.

@@ -56,6 +56,7 @@ usage patterns, and, where appropriate, internal implementations.
 17. [ABS3 Solver Usage](ABS3)
 18. [Search Parameters](PARAMS)
 19. [Performance Tips](TIPS)
+20. [Native Constraints](CONSTRAINTS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using PyQBPP.

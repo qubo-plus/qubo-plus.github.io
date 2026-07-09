@@ -103,3 +103,62 @@ Item 7: weight = 7, value = 70
 Item 9: weight = 18, value = 160
 ```
 We can observe that this instance has two optimal solutions, both achieving a total value of `480` while exactly satisfying the capacity constraint.
+
+## Using `qbpp.cons()` for the capacity constraint
+
+The capacity constraint can also be marked as a constraint by wrapping the same
+range expression in `qbpp.cons()`. This is the only change to the program above:
+`constraint` is now `qbpp.cons((0 <= qbpp.sum(w * x)) & (qbpp.same <= capacity))`,
+and the rest, including `sol(constraint.body)`, stays the same. The bundled
+solvers then treat it as a constraint; with the Exhaustive Solver, only
+selections that satisfy the capacity are enumerated:
+```python
+import pyqbpp as qbpp
+
+w = qbpp.array([10, 20, 30, 5, 8, 15, 12, 7, 17, 18])
+v = qbpp.array([60, 100, 120, 60, 80, 150, 110, 70, 150, 160])
+capacity = 50
+
+x = qbpp.var("x", shape=len(w))
+
+constraint = qbpp.cons((0 <= qbpp.sum(w * x)) & (qbpp.same <= capacity))
+objective = qbpp.sum(v * x)
+
+f = -objective + 1000 * constraint
+f.simplify_as_binary()
+
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for idx, sol in enumerate(result.sols):
+    print(f"[Solution {idx}]")
+    print(f"Energy = {sol.energy}")
+    print(f"Constraint = {sol(constraint.body)}")
+    print(f"Objective = {sol(objective)}")
+    for j in range(len(w)):
+        if sol(x[j]) == 1:
+            print(f"Item {j}: weight = {w[j]}, value = {v[j]}")
+```
+The program produces the same two optimal solutions as the range-operator
+version:
+```
+[Solution 0]
+Energy = -480
+Constraint = 50
+Objective = 480
+Item 3: weight = 5, value = 60
+Item 5: weight = 15, value = 150
+Item 6: weight = 12, value = 110
+Item 9: weight = 18, value = 160
+[Solution 1]
+Energy = -480
+Constraint = 50
+Objective = 480
+Item 3: weight = 5, value = 60
+Item 4: weight = 8, value = 80
+Item 6: weight = 12, value = 110
+Item 7: weight = 7, value = 70
+Item 9: weight = 18, value = 160
+```
+The two formulations are equivalent; wrapping the constraint in `qbpp.cons()`
+lets the bundled solvers handle it as a constraint, which also keeps larger
+knapsack instances tractable.

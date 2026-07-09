@@ -265,3 +265,49 @@ ensures that the total selected sum does not exceed `T`.
 
 Finally, we minimize `f = -sum + P * (constraint1 + constraint2)` with a sufficiently large penalty constant `P`.
 As in the previous example, passing {% raw %}`{{"target_energy", -T}}`{% endraw %} to `search()` allows the solver to stop early if it finds a feasible solution achieving `sum = T` (in which case the penalty terms are zero and the objective term becomes `-T`).
+
+## Using `qbpp::cons()` for the constraint
+
+The constraint can also be marked with `qbpp::cons()`. Starting from the HUBO
+formulation, the only change is to wrap `0 <= sum <= T` in `qbpp::cons()`. Here
+`sum` is quadratic (it is $\sum_i s_i v_i$), and `qbpp::cons()` accepts such a
+nonlinear constraint body directly, so the auxiliary-variable QUBO reformulation
+is not needed:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto lower = qbpp::array({18, 17, 21, 18, 20, 14, 14, 23});
+  auto upper = qbpp::array({19, 17, 22, 19, 20, 16, 15, 25});
+  const int T = 100;
+
+  auto v = lower <= qbpp::var_int("v", lower.size()) <= upper;
+  auto s = qbpp::var("s", lower.size());
+
+  auto sum = qbpp::sum(v * s);
+  auto f = -sum + 1000 * qbpp::cons(0 <= sum <= T);
+  f.simplify_as_binary();
+
+  auto solver = qbpp::EasySolver(f);
+  auto sol = solver.search({{"target_energy", -T}});
+  for (size_t i = 0; i < v.size(); ++i) {
+    if (sol(s[i])) {
+      std::cout << "Interval " << i << ": val = " << sol(v[i]) << std::endl;
+    }
+  }
+  std::cout << "sum = " << sol(sum) << std::endl;
+}
+```
+{% endraw %}
+The bundled solvers handle `0 <= sum <= T` as a constraint. The output is the
+same, for example:
+```
+Interval 0: val = 19
+Interval 2: val = 22
+Interval 4: val = 20
+Interval 5: val = 15
+Interval 7: val = 24
+sum = 100
+```

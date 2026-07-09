@@ -68,7 +68,7 @@ f = -1.5 * x - 2.5 * y + 4.0 * x * y          # real (float) coefficients
 
 See [Real (double) coefficients](VAREXPR#real-double-coefficients) for details.
 
-Each variant can also be combined with a VarArray mode suffix `m0` / `m2` / `m4` / `m6`,
+Each variant can also be combined with a VarArray mode suffix `m0` / `m2` / `m4`,
 which controls how each `qbpp::Term` stores its variables
 (e.g. `import pyqbpp.c32e64m4 as qbpp`):
 
@@ -77,7 +77,6 @@ which controls how each `qbpp::Term` stores its variables
 | (none) / `m0` | unlimited | Variable-length (default; heap allocation for degree 3+) |
 | `m2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
 | `m4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
-| `m6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
 
 The type variant is chosen at import time and cannot be changed at runtime.
 See [VAREXPR](VAREXPR) for details.

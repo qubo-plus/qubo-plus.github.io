@@ -253,3 +253,43 @@ print(f"sum = {sol(total)}")
 前の例と同様に、`search()` に `target_energy=-T` を渡すことで、`total = T` を達成する実行可能解が見つかった場合にソルバーを早期停止させることができます（この場合、ペナルティ項は0になり目的関数項は `-T` になります）。
 
 HUBO定式化と同じ結果が得られます。
+
+## `qbpp.cons()` で制約を表す
+
+制約は `qbpp.cons()` で囲むこともできます。HUBO 定式化から出発すると、変更は
+`(0 <= total) & (qbpp.same <= T)` を `qbpp.cons()` で囲むことだけです。ここで
+`total` は二次式（$\sum_i s_i v_i$）ですが、`qbpp.cons()` はこのような非線形の
+制約本体をそのまま受け付けるため、補助変数を用いた QUBO への再定式化は不要に
+なります:
+```python
+import pyqbpp as qbpp
+
+lower = qbpp.array([18, 17, 21, 18, 20, 14, 14, 23])
+upper = qbpp.array([19, 17, 22, 19, 20, 16, 15, 25])
+T = 100
+n = len(lower)
+
+v = [qbpp.var(f"v{i}", between=(lower[i], upper[i])) for i in range(n)]
+s = qbpp.var("s", shape=n)
+
+total = qbpp.sum(v * s)
+f = -total + 1000 * qbpp.cons((0 <= total) & (qbpp.same <= T))
+f.simplify_as_binary()
+
+solver = qbpp.EasySolver(f)
+sol = solver.search(target_energy=-T)
+for i in range(n):
+    if sol(s[i]) == 1:
+        print(f"Interval {i}: val = {sol(v[i])}")
+print(f"sum = {sol(total)}")
+```
+バンドルされたソルバーは `(0 <= total) & (qbpp.same <= T)` を制約として扱います。
+出力は同じで、例えば次のようになります:
+```
+Interval 0: val = 19
+Interval 2: val = 22
+Interval 4: val = 20
+Interval 6: val = 15
+Interval 7: val = 24
+sum = 100
+```

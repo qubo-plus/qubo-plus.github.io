@@ -135,3 +135,76 @@ Order 1 fulfilled = 3, required = 4
 Order 2 fulfilled = 7, required = 8
 Order 3 fulfilled = 5, required = 6
 ```
+
+## Using `qbpp::cons()` for the constraints
+
+The order and bar constraints can also be marked as constraints with
+`qbpp::cons()`. Because `qbpp::cons()` already sums an array of constraints, the
+`qbpp::sum(...)` wrappers are dropped; the rest of the program, including the
+`sol(bar_length_used[i])` and `sol(order_fulfilled_count[j])` reporting, stays
+the same:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  const int L = 60;
+  const auto l = qbpp::array({13, 23, 8, 11});
+  const auto c = qbpp::array({10, 4, 8, 6});
+  const size_t N = l.size();
+  const size_t M = 6;
+
+  auto x = qbpp::var_int("x", M, N) == 0;
+  for (size_t i = 0; i < M; i++) {
+    for (size_t j = 0; j < N; j++) {
+      x[i][j] = 0 <= qbpp::var_int() <= c[j];
+    }
+  }
+
+  auto order_fulfilled_count = qbpp::vector_sum(x, 0);
+  auto order_constraint = qbpp::cons(order_fulfilled_count == c);
+
+  auto bar_length_used = qbpp::expr(M);
+  for (size_t i = 0; i < M; i++) {
+    bar_length_used[i] = qbpp::sum(x(i) * l);
+  }
+  auto bar_constraint = qbpp::cons(0 <= bar_length_used <= L);
+
+  auto f = order_constraint + bar_constraint;
+  f.simplify_as_binary();
+
+  auto solver = qbpp::EasySolver(f);
+  auto sol = solver.search({{"time_limit", 10.0}, {"target_energy", 0}});
+  for (size_t i = 0; i < M; i++) {
+    std::cout << "Bar " << i << ":  ";
+    for (size_t j = 0; j < N; j++) {
+      std::cout << sol(x[i][j]) << "  ";
+    }
+    std::cout << " used = " << sol(bar_length_used[i])
+              << ", waste = " << L - sol(bar_length_used[i]) << std::endl;
+  }
+  for (size_t j = 0; j < N; j++) {
+    std::cout << "Order " << j
+              << " fulfilled = " << sol(order_fulfilled_count[j])
+              << ", required = " << c[j] << std::endl;
+  }
+}
+```
+{% endraw %}
+The program finds a feasible cutting plan, for example:
+```
+Bar 0:  3  0  1  1   used = 58, waste = 2
+Bar 1:  2  1  0  1   used = 60, waste = 0
+Bar 2:  3  0  1  1   used = 58, waste = 2
+Bar 3:  1  2  0  0   used = 59, waste = 1
+Bar 4:  1  1  3  0   used = 60, waste = 0
+Bar 5:  0  0  3  3   used = 57, waste = 3
+Order 0 fulfilled = 10, required = 10
+Order 1 fulfilled = 4, required = 4
+Order 2 fulfilled = 8, required = 8
+Order 3 fulfilled = 6, required = 6
+```
+The two formulations are equivalent; wrapping the constraints in `qbpp::cons()`
+lets the bundled solvers handle them as constraints. `f.cons(sol)` reports the
+number of violated constraints (`0` for a feasible plan).

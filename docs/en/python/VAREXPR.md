@@ -222,7 +222,6 @@ Fixed-length modes eliminate heap allocation and improve performance when the ma
 | `m0` (or no suffix) | unlimited | Variable-length (heap allocation for degree 3+) |
 | `m2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
 | `m4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
-| `m6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
 
 Example — selecting both type and VarArray mode:
 ```python

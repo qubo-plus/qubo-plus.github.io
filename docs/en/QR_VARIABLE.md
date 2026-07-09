@@ -76,7 +76,6 @@ is known in advance:
 | `MAXDEG0` (default) | unlimited | Variable-length (heap allocation for degree 3+) |
 | `MAXDEG2` | 2 | Fixed-length, QUBO only (no heap allocation, fastest) |
 | `MAXDEG4` | 4 | Fixed-length, up to degree 4 (no heap allocation) |
-| `MAXDEG6` | 6 | Fixed-length, up to degree 6 (no heap allocation) |
 
 `INTEGER_TYPE_*` and `MAXDEG*` can be combined independently. See [VAREXPR](VAREXPR) for details.
 
