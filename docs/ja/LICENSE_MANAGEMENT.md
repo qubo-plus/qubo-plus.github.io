@@ -69,13 +69,40 @@ export QBPP_LICENSE_KEY=XXXXXX-XXXXXX-XXXXXX-XXXXXX
 
 > **ノードロックライセンスは、この環境変数を使っても Docker・VM・使い捨て環境では推奨されません。** アクティベーションはこれらの環境では不安定なマシン指紋に紐づくため、ノードロックキーを安定して動作させることはできません。Docker・VM・CI では、マシンに紐づかず同じ `QBPP_LICENSE_KEY` 環境変数を読む[フローティングライセンス](#フローティングライセンス)を使用してください。
 
+### 方法3: コードへの埋め込み
+
+アプリケーションにライセンスキーを同梱する場合は、コード内で `license_key()` を呼び出します。
+
+```cpp
+// C++
+qbpp::license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX");
+```
+
+```python
+# Python
+import pyqbpp as qbpp
+qbpp.license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX")
+```
+
+この形（既定）で設定したキーは**埋め込み既定キー**として扱われ、優先順位は最低になります。
+環境変数やアクティベーション済みキーが無いマシンでのみ使われるため、アプリの利用者は
+`QBPP_LICENSE_KEY` を設定するだけで自分のライセンスに切り替えられます。
+
+環境変数やキャッシュを上書きして強制したい場合は、第2引数に `true`（Python は
+`force=True`）を指定します（`qbpp-license -k` と同じ扱い）。
+
+```cpp
+qbpp::license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX", true);   // force
+```
+
 ### 優先順位
 
 複数の方法が使用されている場合、以下の優先順位が適用されます：
 
-1. **`-k` 引数** またはコード内の `qbpp::license_key()`（最高優先）
+1. **`-k` 引数** またはコード内の `qbpp::license_key(key, true)`（最高優先）
 2. **`QBPP_LICENSE_KEY` 環境変数**
-3. **キャッシュされたキー**（最低優先）
+3. **キャッシュされたキー**
+4. **コード内の `qbpp::license_key(key)`**（埋め込み既定キー、最低優先）
 
 > **注意**: 評価目的でも Trial キーが必要です。`qbpp-license -s` でサインアップコードを取得し、[User Portal](https://qubo-plus.github.io/portal/) で登録してください。
 

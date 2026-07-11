@@ -69,13 +69,42 @@ export QBPP_LICENSE_KEY=XXXXXX-XXXXXX-XXXXXX-XXXXXX
 
 > **Node-locked licenses are not recommended for Docker, VMs, or other ephemeral environments, even via this environment variable.** Activation still binds to a machine fingerprint that is unstable in such environments, so a node-locked key cannot reliably run there. For Docker/VM/CI, use a [floating license](#floating-licenses), which is not bound to a machine and reads the same `QBPP_LICENSE_KEY` variable.
 
+### Method 3: Embedding in Code
+
+To bundle a license key inside an application, call `license_key()` in your code:
+
+```cpp
+// C++
+qbpp::license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX");
+```
+
+```python
+# Python
+import pyqbpp as qbpp
+qbpp.license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX")
+```
+
+A key set this way (the default form) is treated as an **embedded default key** with the
+lowest priority: it is used only on machines that have neither the environment variable
+nor an activated cached key. Users of your application can therefore switch to their own
+license simply by setting `QBPP_LICENSE_KEY`.
+
+To force the key and override the environment variable and the cached key (the same
+treatment as `qbpp-license -k`), pass `true` as the second argument (`force=True` in
+Python):
+
+```cpp
+qbpp::license_key("XXXXXX-XXXXXX-XXXXXX-XXXXXX", true);   // force
+```
+
 ### Priority
 
 When multiple methods are used, the following priority applies:
 
-1. **`-k` argument** or `qbpp::license_key()` in code (highest)
+1. **`-k` argument** or `qbpp::license_key(key, true)` in code (highest)
 2. **`QBPP_LICENSE_KEY` environment variable**
-3. **Cached key** (lowest)
+3. **Cached key**
+4. **`qbpp::license_key(key)` in code** (embedded default key, lowest)
 
 > **Note**: A Trial license key is required even for evaluation. Run `qbpp-license -s` to obtain a sign-up code, then register at the [User Portal](https://qubo-plus.github.io/portal/) to receive your Trial key.
 
