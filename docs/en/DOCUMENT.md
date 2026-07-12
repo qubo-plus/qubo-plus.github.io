@@ -29,6 +29,7 @@ After completing this tutorial, you should be able to use QUBO++ for most typica
 6. [Integer Variables and Solving Simultaneous Equations](INTEGER)
 7. [Factorization Through HUBO Expression](FACTORIZATION)
 8. [Range Constraints and Solving Integer Linear Programming](RANGE)
+9. [Native Constraints](CONSTRAINTS)
 
 ## Topics
 This section provides topic-wise explanations of selected features of QUBO++.
@@ -56,7 +57,6 @@ sections by providing a deeper understanding of QUBO++.
 17. [ABS3 Solver Usage](ABS3)
 18. [Search Parameters](PARAMS)
 19. [Performance Tips](TIPS)
-20. [Native Constraints](CONSTRAINTS)
 
 ## Case Studies
 This section provides examples of solving optimization, mathematical, and graph problems using QUBO++.

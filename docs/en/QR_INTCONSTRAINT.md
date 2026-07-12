@@ -91,7 +91,44 @@ An `Expr` has three "faces":
 
 ---
 
-## 3. Global functions: return a new `Expr`
+## 3. Native constraints (`cons`)
+
+Wrapping a comparison or constraint expression in `qbpp::cons()` produces an expression with a **declared native constraint**.
+Declared constraints are treated specially as constraints, and the bundled solvers search efficiently for solutions that satisfy them.
+See [Native Constraints](CONSTRAINTS) for details.
+
+### Construction
+
+| Syntax | Meaning |
+|---|---|
+| `qbpp::cons(f == n)` | equality constraint `f == n` |
+| `qbpp::cons(f <= n)` | one-sided constraint |
+| `qbpp::cons(l <= f <= u)` | two-sided range constraint |
+| `qbpp::cons(f == qbpp::equal{a, b, ...})` | discrete allowed-value set (`f` must be one of `a`, `b`, ...) |
+| `qbpp::cons(arr == n)` (array comparison) | **one constraint per element** |
+| `P * qbpp::cons(...)` | assigns weight `P` (positive integer) |
+| `obj + qbpp::cons(...) + qbpp::cons(...)` | combines freely with the objective and other constraints via `+` |
+
+### Operations / functions
+
+For an expression `f` containing declared constraints:
+
+| Example | Result | Description |
+|---|---|---|
+| `f.is_declared_cons()` | `bool` | whether `f` contains declared constraints |
+| `f(sol)` | `energy_t` | matches the Energy reported by the solvers (objective + penalties) |
+| `f.cons(sol)` | `size_t` | number of constraints violated by `sol` (0 means all satisfied) |
+| `f.cons()` | printable view | `std::cout << f.cons()` prints the declared constraint list |
+| `f.violations(sol)` | list | reports value, bounds, violation, and weight of each constraint |
+| `f.is_feasible(sol)` | `bool` | whether all constraints are satisfied |
+| `f.simplify_as_binary()` | `Expr&` | simplifies both objective and constraints, **declarations preserved** |
+| `qbpp::replace(f, ml)` | `Expr` | variable substitution, declarations preserved |
+| `qbpp::expand_cons(f)` / `f.expand_cons()` | `Expr` / `Expr&` | expands into the classic penalty form (declarations removed) |
+| `sqr()`, expression multiplication, scalar factor ≤ 0, subtracting a constraint, `reduce()`, etc. | — | operations that would break the declarations are **explicit runtime errors** |
+
+---
+
+## 4. Global functions: return a new `Expr`
 
 The principal global functions that accept integer variables / constraint expressions. **All return a new `qbpp::Expr` and never modify their argument**:
 
@@ -102,12 +139,14 @@ The principal global functions that accept integer variables / constraint expres
 | `qbpp::simplify_as_binary(x)` | `Expr` | binary (0/1) simplification |
 | `qbpp::simplify_as_spin(x)` | `Expr` | spin (±1) simplification |
 | `qbpp::replace(x, ml)` | `Expr` | variable substitution |
+| `qbpp::cons(x)` | `Expr` (declared constraint) | declares a native constraint |
+| `qbpp::expand_cons(x)` | `Expr` | expands declared constraints into penalty form |
 
 The argument `x` may be `Var`, `Term`, `Expr` (of any face) — internally it is treated as `Expr`.
 
 ---
 
-## 4. Array variants
+## 5. Array variants
 
 Multi-dimensional arrays of integer variables and constraint expressions follow the same rules:
 - **Arithmetic treats each element as `Expr`** -> result is an array of `Expr`
@@ -134,4 +173,5 @@ Per-element `body` access: `qbpp::Expr(arr[i]).body()`.
 
 - [Integer Variables](INTEGER) — solving equations with integer variables
 - [Comparison Operators](COMPARISON) — `==`, `<= <=` details
+- [Native Constraints](CONSTRAINTS) — `qbpp::cons()` usage and per-solver semantics
 - [Replace](REPLACE) — `replace()` usage

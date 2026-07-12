@@ -29,6 +29,7 @@ mode_counterpart: "/ja/python/DOCUMENT.html"
 6. [整数変数と連立方程式の求解](INTEGER)
 7. [HUBO 式による因数分解](FACTORIZATION)
 8. [範囲制約と整数線形計画法の求解](RANGE)
+9. [ネイティブ制約](CONSTRAINTS)
 
 ## トピック
 このセクションでは、QUBO++ の選択された機能についてトピックごとに説明します。
@@ -56,7 +57,6 @@ mode_counterpart: "/ja/python/DOCUMENT.html"
 17. [ABS3 Solver の使い方](ABS3)
 18. [探索パラメータ](PARAMS)
 19. [高速化のための Tips](TIPS)
-20. [ネイティブ制約](CONSTRAINTS)
 
 
 

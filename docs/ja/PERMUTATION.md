@@ -268,3 +268,52 @@ c[3][0] = 11
 > **注意**
 > 式 `f` と整数 `m` に対して、`f == m` は式 `qbpp::sqr(f - m)` を返します。
 > これは等式 `f == m` が満たされる場合にのみ最小値0を取ります。
+
+## ネイティブ制約 `cons()` による割当問題の記述
+
+上のプログラムでは、置換制約 `f` を重み1000のペナルティ式として目的関数に加えました。
+QUBO++ では、行と列の one-hot 制約を `qbpp::cons()` で囲んで**制約であることを明示**できます:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto c = qbpp::array({{58, 73, 91, 44}, {62, 15, 87, 39}, {78, 56, 23, 94}, {11, 85, 68, 72}});
+  auto x = qbpp::var("x", 4, 4);
+  auto g = qbpp::sum(c * x);
+  auto h = g + 1000 * (qbpp::cons(qbpp::vector_sum(x, 1) == 1) +
+                       qbpp::cons(qbpp::vector_sum(x, 0) == 1));
+  h.simplify_as_binary();
+
+  auto solver = qbpp::EasySolver(h);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  auto result = qbpp::onehot_to_int(x(sol), 1);
+  std::cout << "Result : " << result << std::endl;
+  std::cout << "violated constraints = " << h.cons(sol) << std::endl;
+  for (size_t i = 0; i < result.size(); ++i) {
+    std::cout << "c[" << i << "][" << result[i] << "] = " << c[i][result[i]]
+              << std::endl;
+  }
+}
+```
+{% endraw %}
+
+配列の比較 `qbpp::vector_sum(x, 1) == 1` を `qbpp::cons()` で囲むと、
+**要素ごと**（ここでは行ごと・列ごと）**に1本の制約**として宣言されます。
+宣言された制約は**制約として特別に処理**され、バンドルされたソルバーは
+制約を満たす置換行列を効率よく探索します。
+`h.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら `x` は置換行列）。
+このプログラムの出力は以下のとおりです:
+
+```
+Result : {3,1,2,0}
+violated constraints = 0
+c[0][3] = 44
+c[1][1] = 15
+c[2][2] = 23
+c[3][0] = 11
+```
+
+`cons()` の詳しい使い方は[ネイティブ制約](CONSTRAINTS)をご覧ください。

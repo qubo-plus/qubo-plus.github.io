@@ -94,7 +94,44 @@ An `Expr` has three "faces":
 
 ---
 
-## 3. Global functions: return a new `Expr`
+## 3. Native constraints (`cons`)
+
+Creating a constraint with `qbpp.cons()` produces an expression with a **declared native constraint**.
+Declared constraints are treated specially as constraints, and the bundled solvers search efficiently for solutions that satisfy them.
+See [Native Constraints](CONSTRAINTS) for details.
+
+### Construction
+
+| Syntax | Meaning |
+|---|---|
+| `qbpp.cons(f, equal=n)` | equality constraint `f == n` |
+| `qbpp.cons(f, equal=[a, b, ...])` | discrete allowed-value set (`f` must be one of `a`, `b`, ...) |
+| `qbpp.cons(f, between=(l, u))` | range constraint (either bound may be `None`) |
+| `qbpp.cons(constraint_expr)` | declares a constraint expression built with `==` as a native constraint |
+| `qbpp.cons(array comparison)` | **one constraint per element** |
+| `P * qbpp.cons(...)` | assigns weight `P` (positive integer) |
+| `obj + qbpp.cons(...) + qbpp.cons(...)` | combines freely with the objective and other constraints via `+` |
+
+### Operations / functions
+
+For an expression `f` containing declared constraints:
+
+| Example | Result | Description |
+|---|---|---|
+| `f.is_declared_cons()` | `bool` | whether `f` contains declared constraints |
+| `sol(f)` | `int` | matches the Energy reported by the solvers (objective + penalties) |
+| `f.cons(sol)` | `int` | number of constraints violated by `sol` (0 means all satisfied) |
+| `f.cons()` | `str` | the declared constraint list as a string (show with `print(f.cons())`) |
+| `f.violations(sol)` | `list` | reports value, bounds, violation, and weight of each constraint |
+| `f.is_feasible(sol)` | `bool` | whether all constraints are satisfied |
+| `f.simplify_as_binary()` | `Expr` | simplifies both objective and constraints, **declarations preserved** |
+| `qbpp.replace(f, ml)` | `Expr` | variable substitution, declarations preserved |
+| `qbpp.expand_cons(f)` / `f.expand_cons()` | `Expr` | expands into the classic penalty form (declarations removed) |
+| `sqr()`, expression multiplication, scalar factor ≤ 0, subtracting a constraint, `reduce()`, etc. | — | operations that would break the declarations are **explicit runtime errors** |
+
+---
+
+## 4. Global functions: return a new `Expr`
 
 The principal global functions that accept integer variables / constraint expressions. **All return a new `pyqbpp.Expr` and never modify their argument**:
 
@@ -107,12 +144,14 @@ The principal global functions that accept integer variables / constraint expres
 | `qbpp.replace(x, ml)` | `Expr` | variable substitution |
 | `qbpp.constrain(f, equal=n)` | `Expr` (constraint) | equality constraint |
 | `qbpp.constrain(f, between=(l, u))` | `Expr` (constraint) | range constraint |
+| `qbpp.cons(...)` | `Expr` (declared constraint) | declares a native constraint |
+| `qbpp.expand_cons(f)` | `Expr` | expands declared constraints into penalty form |
 
 The argument `x` may be `Var`, `Term`, or `Expr` of any face (internally treated as `Expr`).
 
 ---
 
-## 4. Array variants
+## 5. Array variants
 
 Arrays of integer variables / constraint expressions follow the same rules:
 - **Arithmetic treats each element as `Expr`** -> result is an `Expr` array
@@ -136,7 +175,7 @@ Per-element `body` access: `arr[i].body`.
 
 ---
 
-## 5. Differences from C++
+## 6. Differences from C++
 
 Both C++ and Python allow `+=` etc. on these forms, but the semantics differ slightly:
 
@@ -149,4 +188,5 @@ Both C++ and Python allow `+=` etc. on these forms, but the semantics differ sli
 
 - [Integer Variables and Solving Simultaneous Equations](INTEGER) — examples using `qbpp.var(..., between=...)` and `qbpp.constrain(...)`
 - [Comparison Constraints](COMPARISON) — `qbpp.constrain(f, equal=n)` constraint creation
+- [Native Constraints](CONSTRAINTS) — `qbpp.cons()` usage and per-solver semantics
 - [Replace](REPLACE) — `qbpp.replace(...)` usage

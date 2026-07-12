@@ -13,7 +13,65 @@ hreflang_lang: "ja"
 In QUBO++, wrapping part of an expression in `qbpp::cons()` declares it as a
 **constraint, which receives special handling**. The solvers bundled with
 QUBO++ search efficiently for good solutions that satisfy the declared
-constraints:
+constraints.
+
+## Solving integer linear programming with `cons()`
+
+In [Range Constraints and Solving Integer Linear Programming](RANGE), the
+following integer linear programming problem was solved by adding the range
+constraints `c1` and `c2` to the objective as weighted penalty expressions:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+The same problem can be written as follows by wrapping the constraints in `qbpp::cons()`:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (qbpp::cons(c1) + qbpp::cons(c2));
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+The only change is rewriting the penalty sum `100 * (c1 + c2)` as
+`100 * (qbpp::cons(c1) + qbpp::cons(c2))`.
+With this change alone, `c1` and `c2` are **declared as constraints** rather
+than mere penalty expressions, and the solver searches efficiently for
+solutions that satisfy them.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol`
+(0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+## A knapsack example
+
+As another example, the following program solves a small knapsack problem
+(a capacity constraint and an equality constraint) with `cons()`:
 
 {% raw %}
 ```cpp
@@ -127,7 +185,8 @@ graph (satisfied when every vertex has degree 0 or 2). Because the allowed
 values are discrete, they cannot be expressed as a two-sided range
 `l <= f <= u`. The constraint list shows it as `== {0, 2}`. This constraint
 is supported by `EasySolver`, `ExhaustiveSolver`, and `ABS3Solver` (the MIP
-solvers do not support it).
+solvers do not support it). It is not available with the double-coefficient
+frontend (`DOUBLE_TYPE*`).
 
 ## Arithmetic rules
 
@@ -215,8 +274,8 @@ std::cout << (f3.is_feasible(sol3) ? "feasible" : "infeasible")
 
 `qbpp::expand_cons(f)` returns an ordinary expression in which the
 declared constraints are expanded into the **classic penalty form** — the
-same form you would get by writing them with the comparison operators or
-`constrain`. Use it to hand a model to external QUBO/HUBO tools that do
+same form you would get by writing them with the comparison operators.
+Use it to hand a model to external QUBO/HUBO tools that do
 not support native constraints. The in-place member `f.expand_cons()`
 overwrites `f` instead. The expanded expression is not simplified; call
 `simplify_as_binary()` before handing it to a solver.

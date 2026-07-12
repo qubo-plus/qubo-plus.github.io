@@ -97,3 +97,46 @@ c1.body(sol) = 23, c2.body(sol) = 53
 - **`c1.body()`** は線形式 `2 x + 3 y` を返し、`c1.body(sol)` はその値を `sol` で評価します。
 
 ソルバーが正しく最適解を見つけたことが確認できます。
+
+## ネイティブ制約 `cons()` による記述
+
+上のプログラムでは、制約 `c1` と `c2` を重み付きのペナルティ式として目的関数に加えました。
+QUBO++ では、さらに一歩進めて、制約を `qbpp::cons()` で囲んで**制約であることを明示**できます:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (qbpp::cons(c1) + qbpp::cons(c2));
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+変更点は `100 * (c1 + c2)` を `100 * (qbpp::cons(c1) + qbpp::cons(c2))` に書き換えただけです。
+`qbpp::cons()` で囲まれた部分は**制約として特別に処理**され、
+バンドルされたソルバーは宣言された制約を満たすように効率よく探索を行います。
+`g.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら全制約を充足）。
+プログラムの出力は以下の通りです:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+`cons()` で宣言した制約は、Exhaustive Solver や MIP ソルバー（Gurobi 等）では
+**ハード制約**（必ず満たすべき制約）として扱われます。
+詳細は[ネイティブ制約](CONSTRAINTS)をご覧ください。

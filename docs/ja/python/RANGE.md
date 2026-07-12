@@ -92,3 +92,43 @@ c1 = 0, c2 = 0
 - **`c1.body`** は線形式 `2x + 3y` を表します。
 
 ソルバーが正しく最適解を見つけていることが確認できます。
+
+## ネイティブ制約 `cons()` による記述
+
+上のプログラムでは、制約 `c1` と `c2` を重み付きのペナルティ式として目的関数に加えました。
+PyQBPP では、さらに一歩進めて、制約を **`qbpp.cons()`** で作成して**制約であることを明示**できます:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+g = -f + 100 * (qbpp.cons(2 * x + 3 * y, between=(0, 24)) +
+                qbpp.cons(7 * x + 5 * y, between=(0, 54)))
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"violated constraints = {g.cons(sol)}")
+```
+
+変更点は `constrain()` の代わりに `qbpp.cons()` を使うことだけです（引数の書き方は同じで、
+範囲制約は `between=(l, u)`、等式制約は `equal=n` で指定します）。
+`qbpp.cons()` で作成した部分は**制約として特別に処理**され、
+バンドルされたソルバーは宣言された制約を満たすように効率よく探索を行います。
+`g.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら全制約を充足）。
+プログラムの出力は以下の通りです:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+`cons()` で宣言した制約は、Exhaustive Solver では**ハード制約**（必ず満たすべき制約）
+として扱われます。MIP ソルバー（Gurobi 等）でも `ilp=True` を指定するとハード制約として
+扱われます。詳細は[ネイティブ制約](CONSTRAINTS)をご覧ください。

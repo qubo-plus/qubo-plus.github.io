@@ -254,3 +254,48 @@ c[3][0] = 11
 > **NOTE**
 > For an expression `f` and an integer `m`, `qbpp.constrain(f, equal=m)` returns an expression `sqr(f - m)`,
 > which takes the minimum value 0 if and only if the equality `f == m` is satisfied.
+
+## Writing the assignment problem with native constraints `cons()`
+
+In the program above, the permutation constraint `f` was added to the objective as a penalty expression with weight 1000.
+PyQBPP lets you **explicitly declare** the one-hot constraints on the rows and columns by wrapping them in **`qbpp.cons()`**:
+
+```python
+import pyqbpp as qbpp
+
+c = qbpp.array([[58, 73, 91, 44],
+                [62, 15, 87, 39],
+                [78, 56, 23, 94],
+                [11, 85, 68, 72]])
+x = qbpp.var("x", shape=(4, 4))
+g = qbpp.sum(c * x)
+h = g + 1000 * (qbpp.cons(qbpp.vector_sum(x, axis=1) == 1) +
+                qbpp.cons(qbpp.vector_sum(x, axis=0) == 1))
+h.simplify_as_binary()
+
+solver = qbpp.EasySolver(h)
+sol = solver.search(time_limit=1.0)
+result = qbpp.onehot_to_int(sol(x), axis=1)
+print("Result :", result)
+print("violated constraints =", h.cons(sol))
+for i in range(len(result)):
+    print(f"c[{i}][{result[i]}] = {c[i][result[i]]}")
+```
+
+When an array comparison such as `qbpp.vector_sum(x, axis=1) == 1` is wrapped in `qbpp.cons()`,
+it is declared as **one constraint per element** (here, one per row and one per column).
+The declared constraints are **treated specially as constraints**, and the bundled solvers
+search efficiently for a permutation matrix that satisfies them.
+`h.cons(sol)` returns the number of constraints violated by the solution `sol` (0 means `x` is a permutation matrix).
+The output of this program is as follows:
+
+```
+Result : [3, 1, 2, 0]
+violated constraints = 0
+c[0][3] = 44
+c[1][1] = 15
+c[2][2] = 23
+c[3][0] = 11
+```
+
+See [Native Constraints](CONSTRAINTS) for more about `cons()`.

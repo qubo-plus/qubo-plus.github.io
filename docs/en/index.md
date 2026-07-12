@@ -12,10 +12,12 @@ mode_shared: true
 
 **QUBO++** is a framework for formulating and solving combinatorial optimization problems
 as polynomials of binary variables (QUBO/HUBO).
+Declaring constraints explicitly with `cons()` lets the bundled solvers search efficiently for solutions that satisfy them.
 
 - **C++ and Python** — Use QUBO++ from C++ ([QUBO++](DOCUMENT)) or Python ([PyQBPP](python/DOCUMENT)).
 - **Easy installation** — `sudo apt install qbpp` for C++, `pip install pyqbpp` for Python. No build from source required.
 - **Symbolic DSL** — Write optimization models as mathematical expressions, not matrix indices. Use natural for-loops to build constraints, or leverage vector operations for loop-free formulations.
+- **Native constraints** — Wrap a constraint in `cons()` to declare it: the constraint is treated specially, and the bundled solvers search efficiently for solutions that satisfy it. This reduces the burden of penalty-weight tuning, and the same declarations are treated as hard constraints by the exact and MIP solvers. See [Native Constraints](CONSTRAINTS) ([Python version](python/CONSTRAINTS)) for details.
 - **Unlimited-degree HUBO** — Supports high-order terms of any degree, not just quadratic. Native support for negated literals (`~x`) avoids the term explosion caused by replacing $\overline{x}$ with $1-x$.
 - **Massive variable capacity** — A single model can use up to **2,147,483,647** ($2^{31}-1$) binary variables.
 - **Arbitrary-precision integer coefficients** — Handles integer coefficients of unlimited bit width. No overflow worries, from 32-bit to thousands of digits.

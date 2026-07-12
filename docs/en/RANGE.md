@@ -98,3 +98,46 @@ Here,
 - **`c1.body()`** returns the linear expression `2 x + 3 y`, and `c1.body(sol)` evaluates that body at `sol`.
 
 We can confirm that the solver correctly finds the optimal solution.
+
+## Writing with native constraints `cons()`
+
+In the program above, the constraints `c1` and `c2` were added to the objective as weighted penalty expressions.
+QUBO++ lets you go one step further and **explicitly declare them as constraints** by wrapping them in `qbpp::cons()`:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (qbpp::cons(c1) + qbpp::cons(c2));
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+The only change is rewriting `100 * (c1 + c2)` as `100 * (qbpp::cons(c1) + qbpp::cons(c2))`.
+The parts wrapped in `qbpp::cons()` are **treated specially as constraints**,
+and the bundled solvers search efficiently for solutions that satisfy the declared constraints.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol` (0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+Constraints declared with `cons()` are treated as **hard constraints** (constraints that must be satisfied)
+by the Exhaustive Solver and the MIP solvers (Gurobi, etc.).
+See [Native Constraints](CONSTRAINTS) for details.

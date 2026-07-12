@@ -91,7 +91,44 @@ hreflang_lang: "en"
 
 ---
 
-## 3. グローバル関数: 新しい `Expr` を返す
+## 3. ネイティブ制約 (`cons`)
+
+比較や制約式を `qbpp::cons()` で囲むと、**ネイティブ制約として宣言**された式になります。
+宣言された制約は制約として特別に処理され、バンドルされたソルバーは制約を満たすように効率よく探索します。
+詳細は[ネイティブ制約](CONSTRAINTS)を参照してください。
+
+### 生成
+
+| 構文 | 意味 |
+|---|---|
+| `qbpp::cons(f == n)` | 等式制約 `f == n` |
+| `qbpp::cons(f <= n)` | 片側制約 |
+| `qbpp::cons(l <= f <= u)` | 両側の範囲制約 |
+| `qbpp::cons(f == qbpp::equal{a, b, ...})` | 離散許容値集合（`f` が `a`, `b`, ... のいずれか） |
+| `qbpp::cons(arr == n)` (配列の比較) | **要素ごとに1本**の制約 |
+| `P * qbpp::cons(...)` | 重み `P`（正の整数）を付与 |
+| `obj + qbpp::cons(...) + qbpp::cons(...)` | `+` で目的関数・他の制約と自由に結合 |
+
+### 演算・関数
+
+制約宣言を含む式 `f` に対して:
+
+| 例 | 戻り値 | 説明 |
+|---|---|---|
+| `f.is_declared_cons()` | `bool` | 制約宣言を含むか |
+| `f(sol)` | `energy_t` | ソルバーが報告する Energy と一致（目的関数＋ペナルティ） |
+| `f.cons(sol)` | `size_t` | 解 `sol` で違反している制約の本数（0 なら全充足） |
+| `f.cons()` | 表示用ビュー | `std::cout << f.cons()` で宣言済み制約リストを表示 |
+| `f.violations(sol)` | リスト | 各制約の値・境界・違反量・重みを報告 |
+| `f.is_feasible(sol)` | `bool` | 全制約を充足しているか |
+| `f.simplify_as_binary()` | `Expr&` | 目的関数と制約の両方を簡約、**宣言は維持** |
+| `qbpp::replace(f, ml)` | `Expr` | 変数置換、宣言は維持 |
+| `qbpp::expand_cons(f)` / `f.expand_cons()` | `Expr` / `Expr&` | 従来のペナルティ式に展開（宣言は消える） |
+| `sqr()`, 式同士の乗算, 0 以下のスカラー倍, 制約式を引く減算, `reduce()` 等 | — | 宣言を壊す演算は**明示的に runtime error** |
+
+---
+
+## 4. グローバル関数: 新しい `Expr` を返す
 
 整数変数・制約式を引数に取れる主要なグローバル関数。**いずれも引数を変更せず、新しい `qbpp::Expr` を返します**:
 
@@ -102,12 +139,14 @@ hreflang_lang: "en"
 | `qbpp::simplify_as_binary(x)` | `Expr` | binary (0/1) ルールで簡約 |
 | `qbpp::simplify_as_spin(x)` | `Expr` | spin (±1) ルールで簡約 |
 | `qbpp::replace(x, ml)` | `Expr` | 変数置換 |
+| `qbpp::cons(x)` | `Expr` (制約宣言) | ネイティブ制約として宣言 |
+| `qbpp::expand_cons(x)` | `Expr` | 宣言された制約をペナルティ式に展開 |
 
 引数 `x` は `Var`, `Term`, 任意の顔の `Expr` のいずれでも OK (内部では `Expr` として扱われる)。
 
 ---
 
-## 4. 配列版
+## 5. 配列版
 
 整数変数の配列および制約式の配列も同じ性質:
 - **算術では各要素が `Expr` として扱われる** → 結果は `Array<Dim, Expr>`
@@ -133,4 +172,5 @@ auto penalty = qbpp::sum(onehot);              // Expr (全制約の合計)
 
 - [整数変数](INTEGER) — 整数変数を使った方程式の解き方
 - [比較演算子](COMPARISON) — `==`, `<= <=` の詳細
+- [ネイティブ制約](CONSTRAINTS) — `qbpp::cons()` の詳細な使い方とソルバーごとの意味論
 - [置換関数](REPLACE) — `replace()` の使用例

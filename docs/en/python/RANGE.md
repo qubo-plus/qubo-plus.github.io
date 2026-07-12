@@ -88,3 +88,43 @@ Here,
 - **`c1.body`** represents the linear expression `2x + 3y`.
 
 We can confirm that the solver correctly finds the optimal solution.
+
+## Writing with native constraints `cons()`
+
+In the program above, the constraints `c1` and `c2` were added to the objective as weighted penalty expressions.
+PyQBPP lets you go one step further and **explicitly declare them as constraints** by creating them with **`qbpp.cons()`**:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+g = -f + 100 * (qbpp.cons(2 * x + 3 * y, between=(0, 24)) +
+                qbpp.cons(7 * x + 5 * y, between=(0, 54)))
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"violated constraints = {g.cons(sol)}")
+```
+
+The only change is using `qbpp.cons()` instead of `constrain()` (the arguments are written the same way:
+`between=(l, u)` for a range constraint and `equal=n` for an equality constraint).
+The parts created with `qbpp.cons()` are **treated specially as constraints**,
+and the bundled solvers search efficiently for solutions that satisfy the declared constraints.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol` (0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+Constraints declared with `cons()` are treated as **hard constraints** (constraints that must be satisfied)
+by the Exhaustive Solver, and by the MIP solvers (Gurobi, etc.) when `ilp=True` is specified.
+See [Native Constraints](CONSTRAINTS) for details.

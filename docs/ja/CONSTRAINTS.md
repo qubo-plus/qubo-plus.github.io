@@ -14,6 +14,62 @@ QUBO++ では，式の中の制約部分を `qbpp::cons()` で囲むと，その
 **制約とみなされて特別に処理**されます．QUBO++ にバンドルされている
 ソルバーは，宣言された制約を満たすように効率よく探索を行います．
 
+## 整数線形計画法を `cons()` で解く
+
+[範囲制約と整数線形計画法の求解](RANGE)では，次の整数線形計画問題を，
+範囲制約 `c1`・`c2` を重み付きのペナルティ式として目的関数に加える方法で
+解きました:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+同じ問題は，制約を `qbpp::cons()` で囲むと次のように書けます:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (qbpp::cons(c1) + qbpp::cons(c2));
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+変更点は，ペナルティ和 `100 * (c1 + c2)` を
+`100 * (qbpp::cons(c1) + qbpp::cons(c2))` に書き換えただけです．
+これだけで `c1`・`c2` は単なるペナルティ式ではなく**制約として宣言**され，
+ソルバーは制約を満たす解を効率よく探索します．
+`g.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら全制約を充足）．
+プログラムの出力は以下の通りです:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+## ナップサック問題の例
+
+もう1つの例として，次のプログラムは簡単なナップサック問題
+（容量制約と等式制約）を `cons()` で解きます:
+
 {% raw %}
 ```cpp
 #include <qbpp/easy_solver.hpp>
@@ -123,7 +179,8 @@ auto deg = 100 * qbpp::cons(qbpp::sum(e) == qbpp::equal{0, 2});
 0 か 2 のとき充足）などに便利です．許容値がとびとびのため，両側範囲
 `l <= f <= u` では表現できません．制約リストには `== {0, 2}` と
 表示されます．この制約は `EasySolver`・`ExhaustiveSolver`・`ABS3Solver`
-で使えます（MIP ソルバーは非対応）．
+で使えます（MIP ソルバーは非対応）．double 係数フロントエンド
+（`DOUBLE_TYPE*`）では使えません．
 
 ## 式の演算規則
 
@@ -207,7 +264,7 @@ std::cout << (f3.is_feasible(sol3) ? "feasible" : "infeasible")
 ## 従来のペナルティ式への展開
 
 `qbpp::expand_cons(f)` は，宣言された制約を**従来のペナルティ式**
-（比較演算子や `constrain` で書いた場合と同じ形）に展開した通常の式を
+（比較演算子で書いた場合と同じ形）に展開した通常の式を
 返します．ネイティブ制約に対応しない外部の QUBO/HUBO ツールに渡す場合
 などに使います．`f` 自身を上書きする `f.expand_cons()` もあります．
 展開結果は簡約されていないので，ソルバーに渡す前に

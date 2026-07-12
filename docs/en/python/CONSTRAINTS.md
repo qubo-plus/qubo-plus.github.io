@@ -13,7 +13,61 @@ hreflang_lang: "ja"
 In PyQBPP, wrapping part of an expression in `qbpp.cons()` declares it as a
 **constraint, which receives special handling**. The solvers bundled with
 QUBO++ search efficiently for good solutions that satisfy the declared
-constraints:
+constraints.
+
+## Solving integer linear programming with `cons()`
+
+In [Range Constraints and Solving Integer Linear Programming](RANGE), the
+following integer linear programming problem was solved by adding the range
+constraints to the objective as weighted penalty expressions:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+The same problem can be written as follows by creating the constraints with `qbpp.cons()`:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+g = -f + 100 * (qbpp.cons(2 * x + 3 * y, between=(0, 24)) +
+                qbpp.cons(7 * x + 5 * y, between=(0, 54)))
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"violated constraints = {g.cons(sol)}")
+```
+
+The only change is replacing the penalty expressions built with `constrain()`
+by `qbpp.cons()` (the arguments are written the same way).
+With this change alone, the two range constraints are **declared as
+constraints** rather than mere penalty expressions, and the solver searches
+efficiently for solutions that satisfy them.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol`
+(0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+## A knapsack example
+
+As another example, the following program solves a small knapsack problem
+(a capacity constraint and an equality constraint) with `cons()`:
 
 ```python
 import pyqbpp as qbpp
@@ -123,7 +177,8 @@ graph (satisfied when every vertex has degree 0 or 2). Because the allowed
 values are discrete, they cannot be expressed as a two-sided range
 `between=(l, u)`. The constraint list shows it as `== {0, 2}`. This constraint
 is supported by `EasySolver`, `ExhaustiveSolver`, and `ABS3Solver` (the MIP
-solvers do not support it).
+solvers do not support it). It is not available in the arbitrary-precision
+(`pyqbpp.cppint`) and double-coefficient (`pyqbpp.d`) variants.
 
 ## Arithmetic rules
 
@@ -145,13 +200,18 @@ A constraint-carrying expression `f` is a complete model description:
 
 ## Solver semantics
 
-Every solver accepts the same expression `f` as its single argument:
+The bundled solvers accept the same expression `f` as their single argument:
 
 | Solver | Semantics |
 |---|---|
 | `EasySolver`, `ABS3Solver` | **soft**: violated constraints incur a penalty according to their weight; the search is driven toward good solutions that satisfy the constraints |
 | `ExhaustiveSolver` | **hard**: minimizes the objective over the assignments that satisfy the constraints (weights are ignored); reports an error when no feasible assignment exists |
-| external MIP solvers (`ScipSolver`, ...) | **hard**: constraints are passed to the MIP as linear constraints (weights are ignored) |
+| external MIP solvers (`ScipSolver`, ...) with `ilp=True` | **hard**: constraints are passed to the MIP as linear constraints (weights are ignored) |
+
+To hand a constraint-carrying model to an external MIP solver, use its ILP
+mode: pass `ilp=True` (e.g. `qbpp.ScipSolver(f, ilp=True)`); the model must
+be linear. Without `ilp=True` these solvers report an error for models with
+declared constraints.
 
 The identical model definition can be verified with an exact solver and
 then scaled up with a heuristic solver:

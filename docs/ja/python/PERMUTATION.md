@@ -250,3 +250,48 @@ c[3][0] = 11
 > **注釈**
 > 式 `f` と整数 `m` に対して、`qbpp.constrain(f, equal=m)` は式 `sqr(f - m)` を返します。
 > これは等式 `f == m` が満たされる場合に限り最小値0をとります。
+
+## ネイティブ制約 `cons()` による割当問題の記述
+
+上のプログラムでは、置換制約 `f` を重み1000のペナルティ式として目的関数に加えました。
+PyQBPP では、行と列の one-hot 制約を **`qbpp.cons()`** で囲んで**制約であることを明示**できます:
+
+```python
+import pyqbpp as qbpp
+
+c = qbpp.array([[58, 73, 91, 44],
+                [62, 15, 87, 39],
+                [78, 56, 23, 94],
+                [11, 85, 68, 72]])
+x = qbpp.var("x", shape=(4, 4))
+g = qbpp.sum(c * x)
+h = g + 1000 * (qbpp.cons(qbpp.vector_sum(x, axis=1) == 1) +
+                qbpp.cons(qbpp.vector_sum(x, axis=0) == 1))
+h.simplify_as_binary()
+
+solver = qbpp.EasySolver(h)
+sol = solver.search(time_limit=1.0)
+result = qbpp.onehot_to_int(sol(x), axis=1)
+print("Result :", result)
+print("violated constraints =", h.cons(sol))
+for i in range(len(result)):
+    print(f"c[{i}][{result[i]}] = {c[i][result[i]]}")
+```
+
+配列の比較 `qbpp.vector_sum(x, axis=1) == 1` を `qbpp.cons()` で囲むと、
+**要素ごと**（ここでは行ごと・列ごと）**に1本の制約**として宣言されます。
+宣言された制約は**制約として特別に処理**され、バンドルされたソルバーは
+制約を満たす置換行列を効率よく探索します。
+`h.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら `x` は置換行列）。
+このプログラムの出力は以下のとおりです:
+
+```
+Result : [3, 1, 2, 0]
+violated constraints = 0
+c[0][3] = 44
+c[1][1] = 15
+c[2][2] = 23
+c[3][0] = 11
+```
+
+`cons()` の詳しい使い方は[ネイティブ制約](CONSTRAINTS)をご覧ください。
