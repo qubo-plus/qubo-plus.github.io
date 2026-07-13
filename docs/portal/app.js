@@ -484,17 +484,17 @@
     const loading = $("#dashboard-loading");
     const empty = $("#dashboard-empty");
     const list = $("#license-list");
-    const actions = $("#dashboard-actions");
     const acts = $("#activations-list");
-    loading.hidden = false; empty.hidden = true; list.hidden = true; actions.hidden = true;
+    loading.hidden = false; empty.hidden = true; list.hidden = true;
     list.innerHTML = "";
 
     let data = null;  // Hoisted so the Activations block can read data.licenses
     try {
       data = await apiFetch("/me/licenses");
-      const hasActive = (data.licenses || []).some(isActive);
-      if (!hasActive) {
-        // Heal the case where PostConfirmation trigger failed, or user was missing one
+      if ((data.licenses || []).length === 0) {
+        // Heal ONLY the "account has no license at all" case (PostConfirmation
+        // trigger failed at sign-up). An expired trial is NOT re-issued — the
+        // user renews it in place via the Renew button on its card.
         try {
           await apiFetch("/trial/issue", { method: "POST" });
           data = await apiFetch("/me/licenses");
@@ -520,8 +520,6 @@
           btn.addEventListener("click", () => renewLicense(btn));
         });
         bindMemoEditors(list);
-        // Show "Issue a new trial" only when the user has no active trial
-        actions.hidden = hasActive;
       }
     } catch (e) {
       loading.hidden = true;
@@ -805,19 +803,6 @@
       await loadDashboard();
     } catch (e) {
       setError($("#issue-error"), e.message || "Could not issue Trial License.");
-    } finally { btn.disabled = false; }
-  });
-
-  $("#reissue-btn").addEventListener("click", async () => {
-    if (!confirm("Issue a new Trial License? Your previous Trial License must be expired or suspended.")) return;
-    const btn = $("#reissue-btn");
-    btn.disabled = true;
-    try {
-      const data = await apiFetch("/trial/issue", { method: "POST" });
-      alert("New license issued: " + data.license_key);
-      await loadDashboard();
-    } catch (e) {
-      alert("Could not issue: " + e.message);
     } finally { btn.disabled = false; }
   });
 
