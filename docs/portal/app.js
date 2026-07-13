@@ -295,7 +295,7 @@
       const expired = lic.expiry && lic.expiry > 0 && lic.expiry < now;
       const allowed = expired || !avail || now >= avail;
       if (allowed) {
-        renewBtn = `<button type="button" class="secondary" data-renew="1" title="Delete this key and issue a new one">Renew</button>`;
+        renewBtn = `<button type="button" class="secondary" data-renew="1" title="Extend this trial's expiry date (keeps the same license key)">Renew</button>`;
       } else {
         const dt = fmtDateTime(avail);
         renewBtn = `<button type="button" class="secondary" data-renew="1" disabled title="Renew available from ${escapeHTML(dt)}">Renew</button>`;
