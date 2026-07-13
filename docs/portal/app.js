@@ -199,15 +199,6 @@
     });
   }
 
-  function deleteCognitoUser() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { user } = await getValidSession();
-        user.deleteUser((err, ok) => err ? reject(err) : resolve(ok));
-      } catch (e) { reject(e); }
-    });
-  }
-
   // -------- API --------
   async function apiFetch(path, opts) {
     const { session } = await getValidSession();
@@ -600,14 +591,15 @@
   }
 
   async function deleteAccount() {
-    // 1. Lambda: suspend portal_trial licenses + drop their activations
+    // The Lambda suspends ALL owned licenses (deletion_pending + purge_at)
+    // and DISABLES the Cognito account. Nothing is hard-deleted here — the
+    // daily cleanup Lambda purges everything after the 90-day grace period,
+    // and until then an administrator can fully restore the account.
     try {
       await apiFetch("/me/account/delete", { method: "POST" });
     } catch (e) {
-      throw new Error("Could not suspend licenses: " + e.message);
+      throw new Error("Could not delete account: " + e.message);
     }
-    // 2. Cognito: remove the user (after Lambda success)
-    await deleteCognitoUser();
     const u = getCurrentUser();
     if (u) u.signOut();
   }
@@ -881,11 +873,19 @@
     ev.preventDefault();
     const f = ev.currentTarget;
     setError($("#delete-error"), "");
-    if (!confirm("Permanently delete your account? Licenses will be suspended. This cannot be undone.")) return;
+    if (!confirm(
+      "Delete your account?\n\n" +
+      "ALL of your licenses (including any paid licenses) will STOP WORKING " +
+      "immediately, and your account and licenses will be PERMANENTLY DELETED " +
+      "after 90 days.\n\n" +
+      "Within those 90 days, an administrator can restore your account on " +
+      "request. Continue?"
+    )) return;
     disable(f, true);
     try {
       await deleteAccount();
-      alert("Account deleted.");
+      alert("Account deactivated. All licenses are suspended and will be " +
+            "permanently deleted after 90 days.");
       location.hash = "#/signup";
       setTimeout(route, 0);
     } catch (e) {
