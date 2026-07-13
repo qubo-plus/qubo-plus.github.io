@@ -295,10 +295,10 @@
       const expired = lic.expiry && lic.expiry > 0 && lic.expiry < now;
       const allowed = expired || !avail || now >= avail;
       if (allowed) {
-        renewBtn = `<button type="button" class="secondary" data-renew="1" title="Extend this trial's expiry date (keeps the same license key)">Renew</button>`;
+        renewBtn = `<button type="button" class="secondary" data-renew="${escapeHTML(lic.license_key)}" title="Extend this trial's expiry date (keeps the same license key)">Renew</button>`;
       } else {
         const dt = fmtDateTime(avail);
-        renewBtn = `<button type="button" class="secondary" data-renew="1" disabled title="Renew available from ${escapeHTML(dt)}">Renew</button>`;
+        renewBtn = `<button type="button" class="secondary" data-renew="${escapeHTML(lic.license_key)}" disabled title="Renew available from ${escapeHTML(dt)}">Renew</button>`;
       }
     }
     const note = lic.user_note || "";
@@ -396,7 +396,11 @@
     const orig = btn.textContent;
     btn.textContent = "Renewing…";
     try {
-      const data = await apiFetch("/me/trial/renew", { method: "POST" });
+      const key = btn.getAttribute("data-renew") || "";
+      const data = await apiFetch("/me/trial/renew", {
+        method: "POST",
+        body: { license_key: key },
+      });
       await loadDashboard();
       if (data.renewed) {
         const dt = data.expiry ? fmtDateTime(data.expiry) : "the new date";
