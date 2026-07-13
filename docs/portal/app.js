@@ -402,12 +402,8 @@
         body: { license_key: key },
       });
       await loadDashboard();
-      if (data.renewed) {
-        const dt = data.expiry ? fmtDateTime(data.expiry) : "the new date";
-        alert("Trial extended. New expiry: " + dt);
-      } else {
-        alert("New license issued: " + data.license_key);
-      }
+      const dt = data.expiry ? fmtDateTime(data.expiry) : "the new date";
+      alert("Trial extended. New expiry: " + dt);
     } catch (e) {
       btn.disabled = false;
       btn.textContent = orig;
