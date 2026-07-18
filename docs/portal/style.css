@@ -322,6 +322,18 @@ button.danger:hover { background: #9c2516; }
 }
 .license-card .memo-saved { color: var(--info); }
 .license-card .memo-error { color: var(--error); }
+.license-card .usage {
+  margin-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.6rem;
+}
+.license-card .usage-h {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.license-card .usage .usage-empty { margin-top: 0.2rem; }
+.license-card .usage .activation-row { margin: 0.4rem 0 0; }
 
 .howto {
   margin-top: 1.5rem;

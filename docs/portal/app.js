@@ -273,7 +273,28 @@
     return true;
   }
 
-  function renderLicense(lic) {
+  // Per-license usage block, embedded in the license card: node-locked shows
+  // the activated machines (with Deactivate), floating shows the current /
+  // last session (with Release while in lease). Replaces the old page-bottom
+  // "Activated machines" section.
+  function renderUsage(lic, acts, actsError) {
+    if (actsError) {
+      return `<div class="usage"><p class="error">Could not load machine info: ${escapeHTML(actsError)}</p></div>`;
+    }
+    if (lic.license_type === "floating") {
+      const inner = acts.length
+        ? acts.map(renderActivation).join("")
+        : '<p class="muted usage-empty">Not checked out on any machine yet.</p>';
+      return `<div class="usage"><div class="usage-h">Floating session</div>${inner}</div>`;
+    }
+    const maxActs = Number(lic.activations || 1);
+    const inner = acts.length
+      ? acts.map(renderActivation).join("")
+      : '<p class="muted usage-empty">Not activated on any machine yet.</p>';
+    return `<div class="usage"><div class="usage-h">Activated machines (${acts.length}/${maxActs})</div>${inner}</div>`;
+  }
+
+  function renderLicense(lic, acts, actsError) {
     const status = fmtExpiry(lic);
     const cls = isActive(lic) ? "active" : "inactive";
     const isPortalTrial = lic.source === "portal_trial";
@@ -317,6 +338,7 @@
           <button type="button" class="secondary memo-save" data-note-save="${escapeHTML(lic.license_key)}" disabled>Save</button>
           <span class="memo-status" data-note-status="${escapeHTML(lic.license_key)}"></span>
         </div>
+        ${renderUsage(lic, acts || [], actsError)}
       </div>`;
   }
 
@@ -420,10 +442,7 @@
     return fmtDateTime(Math.floor(d.getTime() / 1000));
   }
 
-  function renderActivation(act, licenseLabelMap) {
-    const labelInfo = (licenseLabelMap && licenseLabelMap[act.license_key]) || {};
-    const licName = labelInfo.name || "(unnamed)";
-    const licenseLine = `${escapeHTML(licName)} · <code>${escapeHTML(act.license_key)}</code>`;
+  function renderActivation(act) {
     const isFloating = act.kind === "floating_session";
 
     // Label per row type: node-locked is permanent until explicit deactivate;
@@ -457,7 +476,6 @@
             <span class="muted">${escapeHTML(act.user || "(unknown user)")}</span>
             ${statusBadge}
           </div>
-          <div class="meta"><strong>License:</strong> ${licenseLine}</div>
           <div class="meta"><strong>${startedLabel}:</strong> ${escapeHTML(startedTs)}</div>
           <div class="meta"><strong>${lastVerifiedLabel}:</strong> ${escapeHTML(lastVerifiedTs)}</div>
           <div class="meta"><strong>IP:</strong> ${escapeHTML(act.ip || "-")}${act.country ? " (" + escapeHTML(act.country) + ")" : ""}</div>
@@ -475,11 +493,10 @@
     const loading = $("#dashboard-loading");
     const empty = $("#dashboard-empty");
     const list = $("#license-list");
-    const acts = $("#activations-list");
     loading.hidden = false; empty.hidden = true; list.hidden = true;
     list.innerHTML = "";
 
-    let data = null;  // Hoisted so the Activations block can read data.licenses
+    let data = null;
     try {
       data = await apiFetch("/me/licenses");
       if ((data.licenses || []).length === 0) {
@@ -491,13 +508,33 @@
           data = await apiFetch("/me/licenses");
         } catch (_) { /* show empty + retry button */ }
       }
+
+      // Machine usage, grouped per license so each card can embed its own
+      // activations. A failure here must not hide the licenses — cards then
+      // show an inline error in their usage block instead.
+      const actsByKey = {};
+      let actsError = null;
+      try {
+        const aData = await apiFetch("/me/activations");
+        for (const a of aData.activations || []) {
+          (actsByKey[a.license_key] = actsByKey[a.license_key] || []).push(a);
+        }
+      } catch (e) {
+        actsError = e.message || "request failed";
+      }
+
       loading.hidden = true;
       const licenses = data.licenses || [];
       if (licenses.length === 0) {
         empty.hidden = false;
       } else {
-        list.innerHTML = licenses.map(renderLicense).join("");
+        list.innerHTML = licenses
+          .map((l) => renderLicense(l, actsByKey[l.license_key], actsError))
+          .join("");
         list.hidden = false;
+        list.querySelectorAll(".deactivate-btn").forEach((btn) => {
+          btn.addEventListener("click", () => deactivate(btn));
+        });
         list.querySelectorAll("[data-copy]").forEach((btn) => {
           btn.addEventListener("click", () => {
             navigator.clipboard.writeText(btn.dataset.copy).then(() => {
@@ -516,30 +553,6 @@
       loading.hidden = true;
       empty.hidden = false;
       setError($("#issue-error"), "Could not load licenses: " + e.message);
-    }
-
-    // Activations
-    acts.innerHTML = "Loading…";
-    try {
-      const aData = await apiFetch("/me/activations");
-      if (!aData.activations || aData.activations.length === 0) {
-        acts.innerHTML = '<p class="muted">No activated machines yet.</p>';
-      } else {
-        // Build a lookup map license_key -> { name } so each activation can
-        // show which license it belongs to.
-        const licenseMap = {};
-        for (const lic of (data && data.licenses) || []) {
-          licenseMap[lic.license_key] = { name: lic.license_name };
-        }
-        acts.innerHTML = aData.activations
-          .map((a) => renderActivation(a, licenseMap))
-          .join("");
-        acts.querySelectorAll(".deactivate-btn").forEach((btn) => {
-          btn.addEventListener("click", () => deactivate(btn));
-        });
-      }
-    } catch (e) {
-      acts.innerHTML = `<p class="error">Could not load activations: ${escapeHTML(e.message)}</p>`;
     }
   }
 
