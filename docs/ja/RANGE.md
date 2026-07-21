@@ -137,6 +137,8 @@ f = 40
 violated constraints = 0
 ```
 
-`cons()` で宣言した制約は、Exhaustive Solver や MIP ソルバー（Gurobi 等）では
-**ハード制約**（必ず満たすべき制約）として扱われます。
+`cons()` で宣言した制約は、バンドルされた 3 つのソルバー（Easy Solver・
+Exhaustive Solver・ABS3 Solver）すべてで同じ意味を持ち、Exhaustive Solver は
+このペナルティ込みエネルギーの**厳密な最小解**を返します。
+MIP ソルバー（Gurobi 等）では**ハード制約**（必ず満たすべき制約）として扱われます。
 詳細は[ネイティブ制約](CONSTRAINTS)をご覧ください。

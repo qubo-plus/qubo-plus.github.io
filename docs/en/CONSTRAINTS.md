@@ -213,7 +213,7 @@ Every solver accepts the same expression `f` as its single argument:
 | Solver | Semantics |
 |---|---|
 | `EasySolver`, `ABS3Solver` | **soft**: violated constraints incur a penalty according to their weight; the search is driven toward good solutions that satisfy the constraints |
-| `ExhaustiveSolver` | **hard**: minimizes the objective over the assignments that satisfy the constraints (weights are ignored); reports an error when no feasible assignment exists |
+| `ExhaustiveSolver` | **soft**: ranks every assignment by the same penalty-inclusive energy as `EasySolver`/`ABS3Solver` and returns its **exact minimum** (ground truth for verifying and debugging on small instances) |
 | `GurobiSolver`, `ScipSolver`, `HighsSolver`, `CbcSolver`, `GlpkSolver` | **hard**: constraints are passed to the MIP as linear constraints (weights are ignored) |
 
 The identical model definition can be verified with an exact solver and

@@ -125,6 +125,9 @@ f = 40
 violated constraints = 0
 ```
 
-Constraints declared with `cons()` are treated as **hard constraints** (constraints that must be satisfied)
-by the Exhaustive Solver, and by the MIP solvers (Gurobi, etc.) when `ilp=True` is specified.
+Constraints declared with `cons()` have the same meaning in all three bundled
+solvers (Easy Solver, Exhaustive Solver, and ABS3 Solver), and the Exhaustive
+Solver returns the **exact minimum** of this penalty-inclusive energy.
+The MIP solvers (Gurobi, etc.) treat them as **hard constraints** (constraints
+that must be satisfied) when `ilp=True` is specified.
 See [Native Constraints](CONSTRAINTS) for details.

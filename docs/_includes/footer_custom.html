@@ -3,6 +3,9 @@
   Page last modified: {{ page.last_modified_at | date: site.last_edit_time_format }}.
 </p>
 {% endif %}
+<p class="text-small text-grey-dk-000 mb-0">
+  {% if page.lang == "ja" or page.url contains "/ja/" %}© 2026 中野浩嗣, 広島大学{% else %}© 2026 Koji Nakano, Hiroshima University{% endif %}
+</p>
 <script>
 (function() {
   var backToTop = document.getElementById('back-to-top');

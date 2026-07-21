@@ -204,7 +204,7 @@ auto deg = 100 * qbpp::cons(qbpp::sum(e) == qbpp::equal{0, 2});
 | ソルバー | 意味論 |
 |---|---|
 | `EasySolver`, `ABS3Solver` | **ソフト**: 制約違反には重みに応じたペナルティが加算され，制約を満たす良い解を効率よく探索する |
-| `ExhaustiveSolver` | **ハード**: 制約を満たす割当の中で目的関数を最小化（重みは無視）．実行可能解が存在しなければエラー |
+| `ExhaustiveSolver` | **ソフト**: `EasySolver`・`ABS3Solver` と同じペナルティ込みエネルギーで全割当を順位付けし，その**厳密な最小解**を返す（小規模インスタンスでの検証・デバッグ用） |
 | `GurobiSolver`, `ScipSolver`, `HighsSolver`, `CbcSolver`, `GlpkSolver` | **ハード**: 制約は MIP の線形制約として渡される（重みは無視） |
 
 同一のモデル定義を厳密ソルバーで検証してからヒューリスティックソルバーで

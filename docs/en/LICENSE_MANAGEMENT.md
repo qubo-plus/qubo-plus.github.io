@@ -128,6 +128,7 @@ qbpp-license -d
 
 - Each license key has a limited number of allowed activations.
 - Deactivation frees up one activation slot.
+- The locally cached key is removed as well. To use the license on this machine again, run `qbpp-license -k KEY -a` (your key is always available in the [User Portal](https://qubo-plus.github.io/portal/)).
 - There is a **24-hour cooldown** between consecutive deactivations to prevent abuse.
 
 
@@ -139,9 +140,11 @@ Usage: qbpp-license [options]
 Options:
   -h, --help          Show help message and exit
   -v, --version       Show version and exit
-  -k, --key KEY       Specify a license key
-  -a, --activate      Activate the license on this machine
-  -d, --deactivate    Deactivate the license on this machine
+  -k, --key KEY       Specify a license key (without -a/-d: show info only)
+  -a, --activate      Install the license on this machine (node-locked:
+                      activate + cache as default key; floating: cache only)
+  -d, --deactivate    Remove the license from this machine (node-locked:
+                      deactivate + remove cached key; floating: remove only)
   -s, --signup-code   Print today's portal sign-up code and exit
   -t, --time-out SEC  Set the server communication timeout (default: 20 seconds)
 ```
@@ -152,8 +155,9 @@ Options:
 |---|---|
 | `qbpp-license` | Display current license status |
 | `qbpp-license -s` | Print today's sign-up code for portal registration |
+| `qbpp-license -k KEY` | Show information about a key (no state change) |
 | `qbpp-license -k KEY -a` | Activate with a specific key |
-| `qbpp-license -d` | Deactivate the license on this machine |
+| `qbpp-license -d` | Deactivate the license on this machine and remove the cached key |
 | `qbpp-license -t 60` | Check status with a 60-second timeout |
 | `qbpp-license -k KEY -t 60 -a` | Activate with a key and extended timeout |
 
