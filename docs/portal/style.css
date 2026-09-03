@@ -1,0 +1,567 @@
+:root {
+  --bg: #fafafa;
+  --card: #ffffff;
+  --fg: #222;
+  --muted: #6b6b6b;
+  --primary: #1a6fb5;
+  --primary-hover: #145a94;
+  --error: #c0392b;
+  --warn: #c77700;
+  --warn-hover: #a56200;
+  --info: #2c7a3a;
+  --border: #d8d8d8;
+  --code-bg: #f3f3f3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  line-height: 1.5;
+}
+
+header {
+  background: var(--card);
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+header .header-row {
+  display: flex; flex-wrap: wrap; justify-content: space-between;
+  align-items: center; gap: 1rem;
+}
+header h1 { margin: 0; font-size: 1.4rem; color: var(--primary); }
+header .subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
+nav#topnav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+nav#topnav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+nav#topnav a:hover { background: rgba(0,0,0,0.04); }
+nav#topnav a.active { color: var(--primary); font-weight: 600; }
+nav#topnav .sep { color: var(--border); }
+nav#topnav #user-email { color: var(--muted); font-size: 0.9rem; }
+nav#topnav .secondary-sm {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); padding: 0.25rem 0.6rem;
+  border-radius: 4px; font-size: 0.85rem;
+}
+nav#topnav .secondary-sm:hover { background: rgba(0,0,0,0.04); }
+
+main {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  transition: max-width 0.15s ease;
+}
+/* Dashboard / Profile / Account benefit from a wider canvas. */
+main.wide {
+  max-width: 720px;
+}
+
+.view {
+  background: var(--card);
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+h2 { margin-top: 0; }
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  margin-bottom: 0.5rem;
+}
+.dashboard-header h2 {
+  margin: 0;
+  flex: 1;            /* H2 grows; button stays at the right edge */
+  min-width: 0;
+}
+.dashboard-header > button {
+  flex: 0 0 auto;     /* don't stretch */
+  margin: 0 !important;  /* override .secondary's default margin-left */
+}
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+label small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+input, textarea, select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 1rem;
+  background: #fff;
+}
+textarea { resize: vertical; }
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 480px) {
+  .row-2 { grid-template-columns: 1fr; gap: 0; }
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1rem;
+}
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0.2rem 0 0;
+  flex-shrink: 0;
+}
+.checkbox-label span { line-height: 1.4; }
+
+button {
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+}
+button:hover { background: var(--primary-hover); }
+button.secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+}
+button.secondary:hover { background: rgba(26, 111, 181, 0.08); }
+button.danger {
+  background: var(--error);
+  color: #fff;
+}
+button:disabled { opacity: 0.6; cursor: wait; }
+
+/* Renew button while the renewal window is open: solid amber plus a pulsing
+   ring so it stands out among the outlined secondary buttons. */
+button.renew-ready {
+  background: var(--warn);
+  color: #fff;
+  border: 1px solid transparent;
+  font-weight: 600;
+  animation: renew-pulse 1.4s ease-in-out infinite;
+}
+button.renew-ready:hover { background: var(--warn-hover); animation: none; }
+button.renew-ready:disabled { animation: none; }
+
+@keyframes renew-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(199, 119, 0, 0.55); opacity: 1; }
+  50%      { box-shadow: 0 0 0 7px rgba(199, 119, 0, 0); opacity: 0.78; }
+}
+
+.renew-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(199, 119, 0, 0.12);
+  border: 1px solid rgba(199, 119, 0, 0.4);
+  color: var(--warn);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.renew-ready { animation: none; }
+}
+
+.req { color: var(--error); }
+
+.error {
+  color: var(--error);
+  background: #fdecea;
+  border: 1px solid #f5c2c0;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+.info {
+  color: var(--info);
+  background: #ecf7ed;
+  border: 1px solid #c3e6c8;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+.notice {
+  background: #fffaeb;
+  border: 1px solid #f0d27a;
+  border-left: 4px solid #d49a2c;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.notice ul { margin: 0.4rem 0 0.4rem 0; padding-left: 1.25rem; }
+.notice li { margin-bottom: 0.3rem; }
+.notice li:last-child { margin-bottom: 0; }
+.notice small { color: var(--muted); display: block; margin-top: 0.4rem; }
+.muted { color: var(--muted); font-size: 0.9rem; margin-top: 1.25rem; }
+
+.section-h { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+.license-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+}
+.license-card.inactive { opacity: 0.7; background: #fafafa; }
+.license-card.inactive code { color: var(--muted); }
+
+#dashboard-actions { margin: 1rem 0; }
+#dashboard-actions small { display: block; margin-top: 0.4rem; }
+
+.activation-row {
+  display: block;
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.75rem 1rem; margin-bottom: 0.5rem;
+  background: #fff;
+  overflow: hidden;  /* contain floats */
+}
+.activation-row .deactivate-btn {
+  float: right;
+  margin: 0 0 0.3rem 0.6rem;
+}
+.activation-row .meta-stack { min-width: 0; }
+.activation-row .meta-stack > div { word-break: break-word; overflow-wrap: anywhere; }
+.activation-row .small { font-size: 0.8rem; }
+.activation-row.floating-row { background: #f6f9ff; }
+.meta-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.tag-active { background: #d4edda; color: #155724; }
+.tag-inactive { background: #e2e3e5; color: #495057; }
+.activation-row .host-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #eee;
+}
+.activation-row .host-row strong { font-size: 1rem; }
+.activation-row .host-row .muted { font-size: 0.9rem; color: var(--muted); }
+.activation-row .meta { font-size: 0.85rem; color: var(--muted); margin: 0.15rem 0; }
+.activation-row .meta strong { color: var(--fg); font-weight: 600; min-width: 6.5rem; display: inline-block; }
+
+details { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.75rem 1rem; background: var(--card); }
+details summary { cursor: pointer; padding: 0.25rem 0; }
+details[open] summary { margin-bottom: 0.75rem; }
+details.danger { border-color: #f5c2c0; }
+details.danger summary strong { color: var(--error); }
+
+button.danger { background: var(--error); }
+button.danger:hover { background: #9c2516; }
+.warn {
+  background: #fff8e1; border: 1px solid #f0d39a; padding: 0.6rem 0.8rem;
+  border-radius: 4px; font-size: 0.9rem; color: #6b4f00;
+}
+
+.forgot-link {
+  display: block; margin-top: 0.5rem; font-size: 0.85rem; color: var(--primary);
+}
+.license-card .key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.license-card code {
+  flex: 1;
+  background: var(--code-bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  word-break: break-all;
+}
+.license-card .meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+.license-card .meta strong { color: var(--fg); }
+
+.license-card .memo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.license-card .memo-row strong { color: var(--fg); }
+.license-card .memo-input {
+  flex: 1;
+  min-width: 14rem;
+  width: auto;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  margin: 0;
+}
+.license-card .memo-counter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.license-card .memo-status {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.license-card .memo-saved { color: var(--info); }
+.license-card .memo-error { color: var(--error); }
+.license-card .usage {
+  margin-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.6rem;
+}
+.license-card .usage-h {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.license-card .usage .usage-empty { margin-top: 0.2rem; }
+.license-card .usage .activation-row { margin: 0.4rem 0 0; }
+
+.howto {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+}
+.howto summary { cursor: pointer; font-weight: 600; }
+.howto pre {
+  background: var(--code-bg);
+  padding: 0.75rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+.howto code .placeholder {
+  background: #ffe9a8;
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+footer {
+  text-align: center;
+  margin: 2rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+footer a { color: var(--muted); }
+
+@media (max-width: 480px) {
+  main { margin: 1rem auto; }
+  .view { padding: 1.25rem; }
+  header { padding: 1rem; }
+}
+
+/* ==========================================================================
+   Partner theme: Hi-QUBO (https://hi-qubo.com/)
+   Active when brand.js sets <html data-brand="hi-qubo"> for visitors who
+   arrived from that site. Mirrors its theme (hiq-min): IBM Plex Sans /
+   Plex Sans JP body type, Poppins wordmark, IBM blue #0f62fe, square
+   corners, 1px #e0e0e0 lines, sticky frosted header, tall inputs.
+   Ordinary visitors never match these rules.
+   ========================================================================== */
+html[data-brand="hi-qubo"] {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --fg: #161616;
+  --muted: #5f5f5f;
+  --primary: #0f62fe;
+  --primary-hover: #0043ce;
+  --border: #e0e0e0;
+  --code-bg: #f4f4f4;
+  --hq-focus: 0 0 0 3px rgba(15, 98, 254, 0.16);
+  --hq-tint: rgba(15, 98, 254, 0.06);
+  --hq-line-hover: rgba(15, 98, 254, 0.45);
+}
+html[data-brand="hi-qubo"] body {
+  font-family: "IBM Plex Sans JP", "IBM Plex Sans", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", "Helvetica Neue", Arial,
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  line-height: 1.7;
+}
+
+/* Square everything the base sheet rounds. */
+html[data-brand="hi-qubo"] .view,
+html[data-brand="hi-qubo"] input,
+html[data-brand="hi-qubo"] textarea,
+html[data-brand="hi-qubo"] select,
+html[data-brand="hi-qubo"] button,
+html[data-brand="hi-qubo"] nav#topnav a,
+html[data-brand="hi-qubo"] .error,
+html[data-brand="hi-qubo"] .info,
+html[data-brand="hi-qubo"] .notice,
+html[data-brand="hi-qubo"] .warn,
+html[data-brand="hi-qubo"] .license-card,
+html[data-brand="hi-qubo"] .license-card code,
+html[data-brand="hi-qubo"] .activation-row,
+html[data-brand="hi-qubo"] .meta-tag,
+html[data-brand="hi-qubo"] .renew-badge,
+html[data-brand="hi-qubo"] details,
+html[data-brand="hi-qubo"] .howto,
+html[data-brand="hi-qubo"] .howto pre,
+html[data-brand="hi-qubo"] .howto code .placeholder {
+  border-radius: 0;
+}
+
+/* Header: sticky, frosted, Poppins wordmark in ink (their .site-header/.brand). */
+html[data-brand="hi-qubo"] header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+  padding: 0.9rem clamp(20px, 3.2vw, 48px);
+}
+html[data-brand="hi-qubo"] header h1 {
+  font-family: "Poppins", "IBM Plex Sans", sans-serif;
+  font-weight: 600;
+  font-size: 25px;
+  letter-spacing: 0;
+  color: var(--fg);
+}
+html[data-brand="hi-qubo"] header .subtitle { font-size: 0.9rem; }
+html[data-brand="hi-qubo"] nav#topnav { gap: 1.1rem; }
+html[data-brand="hi-qubo"] nav#topnav a {
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+}
+html[data-brand="hi-qubo"] nav#topnav a:hover { background: none; color: var(--primary); }
+html[data-brand="hi-qubo"] nav#topnav a.active { color: var(--primary); border-bottom-color: var(--primary); }
+html[data-brand="hi-qubo"] nav#topnav .secondary-sm {
+  color: var(--fg);
+  font-weight: 600;
+  background: #fff;
+  padding: 0.4rem 0.8rem;
+}
+html[data-brand="hi-qubo"] nav#topnav .secondary-sm:hover {
+  background: var(--hq-tint);
+  border-color: var(--hq-line-hover);
+}
+
+/* Content */
+html[data-brand="hi-qubo"] main { margin-top: 2.5rem; }
+html[data-brand="hi-qubo"] h2 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+html[data-brand="hi-qubo"] main a { color: var(--primary); text-decoration: none; }
+html[data-brand="hi-qubo"] main a:hover { text-decoration: underline; }
+
+/* Inputs: tall, flat, blue focus ring (their input[type=text]). */
+html[data-brand="hi-qubo"] input:not([type="checkbox"]),
+html[data-brand="hi-qubo"] select {
+  min-height: 48px;
+  padding: 0 14px;
+}
+html[data-brand="hi-qubo"] textarea { padding: 12px 14px; }
+html[data-brand="hi-qubo"] input::placeholder,
+html[data-brand="hi-qubo"] textarea::placeholder { color: rgba(22, 22, 22, 0.45); }
+html[data-brand="hi-qubo"] input:focus,
+html[data-brand="hi-qubo"] textarea:focus,
+html[data-brand="hi-qubo"] select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--hq-focus);
+}
+html[data-brand="hi-qubo"] .license-card .memo-input { min-height: 36px; padding: 0 10px; }
+
+/* Buttons: their .hq-btn (solid blue primary, white outline secondary). */
+html[data-brand="hi-qubo"] button {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 12px 16px;
+  border: 1px solid var(--primary);
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+html[data-brand="hi-qubo"] button:hover { border-color: var(--primary-hover); }
+html[data-brand="hi-qubo"] button:focus-visible { outline: none; box-shadow: var(--hq-focus); }
+html[data-brand="hi-qubo"] button.secondary {
+  background: #fff;
+  color: var(--fg);
+  border-color: var(--border);
+  padding: 12px 16px;
+  font-size: 0.875rem;
+}
+html[data-brand="hi-qubo"] button.secondary:hover {
+  background: var(--hq-tint);
+  border-color: var(--hq-line-hover);
+  color: var(--fg);
+}
+html[data-brand="hi-qubo"] button.danger { border-color: var(--error); }
+html[data-brand="hi-qubo"] button.danger:hover { border-color: #9c2516; }
+html[data-brand="hi-qubo"] button.renew-ready { border-color: transparent; }
+html[data-brand="hi-qubo"] .license-card button,
+html[data-brand="hi-qubo"] .activation-row button {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+/* Panels: 1px lines, no tint (their cards are plain white on white). */
+html[data-brand="hi-qubo"] .license-card.inactive { background: #f7f7f7; }
+html[data-brand="hi-qubo"] .activation-row.floating-row { background: #f4f7ff; }
+html[data-brand="hi-qubo"] .notice {
+  background: #f6f8ff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+}
+html[data-brand="hi-qubo"] .license-card .usage { border-color: var(--border); }

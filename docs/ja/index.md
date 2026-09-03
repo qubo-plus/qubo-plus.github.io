@@ -1,0 +1,116 @@
+---
+last_modified: 2026-08-24
+layout: default
+title: "ホーム"
+nav_order: 1
+lang: ja
+hreflang_alt: "en/index"
+hreflang_lang: "en"
+mode_shared: true
+---
+
+# QUBO++: QUBO/HUBOによる組合せ最適化のためのモデリング・求解フレームワーク
+
+**QUBO++** は、組合せ最適化問題をバイナリ変数の多項式（QUBO/HUBO）として定式化・求解するフレームワークです。
+制約条件を `cons()` で明示すると、バンドルされたソルバーが制約を満たす解を効率よく探索します。
+
+- **C++ と Python** — C++（[QUBO++](DOCUMENT)）でもPython（[PyQBPP](python/DOCUMENT)）でも使えます。
+- **簡単インストール** — C++は `sudo apt install qbpp`、Pythonは `pip install pyqbpp`。ソースからのビルドは不要です。
+- **シンボリックDSL** — 行列のインデックスではなく、数式を書くように最適化モデルを構築。自然なforループで制約を記述することも、ベクトル演算でループなしに記述することもできます。
+- **ネイティブ制約** — 制約条件を `cons()` で囲んで宣言すると、制約として特別に処理され、バンドルされたソルバーが制約を満たす解を効率よく探索します。ペナルティ式の重み調整の負担が減り、同じ宣言を厳密ソルバーやMIPソルバーではハード制約として扱えます。詳細は[ネイティブ制約](CONSTRAINTS)（[Python版](python/CONSTRAINTS)）をご覧ください。
+- **ネイティブ整数変数** — 有界整数変数をバイナリ変数に展開せず、ソルバーが整数値のまま直接探索します。範囲のビット数に上限はなく（任意精度整数と組み合わせれば $10^{20}$ を超える範囲も扱えます）、MIP ソルバーへも整数変数のまま渡せます。詳細は[ネイティブ整数変数](NATIVE_INTEGER)（[Python版](python/NATIVE_INTEGER)）をご覧ください。
+- **非線形関数** — 絶対値 `abs`・`relu`・`max`・`min` を式の中で直接使えます。補助変数やペナルティ多項式を設計しなくても、バンドルされたソルバーが関数値を直接扱って探索します。詳細は[非線形関数とネイティブ制約](CONSTRAINTS)（[Python版](python/CONSTRAINTS)）をご覧ください。
+- **次数無制限のHUBO** — 二次だけでなく任意の次数の高次項をサポート。否定リテラル（`~x`）をネイティブにサポートし、$\overline{x}$ を $1-x$ に置き換えることによる項数爆発を回避します。
+- **大規模な変数数** — 1つのモデルでバイナリ変数・整数変数をそれぞれ最大 **1,073,741,823** 個（$2^{30}-1$）扱えます。
+- **任意精度の整数係数** — ビット数に上限のない整数係数を扱えます。32ビットから数千桁まで、オーバーフローの心配なく計算可能。
+- **実数（double）係数** — 整数だけでなく `double` 係数もサポート。式は `double` のまま構築し、求解時に自動で整数ソルバーへスケーリング・量子化され、エネルギーも `double` で返るため、整数バックエンドを意識せず実数で計算できます。
+- **3つの内蔵ソルバー** — Easy Solver（高速ヒューリスティック）、Exhaustive Solver（最適性保証付き完全探索）、ABS3（GPU+CPUヒューリスティック）。
+- **GPU加速** — 内蔵のABS3ソルバーがGPUリソースをフル活用して並列探索を実行。マルチGPUにも対応。Exhaustive SolverもCUDA GPUを自動的に使用します。
+- **CPU並列加速** — すべてのソルバーがマルチコアCPU上でマルチスレッド並列実行されます。
+- **実験的なサードパーティソルバー連携** — SCIP, HiGHS, GLPK, CBC, IBM Qiskit Optimization, dimod ExactSolver, D-Wave samplers (Neal / Tabu / Steepest), OpenJij, TYTAN-SDK MIKAS, qubovert, Simulated Bifurcation, Google OR-Tools CP-SAT を統一された `Solver.search()` プロトコルで呼び出せます。SCIP・HiGHS・GLPK・CBC は C++（QUBO++）からも利用でき、その他は PyQBPP から利用できます。詳細は [MILP ソルバー](MILP_SOLVERS)、[CP ソルバー](CP_SOLVERS) をご覧ください。
+- **どこでも実行** — Raspberry PiからノートPC、GPUサーバー、スーパーコンピュータまで。amd64 (x86_64) および arm64 Linux で利用可能。
+
+# QUBO++ ソルバー: Easy Solver, Exhaustive Solver, ABS3 Solver
+## Easy Solver
+* **QUBO/HUBO に最適化されたヒューリスティックソルバー**: マルチコア CPU 上で QUBO/HUBO モデルの解を探索します。
+* **マルチスレッド加速**: マルチコアCPU上で並列探索。
+* **任意精度の整数係数**: 任意の大きさの整数係数をサポート。
+
+## Exhaustive Solver
+* マルチコア CPU と CUDA GPU 上で QUBO/HUBO 定式化の**全解を列挙**します。
+* **最適性保証**: 大域最適解が発見・証明されます。
+* **マルチスレッド加速**: マルチコアCPU上で並列探索。
+* **任意精度の整数係数**: 任意の大きさの整数係数をサポート。
+* **GPU 加速**: CUDA GPU が利用可能な場合、GPU ワーカーが CPU スレッドと並行して探索に参加します。128ビット整数までの係数で GPU 加速が利用可能で、それ以上の係数は CPU のみで実行されます。
+
+## ABS3 Solver
+* **マルチコア CPU と CUDA GPU 上のヒューリスティックソルバー**: CPU スレッドと CUDA GPU の両方を使用して QUBO/HUBO インスタンスの解を探索します。
+* **任意精度の整数係数**: 任意の大きさの整数係数をサポート。
+* **マルチ GPU スケーリング**: Linux ホスト上の検出されたすべての GPU を使用。128ビット整数までの係数で GPU 加速が利用可能で、それ以上の係数は CPU のみで実行されます。
+
+### **ABS3 対応 GPU アーキテクチャ**
+  - **sm_80** : NVIDIA A100 (Ampere)
+  - **sm_86** : NVIDIA RTX A6000, GeForce RTX 3090/3080/3070 (Ampere)
+  - **sm_89** : NVIDIA RTX 6000 Ada, GeForce RTX 4090/4080/4070 (Ada)
+  - **sm_90** : NVIDIA H100 / H200 / GH200 (Hopper)
+  - **sm_100** : NVIDIA B200 / GB200 (Blackwell, データセンター)
+  - **sm_120** : GeForce RTX 5090/5080/5070(Ti)/5060(Ti)/5050、RTX PRO 6000/5000/4500/4000/2000 Blackwell (ワークステーション)
+  - **検証について**: 上記アーキテクチャの一部のみが実機で検証済みです。
+
+### **性能に関する注意**
+  - パフォーマンスを最大化するため、算術オーバーフローチェックは省略されています。
+
+## ビルド環境
+以下の環境を使用して QUBO++ をビルドしています。
+**QUBO++ は Ubuntu 20.04 に限定されません**。Ubuntu 22.04/24.04 およびその他の Linux ディストリビューション（CentOS/RHEL系を含む）でもテスト済みです。
+互換性を確保するため、以下のコンポーネントと同じかそれ以降のバージョンをお使いください。
+- **オペレーティングシステム**: Ubuntu 20.04.6 LTS
+- **C++ 標準**: C++17
+- **glibc**: 2.31
+- **コンパイラ**: g++ 9.4.0
+- **Boost**: 1.81.0
+- **CUDA**: 12.8
+
+# QUBO++ ライセンス
+
+無料の **Trial ライセンス**（30日間、10,000変数）は [QUBO++ User Portal](https://qubo-plus.github.io/portal/) で取得できます。
+QUBO++ をインストールしたら `qbpp-license -s` を実行して本日のサインアップコードを取得し、portal で登録すると Trial キーが受け取れます。
+
+ライセンスの有効化、ライセンスの種類、条件の詳細は **[License Management](LICENSE_MANAGEMENT)** をご覧ください。
+
+# サードパーティライブラリ
+
+以下のライブラリは QUBO++ の共有ライブラリ (`qbpp_*.so`) にリンクされています：
+
+- **Boost C++ Libraries** — Boost Software License, Version 1.0. <https://www.boost.org/LICENSE_1_0.txt>
+- **xxHash** — BSD 2-Clause License, Copyright © Yann Collet. <https://opensource.org/license/bsd-2-clause/>
+
+# オプションのソルバーバックエンド
+
+3 つの組み込みソルバーに加え、QUBO++ は外部ソルバーへモデルを渡せます。
+各ソルバーが受け取るモデルの形でグループ分けしています:
+
+- **[QUBO/HUBO ソルバー](python/QUBO_HUBO_SOLVERS)** — モデルを直接受け取る（OpenJij, dimod サンプラ ほか。PyQBPP のみ）。
+- **[MILP ソルバー](MILP_SOLVERS)** — QUBO を純 MILP に線形化してから渡す（SCIP, HiGHS, GLPK, CBC）。
+- **[CP ソルバー](CP_SOLVERS)** — 制約プログラミング（Google OR-Tools CP-SAT）。
+
+サードパーティソルバーは、ライセンス条件が明確な下記のオープンソースのものに
+限定しています。いずれも QUBO++ には同梱されず、**別途インストール**が必要です:
+
+| ソルバー | ライセンス |
+|----|----|
+| [OpenJij](https://github.com/OpenJij/OpenJij) | Apache-2.0 |
+| [dimod / dwave-samplers](https://github.com/dwavesystems/dwave-samplers) | Apache-2.0 |
+| [qubovert](https://github.com/jtiosue/qubovert) | Apache-2.0 |
+| [TYTAN-SDK](https://github.com/tytansdk/tytan) | Apache-2.0 |
+| [simulated-bifurcation](https://github.com/bqth29/simulated-bifurcation-algorithm) | MIT |
+| [Qiskit Optimization](https://github.com/qiskit-community/qiskit-optimization) | Apache-2.0 |
+| [SCIP](https://www.scipopt.org) | Apache-2.0 |
+| [HiGHS](https://highs.dev) | MIT |
+| [GLPK](https://www.gnu.org/software/glpk/) | GPL |
+| [CBC](https://github.com/coin-or/Cbc) | EPL |
+| [Google OR-Tools CP-SAT](https://developers.google.com/optimization) | Apache-2.0 |
+
+これらの連携は **Experimental** で、仕様（API）は将来予告なく変更される可能性が
+あります。ソルバーの全一覧・インストール方法・注意点は上記の各ページを
+参照してください。

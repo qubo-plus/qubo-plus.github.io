@@ -1,0 +1,38 @@
+{%- comment -%}
+  Override of just-the-docs sidebar to add language switch buttons
+  between site title and navigation.
+{%- endcomment -%}
+
+<header class="side-bar">
+  <div class="site-header">
+    <a href="{{ '/' | relative_url }}" class="site-title lh-tight">{% include title.html %}</a>
+    <button id="menu-button" class="site-button btn-reset" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><use xlink:href="#svg-menu"></use></svg>
+    </button>
+  </div>
+
+  {%- include nav_switch.html -%}
+
+  {% if page.mode_shared %}
+    {%- comment -%}
+      Shared pages (HUBO_QUBO, LICENSE_MANAGEMENT, Home, ...) render BOTH
+      sidebars; CSS shows the one matching the user's stored mode
+      (qbpp-mode in localStorage). The toggle button swaps in place.
+    {%- endcomment -%}
+    {% include_cached components/site_nav.html lang=page.lang python=false mode_attr='cpp' %}
+    {% include_cached components/site_nav.html lang=page.lang python=true mode_attr='python' %}
+  {% else %}
+    {% include_cached components/site_nav.html lang=page.lang python=page.python %}
+  {% endif %}
+
+  <div class="d-md-block d-none site-footer">
+  {% capture nav_footer_custom %}
+    {%- include nav_footer_custom.html -%}
+  {% endcapture %}
+  {% if nav_footer_custom != "" %}
+    {{ nav_footer_custom }}
+  {% else %}
+    This site uses <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.
+  {% endif %}
+  </div>
+</header>

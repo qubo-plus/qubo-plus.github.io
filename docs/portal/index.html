@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cognito-idp.ap-northeast-1.amazonaws.com https://*.execute-api.ap-northeast-1.amazonaws.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
+<title>QUBO++ User Portal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <h1>QUBO++ User Portal</h1>
+    <nav id="topnav" hidden>
+      <a href="#/dashboard" data-tab="dashboard">Dashboard</a>
+      <a href="#/profile" data-tab="profile">Profile</a>
+      <a href="#/account" data-tab="account">Account</a>
+      <span class="sep">|</span>
+      <span id="user-email"></span>
+      <button id="signout-btn" type="button" class="secondary-sm">Sign out</button>
+    </nav>
+  </div>
+  <p class="subtitle" id="subtitle">Create your QUBO++ account. A Trial License is issued automatically.</p>
+</header>
+
+<main id="app">
+  <!-- ============== Sign-up ============== -->
+  <section class="view" data-view="signup" hidden>
+    <h2>Create an account</h2>
+    <aside class="notice">
+      <strong>Before you sign up — please note:</strong>
+      <ul>
+        <li><strong>One account per individual.</strong> Creating multiple
+            accounts (e.g. via email aliases or alternate addresses) is not
+            permitted and may result in suspension.</li>
+        <li><strong>Trial License auto-issued.</strong> A Trial License is
+            attached to your account automatically, for
+            <em>evaluation, research, or education only</em>.</li>
+        <li><strong>Suspension / revocation.</strong> Accounts and licenses
+            may be suspended or revoked at our discretion, with or without
+            notice.</li>
+      </ul>
+      <small>Full details: <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ User Portal Account Terms of Service</a>.</small>
+    </aside>
+    <p class="muted" style="margin-top:0.5rem">
+      <strong>Before signing up:</strong> install QUBO++ on a Linux machine,
+      then run <code>qbpp-license -s</code>. Your terminal will print today's
+      8-character <em>Sign-up code</em>. Enter it below.
+      <a href="../en/INSTALL.html" target="_blank" rel="noopener">Installation guide →</a>
+    </p>
+    <form id="signup-form">
+      <label>Sign-up code <span class="req">*</span>
+        <input type="text" name="trial_code" required maxlength="8" minlength="8"
+               pattern="[A-Z0-9a-z]{8}" placeholder="e.g. ABCD2345" autocomplete="off"
+               style="text-transform:uppercase">
+        <small>Output of <code>qbpp-license -s</code>. Codes rotate daily;
+          the server accepts yesterday / today / tomorrow's codes (UTC).</small>
+      </label>
+      <label>Email <span class="req">*</span>
+        <input type="email" name="email" required autocomplete="username">
+      </label>
+      <label>Password <span class="req">*</span>
+        <input type="password" name="password" required minlength="12" autocomplete="new-password">
+        <small>At least 12 characters, mixing upper, lower, and digit.</small>
+      </label>
+      <div class="row-2">
+        <label>First name <span class="req">*</span>
+          <input type="text" name="first_name" required maxlength="64" autocomplete="given-name">
+        </label>
+        <label>Last name <span class="req">*</span>
+          <input type="text" name="last_name" required maxlength="64" autocomplete="family-name">
+        </label>
+      </div>
+      <label>Organization <span class="req">*</span>
+        <input type="text" name="organization" required maxlength="256" placeholder="University / Company name" autocomplete="organization">
+      </label>
+      <label>Position / role <span class="req">*</span>
+        <input type="text" name="position" required maxlength="64" placeholder="e.g. Researcher / Professor / Student">
+      </label>
+      <label>Country <span class="req">*</span>
+        <input type="text" name="country" required maxlength="64" placeholder="e.g. Japan, United States, Germany" autocomplete="country-name">
+      </label>
+      <label>Purpose <span class="req">*</span>
+        <textarea name="purpose" required maxlength="1024" rows="3"
+                  placeholder="What will you use QUBO++ for? (research, evaluation, project name, etc.)"></textarea>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="agree" required>
+        <span>I have read and agree to the
+          <a href="../en/PORTAL_TOS.html" target="_blank" rel="noopener">QUBO++ User Portal Account Terms of Service</a>.</span>
+      </label>
+      <button type="submit">Create account</button>
+      <p class="error" id="signup-error" hidden></p>
+    </form>
+    <p class="muted">Already registered? <a href="#/signin">Sign in</a></p>
+  </section>
+
+  <!-- ============== Verify email ============== -->
+  <section class="view" data-view="verify" hidden>
+    <h2>Verify your email</h2>
+    <p>We sent a 6-digit code to <strong id="verify-email"></strong>.</p>
+    <form id="verify-form">
+      <label>Verification code
+        <input type="text" name="code" required pattern="[0-9]{6}" inputmode="numeric"
+               maxlength="6" autocomplete="one-time-code">
+      </label>
+      <button type="submit">Verify</button>
+      <button type="button" id="resend-btn" class="secondary">Resend code</button>
+      <p class="error" id="verify-error" hidden></p>
+      <p class="info" id="verify-info" hidden></p>
+    </form>
+  </section>
+
+  <!-- ============== Sign-in ============== -->
+  <section class="view" data-view="signin" hidden>
+    <h2>Sign in</h2>
+    <form id="signin-form">
+      <label>Email
+        <input type="email" name="email" required autocomplete="username">
+      </label>
+      <label>Password
+        <input type="password" name="password" required autocomplete="current-password">
+      </label>
+      <button type="submit">Sign in</button>
+      <a href="#/forgot" class="forgot-link">Forgot password?</a>
+      <p class="error" id="signin-error" hidden></p>
+    </form>
+    <p class="muted">No account? <a href="#/signup">Create one</a></p>
+  </section>
+
+  <!-- ============== Forgot password ============== -->
+  <section class="view" data-view="forgot" hidden>
+    <h2>Reset password</h2>
+    <p>Enter your email — we'll send a verification code.</p>
+    <form id="forgot-request-form">
+      <label>Email
+        <input type="email" name="email" required autocomplete="username">
+      </label>
+      <button type="submit">Send code</button>
+      <p class="error" id="forgot-request-error" hidden></p>
+    </form>
+
+    <form id="forgot-confirm-form" hidden>
+      <p>Code sent to <strong id="forgot-email"></strong>.</p>
+      <label>Verification code
+        <input type="text" name="code" required pattern="[0-9]{6}" inputmode="numeric" maxlength="6">
+      </label>
+      <label>New password
+        <input type="password" name="password" required minlength="12">
+      </label>
+      <button type="submit">Reset password</button>
+      <p class="error" id="forgot-confirm-error" hidden></p>
+    </form>
+    <p class="muted"><a href="#/signin">Back to sign in</a></p>
+  </section>
+
+  <!-- ============== Dashboard ============== -->
+  <section class="view" data-view="dashboard" hidden>
+    <div class="dashboard-header">
+      <h2>Your licenses</h2>
+      <button type="button" id="btn-dashboard-refresh" class="secondary" title="Refresh license & activation data from the server">Refresh</button>
+    </div>
+    <div id="dashboard-loading" class="info">Loading…</div>
+    <div id="dashboard-empty" hidden>
+      <p>Your account has no license. A Trial License is normally issued
+        automatically at sign-up — click below to issue it.</p>
+      <button type="button" id="issue-btn">Issue Trial License</button>
+      <p class="error" id="issue-error" hidden></p>
+    </div>
+    <div id="license-list" hidden></div>
+
+    <details class="howto" id="redeem-section">
+      <summary><strong>Have a redemption code?</strong></summary>
+      <p class="muted" style="margin:0.5rem 0;">If you have received a
+        redemption code, enter it below to receive your license key.</p>
+      <form id="redeem-form" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+        <label style="flex:1; min-width:14rem; margin:0;">Redemption code
+          <input type="text" name="code" required autocomplete="off"
+                 placeholder="e.g. ACAD-2026-AB12CD"
+                 style="text-transform:uppercase">
+        </label>
+        <button type="submit">Redeem</button>
+      </form>
+      <p class="error" id="redeem-error" hidden></p>
+      <p class="info" id="redeem-info" hidden></p>
+    </details>
+  </section>
+
+  <!-- ============== Profile ============== -->
+  <section class="view" data-view="profile" hidden>
+    <h2>Profile</h2>
+    <form id="profile-form">
+      <label>Email <small class="muted">(change in Account tab)</small>
+        <input type="email" name="email" disabled>
+      </label>
+      <div class="row-2">
+        <label>First name <span class="req">*</span>
+          <input type="text" name="first_name" required maxlength="64">
+        </label>
+        <label>Last name <span class="req">*</span>
+          <input type="text" name="last_name" required maxlength="64">
+        </label>
+      </div>
+      <label>Organization <span class="req">*</span>
+        <input type="text" name="organization" required maxlength="256">
+      </label>
+      <label>Position / role <span class="req">*</span>
+        <input type="text" name="position" required maxlength="64" placeholder="e.g. Researcher / Professor / Student">
+      </label>
+      <label>Country <span class="req">*</span>
+        <input type="text" name="country" required maxlength="64" autocomplete="country-name">
+      </label>
+      <label>Purpose <span class="req">*</span>
+        <textarea name="purpose" required maxlength="1024" rows="3"></textarea>
+      </label>
+      <button type="submit">Save changes</button>
+      <p class="error" id="profile-error" hidden></p>
+      <p class="info" id="profile-info" hidden></p>
+    </form>
+  </section>
+
+  <!-- ============== Account ============== -->
+  <section class="view" data-view="account" hidden>
+    <h2>Account</h2>
+
+    <details open>
+      <summary><strong>Change password</strong></summary>
+      <form id="password-form">
+        <label>Current password
+          <input type="password" name="current" required autocomplete="current-password">
+        </label>
+        <label>New password
+          <input type="password" name="next" required minlength="12" autocomplete="new-password">
+        </label>
+        <button type="submit">Change password</button>
+        <p class="error" id="password-error" hidden></p>
+        <p class="info" id="password-info" hidden></p>
+      </form>
+    </details>
+
+    <details>
+      <summary><strong>Change email</strong></summary>
+      <form id="email-form">
+        <label>New email address
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <button type="submit">Send verification code</button>
+        <p class="error" id="email-error" hidden></p>
+      </form>
+      <form id="email-verify-form" hidden>
+        <p>Verification code sent to <strong id="email-pending"></strong>.</p>
+        <label>Code
+          <input type="text" name="code" required pattern="[0-9]{6}" inputmode="numeric" maxlength="6">
+        </label>
+        <button type="submit">Confirm new email</button>
+        <p class="error" id="email-verify-error" hidden></p>
+        <p class="info" id="email-verify-info" hidden></p>
+      </form>
+    </details>
+
+    <details class="danger">
+      <summary><strong>Delete account</strong></summary>
+      <p class="warn">Your account will be deactivated and <strong>ALL licenses
+        attached to it will stop working immediately</strong>. The account
+        and its licenses are permanently deleted after <strong>90 days</strong>;
+        within that period an administrator can restore your account on
+        request.</p>
+      <form id="delete-form">
+        <label>Type <code>DELETE</code> to confirm
+          <input type="text" name="confirm" required pattern="DELETE" autocomplete="off">
+        </label>
+        <button type="submit" class="danger">Delete my account</button>
+        <p class="error" id="delete-error" hidden></p>
+      </form>
+    </details>
+  </section>
+</main>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.12/dist/amazon-cognito-identity.min.js"></script>
+<script src="config.js"></script>
+<!-- Before app.js: sets window.QBPP_BRAND, and rewrites the markup above for
+     visitors referred by a partner site. -->
+<script src="brand.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
