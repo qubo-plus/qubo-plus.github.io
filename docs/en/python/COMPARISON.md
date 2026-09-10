@@ -1,0 +1,486 @@
+---
+last_modified: 2026-09-02
+layout: default
+nav_exclude: true
+title: "Comparison Constraints"
+nav_order: 14
+lang: en
+hreflang_alt: "ja/python/COMPARISON"
+hreflang_lang: "ja"
+---
+
+# Comparison Constraints
+PyQBPP supports two types of constraints:
+
+- **Equality constraint**: `qbpp.constrain(f, equal=n)`, where `f` is an expression and `n` is an integer.
+- **Range constraint**: `qbpp.constrain(f, between=(l, u))`, where `f` is an expression and `l`, `u` ($l\leq u$) are integers.
+
+Both return a constraint expression whose value **takes the minimum value 0 if and only if the corresponding constraint is satisfied**.
+
+> **Note**
+> The `qbpp.constrain()` described on this page is the classic approach of
+> adding a constraint to the objective as a penalty expression (a polynomial
+> whose value is 0 exactly when the constraint is satisfied). Using
+> `qbpp.cons()` instead **declares it as a native constraint**: no auxiliary
+> (slack) variables are introduced and the bundled solvers search efficiently
+> for solutions that satisfy it, which **often yields better solutions**.
+> See [Nonlinear Functions and Native Constraints](CONSTRAINTS) for details.
+
+## Equality Constraint
+The equality constraint `qbpp.constrain(f, equal=n)` creates the following expression:
+
+$$
+(f-n)^2
+$$
+
+This expression takes the minimum value 0 if and only if the equality $f=n$ is satisfied.
+
+The following PyQBPP program searches for all solutions satisfying $a+2b+3c=3$ using the Exhaustive Solver:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(a + 2 * b + 3 * c, equal=3)
+f.simplify_as_binary()
+print("f =", f)
+print("body =", f.body)
+
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}")
+```
+{% endraw %}
+In this program, `f` internally holds two expressions:
+- **`f`**: $(a+2b+3c-3)^2$, which attains the minimum value of 0 when the equality $a+2b+3c=3$ is satisfied.
+- **`f.body`**: The left-hand side of the equality, $a+2b+3c$.
+
+Using the Exhaustive Solver constructed for `f`, all optimal solutions are stored in **`result.sols`**.
+By iterating over `result.sols`, all solutions and the values of `f` and `f.body` are printed as follows:
+```
+f = 9 -5*a -8*b -9*c +4*a*b +6*a*c +12*b*c
+body = a +2*b +3*c
+a=0, b=0, c=1, f=0, body=3
+a=1, b=1, c=0, f=0, body=3
+```
+These results confirm that two optimal solutions attain `f = 0` and satisfy `body = 3`.
+
+## Notes on Supported Equality Forms
+PyQBPP supports the equality constraint in two equivalent forms:
+- **`qbpp.constrain(expression, equal=integer)`**
+- **`expression == integer`** (shorthand, see [Shorthand Operator Syntax](#shorthand-operator-syntax))
+
+The form `expression1 == expression2` (both sides being expressions) is **not** directly supported.
+Instead, rewrite the constraint as:
+- **`qbpp.constrain(expression1 - expression2, equal=0)`** — or equivalently **`(expression1 - expression2) == 0`**
+
+which is fully supported.
+
+
+## Range Constraint
+The range constraint `qbpp.constrain(f, between=(l, u))` ($l\leq u$) creates an expression that attains the minimum value of 0 if and only if the constraint is satisfied.
+
+We consider the following cases depending on the values of $l$ and $u$.
+- **Case 1**: **$u=l$**
+- **Case 2**: **$u=l+1$**
+- **Case 3**: **$u=l+2$**
+- **Case 4**: **$u\geq l+3$**
+
+### Case 1: $u=l$
+If $u=l$, the range constraint reduces to the equality constraint $f=l$,
+which can be implemented directly using the equality constraint.
+
+### Case 2: $u=l+1$
+If $u=l+1$, the following expression is created:
+
+$$
+ (f-l)(f-u)
+$$
+
+Since there is no integer strictly between $l$ and $u$, this expression attains the minimum value of 0 if and only if
+$f=l$ or $f=u$.
+
+### Case 3: $u=l+2$
+We introduce an **auxiliary binary variable** $a \in \lbrace 0,1\rbrace$
+and use the following expression:
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1))
+\end{aligned}
+$$
+
+This expression evaluates as follows for $f=l$, $l+1$, and $l+2$:
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1)) &= (-a)(-(a+1)) && \text{if } f=l \\
+                   &= (1-a)(-a) && \text{if } f=l+1 \\
+                   &=(2-a)(1-a)  && \text{if } f=l+2
+\end{aligned}
+$$
+
+In all cases, the minimum value 0 is attainable by an appropriate choice of $a$.
+Therefore, the expression takes the minimum value of 0 if $l\leq f\leq u$ is satisfied.
+
+Let $g = f-l-a$.
+Then we have,
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1)) &= g(g-1)
+\end{aligned}
+$$
+
+which is always positive if $g\leq -1$ or $g\geq 2$.
+Hence, the expression attains the minimum value of 0 if and only if $l\leq f\leq u$ is satisfied.
+
+### Case 4: $u\geq l+3$
+We introduce an auxiliary integer variable $a$ that takes integer values in the range $[l,u-1]$.
+Such an integer variable can be defined using multiple binary variables, as described in [Integer Variables and Solving Simultaneous Equations](INTEGER).
+
+The expression for this case is:
+
+$$
+\begin{aligned}
+(f-a)(f-(a+1))
+\end{aligned}
+$$
+
+Similarly to Case 3, we can show that this expression is always positive if $f$ is not in $[l,u]$.
+
+Suppose that $f$ takes an integer value in the range $[l,u]$.
+If we choose $a=f$, then
+
+$$
+\begin{aligned}
+f-a &= 0 & {\rm if\,\,} f\in [l,u-1]\\
+f-(a+1) &= 0& {\rm if\,\,} f\in [l+1,u]
+\end{aligned}
+$$
+
+Thus, either $f-a=0$ or $f-(a+1)=0$ holds for any $f\in[l,u]$.
+Therefore, $(f-a)(f-(a+1))$ attains the minimum value of 0
+if and only if $l\leq f\leq u$.
+
+
+### Reducing the Number of Binary Variables
+In [Integer Variables and Solving Simultaneous Equations](INTEGER),
+an integer variable $a\in [l,u]$ is represented using
+$n$ binary variables $x_0, x_1, \ldots, x_{n-1}$ as follows:
+
+$$
+\begin{aligned}
+a & = l+2^0x_0+2^1x_1+\cdots +2^{n-2}x_{n-2}+dx_{n-1}
+\end{aligned}
+$$
+
+This expression can represent all integers from $l$ to $l+2^{n-1}+d-1$.
+Thus, we can choose $n$ and $d$ such that
+
+$$
+\begin{aligned}
+u-1&=l+2^{n-1}+d-1.
+\end{aligned}
+$$
+
+
+For Case 4, PyQBPP instead uses the following linear expression with $n-1$ binary variables $x_1, \ldots, x_{n-1}$:
+
+$$
+\begin{aligned}
+a &= l+2^1x_1+\cdots +2^{n-2}x_{n-2}+dx_{n-1}
+\end{aligned}
+$$
+
+This expression represents integers from $l$ to $l+2^{n-1}+d-2$.
+Accordingly, we select $n$ and $d$ so that
+
+$$
+\begin{aligned}
+u-1&=l+2^{n-1}+d-2.
+\end{aligned}
+$$
+
+We call such an integer variable $a$ a **unit-gap integer variable**.
+Although some values in $[l,u]$ cannot be taken by $a$,
+for any $k\in[l,u]$ that cannot be represented,
+$k-1$ can be represented.
+Therefore, either $a$ or $a+1$ can take any value in the range
+$[l,u]$, which is sufficient for enforcing the range constraint.
+
+### PyQBPP Program for the Four Cases
+The following program demonstrates how the four cases are implemented in PyQBPP:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+f = qbpp.var("f")
+f1 = qbpp.constrain(f, between=(1, 1))
+f2 = qbpp.constrain(f, between=(1, 2))
+f3 = qbpp.constrain(f, between=(1, 3))
+f4 = qbpp.constrain(f, between=(1, 5))
+f1.simplify()
+f2.simplify()
+f3.simplify()
+f4.simplify()
+print("f1 =", f1)
+print("f2 =", f2)
+print("f3 =", f3)
+print("f4 =", f4)
+```
+{% endraw %}
+This program produces the following output:
+```
+f1 = 1 -2*f +f*f
+f2 = 2 -3*f +f*f
+f3 = 2 -3*f +3*{s0} +f*f -2*f*{s0} +{s0}*{s0}
+f4 = 2 -3*f +6*{s1}[0] +3*{s1}[1] +f*f -4*f*{s1}[0] -2*f*{s1}[1] +4*{s1}[0]*{s1}[0] +4*{s1}[0]*{s1}[1] +{s1}[1]*{s1}[1]
+```
+These outputs correspond to the following expressions:
+
+$$
+\begin{aligned}
+f_1 &= (f-1)^2\\
+f_2 &= (f-1)(f-2)\\
+f_3 &= (f-x_0)(f-(x_0+1))\\
+f_4 &= (f-(2x_{1,0}+x_{1,1}+1))(f-(2x_{1,0}+x_{1,1}+2))
+\end{aligned}
+$$
+
+### PyQBPP Program Using the Range Constraint
+The following program demonstrates the use of the range constraint in PyQBPP:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 15 * c, between=(5, 14))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+For three binary variables $a$, $b$, and $c$,
+this program searches for solutions satisfying the constraint
+
+$$
+\begin{aligned}
+5\leq 4a+9b+15c \leq 14
+\end{aligned}
+$$
+
+This program produces output such as:
+{% raw %}
+```
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+## Lower and Upper Bound Constraints
+PyQBPP does not directly support the following **one-sided bound constraints** with standalone syntax.
+Instead, PyQBPP supports them by setting one end of `between` to `None`:
+- **Lower-bound constraint**: `between=(l, None)` → $l\leq f\leq +\infty$
+- **Upper-bound constraint**: `between=(None, u)` → $-\infty \leq f\leq u$
+
+Since the range constraint internally introduces auxiliary variables,
+true infinite values cannot be represented explicitly.
+Therefore, PyQBPP estimates **finite maximum and minimum values** of the expression
+$f$ and substitutes them for $+\infty$ and $-\infty$, respectively.
+
+For example, consider the expression
+
+$$
+\begin{aligned}
+f=4a + 9 b + 11 c
+\end{aligned}
+$$
+
+where $a$, $b$, and $c$ are binary variables.
+The minimum and maximum possible values of $f$ are 0 and 24, respectively.
+Thus, PyQBPP uses 0 and 24 as substitutes for $-\infty$ and $+\infty$
+when constructing the corresponding range constraints.
+
+> **NOTE**
+> When you write `qbpp.constrain(f, between=(l, None))` or `qbpp.constrain(f, between=(None, u))`,
+> PyQBPP adopts the **QUBO-style interpretation**: the `None` side is replaced by the structural
+> bound of $f$ derived from its coefficients (the maximum and minimum values $f$ can take given that
+> all variables are binary). This differs from **MIP-style interpretations**, where `f <= u` would
+> typically be read as $0 \leq f \leq u$. The QUBO interpretation is used so that no implicit
+> constraint is silently added beyond what the user wrote.
+
+### PyQBPP Programs for Lower and Upper Bound Constraints
+In PyQBPP, an infinite value is represented by `None` on the corresponding side of `between`.
+
+The following program demonstrates **the lower-bound constraint**:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 11 * c, between=(14, None))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+In this program, the `None` in `between=(14, None)` represents a positive infinite value,
+which is automatically replaced by 24.
+
+This program produces output such as:
+{% raw %}
+```
+a=1, b=0, c=1, f=0, body=15, sol=Sol(energy=0, {a: 1, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=1, b=1, c=1, f=0, body=24, sol=Sol(energy=0, {a: 1, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+The following program demonstrates **the upper-bound constraint**:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 11 * c, between=(None, 14))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+In this program, the `None` in `between=(None, 14)` represents a negative infinite value,
+which is automatically replaced by 0.
+
+This program produces output such as:
+{% raw %}
+```
+a=0, b=0, c=0, f=0, body=0, sol=Sol(energy=0, {a: 0, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0})
+a=1, b=0, c=0, f=0, body=4, sol=Sol(energy=0, {a: 1, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=0, b=0, c=1, f=0, body=11, sol=Sol(energy=0, {a: 0, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+## Shorthand Operator Syntax
+For convenience, PyQBPP also accepts the Python comparison operators `==`, `<=`, and `>=`
+between an expression and an integer. They are pure syntactic sugar for `qbpp.constrain()`
+and produce the same constraint expression:
+
+| Operator form | Equivalent `qbpp.constrain()` form | Generated penalty |
+|---|---|---|
+| `f == n` | `qbpp.constrain(f, equal=n)` | $(f-n)^2$ |
+| `f <= n` | `qbpp.constrain(f, between=(None, n))` | $0$ iff $\min(f) \leq f \leq n$ |
+| `f >= n` | `qbpp.constrain(f, between=(n, None))` | $0$ iff $n \leq f \leq \max(f)$ |
+
+Here $\min(f)$ and $\max(f)$ are the structural bounds of $f$ derived from its coefficients,
+following the same rule described above in [Lower and Upper Bound Constraints](#lower-and-upper-bound-constraints).
+The reflected forms `n <= f` and `n >= f` work as well via Python's standard reflection rules.
+
+For example, the upper-bound program above can be rewritten as:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (4 * a + 9 * b + 11 * c) <= 14   # equivalent to qbpp.constrain(..., between=(None, 14))
+f.simplify_as_binary()
+```
+{% endraw %}
+
+These operators are also defined on arrays of expressions, in which case the constraint is
+applied element-wise and an array of constraint expressions is returned.
+
+> **NOTE**
+> Only `int` is accepted on the right-hand side. The form `expression1 <= expression2` is
+> not supported; rewrite it as `(expression1 - expression2) <= 0`, or use `qbpp.constrain()`
+> with an explicit `between=` range. Comparing a bare `Var`/`Term` with an integer, such as
+> `x == 3`, also builds a constraint expression. However, comparisons **between variables**
+> such as `var1 == var2` remain identity tests (returning a boolean for use as dictionary
+> keys) and do not build constraints.
+
+## Chained Range Constraint with `qbpp.same`
+
+As an alternative to `qbpp.constrain(f, between=(l, u))`, you can join an upper-bound
+constraint and a lower-bound constraint with **`&`**, using the placeholder
+**`qbpp.same`** to refer to **the expression `f` on the other side of `&`**:
+
+```python
+(l <= f) & (qbpp.same <= u)        # equivalent to qbpp.constrain(f, between=(l, u))
+(qbpp.same >= l) & (f <= u)        # same
+```
+
+The direction of `<=` / `>=` and the left/right placement do not matter; `qbpp.same` may
+appear on either side of `&` and any consistent combination of `<=` and `>=` is accepted.
+
+The point of using `qbpp.same` is that even when `f` is a large expression or array,
+**only one set of auxiliary variables** is introduced for the two-sided constraint.
+The resulting QUBO is exactly identical to `qbpp.constrain(f, between=(l, u))`, including the auxiliary-variable assignment — a one-sided constraint is evaluated lazily and allocates no auxiliaries until it is merged by `&`.
+
+### PyQBPP Program Using the Chained Syntax
+
+The following program imposes the same constraint $5 \leq 4a + 9b + 15c \leq 14$
+as in the [PyQBPP Program Using the Range Constraint](#pyqbpp-program-using-the-range-constraint),
+but expressed with the chained syntax:
+
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (5 <= 4 * a + 9 * b + 15 * c) & (qbpp.same <= 14)
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+
+This produces the same output as the `qbpp.constrain(4*a + 9*b + 15*c, between=(5, 14))` version.
+
+### Chained Syntax on Arrays
+
+`qbpp.same` also works with arrays of expressions. The same range is applied element-wise,
+and an array of constraint expressions is returned:
+
+{% raw %}
+```python
+x = qbpp.var("x", shape=3)
+fs = qbpp.array([2 * x[0], x[1] + x[2], 3 * x[0] + x[1]])
+constraints = (1 <= fs) & (qbpp.same <= 2)   # apply 1 ≤ ... ≤ 2 to each element of fs
+total = qbpp.sum(constraints)
+```
+{% endraw %}
+
+### Unsupported Forms
+
+The form `(l <= f) & (f <= u)`, where the same expression appears on both sides of `&`,
+is not supported. Use `qbpp.same` on one side instead.

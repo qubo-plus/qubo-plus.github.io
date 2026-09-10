@@ -1,0 +1,81 @@
+{% comment %} `last_modified` is stamped into the front matter by deploy.sh (from the
+source repo's git history); fall back to jekyll-last-modified-at for local builds. {% endcomment %}
+{% assign lm = page.last_modified | default: page.last_modified_at %}
+{% if site.last_edit_timestamp and site.last_edit_time_format and lm %}
+<p class="text-small text-grey-dk-000 mb-0">
+  Page last modified: {{ lm | date: site.last_edit_time_format }}.
+</p>
+{% endif %}
+<p class="text-small text-grey-dk-000 mb-0">
+  {% if page.lang == "ja" or page.url contains "/ja/" %}© 2026 中野浩嗣, 広島大学{% else %}© 2026 Koji Nakano, Hiroshima University{% endif %}
+</p>
+<script>
+(function() {
+  var backToTop = document.getElementById('back-to-top');
+  if (!backToTop) return;
+  var path = window.location.pathname;
+
+  /* --- C++/Python cross-link --- */
+  var crossLink = null;
+  if (path.indexOf('/python/') !== -1) {
+    var base = path.replace(/^.*\/python\//, '/').replace(/\.html$/, '').replace(/\/$/, '');
+    if (base && base !== '/index' && base !== '/') {
+      crossLink = document.createElement('a');
+      crossLink.href = '..' + base;
+      crossLink.textContent = 'C++ version';
+    }
+  } else {
+    var base = path.replace(/\.html$/, '').replace(/\/$/, '');
+    var name = base.substring(base.lastIndexOf('/') + 1);
+    var noPython = ['index','CPP_VS_PYTHON','DEMOS','GUROBI','HUBO_QUBO','LICENSE_MANAGEMENT','WSL','PORTAL_TOS','TERMS'];
+    if (name && noPython.indexOf(name) === -1) {
+      crossLink = document.createElement('a');
+      crossLink.href = 'python/' + name;
+      crossLink.textContent = 'Python version';
+    }
+  }
+  if (crossLink) {
+    var sep = document.createTextNode(' | ');
+    backToTop.parentNode.insertBefore(sep, backToTop.nextSibling);
+    backToTop.parentNode.insertBefore(crossLink, sep.nextSibling);
+  }
+
+  /* --- Prev / Next navigation --- */
+  var basics = ['VARIABLE','SOLVE','VECTOR','PARTITION','PERMUTATION','INTEGER','FACTORIZATION','RANGE'];
+  var topics = ['VAREXPR','OPERATOR','OPVECTOR','MULTIDIM','COMPARISON','EXPRESSION','EVAL','REPLACE','NEGATIVE','SUM','EINSUM','SLICE_CONCAT','EASYSOLVER','EXHAUSTIVE','ABS3','PARAMS'];
+
+  var pageName = path.replace(/\.html$/, '').replace(/\/$/, '');
+  var isPython = pageName.indexOf('/python/') !== -1;
+  pageName = pageName.substring(pageName.lastIndexOf('/') + 1);
+
+  function findInList(list, name) {
+    for (var i = 0; i < list.length; i++) { if (list[i] === name) return i; }
+    return -1;
+  }
+
+  var idx = findInList(basics, pageName);
+  var list = basics;
+  if (idx === -1) { idx = findInList(topics, pageName); list = topics; }
+  if (idx === -1) return;
+
+  var prefix = isPython ? '../python/' : '';
+  var container = backToTop.parentNode;
+
+  if (idx > 0) {
+    var sep1 = document.createTextNode(' | ');
+    var prev = document.createElement('a');
+    prev.href = prefix + list[idx - 1];
+    prev.textContent = '\u2190 Prev';
+    container.appendChild(sep1);
+    container.appendChild(prev);
+  }
+  if (idx < list.length - 1) {
+    var sep2 = document.createTextNode(' | ');
+    var next = document.createElement('a');
+    next.href = prefix + list[idx + 1];
+    next.textContent = 'Next \u2192';
+    container.appendChild(sep2);
+    container.appendChild(next);
+  }
+})();
+</script>

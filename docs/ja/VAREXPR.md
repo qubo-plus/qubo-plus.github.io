@@ -1,0 +1,286 @@
+---
+last_modified: 2026-08-25
+layout: default
+nav_exclude: true
+title: "変数・式クラス"
+nav_order: 10
+lang: ja
+hreflang_alt: "en/VAREXPR"
+hreflang_lang: "en"
+---
+
+# 変数クラスと式クラス
+
+## qbpp::Var、qbpp::Term、qbpp::Expr クラス
+
+QUBO++は以下の基本クラスを提供します。
+- **`qbpp::Var`**: 変数をシンボリックに表現し、表示用の文字列が関連付けられます。内部的には32ビット符号なし整数が識別子として使用されます。
+- **`qbpp::Term`**: 整数係数と1つ以上の `qbpp::Var` オブジェクトからなる積の項を表現します。整数係数のデータ型は `qbpp::coeff_t`（デフォルトは `int32_t`）で、ビルド時に `INTEGER_TYPE_*` マクロで選択します（後述）。
+各 `qbpp::Term` は変数を静的配列（インラインバッファ2要素）と動的確保の組み合わせで格納し、デフォルトの可変長モードでは次数に上限なく任意の高次項を扱うことができます（固定長の VarArray モードについては後述）。
+- **`qbpp::Expr`**: 整数定数項と0個以上の `qbpp::Term` オブジェクトからなる展開された式を表現します。整数定数項のデータ型は `qbpp::energy_t`（デフォルトは `int64_t`）で、同じく `INTEGER_TYPE_*` マクロで選択します。
+
+以下のプログラムでは、**`x`** と **`y`** は `qbpp::Var` オブジェクト、**`t`** は `qbpp::Term` オブジェクト、**`f`** は `qbpp::Expr` オブジェクトです。
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto x = qbpp::var("x");
+  auto y = qbpp::var("y");
+  auto t = 2 * x * y;
+  auto f = t - x + 1;
+
+  std::cout << "x = " << x << std::endl;
+  std::cout << "y = " << y << std::endl;
+  std::cout << "t = " << t << std::endl;
+  std::cout << "f = " << f << std::endl;
+}
+```
+このプログラムは以下の出力を生成します。
+```
+x = x
+y = y
+t = 2*x*y
+f = 1 +2*x*y -x
+```
+データ型を明示的に指定する場合、プログラムは以下のように書き直せます。
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  qbpp::Var x = qbpp::var("x");
+  qbpp::Var y = qbpp::var("y");
+  qbpp::Term t = 2 * x * y;
+  qbpp::Expr f = t - x + 1;
+
+  std::cout << "x = " << x << std::endl;
+  std::cout << "y = " << y << std::endl;
+  std::cout << "t = " << t << std::endl;
+  std::cout << "f = " << f << std::endl;
+}
+```
+`qbpp::Var` オブジェクトは **不変（immutable）** であり、作成後に更新できません。
+一方、`qbpp::Term` と `qbpp::Expr` オブジェクトは **可変（mutable）** であり、代入によって更新できます。
+
+例えば、以下のプログラムに示すように、複合代入演算子を使用して `qbpp::Term` と `qbpp::Expr` オブジェクトを更新できます。
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  qbpp::Var x = qbpp::var("x");
+  qbpp::Var y = qbpp::var("y");
+  qbpp::Term t = 2 * x * y;
+  qbpp::Expr f = t - x + 1;
+
+  std::cout << "t = " << t << std::endl;
+  std::cout << "f = " << f << std::endl;
+
+  t *= 3 * x;
+  f += 2 * y;
+
+  std::cout << "t = " << t << std::endl;
+  std::cout << "f = " << f << std::endl;
+}
+```
+このプログラムは以下の出力を生成します。
+```
+t = 2*x*y
+f = 1 +2*x*y -x
+t = 6*x*y*x
+f = 1 +2*x*y -x +2*y
+```
+
+### エイリアスとコピー
+
+C++ ではデフォルトで **値セマンティクス** が適用されます。`qbpp::Term` や
+`qbpp::Expr` を別の変数に代入すると深いコピーが行われ、二つの独立した
+オブジェクトが得られます。
+```cpp
+qbpp::Expr f = x + 1;
+qbpp::Expr g = f;   // 独立したコピー
+f += y;
+std::cout << "f = " << f << std::endl;   // f = 1 +x +y
+std::cout << "g = " << g << std::endl;   // g = 1 +x   （影響を受けない）
+```
+`f = f + x` と `f += x` は観測上同じ結果になります。どちらも `f` を更新する
+だけで他のオブジェクトには影響しません。両者の違いは性能だけで、左辺が
+一時オブジェクトの場合にはコンパイラが in-place な rvalue オーバーロードを
+選択し、不必要なコピーを回避します。
+
+Python フロントエンド (PyQBPP) は参照セマンティクスのため別の規則に従います。
+詳細は [C++ vs Python](CPP_VS_PYTHON#オブジェクトのコピーとエイリアス) の
+対比を参照してください。
+
+ほとんどの場合、`qbpp::Term` オブジェクトを明示的に使用する必要はありません。
+最大限のパフォーマンス最適化が必要な場合にのみ使用すべきです。
+
+ただし、`auto` 型推論により `qbpp::Term` オブジェクトが作成される場合があり、一般的な式を格納できないことに注意してください。
+例えば、以下のプログラムは、式が `qbpp::Term` オブジェクトに代入されるため、コンパイルエラーになります。
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto x = qbpp::var("x");
+  auto y = qbpp::var("y");
+
+  auto t = 2 * x * y;
+  t = x + 1;
+}
+```
+`qbpp::Expr` オブジェクトを意図する場合、以下に示すように **`qbpp::toExpr()`** を使用して明示的に構築できます。
+```cpp
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto x = qbpp::var("x");
+  auto y = qbpp::var("y");
+  auto t = qbpp::toExpr(2 * x * y);
+  auto f = qbpp::toExpr(1);
+
+  t += x + 1;
+  f += t;
+
+  std::cout << "t = " << t << std::endl;
+  std::cout << "f = " << f << std::endl;
+}
+```
+このプログラムでは、**`t`** と **`f`** の両方が `qbpp::Expr` オブジェクトであり、一般的な式を格納できます。
+特に、`f` は値 `1` の定数項のみを持ち、積の項を持たない `qbpp::Expr` オブジェクトとして作成されます。
+
+**`qbpp::toExpr()`** は配列も受け取り、同じ形状の式の配列を返します（例: `auto f = qbpp::toExpr(qbpp::var("x", 3));`）。整数による除算のように、式の配列に対してのみ定義された演算を使う場合に必要です。[配列の基本演算子と関数](OPVECTOR) を参照してください。
+
+## 整数の範囲：coeff_t と energy_t
+型エイリアス **`qbpp::coeff_t`** と **`qbpp::energy_t`** が、式内の係数とエネルギー値に使用されるデータ型を表します。
+`qbpp::energy_t` は `qbpp::Expr` オブジェクトの整数定数項のデータ型でもあります。
+次の型を選択できます。
+
+| 型 | 範囲 | 大きな定数の構文 |
+|----|------|-----------------|
+| `int32_t` | ±2.1×10⁹ | `12345`（整数リテラル） |
+| `int64_t` | ±9.2×10¹⁸ | `1234567890123456789LL` |
+| `qbpp::int128_t` | ±1.7×10³⁸ | `qbpp::integer("12345678901234567890")` |
+| `qbpp::cpp_int` | 無制限 | `qbpp::integer("...")` |
+
+型 **`qbpp::cpp_int`** は任意桁数の整数を表します。
+関数 **`qbpp::integer("...")`** は10進文字列を現在の `coeff_t` 型に解析する統一ヘルパーで、
+`int32_t` から `cpp_int` までどのビルドでも同じソースコードで使用できます。
+
+
+デフォルトでは `coeff_t` は `int32_t`、`energy_t` は `int64_t` です。
+デフォルト以外の型を使用するには、ヘッダのインクルード前に以下のマクロの一つを定義します（またはコンパイラフラグ `-D...` で指定）：
+
+| マクロ | `coeff_t` | `energy_t` |
+|---|---|---|
+| `INTEGER_TYPE_C32E32` | `int32_t` | `int32_t` |
+| `INTEGER_TYPE_C32E64`（デフォルト） | `int32_t` | `int64_t` |
+| `INTEGER_TYPE_C64E64` | `int64_t` | `int64_t` |
+| `INTEGER_TYPE_C64E128` | `int64_t` | `int128_t` |
+| `INTEGER_TYPE_C128E128` | `int128_t` | `int128_t` |
+| `INTEGER_TYPE_CPP_INT` | `cpp_int` | `cpp_int` |
+
+### 実数（double）係数
+
+係数とエネルギー値には **`double`** も使用できます。ヘッダのインクルード前に次のいずれかのマクロを定義します（またはコンパイラフラグ `-D...` で指定）：
+
+| マクロ | 内部ソルバー |
+|---|---|
+| `DOUBLE_TYPE`（デフォルトの double） | 64ビット整数ソルバー |
+| `DOUBLE_TYPE_C64E64` | 64ビット整数ソルバー |
+| `DOUBLE_TYPE_C128E128` | 128ビット整数ソルバー（高精度） |
+
+```cpp
+#define DOUBLE_TYPE
+#include <qbpp/qbpp.hpp>
+
+auto x = qbpp::var("x");
+auto y = qbpp::var("y");
+qbpp::Expr f = -1.5 * x - 2.5 * y + 4.0 * x * y;   // 実数（double）係数
+```
+
+式の構築と簡約は `double` で行われます。求解時には係数が自動的に整数へスケーリング・丸められ、整数ソルバーで解かれ、エネルギーは `double` で返されます（例えば `sol.energy()` は `double` を返します）。そのため整数バックエンドを意識せずに `double` のまま扱えます。2進小数の係数（1, 1/2, 1/4, …）は厳密に表現されます。
+
+最大の係数に比べて極端に小さい係数は、スケーリングの精度を下回ると `0` として扱われ、その項は除外されます（エラーではなく短い通知が出ます）。項がすべて消えた変数は目的関数に影響しない自由変数となり、解からの読み出し（`sol(x)`、`sol(x[i])`）は `0` を返します。`sol.has(x[i])` でその変数が残っているか確認できます。`simplify_as_binary` で相殺して消えた変数も同様です。より広いダイナミックレンジが必要なら `DOUBLE_TYPE_C128E128` を使ってください。エネルギー範囲の真のオーバーフローは従来どおりエラーになります。
+
+### VarArray モード
+
+`MAXDEG` マクロは、各項の変数の内部格納方式を制御します。
+最大次数が事前に分かっている場合、固定長モードを使うとヒープ確保が不要になり性能が向上します：
+
+| マクロ | 最大次数 | 説明 |
+|---|---|---|
+| `MAXDEG0`（デフォルト） | 無制限 | 可変長（3次以上でヒープ確保） |
+| `MAXDEG2` | 2 | 固定長、QUBOのみ（ヒープ確保なし、最速） |
+| `MAXDEG4` | 4 | 固定長、4次まで（ヒープ確保なし） |
+
+使用例 — 型と VarArray モードの両方を指定：
+```cpp
+#define INTEGER_TYPE_C32E32
+#define MAXDEG2
+#include <qbpp/qbpp.hpp>
+```
+
+指定されたマクロに基づいて適切なライブラリが実行時に自動的にロードされます。
+
+### 大きな定数：qbpp::integer()
+64ビット整数の範囲を超える定数値は、関数 **`qbpp::integer("...")`** に10進文字列を渡して指定します。
+この関数は現在の `coeff_t`（`int32_t` から `cpp_int` まで）に解析して返すので、
+型を切り替えてもソースコードはそのまま動作します。
+値が `coeff_t` の範囲を超える場合は `std::out_of_range` 例外が送出されます。
+
+`qbpp::integer("0")`、`qbpp::integer("-1")` のような小さな値にも使用できます。
+ただし文字列から値への変換は**実行時**に行われるため、`int64_t` の範囲（±9.2×10¹⁸）に収まる値は
+通常の整数リテラル（例: `12345`、`1234567890123456789LL`）を使う方が効率的です。
+また、ホットループ内で同じ文字列を繰り返し渡すとパースコストが毎回発生するので、
+一度変数に束縛してから使用することをおすすめします:
+```cpp
+const auto K = qbpp::integer("1000000000000");  // パースは1回だけ
+for (int i = 0; i < n; ++i) f += K * x[i];
+```
+
+> **注意**:
+> 標準の整数リテラル（例: `12345`）や `LL` サフィックス付きの64ビットリテラルは、
+> 暗黙の型変換によりどの型でもそのまま使用できます。
+> `qbpp::integer()` が必要になるのは、値が `int64_t` の範囲を超える場合のみです。
+
+### 128ビット整数の例
+
+以下のプログラムは、64ビット範囲を超える係数を持つ `qbpp::Expr` オブジェクトを作成します。
+```cpp
+#define INTEGER_TYPE_C128E128
+
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto x = qbpp::var("x");
+  auto y = qbpp::var("y");
+  auto f = qbpp::integer("12345678901234567890") * x +
+           qbpp::integer("98765432109876543210") * y;
+  std::cout << "f = " << f << std::endl;
+}
+```
+このプログラムは以下の出力を生成します。
+```
+f = 12345678901234567890*x +98765432109876543210*y
+```
+
+### 任意精度整数（cpp_int）の例
+
+以下のプログラムは、非常に大きな係数と定数項を持つ `qbpp::Expr` オブジェクトを作成します。
+```cpp
+#define INTEGER_TYPE_CPP_INT
+
+#include <qbpp/qbpp.hpp>
+
+int main() {
+  auto x = qbpp::var("x");
+  auto f = qbpp::integer("123456789012345678901234567890") * x +
+           qbpp::integer("987654321098765432109876543210");
+  std::cout << "f = " << f << std::endl;
+}
+```
+このプログラムは以下の出力を生成します。
+```
+f = 987654321098765432109876543210 +123456789012345678901234567890*x
+```
+
+上記2つの例のソースコードの違いは `INTEGER_TYPE_*` マクロのみで、
+`qbpp::integer("...")` 呼び出しはどちらのビルドでも同じ書き方になる点に注目してください。

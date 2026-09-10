@@ -1,0 +1,57 @@
+---
+last_modified: 2026-05-19
+layout: default
+nav_exclude: true
+title: "整数線形計画"
+nav_order: 74
+lang: ja
+hreflang_alt: "en/python/ILP"
+hreflang_lang: "en"
+---
+
+# 整数線形計画法（ILP）
+**整数線形計画法（ILP）** は、PyQBPPを使用してQUBO式に変換できます。
+例として、以下のILPを考えます:
+
+$$
+\begin{aligned}
+\text{Maximize:} && 2x_0 +5x_1+5x_2\\
+\text{Subject to:} && x_0 + 3 x_1 + x_2 &\leq 12 \\
+                &&  x_0 + 2x_2 &\leq 5\\
+                && x_1 + x_2 &\leq 4;
+\end{aligned}
+$$
+
+## PyQBPPプログラム
+以下のPyQBPPプログラムは、このILPをQUBO式として定式化し、Easy Solver を使って解きます:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", shape=3, between=(0, 5))
+objective = 2 * x[0] + 5 * x[1] + 5 * x[2]
+c1 = (0 <= x[0] + 3 * x[1] + x[2]) & (qbpp.same <= 12)
+c2 = (0 <= x[0] + 2 * x[2]) & (qbpp.same <= 5)
+c3 = (0 <= x[1] + x[2]) & (qbpp.same <= 4)
+
+f = -objective + 100 * (c1 + c2 + c3)
+f.simplify_as_binary()
+solver = qbpp.EasySolver(f)
+sol = solver.search(time_limit=1.0)
+print(f"x0 = {sol(x[0])}, x1 = {sol(x[1])}, x2 = {sol(x[2])}")
+print(f"objective = {sol(objective)}")
+print(f"c1 = {sol(c1.body)}, c2 = {sol(c2.body)}, c3 = {sol(c3.body)}")
+```
+{% endraw %}
+このプログラムでは、`x` は3つの整数変数のベクトルであり、それぞれ $[0, 5]$ の範囲の整数値をとります。
+目的関数と3つの制約は、それぞれ `objective`、`c1`、`c2`、`c3` で表されます。
+これらはペナルティ定数 `100` を用いて制約を強制する1つのQUBO式 `f` にまとめられます。
+
+Easy Solver は `f` の低エネルギー解を探索し、`sol` として返します。
+得られた解と `objective`、`c1.body`、`c2.body`、`c3.body` の値は以下のように出力されます:
+```
+x0 = 2, x1 = 3, x2 = 1
+objective = 24
+c1 = 12, c2 = 4, c3 = 4
+```
+目的関数値24の解が得られ、すべての制約が満たされていることが確認できます。
