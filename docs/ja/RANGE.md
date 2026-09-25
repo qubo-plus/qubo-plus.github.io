@@ -1,0 +1,150 @@
+---
+last_modified: 2026-08-27
+layout: default
+nav_exclude: true
+title: "範囲制約"
+nav_order: 8
+lang: ja
+hreflang_alt: "en/RANGE"
+hreflang_lang: "en"
+---
+
+# 範囲制約と整数線形計画法の求解
+
+## 範囲制約の多項式定式化
+$f$ をバイナリ変数の多項式とします。
+範囲制約は $l<u$ に対して **$l\leq f\leq u$** の形式を持ちます。
+目標は、範囲制約が満たされる場合に限り最小値0をとる多項式を設計することです。
+
+鍵となるアイデアは、範囲 $[l,u]$ の値をとる**補助整数変数** $a$ を導入することです。
+以下の式を考えます:
+
+$$
+\begin{aligned}
+g &= (f-a)^2
+\end{aligned}
+$$
+
+この式 $g$ は $f=a$ のときに限り最小値0をとります。
+$a$ は $[l,u]$ の任意の整数値をとれるため、式 $g$ は $f$ 自身が同じ範囲内の整数値をとる場合に限り0を達成します。
+
+この補助変数の手法を用いて、QUBO++は範囲制約を実装しています。
+$f$ が線形式の場合、$g$ はQUBO式になります。
+$f$ が2次以上の場合、$g$ はHUBO式になります（$g$ の次数は $f$ の2倍になるため）。
+
+>**NOTE**
+> QUBO++は内部的に軽量な改善を施しており、範囲制約をわずかに少ないバイナリ変数数で符号化できます。
+> 詳細は[比較演算子](COMPARISON)に記載されています。
+
+
+## 整数線形計画法の求解
+**整数線形計画法**のインスタンスは、**目的関数**と複数の**線形制約**から構成されます。
+例えば、以下の整数線形計画問題は2つの変数、1つの目的関数、2つの制約を持ちます:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+この問題の最適解は $x=4$, $y=5$ であり、目的関数値は $40$ です。
+
+以下のQUBO++プログラムは、Easy Solverを使用してこの最適解を求めます:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (c1 + c2);
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "c1 = " << sol(c1) << ", c2 = " << sol(c2) << std::endl;
+  std::cout << "c1.body(sol) = " << c1.body(sol) << ", c2.body(sol) = " << c2.body(sol) << std::endl;
+}
+```
+{% endraw %}
+
+このQUBO++プログラムでは、
+- **`f`** は目的関数を表し、
+- **`c1`** と **`c2`** は範囲制約を表し、
+- **`g`** はこれらを1つの最適化式にまとめたものです。
+
+目標が最大化であるため、目的関数は `-f` として符号を反転しています。
+制約 `c1` と `c2` には重み100のペナルティを付け、高い優先度で制約が満たされるようにしています。
+
+`g` に対してEasy Solverインスタンスを作成し、制限時間1.0秒で探索を実行します。
+最適解 `sol` を取得した後、`x`、`y`、`f`、`c1`、`c2`、`c1.body(sol)`、`c2.body(sol)` の値を出力します。
+
+プログラムの出力は以下の通りです:
+```
+x = 4, y = 5
+f = 40
+c1 = 0, c2 = 0
+c1.body(sol) = 23, c2.body(sol) = 53
+```
+ここで、
+- **`c1`** は制約 `0 <= 2 x + 3 y <= 24` のペナルティ式（制約が満たされると 0）であり、
+- **`c1.body()`** は線形式 `2 x + 3 y` を返し、`c1.body(sol)` はその値を `sol` で評価します。
+
+ソルバーが正しく最適解を見つけたことが確認できます。
+
+## ネイティブ制約 `cons()` による記述
+
+上のプログラムでは、制約 `c1` と `c2` を重み付きのペナルティ式として目的関数に加えました。
+QUBO++ では、さらに一歩進めて、制約を `qbpp::cons()` で囲んで**制約であることを明示**できます:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * qbpp::cons(c1) + 100 * qbpp::cons(c2);
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+変更点は `100 * (c1 + c2)` を `100 * qbpp::cons(c1) + 100 * qbpp::cons(c2)` に書き換えただけです。
+`qbpp::cons()` で囲まれた部分は**制約として特別に処理**され、
+バンドルされたソルバーは宣言された制約を満たすように効率よく探索を行います。
+`g.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら全制約を充足）。
+プログラムの出力は以下の通りです:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+ペナルティ式では範囲制約ごとに上記の補助変数が必要ですが、
+`cons()` で宣言した場合は補助変数を導入しません。
+この問題でモデルの変数数と項数がどれだけ変わるかは、
+[ネイティブ制約](CONSTRAINTS)の「ペナルティ式との比較」で比べています。
+
+`cons()` で宣言した制約は、バンドルされた 3 つのソルバー（Easy Solver・
+Exhaustive Solver・ABS3 Solver）すべてで同じ意味を持ち、Exhaustive Solver は
+このペナルティ込みエネルギーの**厳密な最小解**を返します。
+MIP ソルバー（SCIP 等）では**ハード制約**（必ず満たすべき制約）として扱われます。
+詳細は[ネイティブ制約](CONSTRAINTS)をご覧ください。

@@ -1,0 +1,459 @@
+---
+last_modified: 2026-09-02
+layout: default
+nav_exclude: true
+title: "比較制約"
+nav_order: 14
+lang: ja
+hreflang_alt: "en/python/COMPARISON"
+hreflang_lang: "en"
+---
+
+# 比較制約
+PyQBPPは、2種類の制約をサポートしています:
+
+- **等式制約**: `qbpp.constrain(f, equal=n)`、ここで `f` は式、`n` は整数。
+- **範囲制約**: `qbpp.constrain(f, between=(l, u))`、ここで `f` は式、`l` と `u` ($l\leq u$) は整数。
+
+いずれも、**対応する制約が満たされる場合に限り最小値0をとる**制約式を返します。
+
+> **注**
+> ここで説明する `qbpp.constrain()` は、制約をペナルティ式（充足時に値が 0 に
+> なる多項式）として目的関数に加える従来の方法です。代わりに `qbpp.cons()` で
+> **ネイティブ制約として宣言**すると、補助変数（スラック変数）を導入せずに済み、
+> バンドルされているソルバーが制約を満たすように効率よく探索するため、
+> **多くの場合こちらの方が良い解が得られます**。
+> 詳細は[非線形関数とネイティブ制約](CONSTRAINTS)を参照してください。
+
+## 等式制約
+等式制約 `qbpp.constrain(f, equal=n)` は以下の式を生成します:
+
+$$
+(f-n)^2
+$$
+
+この式は、等式 $f=n$ が満たされる場合に限り最小値0をとります。
+
+以下のPyQBPPプログラムは、Exhaustive Solverを使用して $a+2b+3c=3$ を満たす全ての解を探索します:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(a + 2 * b + 3 * c, equal=3)
+f.simplify_as_binary()
+print("f =", f)
+print("body =", f.body)
+
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}")
+```
+{% endraw %}
+このプログラムでは、`f` は内部的に2つの式を保持しています:
+- **`f`**: $(a+2b+3c-3)^2$、等式 $a+2b+3c=3$ が満たされる場合に最小値0をとります。
+- **`f.body`**: 等式の左辺、$a+2b+3c$。
+
+`f` に対して作成されたExhaustive Solverを使用し、全ての最適解が **`result.sols`** に格納されます。
+`result.sols` を反復処理することで、全ての解と `f` および `f.body` の値が以下のように出力されます:
+```
+f = 9 -5*a -8*b -9*c +4*a*b +6*a*c +12*b*c
+body = a +2*b +3*c
+a=0, b=0, c=1, f=0, body=3
+a=1, b=1, c=0, f=0, body=3
+```
+これらの結果から、2つの最適解が `f = 0` を達成し、`body = 3` を満たしていることが確認できます。
+
+## サポートされる等式の形式に関する注意
+PyQBPPは等式制約を以下の2つの等価な形式でサポートしています:
+- **`qbpp.constrain(expression, equal=integer)`**
+- **`expression == integer`**（省略形、[演算子による省略構文](#演算子による省略構文)を参照）
+
+`expression1 == expression2`（両辺が式）の形式は直接サポートされて**いません**。
+代わりに、以下のように書き換えてください:
+- **`qbpp.constrain(expression1 - expression2, equal=0)`** — または等価に **`(expression1 - expression2) == 0`**
+
+これらは完全にサポートされています。
+
+
+## 範囲制約
+範囲制約 `qbpp.constrain(f, between=(l, u))` ($l\leq u$) は、制約が満たされる場合に限り最小値0をとる式を生成します。
+
+$l$ と $u$ の値に応じて、以下の場合分けを考えます。
+- **場合1**: **$u=l$**
+- **場合2**: **$u=l+1$**
+- **場合3**: **$u=l+2$**
+- **場合4**: **$u\geq l+3$**
+
+### 場合1: $u=l$
+$u=l$ の場合、範囲制約は等式制約 $f=l$ に帰着し、等式制約を直接使用して実装できます。
+
+### 場合2: $u=l+1$
+$u=l+1$ の場合、以下の式が生成されます:
+
+$$
+ (f-l)(f-u)
+$$
+
+$l$ と $u$ の間に整数が存在しないため、この式は $f=l$ または $f=u$ の場合に限り最小値0をとります。
+
+### 場合3: $u=l+2$
+**補助バイナリ変数** $a \in \lbrace 0,1\rbrace$ を導入し、以下の式を使用します:
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1))
+\end{aligned}
+$$
+
+この式は $f=l$, $l+1$, $l+2$ に対して以下のように評価されます:
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1)) &= (-a)(-(a+1)) && \text{if } f=l \\
+                   &= (1-a)(-a) && \text{if } f=l+1 \\
+                   &=(2-a)(1-a)  && \text{if } f=l+2
+\end{aligned}
+$$
+
+全ての場合において、$a$ の適切な選択により最小値0が達成可能です。
+したがって、$l\leq f\leq u$ が満たされる場合、この式は最小値0をとります。
+
+$g = f-l-a$ とおくと、
+
+$$
+\begin{aligned}
+(f-l-a)(f-l-(a+1)) &= g(g-1)
+\end{aligned}
+$$
+
+となり、$g\leq -1$ または $g\geq 2$ の場合は常に正の値をとります。
+したがって、この式は $l\leq f\leq u$ が満たされる場合に限り最小値0をとります。
+
+### 場合4: $u\geq l+3$
+範囲 $[l,u-1]$ の整数値をとる補助整数変数 $a$ を導入します。
+このような整数変数は、[整数変数と連立方程式の求解](INTEGER)で説明されているように、複数のバイナリ変数を用いて定義できます。
+
+この場合の式は:
+
+$$
+\begin{aligned}
+(f-a)(f-(a+1))
+\end{aligned}
+$$
+
+場合3と同様に、$f$ が $[l,u]$ に含まれない場合、この式は常に正の値をとることが示せます。
+
+$f$ が範囲 $[l,u]$ の整数値をとると仮定します。
+$a=f$ を選ぶと、
+
+$$
+\begin{aligned}
+f-a &= 0 & {\rm if\,\,} f\in [l,u-1]\\
+f-(a+1) &= 0& {\rm if\,\,} f\in [l+1,u]
+\end{aligned}
+$$
+
+したがって、任意の $f\in[l,u]$ に対して $f-a=0$ または $f-(a+1)=0$ のいずれかが成り立ちます。
+よって、$(f-a)(f-(a+1))$ は $l\leq f\leq u$ の場合に限り最小値0をとります。
+
+
+### バイナリ変数数の削減
+[整数変数と連立方程式の求解](INTEGER)では、整数変数 $a\in [l,u]$ は $n$ 個のバイナリ変数 $x_0, x_1, \ldots, x_{n-1}$ を用いて以下のように表現されます:
+
+$$
+\begin{aligned}
+a & = l+2^0x_0+2^1x_1+\cdots +2^{n-2}x_{n-2}+dx_{n-1}
+\end{aligned}
+$$
+
+この式は $l$ から $l+2^{n-1}+d-1$ までの全ての整数を表現できます。
+したがって、以下を満たすように $n$ と $d$ を選ぶことができます:
+
+$$
+\begin{aligned}
+u-1&=l+2^{n-1}+d-1.
+\end{aligned}
+$$
+
+
+場合4では、PyQBPPは代わりに $n-1$ 個のバイナリ変数 $x_1, \ldots, x_{n-1}$ を用いた以下の線形式を使用します:
+
+$$
+\begin{aligned}
+a &= l+2^1x_1+\cdots +2^{n-2}x_{n-2}+dx_{n-1}
+\end{aligned}
+$$
+
+この式は $l$ から $l+2^{n-1}+d-2$ までの整数を表現します。
+それに応じて、以下を満たすように $n$ と $d$ を選びます:
+
+$$
+\begin{aligned}
+u-1&=l+2^{n-1}+d-2.
+\end{aligned}
+$$
+
+このような整数変数 $a$ を**ユニットギャップ整数変数**と呼びます。
+$[l,u]$ 内の一部の値は $a$ で表現できませんが、表現できない任意の $k\in[l,u]$ に対して $k-1$ は表現可能です。
+したがって、$a$ または $a+1$ は範囲 $[l,u]$ の任意の値をとることができ、範囲制約の適用には十分です。
+
+### 4つの場合のPyQBPPプログラム
+以下のプログラムは、PyQBPPにおける4つの場合の実装を示しています:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+f = qbpp.var("f")
+f1 = qbpp.constrain(f, between=(1, 1))
+f2 = qbpp.constrain(f, between=(1, 2))
+f3 = qbpp.constrain(f, between=(1, 3))
+f4 = qbpp.constrain(f, between=(1, 5))
+f1.simplify()
+f2.simplify()
+f3.simplify()
+f4.simplify()
+print("f1 =", f1)
+print("f2 =", f2)
+print("f3 =", f3)
+print("f4 =", f4)
+```
+{% endraw %}
+このプログラムは以下の出力を生成します:
+```
+f1 = 1 -2*f +f*f
+f2 = 2 -3*f +f*f
+f3 = 2 -3*f +3*{s0} +f*f -2*f*{s0} +{s0}*{s0}
+f4 = 2 -3*f +6*{s1}[0] +3*{s1}[1] +f*f -4*f*{s1}[0] -2*f*{s1}[1] +4*{s1}[0]*{s1}[0] +4*{s1}[0]*{s1}[1] +{s1}[1]*{s1}[1]
+```
+これらの出力は以下の式に対応します:
+
+$$
+\begin{aligned}
+f_1 &= (f-1)^2\\
+f_2 &= (f-1)(f-2)\\
+f_3 &= (f-x_0)(f-(x_0+1))\\
+f_4 &= (f-(2x_{1,0}+x_{1,1}+1))(f-(2x_{1,0}+x_{1,1}+2))
+\end{aligned}
+$$
+
+### 範囲制約を使用するPyQBPPプログラム
+以下のプログラムは、PyQBPPにおける範囲制約の使用方法を示しています:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 15 * c, between=(5, 14))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+3つのバイナリ変数 $a$, $b$, $c$ に対して、このプログラムは以下の制約を満たす解を探索します:
+
+$$
+\begin{aligned}
+5\leq 4a+9b+15c \leq 14
+\end{aligned}
+$$
+
+このプログラムは以下のような出力を生成します:
+{% raw %}
+```
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+## 下界・上界制約
+PyQBPPは以下の**片側境界制約**を独立した構文としては直接サポートしていません。
+代わりに、PyQBPPは `between` の境界値を `None` とすることでこれらをサポートします:
+- **下界制約**: `between=(l, None)` → $l\leq f\leq +\infty$
+- **上界制約**: `between=(None, u)` → $-\infty \leq f\leq u$
+
+範囲制約は内部的に補助変数を導入するため、真の無限大は明示的に表現できません。
+そのため、PyQBPPは式 $f$ の**有限の最大値と最小値**を推定し、それぞれ $+\infty$ と $-\infty$ の代わりに使用します。
+
+例えば、以下の式を考えます:
+
+$$
+\begin{aligned}
+f=4a + 9 b + 11 c
+\end{aligned}
+$$
+
+ここで $a$, $b$, $c$ はバイナリ変数です。
+$f$ の取りうる最小値と最大値はそれぞれ0と24です。
+したがって、PyQBPPは対応する範囲制約を構築する際に、$-\infty$ と $+\infty$ の代わりに0と24を使用します。
+
+> **注釈**
+> `qbpp.constrain(f, between=(l, None))` や `qbpp.constrain(f, between=(None, u))` を使う場合、
+> PyQBPPは**QUBOスタイルの解釈**を採用します。すなわち、`None` 側は $f$ の係数から導かれる
+> 構造的な境界（全変数がバイナリのときに $f$ が取りうる最大値・最小値）で置き換えられます。
+> これは **MIPスタイルの解釈**（例: $f\leq u$ を $0\leq f\leq u$ と解釈する流儀）とは異なります。
+> QUBOスタイルを採用しているのは、ユーザーが書いた以上の暗黙の制約を勝手に追加しないためです。
+
+### 下界・上界制約のPyQBPPプログラム
+PyQBPPでは、無限大の値は `between` の対応する側の `None` で表現されます。
+
+以下のプログラムは**下界制約**を示しています:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 11 * c, between=(14, None))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+このプログラムでは、`between=(14, None)` の `None` は正の無限大を表し、自動的に24に置き換えられます。
+
+このプログラムは以下のような出力を生成します:
+{% raw %}
+```
+a=1, b=0, c=1, f=0, body=15, sol=Sol(energy=0, {a: 1, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=1, f=0, body=20, sol=Sol(energy=0, {a: 0, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=1, b=1, c=1, f=0, body=24, sol=Sol(energy=0, {a: 1, b: 1, c: 1, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+以下のプログラムは**上界制約**を示しています:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = qbpp.constrain(4 * a + 9 * b + 11 * c, between=(None, 14))
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+このプログラムでは、`between=(None, 14)` の `None` は負の無限大を表し、自動的に0に置き換えられます。
+
+このプログラムは以下のような出力を生成します:
+{% raw %}
+```
+a=0, b=0, c=0, f=0, body=0, sol=Sol(energy=0, {a: 0, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 0, {s0}[2]: 0})
+a=1, b=0, c=0, f=0, body=4, sol=Sol(energy=0, {a: 1, b: 0, c: 0, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 0})
+a=0, b=1, c=0, f=0, body=9, sol=Sol(energy=0, {a: 0, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 0, {s0}[2]: 1})
+a=0, b=0, c=1, f=0, body=11, sol=Sol(energy=0, {a: 0, b: 0, c: 1, {s0}[0]: 0, {s0}[1]: 1, {s0}[2]: 1})
+a=1, b=1, c=0, f=0, body=13, sol=Sol(energy=0, {a: 1, b: 1, c: 0, {s0}[0]: 1, {s0}[1]: 1, {s0}[2]: 1})
+```
+{% endraw %}
+
+## 演算子による省略構文
+利便性のため、PyQBPPは式と整数の間の比較演算子 `==`, `<=`, `>=` も受け付けます。
+これらは `qbpp.constrain()` の単なる糖衣構文であり、同等の制約式を生成します:
+
+| 演算子による形式 | 等価な `qbpp.constrain()` 形式 | 生成される penalty |
+|---|---|---|
+| `f == n` | `qbpp.constrain(f, equal=n)` | $(f-n)^2$ |
+| `f <= n` | `qbpp.constrain(f, between=(None, n))` | $\min(f) \leq f \leq n$ のとき $0$ |
+| `f >= n` | `qbpp.constrain(f, between=(n, None))` | $n \leq f \leq \max(f)$ のとき $0$ |
+
+ここで $\min(f)$ と $\max(f)$ は $f$ の係数から導かれる構造的な境界であり、上記の
+[下界・上界制約](#下界上界制約)で説明したルールに従います。
+反転形式 `n <= f`, `n >= f` も Python の標準的な反射規則により動作します。
+
+例えば、上の上界制約のプログラムは次のように書き換えられます:
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (4 * a + 9 * b + 11 * c) <= 14   # qbpp.constrain(..., between=(None, 14)) と等価
+f.simplify_as_binary()
+```
+{% endraw %}
+
+これらの演算子は式の配列に対しても定義されており、その場合は要素ごとに制約が適用され、
+制約式の配列が返されます。
+
+> **注釈**
+> 右辺には `int` のみを受け付けます。`expression1 <= expression2` の形式はサポートされておらず、
+> `(expression1 - expression2) <= 0` に書き換えるか、`qbpp.constrain()` で `between=` 範囲を
+> 明示的に指定してください。`x == 3` のように裸の `Var`/`Term` と整数の比較も制約式になります。
+> ただし `var1 == var2` のような**変数同士**の比較は同一性判定（辞書のキーとして使うために
+> bool を返すもの）のままで、制約にはなりません。
+
+## `qbpp.same` による範囲制約の連鎖記法
+
+`qbpp.constrain(f, between=(l, u))` を書くもう一つの方法として、上界制約と下界制約を **`&`** で連結する記法が用意されています。
+ここで、**もう一方の側にある式 `f`** をプレースホルダ **`qbpp.same`** で参照します:
+
+```python
+(l <= f) & (qbpp.same <= u)        # qbpp.constrain(f, between=(l, u)) と等価
+(qbpp.same >= l) & (f <= u)        # 同上
+```
+
+`<=` / `>=` の向きや左右はどの組合せでも構いません。`&` の左右どちらに `qbpp.same` を置いても解釈されます。
+
+`qbpp.same` を介在させる理由は、`f` が大きな式や配列の場合でも、両側の制約に対して**補助変数を 1 組だけ**生成するためです。
+`qbpp.constrain(f, between=(l, u))` と完全に同じ QUBO 式が得られます（補助変数の割り当ても同一です — 片側制約は `&` で合流するまで補助変数を確保しない遅延評価のため）。
+
+### 連鎖記法のPyQBPPプログラム
+
+以下のプログラムは、[範囲制約を使用するPyQBPPプログラム](#範囲制約を使用するpyqbppプログラム) と同じ制約 $5 \leq 4a + 9b + 15c \leq 14$ を連鎖記法で書いたものです:
+
+{% raw %}
+```python
+import pyqbpp as qbpp
+
+a = qbpp.var("a")
+b = qbpp.var("b")
+c = qbpp.var("c")
+f = (5 <= 4 * a + 9 * b + 15 * c) & (qbpp.same <= 14)
+f.simplify_as_binary()
+solver = qbpp.ExhaustiveSolver(f)
+result = solver.search(best_energy_sols=0)
+for sol in result.sols:
+    print(f"a={sol(a)}, b={sol(b)}, c={sol(c)}, "
+          f"f={sol(f)}, body={sol(f.body)}, sol={sol}")
+```
+{% endraw %}
+
+`qbpp.constrain(4*a + 9*b + 15*c, between=(5, 14))` を使った版と同一の出力が得られます。
+
+### 配列に対する連鎖記法
+
+`qbpp.same` は式の配列に対しても使えます。配列の各要素に同じ範囲制約が適用され、制約式の配列が返されます:
+
+{% raw %}
+```python
+x = qbpp.var("x", shape=3)
+fs = qbpp.array([2 * x[0], x[1] + x[2], 3 * x[0] + x[1]])
+constraints = (1 <= fs) & (qbpp.same <= 2)   # fs の各要素に 1 ≤ ... ≤ 2 を適用
+total = qbpp.sum(constraints)
+```
+{% endraw %}
+
+### サポートされない形式
+
+両側に同じ式を書いた `(l <= f) & (f <= u)` の形式はサポートされていません。連鎖記法では片側を `qbpp.same` にしてください。

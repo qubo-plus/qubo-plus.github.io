@@ -1,0 +1,178 @@
+{%- comment -%}
+  Sidebar UI: C++ / Python mode toggle and EN / JA language toggle.
+
+  Three kinds of pages:
+    1. cpp page  (URL not /python/, not mode_shared) — single SSR sidebar; button navigates to /python/ equivalent.
+    2. python page (URL contains /python/)            — single SSR sidebar; button navigates to /en|ja/ equivalent.
+    3. mode_shared page (HUBO_QUBO, Home, ...)         — both sidebars SSR'd. Button toggles in place via localStorage + html class.
+{%- endcomment -%}
+
+<div style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; padding:0.3rem 2rem 0.1rem;">
+  <button class="qbpp-switch-cpp"
+    style="font-weight:bold; padding:0.25rem 0; cursor:pointer; border:1px solid #ccc; border-radius:4px; font-size:0.85rem; width:100%; white-space:nowrap;">
+    QUBO++ (C++)
+  </button>
+  <button class="qbpp-switch-python"
+    style="font-weight:bold; padding:0.25rem 0; cursor:pointer; border:1px solid #ccc; border-radius:4px; font-size:0.85rem; width:100%; white-space:nowrap;">
+    PyQBPP (Python)
+  </button>
+</div>
+
+<script>
+(function() {
+  var path = window.location.pathname;
+  var urlIsPython = path.indexOf('/python/') !== -1;
+  var isShared = !!document.querySelector('meta[name="qbpp-mode-shared"]');
+
+  function getStoredMode() {
+    try { return localStorage.getItem('qbpp-mode'); } catch (e) { return null; }
+  }
+  function setStoredMode(m) {
+    try { localStorage.setItem('qbpp-mode', m); } catch (e) {}
+  }
+
+  /* Current mode: derived from URL on unambiguous pages; from localStorage on shared. */
+  function currentMode() {
+    if (urlIsPython) return 'python';
+    if (!isShared) return 'cpp';
+    return getStoredMode() === 'python' ? 'python' : 'cpp';
+  }
+
+  /* Persist URL-derived mode on unambiguous pages so shared pages can recall it. */
+  if (!isShared) setStoredMode(urlIsPython ? 'python' : 'cpp');
+
+  /* Initial html class is set by an inline script in <head> on shared pages.
+     Keep it in sync if storage was stale relative to URL on non-shared pages. */
+  if (!isShared) {
+    document.documentElement.classList.remove('qbpp-mode-cpp', 'qbpp-mode-python');
+    document.documentElement.classList.add('qbpp-mode-' + (urlIsPython ? 'python' : 'cpp'));
+  }
+
+  function styleModeButtons() {
+    var mode = currentMode();
+    var btnsCpp = document.querySelectorAll('.qbpp-switch-cpp');
+    var btnsPython = document.querySelectorAll('.qbpp-switch-python');
+    for (var i = 0; i < btnsCpp.length; i++) {
+      btnsCpp[i].style.background = mode === 'python' ? '' : '#7253ed';
+      btnsCpp[i].style.color = mode === 'python' ? '' : '#fff';
+      btnsCpp[i].style.borderColor = mode === 'python' ? '#ccc' : '#7253ed';
+    }
+    for (var i = 0; i < btnsPython.length; i++) {
+      btnsPython[i].style.background = mode === 'python' ? '#7253ed' : '';
+      btnsPython[i].style.color = mode === 'python' ? '#fff' : '';
+      btnsPython[i].style.borderColor = mode === 'python' ? '#7253ed' : '#ccc';
+    }
+  }
+
+  /* Build the URL of the other-mode equivalent of this (non-shared) page.
+     Pages with an explicit counterpart (DOCUMENT <-> python/DOCUMENT, etc.) emit
+     <meta name="qbpp-mode-counterpart"> from Jekyll; use it verbatim. */
+  function switchModeUrl(targetMode) {
+    var counter = document.querySelector('meta[name="qbpp-mode-counterpart"]');
+    if (counter) return counter.getAttribute('content');
+    var lang = path.indexOf('/ja/') !== -1 ? 'ja' : 'en';
+    var name = path.replace(/^\/(en|ja)(\/python)?\//, '').replace(/\.html$/, '');
+    if (!name || name === '/' || name === 'index') {
+      return targetMode === 'python' ? '/' + lang + '/python/' : '/' + lang + '/';
+    }
+    return targetMode === 'python'
+      ? '/' + lang + '/python/' + name
+      : '/' + lang + '/' + name;
+  }
+
+  function switchMode(target) {
+    if (isShared) {
+      /* Stay on the page; toggle sidebar and remember choice. */
+      if (currentMode() === target) return;
+      setStoredMode(target);
+      document.documentElement.classList.remove('qbpp-mode-cpp', 'qbpp-mode-python');
+      document.documentElement.classList.add('qbpp-mode-' + target);
+      styleModeButtons();
+      return;
+    }
+    if ((target === 'python') === urlIsPython) return;
+    window.location.href = switchModeUrl(target);
+  }
+
+  function initModeButtons() {
+    styleModeButtons();
+    var btnsCpp = document.querySelectorAll('.qbpp-switch-cpp');
+    var btnsPython = document.querySelectorAll('.qbpp-switch-python');
+    for (var i = 0; i < btnsCpp.length; i++) btnsCpp[i].onclick = function () { switchMode('cpp'); };
+    for (var i = 0; i < btnsPython.length; i++) btnsPython[i].onclick = function () { switchMode('python'); };
+  }
+
+  /* EN / JA language toggle in the top header */
+  function initLang() {
+    var header = document.getElementById('main-header');
+    if (!header) return;
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.gap = '0.4rem';
+    var sd = header.querySelector('.search');
+    if (sd) sd.style.flex = '1';
+
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;gap:0.2rem;flex-shrink:0;';
+    function mkBtn(label) {
+      var b = document.createElement('button');
+      b.textContent = label;
+      b.style.cssText = 'font-weight:bold;padding:0.2rem 0.5rem;cursor:pointer;border:1px solid #ccc;border-radius:4px;font-size:0.75rem;';
+      return b;
+    }
+    var bEn = mkBtn('EN'), bJa = mkBtn('JA');
+    div.appendChild(bEn); div.appendChild(bJa);
+    var logo = document.createElement('img');
+    logo.src = '/icon.svg';
+    logo.alt = 'QUBO++';
+    logo.style.cssText = 'width:1.6rem;height:1.6rem;margin-left:0.3rem;';
+    div.appendChild(logo);
+    header.appendChild(div);
+
+    var currentLang = path.indexOf('/ja/') !== -1 ? 'ja' : 'en';
+    bEn.style.background = currentLang === 'en' ? '#7253ed' : '';
+    bEn.style.color      = currentLang === 'en' ? '#fff' : '';
+    bEn.style.borderColor = currentLang === 'en' ? '#7253ed' : '#ccc';
+    bJa.style.background = currentLang === 'ja' ? '#7253ed' : '';
+    bJa.style.color      = currentLang === 'ja' ? '#fff' : '';
+    bJa.style.borderColor = currentLang === 'ja' ? '#7253ed' : '#ccc';
+
+    function switchLang(targetLang) {
+      if (targetLang === currentLang) return;
+      var newPath;
+      if (currentLang === 'en' && targetLang === 'ja') {
+        newPath = path.replace('/en/', '/ja/');
+      } else if (currentLang === 'ja' && targetLang === 'en') {
+        newPath = path.replace('/ja/', '/en/');
+      } else {
+        newPath = '/' + targetLang + path;
+      }
+      window.location.href = newPath;
+    }
+    bEn.onclick = function() { switchLang('en'); };
+    bJa.onclick = function() { switchLang('ja'); };
+  }
+
+  /* Activate-link bold on current page (across both rendered navs on shared pages) */
+  function highlightActive() {
+    var cur = path.replace(/\.html$/, '').replace(/\/$/, '');
+    var links = document.querySelectorAll('.site-nav a.nav-list-link');
+    for (var i = 0; i < links.length; i++) {
+      var href = (links[i].getAttribute('href') || '').replace(/\.html$/, '').replace(/\/$/, '');
+      if (href === cur) links[i].style.fontWeight = '600';
+    }
+  }
+
+  function start() {
+    initModeButtons();
+    initLang();
+    highlightActive();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+</script>

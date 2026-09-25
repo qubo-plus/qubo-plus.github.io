@@ -1,0 +1,143 @@
+---
+last_modified: 2026-08-27
+layout: default
+nav_exclude: true
+title: "範囲制約"
+nav_order: 9
+lang: ja
+hreflang_alt: "en/python/RANGE"
+hreflang_lang: "en"
+---
+
+# 範囲制約と整数線形計画法の求解
+
+## 範囲制約の多項式定式化
+$f$ をバイナリ変数の多項式とします。
+範囲制約は $l<u$ のもとで **$l\leq f\leq u$** の形式を持ちます。
+目標は、範囲制約が満たされるときかつそのときに限り最小値0を取る多項式を設計することです。
+
+鍵となるアイデアは、範囲 $[l,u]$ の値を取る**補助整数変数** $a$ を導入することです。
+以下の式を考えます：
+
+$$
+\begin{aligned}
+g &= (f-a)^2
+\end{aligned}
+$$
+
+この式 $g$ は $f=a$ のときちょうど最小値0を取ります。
+$a$ は $[l,u]$ の任意の整数値を取れるため、
+式 $g$ が0になるのは $f$ 自体が同じ範囲内の整数値を取るときかつそのときに限ります。
+
+この補助変数の手法を用いて、PyQBPPは **`constrain()`** 関数により範囲制約を実装しています。
+
+>**NOTE**
+> PyQBPPは内部的に軽量な改善を施しており、範囲制約をわずかに少ないバイナリ変数数で符号化できます。
+> 詳細は[比較演算子](COMPARISON)に記載されています。
+
+## 整数線形計画法の求解
+**整数線形計画法**のインスタンスは、**目的関数**と複数の**線形制約**から構成されます。
+例えば、以下の整数線形計画は2つの変数、1つの目的関数、2つの制約を持ちます：
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+この問題の最適解は $x=4$, $y=5$ で、目的関数の値は $40$ です。
+
+以下のPyQBPPプログラムは、Easy Solverを使ってこの最適解を求めます：
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+c1 = qbpp.constrain(2 * x + 3 * y, between=(0, 24))
+c2 = qbpp.constrain(7 * x + 5 * y, between=(0, 54))
+g = -f + 100 * (c1 + c2)
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"c1 = {sol(c1)}, c2 = {sol(c2)}")
+print(f"2x+3y = {sol(c1.body)}, 7x+5y = {sol(c2.body)}")
+```
+
+このプログラムでは、
+- **`f`** は目的関数を表し、
+- **`c1`** と **`c2`** は **`constrain()`** を使って作成された範囲制約を表し、
+- **`g`** はそれらを1つの最適化式にまとめたものです。
+
+目標が最大化であるため、目的関数は `-f` として符号を反転しています。
+制約 `c1` と `c2` は重み100のペナルティを付けて、高い優先度で満たされるようにしています。
+
+`g` に対してEasy Solverのインスタンスを作成し、制限時間1.0秒を `search()` のパラメータとして渡して探索を実行します。
+最適解 `sol` を得た後、プログラムは `x`、`y`、`f`、`c1`、`c2`、および制約本体の式の値を出力します。
+
+プログラムの出力は以下の通りです：
+```
+x = 4, y = 5
+f = 40
+c1 = 0, c2 = 0
+2x+3y = 23, 7x+5y = 53
+```
+ここで、
+- **`c1`** は制約 `0 <= 2x + 3y <= 24` のペナルティであり、
+- **`c1.body`** は線形式 `2x + 3y` を表します。
+
+ソルバーが正しく最適解を見つけていることが確認できます。
+
+## ネイティブ制約 `cons()` による記述
+
+上のプログラムでは、制約 `c1` と `c2` を重み付きのペナルティ式として目的関数に加えました。
+PyQBPP では、さらに一歩進めて、制約を **`qbpp.cons()`** で作成して**制約であることを明示**できます:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+g = -f + 100 * qbpp.cons(2 * x + 3 * y, between=(0, 24))
+g += 100 * qbpp.cons(7 * x + 5 * y, between=(0, 54))
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"violated constraints = {g.cons(sol)}")
+```
+
+変更点は `constrain()` の代わりに `qbpp.cons()` を使うことだけです（引数の書き方は同じで、
+範囲制約は `between=(l, u)`、等式制約は `equal=n` で指定します）。
+`qbpp.cons()` で作成した部分は**制約として特別に処理**され、
+バンドルされたソルバーは宣言された制約を満たすように効率よく探索を行います。
+`g.cons(sol)` は解 `sol` で違反している制約の本数を返します（0 なら全制約を充足）。
+プログラムの出力は以下の通りです:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+`constrain()` で作るペナルティ式では範囲制約ごとに上記の補助変数が必要ですが、
+`qbpp.cons()` で宣言した場合は補助変数を導入しません。
+この問題でモデルの変数数と項数がどれだけ変わるかは、
+[ネイティブ制約](CONSTRAINTS)の「ペナルティ式との比較」で比べています。
+
+`cons()` で宣言した制約は、バンドルされた 3 つのソルバー（Easy Solver・
+Exhaustive Solver・ABS3 Solver）すべてで同じ意味を持ち、Exhaustive Solver は
+このペナルティ込みエネルギーの**厳密な最小解**を返します。
+MIP ソルバー（SCIP 等）では `ilp=True` を指定すると**ハード制約**
+（必ず満たすべき制約）として扱われます。
+詳細は[ネイティブ制約](CONSTRAINTS)をご覧ください。
