@@ -1,0 +1,368 @@
+---
+last_modified: 2026-09-01
+layout: default
+nav_exclude: true
+title: "ナップサック"
+nav_order: 30
+lang: ja
+hreflang_alt: "en/KNAPSACK"
+hreflang_lang: "en"
+---
+
+# ナップサック問題
+重さと価値を持つアイテムの集合と、重量制限のあるナップサックが与えられたとき、**ナップサック問題**は、総重量が容量以内に収まるようにしつつ、総価値を最大化するアイテムの部分集合を選択することを目的とします。
+
+$w_i$ と $v_i$ ($0\leq i\leq n-1$) をそれぞれアイテム $i$ の重さと価値とします。
+$S\in \lbrace 0, 1, \ldots n-1\rbrace$ を選択されたアイテムの集合とします。
+
+$$
+\begin{aligned}
+\text{Maximize:} & \sum_{i\in S} v_i \\
+\text{Subject to:} & \sum_{i\in S} w_i \leq W
+\end{aligned}
+$$
+
+ここで $W$ はナップサックの重量容量です。
+
+## QUBO定式化
+この問題をQUBOとして定式化するために、$n$ 個のバイナリ変数 $x_i\in\lbrace 0,1\rbrace$ ($0\leq i\leq n-1$) の集合 $X$ を導入します。ここで、アイテム $i$ が選択されるのは $x_i=1$ のときかつそのときに限ります。
+
+上記の定式化は次のように書き換えられます：
+
+$$
+\begin{aligned}
+\text{Maximize:} & \sum_{i=0}^{n-1} v_ix_i \\
+\text{Subject to:} & \sum_{i=0}^{n-1} w_ix_i \leq W
+\end{aligned}
+$$
+
+QUBO++ では、この容量制約（**不等式制約**）を 3 通りの方法で表現できます:
+比較演算子による従来の**ペナルティ式**、**非線形関数** `relu`、
+**ネイティブ制約** `cons()` です。以下では同じインスタンスを 3 通りで解き、
+ペナルティの値・モデルの大きさ・得られる情報の違いを比較します
+（非線形関数とネイティブ制約そのものの説明は
+[非線形関数とネイティブ制約](CONSTRAINTS)を参照してください）。
+
+## QUBO++プログラム
+制約はQUBO++が提供する**範囲演算子**を用いて表現できます。
+結果として得られるQUBO目的関数は次のように定義されます：
+
+$$
+\begin{aligned}
+f(X) &= -\sum_{i=0}^{n-1} v_ix_i + P\times (0\leq \sum_{i=0}^{n-1} w_ix_i \leq W)
+\end{aligned}
+$$
+
+QUBOソルバーは目的関数を最小化するため、元の最大化目的は符号を反転しています。
+定数 $P$ は制約を強制するための十分大きなペナルティパラメータです。
+
+以下のQUBO++プログラムは、Exhaustive Solverを用いて10個のアイテムのナップサック問題を解きます：
+{% raw %}
+```cpp
+
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+
+  auto constraint = 0 <= qbpp::sum(w * x) <= capacity;
+  auto objective = qbpp::sum(v * x);
+
+  auto f = -objective + 1000 * constraint;
+  f.simplify_as_binary();
+
+  auto solver = qbpp::ExhaustiveSolver(f);
+  auto sols = solver.search({{"best_energy_sols", 0}});
+  for (size_t i = 0; i < sols.size(); ++i) {
+    const auto& sol = sols.sols[i];
+    std::cout << "[Solution " << i << "]" << std::endl;
+    std::cout << "Energy = " << sol.energy() << std::endl;
+    std::cout << "Constraint  = " << constraint.body(sol) << std::endl;
+    std::cout << "Objective  = " << sol(objective) << std::endl;
+    for (size_t j = 0; j < w.size(); ++j) {
+      if (sol(x[j]) == 1) {
+        std::cout << "Item " << j << ": weight = " << w[j]
+                  << ", value =  " << v[j] << std::endl;
+      }
+    }
+  }
+}
+```
+{% endraw %}
+
+このプログラムでは、式 `constraint` と `objective` を別々に構築し、ペナルティ係数 `1000` を用いて最終的なQUBO式 `f` に結合しています。
+次に、Exhaustive Solver を `f` に適用し、すべての最適解を列挙します。
+
+以下の出力は、エネルギー、制約値、目的関数値を含む最適解を示しています：
+```
+[Solution 0]
+Energy = -480
+Constraint  = 50
+Objective  = 480
+Item 3: weight = 5, value =  60
+Item 5: weight = 15, value =  150
+Item 6: weight = 12, value =  110
+Item 9: weight = 18, value =  160
+[Solution 1]
+Energy = -480
+Constraint  = 50
+Objective  = 480
+Item 3: weight = 5, value =  60
+Item 4: weight = 8, value =  80
+Item 6: weight = 12, value =  110
+Item 7: weight = 7, value =  70
+Item 9: weight = 18, value =  160
+```
+このインスタンスには2つの最適解があり、いずれも総価値 `480` を達成しつつ、容量制約をちょうど満たしていることがわかります。
+
+範囲式 `0 <= qbpp::sum(w * x) <= capacity` は、制約が満たされるときだけ
+最小値 0 になる多項式に展開されます（[比較演算子](COMPARISON)・
+[範囲制約](RANGE)参照）。この多項式を作るために**スラック補助変数**が
+導入され、2 乗の展開も起きます。展開後は通常の 2 次式なので、
+QUBO++ のすべてのソルバーはもちろん、ネイティブ制約に対応しない
+外部の QUBO ツールでもそのまま扱える、最も汎用的な形です。
+違反量 $v$ に対するペナルティの値は $v(v+1)$ です。
+
+## 非線形関数 relu で容量制約を表す
+
+非線形関数 `qbpp::relu` を使うと、容量の**超過分だけ**への
+2 乗ペナルティ $\max(0, \mathrm{load} - W)^2$ を直接書けます。
+以下のプログラムでは総重量の式 `load` を定義し、容量制約を
+`1000 * qbpp::relu(load - capacity, 2)` の 1 行で書いています:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+  auto load = qbpp::sum(w * x);
+  auto objective = qbpp::sum(v * x);
+
+  auto f = -objective + 1000 * qbpp::relu(load - capacity, 2);
+  f.simplify_as_binary();
+
+  auto solver = qbpp::ExhaustiveSolver(f);
+  auto sol = solver.search();
+  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "value = " << sol(objective) << ", weight = " << sol(load)
+            << std::endl;
+}
+```
+{% endraw %}
+
+プログラムの出力は以下の通りです:
+
+```
+Energy = -480
+value = 480, weight = 50
+```
+
+スラック変数は導入されず、2 乗の展開も起きません — 線形式
+`load - capacity` は展開されないまま関数の本体として扱われます。
+違反量 $v$ に対するペナルティの値は $v^2$ です。ただし
+`relu` は意味論を持たない純粋な**目的関数の項**であり、
+「制約」としては扱われません。超過を許容しつつコストとして
+計上したい（ソフトな超過料金のような）場合にも使えます。
+
+## `qbpp::cons()` で容量制約を表す
+
+容量制約を**制約として宣言**するには、範囲式を `qbpp::cons()` で
+囲みます。変更は制約を書く 1 行だけです:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+  auto load = qbpp::sum(w * x);
+  auto objective = qbpp::sum(v * x);
+
+  auto f = -objective + 1000 * qbpp::cons(0 <= load <= capacity);
+  f.simplify_as_binary();
+
+  auto solver = qbpp::ExhaustiveSolver(f);
+  auto sol = solver.search();
+  std::cout << "Energy = " << sol.energy() << std::endl;
+  std::cout << "value = " << sol(objective) << ", weight = " << sol(load)
+            << std::endl;
+  std::cout << "violated constraints = " << f.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+プログラムの出力は以下の通りです:
+
+```
+Energy = -480
+value = 480, weight = 50
+violated constraints = 0
+```
+
+`cons()` で宣言した制約の値は違反量の 2 乗 $v^2$ で、`relu` と
+**同じ値**です。違いは意味論です — 式は制約として宣言されている
+ため、違反本数を返す `f.cons(sol)` や制約ごとの違反量を報告する
+`violations()` が使え、`target_energy` は「エネルギーが target
+以下**かつ全制約充足**」のときに探索を停止し、
+[EasySolver](EASYSOLVER) のデフォルトコールバックは充足の進捗
+（Viol）を表示します。バンドルされたソルバーは宣言された制約を
+満たすように効率よく探索するため、より大きなナップサック問題も
+扱いやすくなります。
+
+## モデルの大きさの比較
+
+3 通りの書き方でソルバーに渡されるモデルの大きさを比べてみます。
+`sol.info()` の `var_count`・`term_count` が、それぞれモデルの
+変数数と目的関数の多項式の項数です:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+  auto load = qbpp::sum(w * x);
+  auto objective = qbpp::sum(v * x);
+
+  auto f1 = -objective + 1000 * (0 <= load <= capacity);
+  f1.simplify_as_binary();
+  auto s1 = qbpp::ExhaustiveSolver(f1).search();
+
+  auto f2 = -objective + 1000 * qbpp::relu(load - capacity, 2);
+  f2.simplify_as_binary();
+  auto s2 = qbpp::ExhaustiveSolver(f2).search();
+
+  auto f3 = -objective + 1000 * qbpp::cons(0 <= load <= capacity);
+  f3.simplify_as_binary();
+  auto s3 = qbpp::ExhaustiveSolver(f3).search();
+
+  std::cout << "penalty: var_count = " << s1.info().get("var_count")
+            << ", term_count = " << s1.info().get("term_count") << std::endl;
+  std::cout << "relu   : var_count = " << s2.info().get("var_count")
+            << ", term_count = " << s2.info().get("term_count") << std::endl;
+  std::cout << "cons   : var_count = " << s3.info().get("var_count")
+            << ", term_count = " << s3.info().get("term_count") << std::endl;
+}
+```
+{% endraw %}
+
+プログラムの出力は以下の通りです:
+
+```
+penalty: var_count = 15, term_count = 120
+relu   : var_count = 10, term_count = 10
+cons   : var_count = 10, term_count = 10
+```
+
+ペナルティ式ではスラック変数が 5 個追加されて変数は 15 個に
+なり、2 乗の展開で項数は 120 に増えます。スラック変数が
+5 個増えると探索空間は $2^5 = 32$ 倍に広がり、項が増えれば
+解を 1 つ評価するコストも上がります。`relu`・`cons` では
+補助変数は導入されず、モデルに残るのは目的関数の 10 項
+だけです — 容量制約の本体（10 項の線形式）は展開されずに
+そのまま保持されます。変数の範囲が広い制約や制約の本数が
+多い問題ほど、この差は大きくなります。
+
+## 重みが小さいときの違い
+
+ペナルティの値は、ペナルティ式では $v(v+1)$、
+`relu(..., 2)`・`cons()` では $v^2$ と異なります。
+重みが十分大きければ（上の例の 1000）どの書き方でも同じ
+実行可能な最適解に到達しますが、重みが小さいとこの差が
+結果に現れます。次のプログラムは同じ問題を重み 6 で解きます:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/exhaustive_solver.hpp>
+
+int main() {
+  auto w = qbpp::array({10, 20, 30, 5, 8, 15, 12, 7, 17, 18});
+  auto v = qbpp::array({60, 100, 120, 60, 80, 150, 110, 70, 150, 160});
+  int capacity = 50;
+
+  auto x = qbpp::var("x", w.size());
+  auto load = qbpp::sum(w * x);
+  auto objective = qbpp::sum(v * x);
+
+  auto f1 = -objective + 6 * (0 <= load <= capacity);
+  f1.simplify_as_binary();
+  auto s1 = qbpp::ExhaustiveSolver(f1).search();
+  std::cout << "penalty: value = " << s1(objective)
+            << ", weight = " << s1(load) << std::endl;
+
+  auto f2 = -objective + 6 * qbpp::relu(load - capacity, 2);
+  f2.simplify_as_binary();
+  auto s2 = qbpp::ExhaustiveSolver(f2).search();
+  std::cout << "relu   : value = " << s2(objective)
+            << ", weight = " << s2(load) << std::endl;
+
+  auto f3 = -objective + 6 * qbpp::cons(0 <= load <= capacity);
+  f3.simplify_as_binary();
+  auto s3 = qbpp::ExhaustiveSolver(f3).search();
+  std::cout << "cons   : value = " << s3(objective)
+            << ", weight = " << s3(load)
+            << ", violated constraints = " << f3.cons(s3) << std::endl;
+}
+```
+{% endraw %}
+
+プログラムの出力は以下の通りです:
+
+```
+penalty: value = 480, weight = 50
+relu   : value = 510, weight = 52
+cons   : value = 510, weight = 52, violated constraints = 1
+```
+
+容量を 2 超過して価値を 30 増やす解（value = 510,
+weight = 52）のペナルティは、ペナルティ式では
+$6 \times 2 \times 3 = 36 > 30$ なので割に合わず実行可能な
+最適解が返りますが、`relu`・`cons` では
+$6 \times 2^2 = 24 < 30$ なので違反解のほうがエネルギーが
+低くなります。同じ重みでも、ペナルティの定義が違えば返る解が
+変わるのです。既存のペナルティ式のモデルを `relu` や `cons()`
+に移行するときは、この差を踏まえて重みを見直してください
+（[非線形関数とネイティブ制約](CONSTRAINTS)の
+「重みの意味の違いに注意」参照）。なお、このような違反が
+起きたことを機械的に検出できるのは、制約として宣言した
+`cons()` だけです（`violated constraints = 1`）。
+
+## まとめ
+
+| 定式化 | 違反 $v$ のペナルティ | モデル | 特徴 |
+|---|---|---|---|
+| `0 <= load <= capacity` | $v(v+1)$ | スラック変数 + 2 乗展開 | 最も汎用的。外部の QUBO ツールでも扱える |
+| `relu(load - capacity, 2)` | $v^2$ | 展開なし | 超過分をコストとする目的関数の項 |
+| `cons(0 <= load <= capacity)` | $v^2$ | 展開なし | 制約として宣言。違反の集計・`target_energy` に参加 |
+
+重みが十分大きければ、3 通りのどれでも同じ最適解が得られます。
+「満たすべき制約」には `cons()` を、超過を許容しつつコストとして
+計上したい量には `relu` を、ネイティブ制約に対応しない外部の
+QUBO ツールに渡す必要がある場合はペナルティ式が適しています。
+対応ソルバーの一覧と詳細な演算規則は
+[非線形関数とネイティブ制約](CONSTRAINTS)を参照してください。
+等式制約と目的関数についての同様の比較は、
+[分割問題の3通りの定式化](PARTITION_FORMULATIONS)を
+参照してください。
