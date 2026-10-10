@@ -1,0 +1,151 @@
+---
+last_modified: 2026-08-27
+layout: default
+nav_exclude: true
+title: "Range Constraints"
+nav_order: 8
+lang: en
+hreflang_alt: "ja/RANGE"
+hreflang_lang: "ja"
+---
+
+# Range Constraints and Solving Integer Linear Programming
+
+## Polynomial formulation for range constraints
+Let $f$ be a polynomial expression of binary variables.
+A range constraint has the form **$l\leq f\leq u$** with $l<u$.
+Our goal is to design a polynomial expression that takes the minimum value 0 if and only if the range constraint is satisfied.
+
+The key idea is to introduce an **auxiliary integer variable** $a$ that takes values in the range $[l,u]$.
+Consider the following expression:
+
+$$
+\begin{aligned}
+g &= (f-a)^2
+\end{aligned}
+$$
+
+This expression $g$ takes the minimum value 0 exactly when $f=a$.
+Since $a$ can take any integer value in $[l,u]$, the expression
+$g$ achieves 0 if and only if $f$ itself takes an integer value within the same range.
+
+Using this auxiliary-variable technique, QUBO++ implements range constraints.
+If $f$ is a linear expression, then $g$ becomes a QUBO expression.
+If $f$ is quadratic or of higher degree, then $g$ becomes a HUBO expression (the degree of $g$ is twice that of $f$).
+
+>**NOTE**
+> QUBO++ internally employs a lightweight improvement that enables range constraints to be encoded with a slightly smaller number of binary variables.
+> Details are described in [Comparison Operators](COMPARISON)
+
+
+## Solving Integer Linear Programming
+An instance of **integer linear programming** consists of an **objective function** and multiple **linear constraints**.
+For example, the following integer linear program has two variables, one objective, and two constraints:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+The optimal solution of this problem is $x=4$, $y=5$, with the objective value $40$.
+
+The following QUBO++ program finds this optimal solution using the Easy Solver:
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * (c1 + c2);
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "c1 = " << sol(c1) << ", c2 = " << sol(c2) << std::endl;
+  std::cout << "c1.body(sol) = " << c1.body(sol) << ", c2.body(sol) = " << c2.body(sol) << std::endl;
+}
+```
+{% endraw %}
+
+In this QUBO++ program,
+- **`f`** represents the objective function,
+- **`c1`** and **`c2`** represent the range constraints, and
+- **`g`** combines them into a single optimization expression.
+
+Since the goal is maximization, the objective is negated as `-f`.
+The constraints `c1` and `c2` are penalized with a weight of 100 to ensure they are satisfied with high priority.
+
+An Easy Solver instance is created for `g`, and a search is performed with a time limit of 1.0 seconds.
+After obtaining the optimal solution `sol`, the program prints the values of `x`, `y`, `f`, `c1`, `c2`, `c1.body(sol)`, and `c2.body(sol)`.
+
+The program outputs:
+```
+x = 4, y = 5
+f = 40
+c1 = 0, c2 = 0
+c1.body(sol) = 23, c2.body(sol) = 53
+```
+Here,
+- **`c1`** is the constraint-expression penalty for `0 <= 2 x + 3 y <= 24` (zero when the constraint is satisfied), and
+- **`c1.body()`** returns the linear expression `2 x + 3 y`, and `c1.body(sol)` evaluates that body at `sol`.
+
+We can confirm that the solver correctly finds the optimal solution.
+
+## Writing with native constraints `cons()`
+
+In the program above, the constraints `c1` and `c2` were added to the objective as weighted penalty expressions.
+QUBO++ lets you go one step further and **explicitly declare them as constraints** by wrapping them in `qbpp::cons()`:
+
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  auto x = 0 <= qbpp::var_int("x") <= 10;
+  auto y = 0 <= qbpp::var_int("y") <= 10;
+  auto f = 5 * x + 4 * y;
+  auto c1 = 0 <= 2 * x + 3 * y <= 24;
+  auto c2 = 0 <= 7 * x + 5 * y <= 54;
+  auto g = -f + 100 * qbpp::cons(c1) + 100 * qbpp::cons(c2);
+  g.simplify_as_binary();
+  auto solver = qbpp::EasySolver(g);
+  auto sol = solver.search({{"time_limit", 1.0}});
+  std::cout << "x = " << sol(x) << ", y = " << sol(y) << std::endl;
+  std::cout << "f = " << sol(f) << std::endl;
+  std::cout << "violated constraints = " << g.cons(sol) << std::endl;
+}
+```
+{% endraw %}
+
+The only change is rewriting `100 * (c1 + c2)` as `100 * qbpp::cons(c1) + 100 * qbpp::cons(c2)`.
+The parts wrapped in `qbpp::cons()` are **treated specially as constraints**,
+and the bundled solvers search efficiently for solutions that satisfy the declared constraints.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol` (0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+The penalty form needs the auxiliary variables described above for every range
+constraint, whereas constraints declared with `cons()` introduce none.
+[Native Constraints](CONSTRAINTS) compares the number of variables and terms of
+the models that the two styles produce for this problem.
+
+Constraints declared with `cons()` have the same meaning in all three bundled
+solvers (Easy Solver, Exhaustive Solver, and ABS3 Solver), and the Exhaustive
+Solver returns the **exact minimum** of this penalty-inclusive energy.
+The MIP solvers (SCIP, etc.) treat them as **hard constraints** (constraints that must be satisfied).
+See [Native Constraints](CONSTRAINTS) for details.

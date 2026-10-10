@@ -1,0 +1,91 @@
+---
+last_modified: 2026-09-03
+layout: default
+title: "QUBO++ (C++)"
+nav_order: 5
+lang: en
+hreflang_alt: "ja/DOCUMENT"
+hreflang_lang: "ja"
+mode_counterpart: "/en/python/DOCUMENT.html"
+---
+
+# QUBO++ (C++) Documentation
+
+## Getting Started
+1. [HUBO and QUBO](HUBO_QUBO)
+2. [Expressive Power of QUBO++](MODELING)
+3. [Quick Start](QUICK)
+4. [Installation and License Management](INSTALL)
+
+## Basics
+This section provides a step-by-step introduction to QUBO++.
+By reading the pages in order, you will learn how to define variables and expressions,
+model optimization problems, and solve them using QUBO++.
+After completing this tutorial, you should be able to use QUBO++ for most typical applications.
+
+1. [Defining Variables and Creating Expressions](VARIABLE)
+2. [Solving Expressions](SOLVE)
+3. [Array of Variables and Array Functions](VECTOR)
+4. [Solving Partitioning Problem Using Array of Variables](PARTITION)
+5. [Permutation Matrix and Solving Assignment Problem](PERMUTATION)
+6. [Integer Variables and Solving Simultaneous Equations](INTEGER)
+7. [Factorization Through HUBO Expression](FACTORIZATION)
+8. [Range Constraints and Solving Integer Linear Programming](RANGE)
+
+## Topics
+This section provides topic-wise explanations of selected features of QUBO++.
+Each page focuses on a specific topic and offers deeper insights into design decisions,
+usage patterns, and, where appropriate, internal implementations.
+This section is not intended to be exhaustive, but to complement the Tutorial and Reference
+sections by providing a deeper understanding of QUBO++.
+
+1. [Data Types of Variables and Expressions](VAREXPR)
+2. [Basic Operators and Functions](OPERATOR)
+3. [Basic Operators and Functions for Arrays](OPVECTOR)
+4. [Multi-dimensional Integers, Variables, and Expressions](MULTIDIM)
+5. [Comparison Operators](COMPARISON)
+6. [Expression Classes](EXPRESSION)
+7. [Evaluating Expressions](EVAL)
+8. [Replace functions](REPLACE)
+9. [Negated Literals](NEGATIVE)
+10. [Reducing HUBO to QUBO](REDUCE)
+11. [Sum Functions for Multi-dimensional Arrays](SUM)
+12. [Einsum Function for Tensor Contraction](EINSUM)
+13. [Slice and Concat Functions](SLICE_CONCAT)
+14. [One-Hot to Integer Conversion](ONEHOT)
+15. [Native Integer Variables](NATIVE_INTEGER)
+16. [Nonlinear Functions and Native Constraints](CONSTRAINTS)
+17. [Easy Solver Usage](EASYSOLVER)
+18. [Exhaustive Solver Usage](EXHAUSTIVE)
+19. [ABS3 Solver Usage](ABS3)
+20. [Search Parameters](PARAMS)
+21. [Performance Tips](TIPS)
+
+## Case Studies
+This section provides examples of solving optimization, mathematical, and graph problems using QUBO++.
+See the [Case Studies](CASE_STUDIES) page for the full list.
+
+## Quick References
+1. [Variables and Expressions](QR_VARIABLE)
+2. [Operators and Functions for Expressions](QR_OPERATION)
+3. [Operations and Functions for Integer Variables and Constraints](QR_INTCONSTRAINT)
+4. [Solutions](QR_SOLUTION)
+
+## External Solver Integrations
+Besides the three built-in solvers, QUBO++ can hand a model to a number of
+external solvers, grouped by the model form each one consumes:
+
+- [QUBO/HUBO Solvers](python/QUBO_HUBO_SOLVERS) — external solvers that take the QUBO/HUBO model **directly** (no linearization; PyQBPP only): many heuristic samplers/annealers and exact backends.
+- [MILP Solvers (SCIP, HiGHS, GLPK, CBC)](MILP_SOLVERS) — exact solvers that require **linearization** of the QUBO into a pure MILP.
+- [CP Solvers (OR-Tools CP-SAT)](CP_SOLVERS) — constraint-programming engine (PyQBPP only).
+
+> These integrations require each solver to be installed separately, and their
+> APIs may change without notice.
+
+
+## Unofficial features
+
+> The following is **unofficial**. It may change or be removed without notice,
+> and it may stop being published. No performance is guaranteed.
+
+- [ABS2 Solver](ABS2) — a GPU-only QUBO solver. On dense QUBO problems it sometimes outperforms ABS3 (distributed as a separate plugin).

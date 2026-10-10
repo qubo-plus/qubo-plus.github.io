@@ -1,0 +1,60 @@
+<!-- Generated from demos/sat/index.html by demos/sync_docs_demos.py. Do not edit. -->
+{% raw %}
+<div class="app">
+
+        <div class="toolbar">
+            <button id="btn-solve">Solve</button>
+            <button id="btn-clear" class="outline" title="Clear solution and clauses">Clear</button>
+            <div class="slider-control">
+                <label for="solver-select">Solver</label>
+                <select id="solver-select">
+                    <option value="easy">ABS3 (CPU)</option>
+                    <option value="exhaustive">Exhaustive</option>
+                </select>
+            </div>
+            <div class="slider-control" id="time-control">
+                <label for="time-limit">Time</label>
+                <input type="range" id="time-limit" min="1" max="30" value="10" step="1">
+                <span id="time-value">10s</span>
+            </div>
+        <button id="btn-theme" class="outline" title="Toggle theme">&#9788;</button>
+    </div>
+
+        <div class="toolbar secondary">
+            <button id="btn-add-var" class="outline matrix-btn">+ Variable</button>
+            <button id="btn-del-var" class="outline matrix-btn">- Variable</button>
+            <button id="btn-add-clause" class="outline matrix-btn">+ Clause</button>
+            <input type="number" id="random-count" value="5" min="1" max="100" title="Number of literals">
+            <button id="btn-random-add" class="outline matrix-btn">+ Random</button>
+            <button id="btn-random-del" class="outline matrix-btn">- Random</button>
+            <input type="number" id="nsat-k" value="3" min="1" max="20" title="Literals per clause">
+            <button id="btn-random-nsat" class="outline matrix-btn">Random <span id="nsat-label">3</span>-SAT</button>
+        </div>
+
+        <div class="clause-section">
+            <div class="clause-matrix-wrap" id="clause-matrix-wrap"></div>
+            <p class="matrix-hint">Click cell to cycle: empty &rarr; <span class="hint-pos">+</span> (positive) &rarr; <span class="hint-neg">&minus;</span> (negative) &rarr; empty</p>
+        </div>
+
+        <div class="solving-overlay hidden" id="solving-overlay">Solving...</div>
+
+        <div id="status-bar" class="status-bar"></div>
+
+        <div id="result-panels" class="result-panels hidden">
+            <div class="panel" id="term-table-panel" style="display:none">
+                <h2>Term Counts</h2>
+                <div class="term-table-wrap">
+                    <table class="term-table" id="term-table"></table>
+                </div>
+            </div>
+            <div class="panel">
+                <h2>HUBO Expression <span class="expr-info" id="expr-info"></span></h2>
+                <pre class="expr-box" id="expr-box"></pre>
+            </div>
+            <div class="panel">
+                <h2>HUBO Expression (no negative literals) <span class="expr-info" id="expr-no-neg-info"></span></h2>
+                <pre class="expr-box" id="expr-no-neg-box"></pre>
+            </div>
+        </div>
+    </div>
+{% endraw %}

@@ -1,0 +1,21 @@
+{%- comment -%}
+  A YouTube video shown as its local thumbnail; clicking it swaps in the player from youtube-nocookie.com,
+  so nothing is loaded from YouTube until the reader asks for it (assets/videos/videos.js).
+  Usage: {% include video_embed.html slug="tutorial" %}   (home: title and length under the player)
+  Data: _data/videos.yml, in the page's language; thumbnail assets/videos/<slug>-<lang>.jpg.
+  The output has no blank lines, so it stays one raw HTML block inside Markdown.
+{%- endcomment -%}
+{%- assign ve_lang = "en" -%}{%- if page.lang == "ja" -%}{%- assign ve_lang = "ja" -%}{%- endif -%}
+{%- assign ve_ep = site.data.videos.episodes | where: "slug", include.slug | first -%}
+{%- assign ve = ve_ep[ve_lang] -%}
+{%- if ve_lang == "ja" -%}{%- assign ve_play = "再生" -%}{%- assign ve_meta = "（" | append: ve.duration | append: "・YouTube）" -%}
+{%- else -%}{%- assign ve_play = "Play" -%}{%- assign ve_meta = "(" | append: ve.duration | append: ", YouTube)" -%}{%- endif -%}
+{%- unless video_assets_loaded -%}
+<link rel="stylesheet" href="{{ '/assets/videos/videos.css' | relative_url }}">
+<script src="{{ '/assets/videos/videos.js' | relative_url }}" defer></script>
+{%- assign video_assets_loaded = true -%}
+{%- endunless %}
+<figure class="video-embed">
+<button type="button" class="video-lite" data-video-id="{{ ve.id }}" data-title="{{ ve.title | escape }}" aria-label="{{ ve_play }}: {{ ve.title | escape }}"><img src="{{ '/assets/videos/' | append: include.slug | append: '-' | append: ve_lang | append: '.jpg' | relative_url }}" alt="" width="1280" height="720" loading="lazy"><span class="video-play" aria-hidden="true"></span></button>
+<figcaption><a href="https://youtu.be/{{ ve.id }}" target="_blank" rel="noopener">{{ ve.title }}</a><span class="video-meta">{{ ve_meta }}</span></figcaption>
+</figure>

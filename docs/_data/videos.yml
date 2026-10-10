@@ -1,0 +1,13 @@
+# The QUBO++ tutorial video on YouTube (https://www.youtube.com/@qubo-plus), shown on the home page by
+# _includes/video_embed.html. The Japanese and English versions are separate videos. Thumbnail:
+# assets/videos/<slug>-<lang>.jpg (1280x720, from videos/05_tutorial/youtube/*_thumb.png in qbpp2).
+episodes:
+  - slug: tutorial
+    ja:
+      id: "Q_EALHgcfQo"
+      title: "QUBO++ 入門（Python）"
+      duration: "17:44"
+    en:
+      id: "u66QOs0MhG8"
+      title: "QUBO++ Tutorial (Python)"
+      duration: "15:01"

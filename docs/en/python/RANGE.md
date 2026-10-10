@@ -1,0 +1,140 @@
+---
+last_modified: 2026-08-27
+layout: default
+nav_exclude: true
+title: "Range Constraints"
+nav_order: 9
+lang: en
+hreflang_alt: "ja/python/RANGE"
+hreflang_lang: "ja"
+---
+
+# Range Constraints and Solving Integer Linear Programming
+
+## Polynomial formulation for range constraints
+Let $f$ be a polynomial expression of binary variables.
+A range constraint has the form **$l\leq f\leq u$** with $l<u$.
+Our goal is to design a polynomial expression that takes the minimum value 0 if and only if the range constraint is satisfied.
+
+The key idea is to introduce an **auxiliary integer variable** $a$ that takes values in the range $[l,u]$.
+Consider the following expression:
+
+$$
+\begin{aligned}
+g &= (f-a)^2
+\end{aligned}
+$$
+
+This expression $g$ takes the minimum value 0 exactly when $f=a$.
+Since $a$ can take any integer value in $[l,u]$, the expression
+$g$ achieves 0 if and only if $f$ itself takes an integer value within the same range.
+
+Using this auxiliary-variable technique, PyQBPP implements range constraints via the **`constrain()`** function.
+
+## Solving Integer Linear Programming
+An instance of **integer linear programming** consists of an **objective function** and multiple **linear constraints**.
+For example, the following integer linear program has two variables, one objective, and two constraints:
+
+$$
+\begin{aligned}
+\text{Maximize: } & & & 5x + 4y \\
+\text{Subject to: } & && 2x + 3y \le 24 \\
+                   & & & 7x + 5y \le 54
+\end{aligned}
+$$
+
+The optimal solution of this problem is $x=4$, $y=5$, with the objective value $40$.
+
+The following PyQBPP program finds this optimal solution using the Easy Solver:
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+c1 = qbpp.constrain(2 * x + 3 * y, between=(0, 24))
+c2 = qbpp.constrain(7 * x + 5 * y, between=(0, 54))
+g = -f + 100 * (c1 + c2)
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"c1 = {sol(c1)}, c2 = {sol(c2)}")
+print(f"2x+3y = {sol(c1.body)}, 7x+5y = {sol(c2.body)}")
+```
+
+In this program,
+- **`f`** represents the objective function,
+- **`c1`** and **`c2`** represent the range constraints created using **`constrain()`**, and
+- **`g`** combines them into a single optimization expression.
+
+Since the goal is maximization, the objective is negated as `-f`.
+The constraints `c1` and `c2` are penalized with a weight of 100 to ensure they are satisfied with high priority.
+
+An Easy Solver instance is created for `g`, and a search is performed with a time limit of 1.0 seconds passed as a parameter to `search()`.
+After obtaining the optimal solution `sol`, the program prints the values of `x`, `y`, `f`, `c1`, `c2`, and the constraint body expressions.
+
+The program outputs:
+```
+x = 4, y = 5
+f = 40
+c1 = 0, c2 = 0
+2x+3y = 23, 7x+5y = 53
+```
+Here,
+- **`c1`** is the penalty for the constraint `0 <= 2x + 3y <= 24`, and
+- **`c1.body`** represents the linear expression `2x + 3y`.
+
+We can confirm that the solver correctly finds the optimal solution.
+
+## Writing with native constraints `cons()`
+
+In the program above, the constraints `c1` and `c2` were added to the objective as weighted penalty expressions.
+PyQBPP lets you go one step further and **explicitly declare them as constraints** by creating them with **`qbpp.cons()`**:
+
+```python
+import pyqbpp as qbpp
+
+x = qbpp.var("x", between=(0, 10))
+y = qbpp.var("y", between=(0, 10))
+f = 5 * x + 4 * y
+g = -f + 100 * qbpp.cons(2 * x + 3 * y, between=(0, 24))
+g += 100 * qbpp.cons(7 * x + 5 * y, between=(0, 54))
+g.simplify_as_binary()
+
+solver = qbpp.EasySolver(g)
+sol = solver.search(time_limit=1.0)
+
+print(f"x = {sol(x)}, y = {sol(y)}")
+print(f"f = {sol(f)}")
+print(f"violated constraints = {g.cons(sol)}")
+```
+
+The only change is using `qbpp.cons()` instead of `constrain()` (the arguments are written the same way:
+`between=(l, u)` for a range constraint and `equal=n` for an equality constraint).
+The parts created with `qbpp.cons()` are **treated specially as constraints**,
+and the bundled solvers search efficiently for solutions that satisfy the declared constraints.
+`g.cons(sol)` returns the number of constraints violated by the solution `sol` (0 means all constraints are satisfied).
+The program outputs:
+
+```
+x = 4, y = 5
+f = 40
+violated constraints = 0
+```
+
+The penalty expressions built with `constrain()` need the auxiliary variables
+described above for every range constraint, whereas constraints declared with
+`qbpp.cons()` introduce none.
+[Native Constraints](CONSTRAINTS) compares the number of variables and terms of
+the models that the two styles produce for this problem.
+
+Constraints declared with `cons()` have the same meaning in all three bundled
+solvers (Easy Solver, Exhaustive Solver, and ABS3 Solver), and the Exhaustive
+Solver returns the **exact minimum** of this penalty-inclusive energy.
+The MIP solvers (SCIP, etc.) treat them as **hard constraints** (constraints
+that must be satisfied) when `ilp=True` is specified.
+See [Native Constraints](CONSTRAINTS) for details.

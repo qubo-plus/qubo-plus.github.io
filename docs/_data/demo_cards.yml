@@ -1,0 +1,66 @@
+# Cards of the demo list (_includes/demo_cards.html). The slug is the page
+# /<lang>/demos/<slug>/ and the thumbnail /assets/demos/thumbs/<slug>.jpg
+# (made by demos/og_card/make_thumbs.py).
+cpp-playground:
+  en:
+    title: "C++ Playground"
+    text: "Write, compile and run QUBO++ programs in C++, with templates to start from."
+  ja:
+    title: "C++ 版 Playground"
+    text: "QUBO++ のプログラムを C++ で書いて、コンパイル・実行できます。テンプレートから始められます。"
+python-playground:
+  en:
+    title: "Python Playground"
+    text: "Write and run PyQBPP programs in Python, with templates to start from."
+  ja:
+    title: "Python 版 Playground"
+    text: "PyQBPP のプログラムを Python で書いて実行できます。テンプレートから始められます。"
+n-queens:
+  en:
+    title: "N-Queens"
+    text: "Place N queens so that no two attack each other. Fix some queens yourself and let the solver finish."
+  ja:
+    title: "N クイーン"
+    text: "どの 2 つも取り合わないように N 個のクイーンを置きます。一部を自分で置いて、残りを解かせることもできます。"
+tsp:
+  en:
+    title: "Traveling Salesman"
+    text: "Place up to 32 cities and watch the tour get shorter while the solver runs."
+  ja:
+    title: "巡回セールスマン"
+    text: "最大 32 都市を置き、探索中に巡回路が短くなっていく様子を見られます。"
+graph-problems:
+  en:
+    title: "22 Graph Problems"
+    text: "Independent set, max-cut, coloring, dominating set, Steiner tree, shortest path, TSP and more."
+  ja:
+    title: "22 のグラフ問題"
+    text: "最大独立集合、最大カット、彩色、支配集合、シュタイナー木、最短路、巡回セールスマンなど。"
+sat:
+  en:
+    title: "SAT"
+    text: "Solve CNF formulas as HUBO models, and compare with the exhaustive solver."
+  ja:
+    title: "SAT（充足可能性問題）"
+    text: "CNF の論理式を HUBO モデルとして解きます。全探索ソルバーとも比べられます。"
+nae-sat:
+  en:
+    title: "NAE-SAT"
+    text: "Not-all-equal SAT, with an objective that balances the numbers of True and False variables."
+  ja:
+    title: "NAE-SAT"
+    text: "Not-All-Equal SAT です。True と False の数を揃える目的関数も選べます。"
+machine-scheduling:
+  en:
+    title: "Machine Scheduling"
+    text: "Assign orders to machines so that every due date is met, with relu() and cons()."
+  ja:
+    title: "機械スケジューリング"
+    text: "すべての納期を守るように注文を機械に割り当てます。relu() と cons() で書いたモデルです。"
+shift-scheduling:
+  en:
+    title: "Shift Scheduling"
+    text: "Build a four-week roster of day and night shifts from the requested days off, with every rule written with cons()."
+  ja:
+    title: "シフトスケジューリング"
+    text: "休み希望から、日勤・夜勤の 4 週間の勤務表を作ります。ルールはすべて cons() で書いたモデルです。"
