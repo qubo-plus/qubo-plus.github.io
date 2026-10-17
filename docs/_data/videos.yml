@@ -1,0 +1,141 @@
+# Videos on the QUBO++ YouTube channel (https://www.youtube.com/@qubo-plus). One entry per episode; the Japanese
+# and English versions are separate videos. Thumbnails: assets/videos/<slug>-<lang>.jpg (1280x720, from
+# videos/NN_*/youtube/*_thumb.png in qbpp2; the tutorial's and varexpr's from videos/manim_{pilot,varexpr}/youtube/). Used by _includes/video_embed.html: the home page shows the
+# tutorial, the Videos page ({ja,en}/VIDEOS.md) lists every episode in this order, in two sections:
+# the tutorials (no kind) and the case studies (kind: case, also embedded in the matching case-study page).
+# hidden: true keeps an entry out of every page (the video is still private on YouTube); remove it on publishing.
+episodes:
+  - slug: tutorial
+    ja:
+      id: "MTE2cWotMKg"
+      title: "QUBO++ 入門（Python）"
+      text: "QUBO++ とは何かから、変数と式、ソルバー、配列、制約、整数変数、非線形関数までを、1 本でひととおり紹介します。"
+      duration: "45:39"
+    en:
+      id: "x8JLd4WdPjo"
+      title: "QUBO++ Tutorial (Python)"
+      text: "All the basics in one video: what QUBO++ is, variables and expressions, solvers, arrays, constraints, integer variables and nonlinear functions."
+      duration: "38:17"
+  - slug: varexpr
+    ja:
+      id: "zvwxSpVYwtE"
+      title: "QUBO++ 変数と式（Python）"
+      text: "バイナリ変数・整数変数・配列の作り方から、式の組み立てと整理、ソルバーで解くところまでを詳しく紹介します。"
+      duration: "38:27"
+    en:
+      id: "u77bYlPZHkw"
+      title: "QUBO++ Variables and Expressions (Python)"
+      text: "A closer look at binary and integer variables, arrays, building and simplifying expressions, and solving them."
+      duration: "30:58"
+  - slug: constraints
+    ja:
+      id: "E016P1WsPcs"
+      title: "QUBO++ 制約の書き方（Python）"
+      text: "等式・不等式の制約を、ペナルティ式と cons() の 2 通りで書き、ナップサック問題で比べます。"
+      duration: "12:59"
+    en:
+      id: "YAoZUG_EqHQ"
+      title: "QUBO++ Writing Constraints (Python)"
+      text: "Equality and inequality constraints, written as penalties and with cons(), compared on knapsack problems."
+      duration: "11:29"
+  - slug: arrays
+    ja:
+      id: "5prglvWjNV8"
+      title: "QUBO++ 配列（Python）"
+      text: "要素ごとの演算、qbpp.sum と qbpp.vector_sum、配列の比較で書く制約を紹介し、割当問題と輸送問題を解きます。ループで書いた場合と式を作る時間も比べます。"
+      duration: "8:23"
+    en:
+      id: "9-CMsyD_lT8"
+      title: "QUBO++ Arrays (Python)"
+      text: "Element-wise operations, qbpp.sum and qbpp.vector_sum, and constraints written by comparing arrays, applied to assignment and transportation problems, with a speed comparison against loops."
+      duration: "7:25"
+  - slug: solvers
+    ja:
+      id: "cZDPEDKi82Q"
+      title: "QUBO++ ソルバーの使い分け（Python）"
+      text: "ExhaustiveSolver・EasySolver・ABS3Solver の使い分けと、探す時間・目標のエネルギー・進捗表示などのパラメータを、LABS（低自己相関列）を例に紹介します。"
+      duration: "8:01"
+    en:
+      id: "8aDTN6GQJdU"
+      title: "QUBO++ Choosing a Solver (Python)"
+      text: "How to choose among ExhaustiveSolver, EasySolver and ABS3Solver, with search parameters such as the time limit, the target energy and the progress display, on LABS sequences."
+      duration: "7:05"
+  - slug: replace
+    ja:
+      id: "rRFUx6uoCxA"
+      title: "QUBO++ 変数の固定（Python）"
+      text: "qbpp.replace で変数を固定して、巡回セールスマン問題の出発点を決めます。解の復元と操作、整数変数の掛け算・割り算・因数分解、値に式を書く例として制約付きの最大カットも紹介します。"
+      duration: "12:03"
+    en:
+      id: "DbNBZhjUrK8"
+      title: "QUBO++ Fixing Variables (Python)"
+      text: "Fix variables with qbpp.replace to choose the start of a traveling salesman tour, restore and change solutions, solve multiplication, division and factoring with integer variables, and replace variables with expressions in a constrained max-cut."
+      duration: "10:51"
+  - slug: types
+    ja:
+      id: "g0XCTc6chQo"
+      title: "QUBO++ 係数とエネルギーの型（Python）"
+      text: "import するモジュールで係数とエネルギーの型を選ぶ方法、オーバーフローと入力のチェック、cppint、実数の係数（pyqbpp.d と quantize）、最大次数の m2・m4 を紹介します。"
+      duration: "9:13"
+    en:
+      id: "VRpM_-kk7lc"
+      title: "QUBO++ Coefficient and Energy Types (Python)"
+      text: "Choosing the coefficient and energy types with the module you import: overflow and input checks, cppint, real coefficients (pyqbpp.d and quantize), and the maximum-degree suffixes m2 and m4."
+      duration: "8:49"
+  - slug: nonlinear
+    ja:
+      id: "Siu3Zf6V-xQ"
+      title: "QUBO++ 非線形関数と高次の項（Python）"
+      text: "abs・relu・max・min の使い方と書けない組み合わせ、3 次以上の項と否定リテラル（3-SAT）、qbpp.reduce で 2 次の式に直す方法を紹介します。"
+      duration: "8:28"
+    en:
+      id: "4PscO4anh4I"
+      title: "QUBO++ Nonlinear Functions and Higher-Degree Terms (Python)"
+      text: "Using abs, relu, max and min and what they cannot be combined with, terms of degree 3 and up with negated literals (3-SAT), and qbpp.reduce to make an expression quadratic."
+      duration: "7:53"
+  - slug: einsum
+    ja:
+      id: "b1CyJm9Z1OA"
+      title: "QUBO++ スライスと einsum（Python）"
+      text: "Python の for ループの代わりに、スライス・concat・einsum で配列から式を速く作る方法を紹介します。巡回セールスマン問題の巡回路の長さを einsum の 1 行で書き、魔方陣の制約もすべて einsum で書きます。"
+      duration: "11:10"
+    en:
+      id: "w0Jx4LRAYwg"
+      title: "QUBO++ Slicing and einsum (Python)"
+      text: "Building expressions from arrays fast with slicing, concat and einsum instead of Python for loops: the traveling salesman tour length in one einsum line, and a magic square with every constraint written by einsum."
+      duration: "9:46"
+  - slug: cpp
+    ja:
+      id: "t0fmbnxiu4A"
+      title: "QUBO++ C++ 版"
+      text: "C++ 版の書き方と Python 版との違いを紹介します。コンパイルと型の選び方、変数・項・式と配列の型、コンパイル時の型の検査、ループで式を作る速さ、どちらを選ぶかをまとめます。"
+      duration: "10:05"
+    en:
+      id: "WLbZCVOtccQ"
+      title: "QUBO++ in C++"
+      text: "How to write QUBO++ in C++ and how it differs from Python: compiling and choosing types, the types of variables, terms, expressions and arrays, type checks at compile time, how fast loops build expressions, and which one to choose."
+      duration: "8:37"
+  - slug: map-coloring
+    kind: case
+    ja:
+      id: "ZvpgSMTpC_c"
+      title: "QUBO++ ケーススタディ 地図の塗り分け（Python）"
+      text: "隣り合う地域が違う色になるように地図を塗る問題を、グラフの彩色として解きます。小さな地図で変数・制約・目的関数を決め、cons() を使わない QUBO と cons() の 2 通りで書いて、アメリカ本土 48 州を 4 色で塗り分けます。"
+      duration: "8:28"
+    en:
+      id: "V-l2RSOZihg"
+      title: "QUBO++ Case Study: Map Coloring (Python)"
+      text: "Coloring a map so that neighboring regions differ, solved as graph coloring: variables, constraint and objective on a small map, written as a plain QUBO and with cons(), then the 48 contiguous US states colored with four colors."
+      duration: "7:48"
+  - slug: sudoku
+    kind: case
+    ja:
+      id: "cMGoizPzybE"
+      title: "QUBO++ ケーススタディ 数独（Python）"
+      text: "数独を、マスと数字の組ごとのバイナリ変数 x[i][j][k] の 3 次元配列で書きます。マス・行・列の制約は qbpp.vector_sum の axis を変えて 1 行ずつ、ブロックはスライスで書き、ヒントから値が決まる変数は辞書に登録して qbpp.replace で固定します（729 個 → 174 個）。"
+      duration: "7:42"
+    en:
+      id: "4kSSHiTvxDU"
+      title: "QUBO++ Case Study: Sudoku (Python)"
+      text: "Sudoku with binary variables x[i][j][k] in a 3-D array: the cell, row and column constraints take one line each by changing the axis of qbpp.vector_sum, the blocks use slicing, and the variables the clues decide are registered in a dictionary and fixed with qbpp.replace (729 variables become 174)."
+      duration: "7:14"

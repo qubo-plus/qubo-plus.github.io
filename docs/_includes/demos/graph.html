@@ -1,0 +1,160 @@
+<!-- Generated from demos/graph/index.html by demos/sync_docs_demos.py. Do not edit. -->
+{% raw %}
+<div class="app">
+        <header>
+            <div class="title-group">
+                <h2 id="problem-title">Maximum Independent Set</h2>
+                <p class="problem-desc" id="problem-desc">Find the largest set of non-adjacent vertices.</p>
+            </div>
+            <span class="badge">QUBO++</span>
+            <button id="btn-theme" class="outline theme-btn" title="Toggle theme">&#9788;</button>
+        </header>
+
+        <div class="toolbar">
+            <select id="problem-select">
+                <optgroup label="Node Selection">
+                    <option value="mis">Maximum Independent Set</option>
+                    <option value="mvc">Minimum Vertex Cover</option>
+                    <option value="clique">Maximum Clique</option>
+                    <option value="mds">Minimum Dominating Set</option>
+                    <option value="densest">Densest k-Subgraph</option>
+                    <option value="diversity">Maximum Diversity</option>
+                </optgroup>
+                <optgroup label="Edge Selection">
+                    <option value="matching">Maximum Matching</option>
+                    <option value="mmm">Minimum Maximal Matching</option>
+                    <option value="steiner">Steiner Tree</option>
+                </optgroup>
+                <optgroup label="Partition">
+                    <option value="maxcut">Maximum Cut</option>
+                    <option value="bisection">Minimum Bisection</option>
+                    <option value="mincut">Minimum s-t Cut</option>
+                    <option value="clique_partition">Clique Partitioning</option>
+                    <option value="p_median">p-Median (Facility Location)</option>
+                </optgroup>
+                <optgroup label="Path / Cycle">
+                    <option value="hampath">Hamiltonian Path</option>
+                    <option value="hamcycle">Hamiltonian Cycle</option>
+                    <option value="shortest_path">Shortest Path (s&#8594;t)</option>
+                    <option value="disjoint_paths">k Disjoint Paths (s&#8594;t)</option>
+                    <option value="spt">Shortest Path Tree</option>
+                    <option value="tsp">Traveling Salesman (TSP)</option>
+                </optgroup>
+                <optgroup label="Coloring">
+                    <option value="coloring">Vertex Coloring</option>
+                    <option value="edge_coloring">Edge Coloring</option>
+                </optgroup>
+            </select>
+            <div class="time-control" id="color-count-wrap" style="display:none">
+                <label for="color-count">Colors</label>
+                <input type="number" id="color-count" min="2" max="10" value="4" step="1" style="width:3em">
+            </div>
+            <div class="time-control" id="sp-endpoints-wrap" style="display:none">
+                <label for="sp-source">s</label>
+                <input type="number" id="sp-source" min="0" max="31" value="0" step="1" style="width:3em">
+                <label for="sp-target">t</label>
+                <input type="number" id="sp-target" min="0" max="31" value="1" step="1" style="width:3em">
+            </div>
+            <div class="time-control" id="dp-count-wrap" style="display:none">
+                <label for="dp-count">Paths</label>
+                <input type="number" id="dp-count" min="2" max="4" value="2" step="1" style="width:3em">
+            </div>
+            <div class="time-control" id="dk-size-wrap" style="display:none">
+                <label for="dk-size">k</label>
+                <input type="number" id="dk-size" min="2" max="31" value="4" step="1" style="width:3em">
+            </div>
+            <div class="time-control" id="spt-root-wrap" style="display:none">
+                <label for="spt-root">root</label>
+                <input type="number" id="spt-root" min="0" max="31" value="0" step="1" style="width:3em">
+            </div>
+            <div class="time-control" id="pm-count-wrap" style="display:none">
+                <label for="pm-count">p</label>
+                <input type="number" id="pm-count" min="1" max="6" value="3" step="1" style="width:3em">
+            </div>
+            <button id="btn-solve" title="Solve the selected problem with QUBO++">Solve</button>
+            <div class="time-control">
+                <label for="solver-time">Time</label>
+                <input type="range" id="solver-time" min="1" max="30" value="5" step="1">
+                <span id="time-value">5s</span>
+            </div>
+        </div>
+
+        <div class="gen-toolbar">
+            <div class="gen-group">
+                <label>Nodes</label>
+                <input type="number" id="gen-node-count" min="1" max="32" value="10" step="1">
+                <button class="outline" id="btn-add-nodes" title="Add random nodes (avoiding overlap)">+NODE</button>
+                <button class="outline" id="btn-del-nodes" title="Remove random nodes and their edges">-NODE</button>
+            </div>
+            <div class="gen-group">
+                <label>Edges</label>
+                <input type="number" id="gen-edge-count" min="1" max="200" value="15" step="1">
+                <button class="outline" id="btn-add-edges" title="Add random edges between existing nodes">+EDGES</button>
+                <button class="outline" id="btn-del-edges" title="Remove random edges">-EDGES</button>
+            </div>
+            <button class="outline" id="btn-spread" title="Push nodes apart from nearest neighbor to spread out">Spread</button>
+        </div>
+        <div class="gen-toolbar">
+            <select id="gen-type" title="Select graph template">
+                <option value="delaunay">Delaunay</option>
+                <option value="udg">UDG</option>
+                <option value="regular">Regular</option>
+                <option value="cycle">Cycle</option>
+                <option value="grid">Grid</option>
+                <option value="hypercube">Hypercube</option>
+                <option value="bintree">BinTree</option>
+                <option value="complete">Complete</option>
+            </select>
+            <div class="gen-params" id="gen-params">
+                <div class="gen-group gen-param" data-gen="udg">
+                    <label>Radius</label>
+                    <input type="number" id="gen-udg-dist" min="10" max="500" value="150" step="10">
+                </div>
+                <div class="gen-group gen-param" data-gen="regular">
+                    <label>Degree</label>
+                    <input type="number" id="gen-reg-degree" min="1" max="31" value="3" step="1">
+                </div>
+                <div class="gen-group gen-param" data-gen="cycle">
+                    <label>N</label>
+                    <input type="number" id="gen-cycle-n" min="3" max="32" value="10" step="1">
+                </div>
+                <div class="gen-group gen-param" data-gen="grid">
+                    <input type="number" id="gen-grid-rows" min="1" max="32" value="4" step="1">
+                    <label>×</label>
+                    <input type="number" id="gen-grid-cols" min="1" max="32" value="4" step="1">
+                </div>
+                <div class="gen-group gen-param" data-gen="hypercube">
+                    <label>Dim</label>
+                    <input type="number" id="gen-hyper-dim" min="1" max="5" value="3" step="1">
+                </div>
+                <div class="gen-group gen-param" data-gen="bintree">
+                    <label>Depth</label>
+                    <input type="number" id="gen-tree-depth" min="1" max="4" value="3" step="1">
+                </div>
+            </div>
+            <button class="outline" id="btn-generate" title="Generate the selected graph template">Generate</button>
+            <button class="outline" id="btn-clear-edges" title="Clear edges only (keep nodes)">CLR Edge</button>
+            <button class="outline" id="btn-clear" title="Clear all nodes and edges">CLR All</button>
+            <button class="outline" id="btn-clear-sol" title="Clear solution display (keep graph)">CLR Sol</button>
+        </div>
+
+        <div id="status-bar" class="status-bar">&nbsp;</div>
+
+        <div class="canvas-wrap">
+            <canvas id="graph-canvas" width="700" height="700"></canvas>
+            <div class="canvas-hint" id="canvas-hint">Click to add nodes, click two nodes to toggle edge</div>
+            <div class="solving-overlay hidden" id="solving-overlay">Solving...</div>
+        </div>
+
+        <div id="result-panels" class="result-panels hidden">
+            <div class="panel">
+                <h2>Variable Vector <span class="vector-dim" id="vector-dim"></span></h2>
+                <div class="vector-wrap" id="vector-wrap"></div>
+            </div>
+            <div class="panel">
+                <h2 id="expr-title">QUBO Expression <span class="expr-info" id="expr-info"></span></h2>
+                <pre class="expr-box" id="expr-box"></pre>
+            </div>
+        </div>
+    </div>
+{% endraw %}

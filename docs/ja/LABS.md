@@ -1,0 +1,106 @@
+---
+last_modified: 2026-10-14
+layout: default
+nav_exclude: true
+title: "LABS 問題"
+nav_order: 32
+lang: ja
+hreflang_alt: "en/LABS"
+hreflang_lang: "en"
+---
+
+# 低自己相関バイナリ列 (LABS) 問題
+
+**低自己相関バイナリ列 (Low Autocorrelation Binary Sequence, LABS)** 問題は、自己相関を最小化するスピン列 $S=(s_i)$ ($s_i=\pm 1, 0\leq i\leq n-1$) を見つけることを目的とします。
+アラインメント $d$ における $S$ の自己相関は次のように定義されます：
+
+$$
+\left(\sum_{i=0}^{n-d-1}s_is_{i+d}\right)^2
+$$
+
+
+LABSの目的関数は、すべてのアラインメントにわたるこれらの自己相関の和です：
+
+$$
+\begin{aligned}
+\text{LABS}(S) &= \sum_{d=1}^{n-1}\left(\sum_{i=0}^{n-d-1}s_is_{i+d}\right)^2
+\end{aligned}
+$$
+
+LABS問題は $\text{LABS}(S)$ を最小化する列 $S$ を見つける問題です。
+
+## スピンからバイナリへの変換
+QUBO++に同梱されているソルバーはスピン変数を直接サポートしていないため、以下の変換を用いてスピン変数をバイナリ変数に変換します：
+
+$$
+\begin{aligned}
+ s_i &\leftarrow 2s_i - 1
+\end{aligned}
+$$
+
+この変換の後、各 $s_i$ はバイナリ変数として扱うことができ、バイナリ変数用のHUBOソルバーを使用して $\text{LABS}(S)$ の解を求めることができます。
+
+QUBO++ではこの変換を spin_to_binary() 関数を通じて提供しています。
+
+## LABSのQUBO++プログラム
+以下のQUBO++プログラムはLABS問題を定式化し、求解します：
+{% raw %}
+```cpp
+#include <qbpp/qbpp.hpp>
+#include <qbpp/easy_solver.hpp>
+
+int main() {
+  const int n = 30;
+
+  auto s = qbpp::var("s", n);
+  auto labs = qbpp::toExpr(0);
+  for (size_t d = 1; d < n; ++d) {
+    auto temp = qbpp::toExpr(0);
+    for (size_t i = 0; i < n - d; ++i) {
+      temp += s[i] * s[i + d];
+    }
+    labs += qbpp::sqr(temp);
+  }
+
+  labs.spin_to_binary();
+  labs.simplify_as_binary();
+
+  auto solver = qbpp::EasySolver(labs);
+  auto sols = solver.search({{"time_limit", 10.0}, {"best_energy_sols", 0}});
+  size_t i = 0;
+  for (const auto& sol : sols.sols) {
+    std::cout << i++ << ": LABS = ";
+    std::cout << sol.energy() << " : ";
+    for (size_t j = 0; j < n; ++j) {
+      std::cout << (sol(s[j]) ? "+" : "-");
+    }
+    std::cout << std::endl;
+  }
+}
+```
+{% endraw %}
+このプログラムでは、`s` に `n` 個の変数のベクトルが格納されます。
+`qbpp::Expr` オブジェクト `labs` はネストされたループを使用して構築され、LABSの目的関数の数学的定義に直接従っています。
+
+その後、`labs` は `spin_to_binary()` 関数によりバイナリ変数上の式に変換され、`simplify_as_binary()` により簡略化されます。
+
+次に、Easy Solver が時間制限10秒で実行されます。
+`best_energy_sols` が `0`（保持する解の個数の上限なし）に設定されているため、探索中に見つかった最良エネルギーの解がすべて sols に格納されます。
+ただし、最良エネルギーを達成する解をすべて列挙するわけではありません。
+
+範囲ベースのforループを使用して、sols に格納された解がすべて表示されます。
+このプログラムの典型的な出力は以下のとおりです：
+```
+0: LABS = 59 : -----+++++-++-++-+-+-+++--+++-
+1: LABS = 59 : -+-++-+-+---+++-------+--++-++
+2: LABS = 59 : -+-+--+-+---+++-------+--++-++
+3: LABS = 59 : +-+-++-+-+++---+++++++-++--+--
+4: LABS = 59 : --+--++-+++++++---+++-+-++-+-+
+5: LABS = 59 : ----++++++-++-++-+-+-+++--+++-
+6: LABS = 59 : +-+--+-+-+++---+++++++-++--+--
+7: LABS = 59 : ++-++--+-------+++---+-+-++-+-
+8: LABS = 59 : -+++--+++-+-+-++-++-++++++----
+9: LABS = 59 : +---++---+-+-+--+--+-----+++++
+```
+この実行では、同じ最小LABS値を達成する複数の解が得られています。
+探索には乱数を使うので、得られる解とその個数は実行ごとに変わります。

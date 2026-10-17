@@ -1,0 +1,68 @@
+<!-- Generated from demos/ide/index.html by demos/sync_docs_demos.py. Do not edit. -->
+{% raw %}
+<div class="app">
+
+
+    <div class="toolbar">
+        <button id="btn-compile" class="btn-primary" title="Compile (Ctrl+B)">Compile</button>
+        <button id="btn-run" class="btn-success" title="Run (Ctrl+R)" disabled>Run</button>
+        <input type="text" id="run-args" class="run-args" placeholder="args" title="Command-line arguments for Run">
+        <div class="toolbar-separator"></div>
+        <select id="template-select">
+            <option value="local_file">Local File</option>
+            <option value="simple">Simple</option>
+            <option value="partitioning">Partition Problem</option>
+            <option value="knapsack">Knapsack</option>
+            <option value="nqueens">N-Queens</option>
+            <option value="ilp">Integer Linear Programming</option>
+            <option value="factorization">Factorization</option>
+            <option value="cutting_stock">Cutting Stock</option>
+            <option value="max_matching">Maximum Matching</option>
+            <option value="tsp">Traveling Salesman</option>
+            <option value="sqrt">Square Root</option>
+        </select>
+        <button id="btn-load" class="outline" title="Load (Ctrl+O)">Load</button>
+        <button id="btn-save" class="outline" title="Save (Ctrl+S)">Save</button>
+        <div class="toolbar-separator"></div>
+        <span class="line-info" id="line-info">Ln 1, Col 1</span>
+        <button id="btn-help" class="outline" title="Usage / 使い方">? Help</button>
+        <button id="btn-theme" class="outline" title="Toggle theme">&#9788;</button>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+        <span class="status-item" id="status-text">Ready</span>
+        <span class="spacer"></span>
+        <span class="status-item status-detail" id="status-lines"></span>
+        <span class="status-item status-detail" id="status-binary">No binary</span>
+        <span class="status-item status-detail">C++17</span>
+    </div>
+
+    <div class="main-content">
+        <div class="editor-container">
+            <div id="editor"></div>
+        </div>
+        <div class="resize-handle" id="resize-handle"></div>
+        <div class="output-panel">
+            <div class="output-header">
+                <h2>Output</h2>
+            </div>
+            <div id="output-content">Ready.</div>
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".cpp,.hpp,.h,.c,.cc,.cxx,.txt" style="display:none">
+
+    <div id="help-overlay" class="help-overlay" style="display:none">
+      <div class="help-modal">
+        <div class="help-modal-header">
+          <h2 id="help-title">Usage</h2>
+          <span class="spacer"></span>
+          <button id="help-lang-ja" class="outline help-lang" title="日本語">日本語</button>
+          <button id="help-lang-en" class="outline help-lang" title="English">English</button>
+          <button id="help-close" class="outline" title="Close">&times;</button>
+        </div>
+        <div id="help-content" class="help-content"></div>
+      </div>
+    </div>
+</div>
+{% endraw %}
