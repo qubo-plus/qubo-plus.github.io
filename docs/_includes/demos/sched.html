@@ -1,0 +1,135 @@
+<!-- Generated from demos/sched/index.html by demos/sync_docs_demos.py. Do not edit. -->
+{% raw %}
+<main class="app">
+
+  <section class="card toolbar">
+    <button id="btn-sample" title="Load the sample orders">Sample data</button>
+    <span class="group">
+      <button id="btn-random" title="Generate random orders that can all meet their due dates">Random</button>
+      <input type="number" id="random-count" value="15" min="3" max="50" step="1" title="Number of orders">
+      <span class="muted">orders</span>
+    </span>
+    <span class="sep"></span>
+    <button id="btn-fastest" title="Put every order on its fastest machine (ignores due dates)">Fastest machines</button>
+    <button id="btn-clear" title="Unassign all orders">Unassign all</button>
+    <span class="sep"></span>
+    <label class="group" for="objective" title="What to minimize once the due dates are met">Minimize
+      <select id="objective">
+        <option value="total" selected>Total processing time</option>
+        <option value="makespan">Makespan</option>
+      </select>
+    </label>
+    <label class="group" for="solve-time">Time
+      <select id="solve-time">
+        <option value="1">1 s</option>
+        <option value="2">2 s</option>
+        <option value="3" selected>3 s</option>
+        <option value="5">5 s</option>
+        <option value="10">10 s</option>
+      </select>
+    </label>
+    <button id="btn-solve" class="primary">Solve</button>
+    <span id="cooldown-label" class="muted"></span>
+  </section>
+
+  <section class="card summary">
+    <div class="stats">
+      <div class="stat main"><span class="stat-label">Total processing time</span><span class="stat-value" id="st-total">–</span></div>
+      <div class="stat"><span class="stat-label">Late orders</span><span class="stat-value" id="st-late">–</span></div>
+      <div class="stat" title="Sum of the lateness of the late orders"><span class="stat-label">Total lateness</span><span class="stat-value" id="st-lateness">–</span></div>
+      <div class="stat"><span class="stat-label">Unassigned</span><span class="stat-value" id="st-unassigned">–</span></div>
+      <div class="stat"><span class="stat-label">Makespan</span><span class="stat-value" id="st-makespan">–</span></div>
+      <div class="stat" id="st-lb-box"><span class="stat-label">Lower bound</span><span class="stat-value" id="st-lb">–</span></div>
+    </div>
+    <div id="late-list" class="late-list hidden"></div>
+    <div id="status" class="status"></div>
+  </section>
+
+  <section class="card">
+    <div class="gantt-controls">
+      <span class="zoom">
+        <button id="btn-zoom-out" title="Zoom out">−</button>
+        <button id="btn-zoom-fit" title="Fit to width">Fit</button>
+        <button id="btn-zoom-in" title="Zoom in">+</button>
+      </span>
+      <span class="muted">Drag an order to move it to another machine or to another position. QUBO++ places the orders of each machine in due-date order.</span>
+    </div>
+    <div class="gantt-wrap" id="gantt-wrap">
+      <div id="gantt"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Orders <span class="count" id="orders-count">0</span>
+      <button id="btn-add" class="small">+ Add order</button>
+    </h2>
+    <p class="muted note">Times are in minutes (multiples of 5, up to 600). Leave a machine blank if it cannot process the order.</p>
+    <div class="table-wrap">
+      <table id="orders-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Due</th>
+            <th class="mcol">Machine 1</th>
+            <th class="mcol">Machine 2</th>
+            <th class="mcol">Machine 3</th>
+            <th>Assigned</th>
+            <th>Start – End</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>How it works</summary>
+      <div class="explain">
+        <p>Each order is processed on exactly one machine that can handle it. The processing time depends
+          on the machine. Every order should finish by its due date; when that is impossible, every order is
+          still assigned and the <b>total lateness</b> is minimized first. Then the selected objective is
+          minimized:</p>
+        <ul>
+          <li><b>Total processing time</b>: the sum of the processing times on the chosen machines. Putting
+            every order on its fastest machine gives the lower bound, but usually some orders then miss their
+            due dates.</li>
+          <li><b>Makespan</b>: the time at which the last order finishes. Among the schedules with the same
+            makespan, the one with the smallest total processing time is chosen.</li>
+        </ul>
+        <p>QUBO++ processes the orders of each machine in due-date order, which is always the best way to meet
+          the due dates, so only the assignment has to be decided (you can still reorder them by hand). With a
+          binary variable <code>y[j][m]</code> that is 1 when order <i>j</i> is processed on machine <i>m</i>,
+          order <i>j</i> finishes on machine <i>m</i> at <code>C[j][m] = Σ<sub>i ≤ j</sub> p[i][m]·y[i][m]</code>,
+          where <i>i ≤ j</i> runs over the orders with due dates no later than that of <i>j</i>, and machine
+          <i>m</i> is busy for <code>L[m] = Σ<sub>j</sub> p[j][m]·y[j][m]</code>.</p>
+        <ul>
+          <li>Each order on exactly one machine: <code>cons(Σ<sub>m</sub> y[j][m] == 1)</code></li>
+          <li>Lateness of order <i>j</i> on machine <i>m</i>:
+            <code>relu(C[j][m] − d[j] − H[j][m]·(1 − y[j][m]))</code>.
+            <code>H[j][m]</code> is the largest possible lateness, so the term is 0 when the order is not on
+            machine <i>m</i>.</li>
+          <li>Makespan: an integer variable <code>z</code> with the terms
+            <code>V·z + (V + 1)·Σ<sub>m</sub> relu(L[m] − z)</code>. Each minute of <code>z</code> below the
+            longest machine costs more than it saves, so <code>z</code> becomes the makespan.</li>
+          <li>Objective: minimize <code>W·(total lateness) + V·z + Σ p[j][m]·y[j][m]</code> (<code>V = 0</code>
+            and no <code>z</code> for the total processing time). The weights make 5 minutes of lateness cost more
+            than any change in the rest, and 5 minutes of makespan more than any change in the total processing
+            time, so the due dates come first.</li>
+        </ul>
+        <p>QUBO++ handles <code>cons()</code>, <code>relu()</code> and integer variables directly, so the model
+          has only the assignment variables and <code>z</code>: no slack variables are needed. The search stops
+          early when it reaches the lower bound, which proves optimality.</p>
+      </div>
+    </details>
+    <details id="model-details">
+      <summary>QUBO++ model <span class="muted" id="model-info"></span></summary>
+      <pre id="model-expr" class="expr">Press Solve to build the model.</pre>
+    </details>
+  </section>
+</main>
+
+<div id="drag-ghost" class="drag-ghost hidden"></div>
+{% endraw %}
