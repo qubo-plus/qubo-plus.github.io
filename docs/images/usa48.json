@@ -1,0 +1,524 @@
+{
+ "names": [
+  "Alabama",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming"
+ ],
+ "abbr": {
+  "Washington": "WA",
+  "Idaho": "ID",
+  "Montana": "MT",
+  "North Dakota": "ND",
+  "Minnesota": "MN",
+  "Michigan": "MI",
+  "Ohio": "OH",
+  "Pennsylvania": "PA",
+  "New York": "NY",
+  "Vermont": "VT",
+  "New Hampshire": "NH",
+  "Maine": "ME",
+  "Arizona": "AZ",
+  "California": "CA",
+  "New Mexico": "NM",
+  "Texas": "TX",
+  "Louisiana": "LA",
+  "Mississippi": "MS",
+  "Alabama": "AL",
+  "Florida": "FL",
+  "Georgia": "GA",
+  "South Carolina": "SC",
+  "North Carolina": "NC",
+  "Virginia": "VA",
+  "Maryland": "MD",
+  "Delaware": "DE",
+  "New Jersey": "NJ",
+  "Connecticut": "CT",
+  "Rhode Island": "RI",
+  "Massachusetts": "MA",
+  "Oregon": "OR",
+  "Utah": "UT",
+  "Wyoming": "WY",
+  "Nevada": "NV",
+  "Colorado": "CO",
+  "South Dakota": "SD",
+  "Nebraska": "NE",
+  "Kansas": "KS",
+  "Oklahoma": "OK",
+  "Iowa": "IA",
+  "Missouri": "MO",
+  "Wisconsin": "WI",
+  "Illinois": "IL",
+  "Kentucky": "KY",
+  "Arkansas": "AR",
+  "Tennessee": "TN",
+  "West Virginia": "WV",
+  "Indiana": "IN"
+ },
+ "edges": [
+  [
+   0,
+   7
+  ],
+  [
+   0,
+   8
+  ],
+  [
+   0,
+   21
+  ],
+  [
+   0,
+   39
+  ],
+  [
+   1,
+   3
+  ],
+  [
+   1,
+   25
+  ],
+  [
+   1,
+   28
+  ],
+  [
+   1,
+   41
+  ],
+  [
+   2,
+   15
+  ],
+  [
+   2,
+   21
+  ],
+  [
+   2,
+   22
+  ],
+  [
+   2,
+   33
+  ],
+  [
+   2,
+   39
+  ],
+  [
+   2,
+   40
+  ],
+  [
+   3,
+   25
+  ],
+  [
+   3,
+   34
+  ],
+  [
+   4,
+   13
+  ],
+  [
+   4,
+   24
+  ],
+  [
+   4,
+   28
+  ],
+  [
+   4,
+   33
+  ],
+  [
+   4,
+   41
+  ],
+  [
+   4,
+   47
+  ],
+  [
+   5,
+   18
+  ],
+  [
+   5,
+   29
+  ],
+  [
+   5,
+   36
+  ],
+  [
+   6,
+   17
+  ],
+  [
+   6,
+   35
+  ],
+  [
+   7,
+   8
+  ],
+  [
+   8,
+   30
+  ],
+  [
+   8,
+   37
+  ],
+  [
+   8,
+   39
+  ],
+  [
+   9,
+   23
+  ],
+  [
+   9,
+   25
+  ],
+  [
+   9,
+   34
+  ],
+  [
+   9,
+   41
+  ],
+  [
+   9,
+   44
+  ],
+  [
+   9,
+   47
+  ],
+  [
+   10,
+   11
+  ],
+  [
+   10,
+   12
+  ],
+  [
+   10,
+   14
+  ],
+  [
+   10,
+   22
+  ],
+  [
+   10,
+   46
+  ],
+  [
+   11,
+   14
+  ],
+  [
+   11,
+   19
+  ],
+  [
+   11,
+   32
+  ],
+  [
+   12,
+   20
+  ],
+  [
+   12,
+   22
+  ],
+  [
+   12,
+   24
+  ],
+  [
+   12,
+   38
+  ],
+  [
+   12,
+   46
+  ],
+  [
+   13,
+   22
+  ],
+  [
+   13,
+   24
+  ],
+  [
+   13,
+   33
+  ],
+  [
+   14,
+   22
+  ],
+  [
+   14,
+   32
+  ],
+  [
+   14,
+   39
+  ],
+  [
+   14,
+   43
+  ],
+  [
+   14,
+   45
+  ],
+  [
+   15,
+   21
+  ],
+  [
+   15,
+   40
+  ],
+  [
+   16,
+   26
+  ],
+  [
+   17,
+   35
+  ],
+  [
+   17,
+   43
+  ],
+  [
+   17,
+   45
+  ],
+  [
+   18,
+   26
+  ],
+  [
+   18,
+   29
+  ],
+  [
+   18,
+   36
+  ],
+  [
+   18,
+   42
+  ],
+  [
+   19,
+   32
+  ],
+  [
+   19,
+   46
+  ],
+  [
+   20,
+   31
+  ],
+  [
+   20,
+   38
+  ],
+  [
+   20,
+   46
+  ],
+  [
+   21,
+   39
+  ],
+  [
+   22,
+   24
+  ],
+  [
+   22,
+   33
+  ],
+  [
+   22,
+   39
+  ],
+  [
+   23,
+   31
+  ],
+  [
+   23,
+   38
+  ],
+  [
+   23,
+   47
+  ],
+  [
+   24,
+   38
+  ],
+  [
+   24,
+   47
+  ],
+  [
+   25,
+   34
+  ],
+  [
+   25,
+   41
+  ],
+  [
+   26,
+   42
+  ],
+  [
+   27,
+   29
+  ],
+  [
+   27,
+   35
+  ],
+  [
+   28,
+   33
+  ],
+  [
+   28,
+   40
+  ],
+  [
+   29,
+   35
+  ],
+  [
+   29,
+   42
+  ],
+  [
+   30,
+   37
+  ],
+  [
+   30,
+   39
+  ],
+  [
+   30,
+   43
+  ],
+  [
+   31,
+   38
+  ],
+  [
+   32,
+   35
+  ],
+  [
+   32,
+   45
+  ],
+  [
+   33,
+   40
+  ],
+  [
+   34,
+   44
+  ],
+  [
+   35,
+   45
+  ],
+  [
+   38,
+   47
+  ],
+  [
+   39,
+   43
+  ],
+  [
+   41,
+   47
+  ],
+  [
+   43,
+   45
+  ],
+  [
+   6,
+   27
+  ]
+ ]
+}

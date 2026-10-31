@@ -1,0 +1,244 @@
+# Videos on the QUBO++ YouTube channel (https://www.youtube.com/@qubo-plus). One entry per episode; the Japanese
+# and English versions are separate videos. Thumbnails: assets/videos/<slug>-<lang>.jpg (1280x720, from
+# videos/NN_*/youtube/*_thumb.png in qbpp2; the Manim versions' from ~/Dropbox/qbpp2/videos/manimNN_*/youtube/). Used by _includes/video_embed.html: the home page shows the
+# introduction (kind: intro, the home page only), the video pages list every other episode in this order:
+# {ja,en}/VIDEOS.md the tutorials (no kind), {ja,en}/VIDEO_CASE_STUDIES.md the case studies (kind: case, also embedded in the matching case-study page).
+# hidden: true keeps an entry out of every page (the video is still private on YouTube); remove it on publishing.
+# page: the companion page of the video (chapters, the programs shown in it, links), relative to {ja,en}/; the video
+# pages link to it, and the page names the episode with video: <slug> in its front matter.
+episodes:
+  - slug: intro
+    kind: intro
+    ja:
+      id: "x8OEogiFqkE"
+      title: "QUBO++ の紹介"
+      text: "はじめての方向けに、組合せ最適化を数式のまま書いて解く QUBO++ を紹介します。制約・整数変数・非線形関数、選べるソルバー、ラズベリーパイからスパコンまで動くこと、活用事例、ブラウザで試せる Playground。"
+      duration: "7:17"
+    en:
+      id: "3jXtRQIOv68"
+      title: "QUBO++ Introduction"
+      text: "An introduction to QUBO++ for newcomers: combinatorial optimization written as math, with constraints, integer variables and nonlinear functions, the solvers to choose from, running from a Raspberry Pi to a supercomputer, case studies, and the Playground in the browser."
+      duration: "6:24"
+  - slug: playground
+    kind: intro
+    ja:
+      id: "NYd2VxAiyy0"
+      title: "QUBO++ をブラウザで試す（Python）"
+      text: "何もインストールせずに、ドキュメントのサイトの Playground でブラウザから QUBO++ を動かします。100 ドルのギフト券で 10 個の候補から 5 個を選ぶ問題を、等式と不等式の制約を qbpp.cons で書いて解き、print(sol) の出力を読みます。"
+      duration: "7:15"
+    en:
+      id: "8K7SsGLlNEg"
+      title: "Try QUBO++ in Your Browser (Python)"
+      text: "Run QUBO++ in the browser with the Playground on the documentation site, with nothing to install: choosing 5 of 10 gifts with a $100 gift card, written with an equality and an inequality constraint in qbpp.cons, and reading the output of print(sol)."
+      duration: "6:25"
+  - slug: tutorial
+    page: python/VIDEO_TUTORIAL
+    ja:
+      id: "MTE2cWotMKg"
+      title: "QUBO++ 入門（Python）"
+      text: "QUBO++ とは何かから、変数と式、ソルバー、配列、制約、整数変数、非線形関数までを、1 本でひととおり紹介します。"
+      duration: "45:39"
+    en:
+      id: "x8JLd4WdPjo"
+      title: "QUBO++ Tutorial (Python)"
+      text: "All the basics in one video: what QUBO++ is, variables and expressions, solvers, arrays, constraints, integer variables and nonlinear functions."
+      duration: "38:17"
+  - slug: varexpr
+    page: python/VIDEO_VAREXPR
+    ja:
+      id: "zvwxSpVYwtE"
+      title: "QUBO++ 変数と式（Python）"
+      text: "バイナリ変数・整数変数・配列の作り方から、式の組み立てと整理、ソルバーで解くところまでを詳しく紹介します。"
+      duration: "38:27"
+    en:
+      id: "u77bYlPZHkw"
+      title: "QUBO++ Variables and Expressions (Python)"
+      text: "A closer look at binary and integer variables, arrays, building and simplifying expressions, and solving them."
+      duration: "30:58"
+  - slug: constraints
+    page: python/VIDEO_CONSTRAINTS
+    ja:
+      id: "ED7EwZcg7sc"
+      title: "QUBO++ 制約の書き方（Python）"
+      text: "等式・不等式の制約を、ペナルティ式と cons() の 2 通りで書き、ナップサック問題で比べます。"
+      duration: "46:10"
+    en:
+      id: "G-NCMDQeJoM"
+      title: "QUBO++ Writing Constraints (Python)"
+      text: "Equality and inequality constraints, written as penalties and with cons(), compared on knapsack problems."
+      duration: "37:44"
+  - slug: arrays
+    page: python/VIDEO_ARRAYS
+    ja:
+      id: "VepUZmS7euc"
+      title: "QUBO++ 配列（Python）"
+      text: "要素ごとの演算、qbpp.sum と qbpp.vector_sum、配列の比較で書く制約を紹介し、割当問題と輸送問題を解いて、3 次元の配列で勤務表を作ります。ループで書いた場合と式を作る速さも比べます。"
+      duration: "41:47"
+    en:
+      id: "ja9RwPnr67Y"
+      title: "QUBO++ Arrays (Python)"
+      text: "Element-wise operations, qbpp.sum and qbpp.vector_sum, and constraints written by comparing arrays, applied to assignment and transportation problems and a duty roster with a 3-D array, with a speed comparison against loops."
+      duration: "34:08"
+  - slug: solvers
+    page: python/VIDEO_SOLVERS
+    ja:
+      id: "LoPA4lKyleo"
+      title: "QUBO++ ソルバーの使い分け（Python）"
+      text: "ExhaustiveSolver・EasySolver・ABS3Solver の使い分けと、探す時間・目標のエネルギー・進捗表示などのパラメータを、LABS（低自己相関列）を例に紹介します。カスタムコールバックと、ヒントとして解を渡す方法も紹介します。"
+      duration: "43:37"
+    en:
+      id: "rt1-SK1HQHs"
+      title: "QUBO++ Choosing a Solver (Python)"
+      text: "How to choose among ExhaustiveSolver, EasySolver and ABS3Solver, with search parameters such as the time limit, the target energy and the progress display, on LABS sequences, plus custom callbacks and giving a solution as a hint."
+      duration: "36:21"
+  - slug: replace
+    page: python/VIDEO_REPLACE
+    ja:
+      id: "2th-oxUr5yo"
+      title: "QUBO++ 変数の固定（Python）"
+      text: "qbpp.replace で変数を固定して、巡回セールスマン問題の出発点を決めます。解の復元と操作、整数変数の掛け算・割り算・因数分解、値に式を書く例として制約付きの最大カットも紹介します。"
+      duration: "46:07"
+    en:
+      id: "XnvXCuBbmaA"
+      title: "QUBO++ Fixing Variables (Python)"
+      text: "Fix variables with qbpp.replace to choose the start of a traveling salesman tour, restore and change solutions, solve multiplication, division and factoring with integer variables, and replace variables with expressions in a constrained max-cut."
+      duration: "37:44"
+  - slug: types
+    page: python/VIDEO_TYPES
+    ja:
+      id: "kOdy9FOOMuY"
+      title: "QUBO++ 係数とエネルギーの型（Python）"
+      text: "import するモジュールで係数とエネルギーの型を選ぶ方法、オーバーフローと入力のチェック、cppint、実数の係数（pyqbpp.d と quantize）、最大次数の m2・m4 を紹介します。"
+      duration: "35:37"
+    en:
+      id: "c6DqHuCX8LE"
+      title: "QUBO++ Coefficient and Energy Types (Python)"
+      text: "Choosing the coefficient and energy types with the module you import: overflow and input checks, cppint, real coefficients (pyqbpp.d and quantize), and the maximum-degree suffixes m2 and m4."
+      duration: "31:42"
+  - slug: nonlinear
+    page: python/VIDEO_NONLINEAR
+    ja:
+      id: "axd3M5Rb1oU"
+      title: "QUBO++ 非線形関数と高次の項（Python）"
+      text: "abs・relu・max・min の使い方と書けない組み合わせ、リテラルと高次の項、2 次以下の項の否定リテラルの展開と 3 次以上を展開しない理由、qbpp.reduce で 2 次の式に直す方法を紹介します。"
+      duration: "30:00"
+    en:
+      id: "iLR95tJb9Hg"
+      title: "QUBO++ Nonlinear Functions and Higher-Degree Terms (Python)"
+      text: "Using abs, relu, max and min and what they cannot be combined with, literals and higher-degree terms, why negated literals are expanded only in terms of degree 2 or less, and qbpp.reduce to make an expression quadratic."
+      duration: "25:24"
+  - slug: einsum
+    page: python/VIDEO_EINSUM
+    ja:
+      id: "a0-bFbRyUV8"
+      title: "QUBO++ スライスと einsum（Python）"
+      text: "Python の for ループの代わりに、スライス・concat・einsum で配列から式を速く作る方法を紹介します。巡回セールスマン問題の巡回路の長さを einsum の 1 行で書き、魔方陣の制約もすべて einsum で書きます。"
+      duration: "37:17"
+    en:
+      id: "GZak2Yk6I8c"
+      title: "QUBO++ Slicing and einsum (Python)"
+      text: "Building expressions from arrays fast with slicing, concat and einsum instead of Python for loops: the traveling salesman tour length in one einsum line, and a magic square with every constraint written by einsum."
+      duration: "30:20"
+  - slug: cpp
+    page: VIDEO_CPP
+    ja:
+      id: "J8O5slVcerI"
+      title: "QUBO++ C++ 版"
+      text: "C++ 版の書き方と Python 版との違いを紹介します。コンパイルと型の選び方、変数・項・式と配列の型、コンパイル時の型の検査、ループで式を作る速さ、どちらを選ぶかをまとめます。"
+      duration: "37:23"
+    en:
+      id: "C7YA2EIsZRI"
+      title: "QUBO++ in C++"
+      text: "How to write QUBO++ in C++ and how it differs from Python: compiling and choosing types, the types of variables, terms, expressions and arrays, type checks at compile time, how fast loops build expressions, and which one to choose."
+      duration: "30:26"
+  - slug: map-coloring
+    kind: case
+    page: python/VIDEO_MAP_COLORING
+    ja:
+      id: "XJEVzx2S-Uk"
+      title: "QUBO++ ケーススタディ 地図の塗り分け（Python）"
+      text: "隣り合う地域が違う色になるように地図を塗る問題を、グラフの彩色として解きます。小さな地図で変数・制約・目的関数を決め、cons() を使わない QUBO と cons() の 2 通りで書いて、アメリカ本土 48 州を 4 色で塗り分けます。"
+      duration: "13:18"
+    en:
+      id: "c-SHNyv4_Xg"
+      title: "QUBO++ Case Study: Map Coloring (Python)"
+      text: "Coloring a map so that neighboring regions differ, solved as graph coloring: variables, constraint and objective on a small map, written as a plain QUBO and with cons(), then the 48 contiguous US states colored with four colors."
+      duration: "11:29"
+  - slug: sudoku
+    kind: case
+    page: python/VIDEO_SUDOKU
+    ja:
+      id: "2ObZfD9vjGI"
+      title: "QUBO++ ケーススタディ 数独（Python）"
+      text: "数独を、マスと数字の組ごとのバイナリ変数 x[i][j][k] の 3 次元配列で書きます。マス・行・列の制約は qbpp.vector_sum の axis を変えて 1 行ずつ、ブロックはスライスで書き、ヒントから値が決まる変数は辞書に登録して qbpp.replace で固定します（729 個 → 174 個）。"
+      duration: "12:28"
+    en:
+      id: "G5C8QHZdyXo"
+      title: "QUBO++ Case Study: Sudoku (Python)"
+      text: "Sudoku with binary variables x[i][j][k] in a 3-D array: the cell, row and column constraints take one line each by changing the axis of qbpp.vector_sum, the blocks use slicing, and the variables the clues decide are registered in a dictionary and fixed with qbpp.replace (729 variables become 174)."
+      duration: "10:52"
+  - slug: quantum-annealer
+    kind: case
+    page: python/VIDEO_QUANTUM_ANNEALER
+    ja:
+      id: "Z-zraInJTEg"
+      title: "QUBO++ ケーススタディ 量子アニーラーのシミュレーション（Python）"
+      text: "量子アニーラーが解くイジングモデルを、実機を使わずに QUBO++ で解きます。2000Q のキメラグラフの上で乱数で生成した問題を spin_to_binary() で QUBO にして EasySolver で解き、すべての結合を満たせない理由を輪で確かめ、全探索で最適解と比べます。最後に Advantage2 などのトポロジーを紹介します。"
+      duration: "13:46"
+    en:
+      id: "xs2S38CWm08"
+      title: "QUBO++ Case Study: Simulating a Quantum Annealer (Python)"
+      text: "Solving the Ising model a quantum annealer solves, without the real machine: a random problem on the Chimera graph of the 2000Q, turned into a QUBO with spin_to_binary() and solved with EasySolver, why not every coupling can be satisfied, a check against exhaustive search, and the topologies of Advantage2 and others."
+      duration: "11:56"
+  - slug: halftoning
+    kind: case
+    page: python/VIDEO_HALFTONING
+    ja:
+      id: "c-Cagb6dy-Y"
+      title: "QUBO++ ケーススタディ 画像のハーフトーン化（Python）"
+      text: "グレースケール画像を白と黒の点だけで表すハーフトーン化を、ぼかした 2 値画像と元の画像の誤差の 2 乗の和、つまり QUBO のエネルギーを小さくする問題として解きます。256 × 256 の猫の写真で、よく使われる DBS（Direct Binary Search）と ABS3、DBS の画像を hint にした ABS3 を、時間とエネルギーのグラフと最終画像で比べます。"
+      duration: "10:24"
+    en:
+      id: "1Uy2HqgCi20"
+      title: "QUBO++ Case Study: Image Halftoning (Python)"
+      text: "Halftoning a grayscale image into black and white dots, solved as making the sum of squared errors between the blurred binary image and the original small, which is the energy of a QUBO: on a 256 × 256 photo of a cat, the well-known DBS (Direct Binary Search), ABS3, and ABS3 given the DBS image as a hint are compared with a graph of energy over time and the final images."
+      duration: "9:23"
+  - slug: nonogram
+    kind: case
+    page: python/VIDEO_NONOGRAM
+    ja:
+      id: "Ir-BsGeZij4"
+      title: "QUBO++ ケーススタディ ノノグラム（Python）"
+      text: "手がかりの数字からマスを黒く塗って絵を完成させるパズルを、15 × 15 の問題（答えは QUBO++ のロゴ）で解きます。塊の位置を左寄せからの移動量で表してドメインウォールの変数にし、塊がマスを覆う条件を帯の 2 か所の値の差で書いて、マスの色を変数の線形式にします。補助変数なしで解き、展開して QUBO としても解きます。"
+      duration: "14:25"
+    en:
+      id: "ZobNoQbQkJQ"
+      title: "QUBO++ Case Study: Nonogram (Python)"
+      text: "A puzzle where you shade cells from number clues to complete a picture, on a 15 × 15 puzzle whose answer is the QUBO++ logo: each block's shift from the left-aligned position becomes domain wall variables, whether a block covers a cell becomes the difference of two strip values, and the color of a cell becomes a linear expression. It is solved with no auxiliary variables, and also as an expanded QUBO."
+      duration: "11:50"
+  - slug: cutwidth
+    kind: case
+    page: python/VIDEO_CUTWIDTH
+    ja:
+      id: "YeeEqZJlFqw"
+      title: "QUBO++ ケーススタディ グラフの分割問題（Python）"
+      text: "グラフを切ったときに切れる辺の数を考える 3 つの問題、最大カット・二分割幅・カット幅を、4 次元超立方体（頂点 16 個・辺 32 本）で解きます。3 つとも同じカットの式から作り、最大カットは符号を反転して、二分割幅は半分ずつという制約を qbpp.cons で加えて求めます。カット幅は頂点の番号をドメインウォールで表すと、変数の表の各列が切れ目での 2 つの分け方になり、天井の整数変数で最大の切れ目を最小にします。4 × 4 の盤のルークのグラフと、頂点 256 個の K4 × K4 × K4 × K4（ABS3Solver）でも試します。"
+      duration: "15:46"
+    en:
+      id: "tizpJ919an8"
+      title: "QUBO++ Case Study: Graph Partitioning (Python)"
+      text: "Three problems about how many edges are cut when a graph is cut, max cut, bisection width, and cutwidth, solved on the 4-dimensional hypercube (16 vertices, 32 edges). All three are built from the same cut expression: max cut by minimizing minus the cut, and bisection width by adding the equal halves constraint with qbpp.cons. For cutwidth, the number of each vertex becomes a domain wall, so that each column of the variable table is a split at a gap, and a ceiling integer variable minimizes the largest gap. The rook graph of a 4 × 4 board and K4 × K4 × K4 × K4 with 256 vertices (ABS3Solver) are tried too."
+      duration: "13:09"
+  - slug: machine-scheduling
+    kind: case
+    page: python/VIDEO_MACHINE_SCHEDULING
+    ja:
+      id: "xNzV0vNuvx8"
+      title: "QUBO++ ケーススタディ 納期付き機械スケジューリング（Python）"
+      text: "3 台の機械で 12 件の注文を、どの注文も納期までに終わるように処理します。各機械は納期の早い順に処理してよいことを示して割り当てだけを変数にし、割り当ての制約と納期の制約を qbpp.cons で書きます。プログラムでは配列の演算で和をまとめて書き、処理できない組などの変数を qbpp.replace で固定します。処理時間の合計を最小にした後、整数変数 z でメイクスパンを最小にします。"
+      duration: "14:09"
+    en:
+      id: "RRIM7zBmfgo"
+      title: "QUBO++ Case Study: Machine Scheduling with Due Dates (Python)"
+      text: "Twelve orders processed on three machines, every order by its due date. Each machine may process its orders in due-date order, so only the assignment becomes variables, and the assignment and due-date constraints are written with qbpp.cons. The program writes the sums with array operations and fixes variables such as those of the pairs that cannot be processed with qbpp.replace. After minimizing the total processing time, an integer variable z minimizes the makespan."
+      duration: "11:32"
