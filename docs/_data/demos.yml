@@ -1,0 +1,46 @@
+# Browser demos shown on full-window pages (layout "demo").
+#   api            Lambda Function URL the page calls for solving (the page itself
+#                  is served from this site; the Lambda serves only the API).
+#   layout         board (default): square board, fitted to the window height
+#                  column: the app's own width (760px), for tables and many controls
+#                  wide: the app sets its own width (up to 1400px)
+#                  fill: the app fills the window below the heading (Playgrounds)
+#   width          optional width of the heading and the app (layout wide; default 1400px)
+#   theme_key      localStorage key the demo's app.js uses for its light/dark theme
+#   theme_default  the app's theme when nothing is stored (default light)
+# The front end is copied from demos/<id>/ by demos/sync_docs_demos.py.
+nqueen:
+  api: "https://lsuxxbj2xmy5nrdnw7i53hxtiu0hazyg.lambda-url.ap-northeast-1.on.aws"
+  theme_key: "nqueen-theme"
+tsp:
+  api: "https://vk2x4g4ctfs3rpc2rhr6f5jnfy0meufu.lambda-url.ap-northeast-1.on.aws"
+  theme_key: "tsp-theme"
+graph:
+  layout: column
+  api: "https://pwnweogwdi7ykfx2dzxwewa4li0kdslm.lambda-url.ap-northeast-1.on.aws"
+  theme_key: "graph-mis-theme"
+sat:
+  layout: column
+  api: "https://zslnqahcvlwn4evozwbc5pyqyq0xyjzv.lambda-url.ap-northeast-1.on.aws"
+  theme_key: "sat-theme"
+naesat:
+  layout: column
+  api: "https://lyooemld3a64tzvqeihjqz7pcq0pciyx.lambda-url.ap-northeast-1.on.aws"
+  theme_key: "naesat-theme"
+sched:
+  api: "https://2uqhbzcii5eqcdrahj3ekgwexe0exjuu.lambda-url.ap-northeast-1.on.aws"
+  layout: wide
+shift:
+  api: "https://veontyjmvwvyfjlcdtq7lgfagy0wnfmh.lambda-url.ap-northeast-1.on.aws"
+  layout: wide
+  width: 1480px
+ide:
+  api: "https://233dwj2zapcrsk6kvnlhwcc3gu0jydbw.lambda-url.ap-northeast-1.on.aws"
+  layout: fill
+  theme_key: "qbpp-ide-theme"
+  theme_default: dark
+ide_pyqbpp:
+  api: "https://3nsgxoub3dgwgfb3dk27oc7yqu0zmmog.lambda-url.ap-northeast-1.on.aws"
+  layout: fill
+  theme_key: "pyqbpp-ide-theme"
+  theme_default: dark
