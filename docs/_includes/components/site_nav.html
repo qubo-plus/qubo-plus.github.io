@@ -1,0 +1,51 @@
+{%- comment -%}
+  Override of just-the-docs site_nav.
+
+  Filters site.html_pages by:
+    1. current language (include.lang or page.lang)
+    2. current mode (include.python or page.python). When include.python
+       is explicitly passed (even as false) it takes precedence.
+
+  Pages with mode_shared: true (HUBO_QUBO, LICENSE_MANAGEMENT, etc.) appear
+  in both cpp and python sidebars.
+
+  include.mode_attr: when provided, written as data-mode on <nav> so the
+  client-side script can toggle visibility on shared pages where two
+  sidebars are rendered side by side.
+{%- endcomment -%}
+
+{%- assign current_lang = include.lang | default: page.lang | default: 'en' -%}
+{%- assign current_is_python = include.python -%}
+{%- if current_is_python == nil -%}{%- assign current_is_python = page.python -%}{%- endif -%}
+
+<nav aria-label="Main" id="site-nav-{{ include.mode_attr | default: 'default' }}" class="site-nav"{% if include.mode_attr %} data-mode="{{ include.mode_attr }}"{% endif %}>
+  {%- assign lang_pages = site.html_pages
+        | where_exp: "item", "item.title != nil"
+        | where_exp: "item", "item.parent == nil"
+        | where_exp: "item", "item.nav_exclude != true"
+        | where: "lang", current_lang -%}
+  {%- if current_is_python == true -%}
+    {%- assign mode_pages = lang_pages | where_exp: "item", "item.python == true or item.mode_shared == true" -%}
+  {%- else -%}
+    {%- assign mode_pages = lang_pages | where_exp: "item", "item.python != true" -%}
+  {%- endif -%}
+  {% if mode_pages.size > 0 %}
+    {% include components/nav/pages.html pages=mode_pages all=include.all %}
+  {% endif %}
+  {%- if site.nav_external_links -%}
+    <ul class="nav-list">
+      {%- for node in site.nav_external_links -%}
+        <li class="nav-list-item external">
+          <a href="{{ node.url | absolute_url }}" class="nav-list-link external"
+            {% if node.opens_in_new_tab or node.opens_in_new_tab == nil and site.nav_external_links_new_tab %}
+              target="_blank" rel="noopener noreferrer"
+            {% endif %}
+          >
+            {{ node.title }}
+            {% unless node.hide_icon %}<svg viewBox="0 0 24 24" aria-labelledby="svg-external-link-title"><use xlink:href="#svg-external-link"></use></svg>{% endunless %}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</nav>

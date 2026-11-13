@@ -1,0 +1,23 @@
+{%- comment -%}
+  Cards linking to the full-window demo pages, which open in a new tab.
+  Usage: {% include demo_cards.html slugs="n-queens,tsp" %}
+  Text and titles come from _data/demo_cards.yml in the page's language.
+{%- endcomment -%}
+{%- assign dc_lang = "en" -%}{%- if page.lang == "ja" -%}{%- assign dc_lang = "ja" -%}{%- endif -%}
+{%- unless demo_cards_css -%}
+<link rel="stylesheet" href="{{ '/assets/demos/demo-cards.css' | relative_url }}">
+{%- assign demo_cards_css = true -%}
+{%- endunless %}
+<div class="demo-cards">
+{%- assign dc_slugs = include.slugs | split: "," -%}
+{%- for slug in dc_slugs -%}
+{%- assign dc = site.data.demo_cards[slug][dc_lang] %}
+  <a class="demo-card" href="{{ '/' | append: dc_lang | append: '/demos/' | append: slug | append: '/' | relative_url }}" target="_blank" rel="noopener">
+    <img src="{{ '/assets/demos/thumbs/' | append: slug | append: '.jpg' | relative_url }}" alt="" width="640" height="400" loading="lazy">
+    <span class="demo-card-body">
+      <span class="demo-card-title">{{ dc.title }}<span class="demo-card-open" aria-hidden="true">↗</span></span>
+      <span class="demo-card-text">{{ dc.text }}</span>
+    </span>
+  </a>
+{%- endfor %}
+</div>

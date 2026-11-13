@@ -1,0 +1,10 @@
+---
+last_modified: 2026-04-05
+layout: default
+title: "SEND+MORE=MONEY"
+nav_exclude: true
+redirect_to: "/en/python/SEND_MORE_MONEY"
+sitemap: false
+---
+<meta http-equiv="refresh" content="0; url=/en/python/SEND_MORE_MONEY">
+<p><a href="/en/python/SEND_MORE_MONEY">Redirect</a></p>

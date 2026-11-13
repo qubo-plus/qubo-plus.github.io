@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://qubo-plus.github.io/sitemap.xml
