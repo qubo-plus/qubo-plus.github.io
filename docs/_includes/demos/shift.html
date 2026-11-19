@@ -1,0 +1,86 @@
+<!-- Generated from demos/shift/index.html by demos/sync_docs_demos.py. Do not edit. -->
+{% raw %}
+<main class="app">
+
+  <section class="card toolbar">
+    <button id="btn-sample" title="Load the sample staff and requests">Sample data</button>
+    <button id="btn-random" title="Replace the requested days off with random ones">Random requests</button>
+    <button id="btn-add" title="Add a staff member">+ Add staff</button>
+    <button id="btn-clear" class="gray" title="Remove the schedule (keeps the requests)">Clear schedule</button>
+    <span class="sep"></span>
+    <label class="group" for="solve-time">Time
+      <select id="solve-time">
+        <option value="1">1 s</option>
+        <option value="2">2 s</option>
+        <option value="3" selected>3 s</option>
+        <option value="5">5 s</option>
+        <option value="10">10 s</option>
+      </select>
+    </label>
+    <button id="btn-solve" class="primary">Solve</button>
+    <span id="cooldown-label" class="muted"></span>
+  </section>
+
+  <section class="card settings">
+    <span class="settings-title">Required staff (exactly)</span>
+    <label>Weekday day <input type="number" id="req-0" min="0" max="40" value="5"></label>
+    <label>Weekday night <input type="number" id="req-1" min="0" max="40" value="3"></label>
+    <label>Weekend day <input type="number" id="req-2" min="0" max="40" value="3"></label>
+    <label>Weekend night <input type="number" id="req-3" min="0" max="40" value="3"></label>
+    <span class="sep"></span>
+    <label>Max working days in a row <input type="number" id="max-run" min="1" max="13" value="6"></label>
+  </section>
+
+  <section class="card summary">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Rule violations</span><span class="stat-value" id="st-viol">–</span></div>
+      <div class="stat main"><span class="stat-label">Fairness (sum of squares)</span><span class="stat-value" id="st-obj">–</span></div>
+      <div class="stat" title="The working days, night shifts and holiday shifts the staffing requires, spread evenly"><span class="stat-label">Lower bound</span><span class="stat-value" id="st-lb">–</span></div>
+      <div class="stat"><span class="stat-label">Working days per person</span><span class="stat-value" id="st-work">–</span></div>
+      <div class="stat"><span class="stat-label">Night shifts per person</span><span class="stat-value" id="st-nights">–</span></div>
+      <div class="stat"><span class="stat-label">Holiday work per person</span><span class="stat-value" id="st-holiday">–</span></div>
+    </div>
+    <div id="status" class="status"></div>
+  </section>
+
+  <section class="card">
+    <p class="muted note">Click a cell to request a day off: <b>paid leave</b> on a weekday, <b>no holiday work</b> on a weekend day.
+      Other days can be off too: QUBO++ decides who works so that every shift has exactly the required staff.</p>
+    <div class="table-wrap" id="table-wrap">
+      <table id="roster"></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>How it works</summary>
+      <div class="explain">
+        <p>The roster covers four weeks. Every day each person works a <b>day shift</b>, a <b>night shift</b>, or is off.
+          The staff are managers, skilled workers and regular staff. The rules are:</p>
+        <ol>
+          <li>Nobody works on a requested day off (paid leave on a weekday, no holiday work on a weekend day).
+            Other days can be off too.</li>
+          <li>Each shift has exactly the required number of staff.</li>
+          <li>A weekday day shift has a manager (for customers); a night shift and a weekend day shift have
+            a manager or a skilled worker.</li>
+          <li>Nobody works more than 6 days in a row (adjustable).</li>
+          <li>There is a day off between a day shift and a night shift, in either order.</li>
+        </ol>
+        <p>Among the rosters that follow the rules, QUBO++ looks for the one that spreads the working days, the night
+          shifts and the holiday work most evenly: it minimizes the <b>sum of the squares</b> of the number of working
+          days of each person, plus those of the night shifts and of the holiday shifts.</p>
+        <p>The model uses binary variables <code>day[i][d]</code> and <code>night[i][d]</code> (person <i>i</i> works
+          the day or night shift on day <i>d</i>). Every rule is a linear equation or inequality written with
+          <code>cons()</code>, for example <code>cons(Σ<sub>t=d..d+6</sub> (day[i][t] + night[i][t]) &lt;= 6)</code> and
+          <code>cons(night[i][d] + day[i][d+1] &lt;= 1)</code>. QUBO++ handles these constraints directly, so the model
+          needs no slack variables, and the squares make the objective quadratic.
+          The search stops early when it reaches the lower bound, which proves optimality.</p>
+      </div>
+    </details>
+    <details id="model-details">
+      <summary>QUBO++ model <span class="muted" id="model-info"></span></summary>
+      <pre id="model-expr" class="expr">Press Solve to build the model.</pre>
+    </details>
+  </section>
+</main>
+{% endraw %}

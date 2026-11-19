@@ -1,0 +1,15 @@
+{%- comment -%}
+  A link that plays the page's video from a given time (the companion pages of the videos, python/VIDEO_*.md).
+  Usage: {% include video_seek.html t="2:41" %}   (m:ss in the video of the page's language)
+  The page names its episode in the front matter (video: constraints, the slug in _data/videos.yml).
+  With JavaScript, the player on the page starts at that time (assets/videos/videos.js); without it, the link
+  opens the video on YouTube at that time.
+{%- endcomment -%}
+{%- assign vs_lang = "en" -%}{%- if page.lang == "ja" -%}{%- assign vs_lang = "ja" -%}{%- endif -%}
+{%- assign vs_ep = site.data.videos.episodes | where: "slug", page.video | first -%}
+{%- assign vs_id = vs_ep[vs_lang].id -%}
+{%- assign vs_parts = include.t | split: ":" -%}
+{%- assign vs_sec = vs_parts[0] | times: 60 | plus: vs_parts[1] -%}
+{%- if vs_lang == "ja" -%}{%- assign vs_text = "動画の " | append: include.t | append: " から再生" -%}
+{%- else -%}{%- assign vs_text = "Play the video from " | append: include.t -%}{%- endif -%}
+<p class="video-seek-line"><a class="video-seek" href="https://youtu.be/{{ vs_id }}?t={{ vs_sec }}" data-video-id="{{ vs_id }}" data-t="{{ vs_sec }}" target="_blank" rel="noopener">▶ {{ vs_text }}</a></p>

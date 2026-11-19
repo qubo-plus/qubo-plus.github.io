@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+{%- comment -%}
+  Full-window page for a browser demo (no docs sidebar).
+  Front matter:
+    demo_id      key in _data/demos.yml; the front end is
+                 _includes/demos/<id>.html, _includes/demos/<id>_scripts.html and
+                 assets/demos/<id>/ (copied from demos/<id>/ by demos/sync_docs_demos.py)
+    heading      <h1> text
+    lead         one or two sentences under the heading
+    docs_links   [{label, url}] — the documentation pages for this demo
+    lang, hreflang_alt, hreflang_lang — as on the docs pages
+    title, description, image — used by jekyll-seo-tag (search results, link cards)
+    app_name, app_description — WebApplication structured data
+  The page body (Markdown) is the explanation shown below the demo.
+{%- endcomment -%}
+{%- assign demo = site.data.demos[page.demo_id] -%}
+{%- assign ja = false -%}{%- if page.lang == "ja" -%}{%- assign ja = true -%}{%- endif -%}
+{%- assign home = "/en/" -%}{%- if ja -%}{%- assign home = "/ja/" -%}{%- endif -%}
+<html lang="{{ page.lang | default: 'en' }}" data-theme="{{ demo.theme_default | default: 'light' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% seo %}
+  <link rel="icon" type="image/svg+xml" href="{{ '/icon.svg' | relative_url }}?v=20261004">
+  {%- if page.hreflang_alt %}
+  <link rel="alternate" hreflang="{{ page.lang }}" href="{{ page.url | absolute_url }}">
+  <link rel="alternate" hreflang="{{ page.hreflang_lang }}" href="{{ site.url }}{{ site.baseurl }}/{{ page.hreflang_alt }}">
+  {%- if page.lang == "en" %}
+  <link rel="alternate" hreflang="x-default" href="{{ page.url | absolute_url }}">
+  {%- else %}
+  <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ site.baseurl }}/{{ page.hreflang_alt }}">
+  {%- endif %}
+  {%- endif %}
+  {%- if site.ga_tracking %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.ga_tracking }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site.ga_tracking }}');
+  </script>
+  {%- endif %}
+  <script>
+    window.QBPP_DEMO_API = {{ demo.api | jsonify }};
+    {%- if demo.theme_key %}
+    /* The demo's app.js keeps its theme in localStorage; apply it before paint. */
+    try {
+      var t = localStorage.getItem('{{ demo.theme_key }}');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+    {%- endif %}
+  </script>
+  <link rel="stylesheet" href="{{ '/assets/demos/' | append: page.demo_id | append: '/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/demos/demo-page.css' | relative_url }}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": {{ page.app_name | default: page.heading | jsonify }},
+    "description": {{ page.app_description | default: page.description | jsonify }},
+    "url": {{ page.url | absolute_url | jsonify }},
+    "inLanguage": {{ page.lang | default: "en" | jsonify }},
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Any (web browser)",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Koji Nakano", "affiliation": { "@type": "Organization", "name": "Hiroshima University" } }
+  }
+  </script>
+  {%- if page.math %}
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  {%- endif %}
+</head>
+<body class="qd-body qd-{{ demo.layout | default: 'board' }}"{% if demo.width %} style="--qd-w: {{ demo.width }}"{% endif %}>
+  <nav class="qd-bar" aria-label="{% if ja %}サイト{% else %}Site{% endif %}">
+    <a class="qd-brand" href="{{ home | relative_url }}">
+      <img src="{{ '/icon.svg' | relative_url }}?v=20261004" alt="" width="24" height="24">QUBO++
+    </a>
+    <a href="{{ home | append: 'DEMOS' | relative_url }}">{% if ja %}デモ一覧{% else %}All demos{% endif %}</a>
+    <span class="qd-spacer"></span>
+    <a href="{{ home | append: 'DOCUMENT' | relative_url }}">{% if ja %}ドキュメント{% else %}Docs{% endif %}</a>
+    <a href="{{ home | append: 'INSTALL' | relative_url }}">{% if ja %}インストール{% else %}Install{% endif %}</a>
+    {%- if page.hreflang_alt %}
+    <a class="qd-lang" href="{{ '/' | append: page.hreflang_alt | relative_url }}" hreflang="{{ page.hreflang_lang }}">{% if ja %}English{% else %}日本語{% endif %}</a>
+    {%- endif %}
+  </nav>
+
+  <div class="qd-intro">
+    <h1>{{ page.heading }}</h1>
+    <p class="qd-lead">{{ page.lead }}</p>
+    {%- if page.docs_links %}
+    <p class="qd-docs">{% if ja %}解説:{% else %}Explained in the docs:{% endif %}
+      {%- for l in page.docs_links %}
+      <a href="{{ l.url | relative_url }}">{{ l.label }}</a>{% unless forloop.last %}<span class="qd-sep">·</span>{% endunless %}
+      {%- endfor %}
+    </p>
+    {%- endif %}
+  </div>
+
+  <div class="qd-demo">
+    {% include demos/{{ page.demo_id }}.html %}
+  </div>
+
+  <article class="qd-article">
+    {{ content }}
+  </article>
+
+  <footer class="qd-footer">
+    {% if ja %}© 2026 中野浩嗣, 広島大学{% else %}© 2026 Koji Nakano, Hiroshima University{% endif %}
+    <span class="qd-sep">·</span>
+    <a href="{{ home | relative_url }}">{% if ja %}QUBO++ ドキュメント{% else %}QUBO++ Documentation{% endif %}</a>
+  </footer>
+
+  {%- if demo.layout == "fill" %}
+  <script>
+    /* Fill the window below the heading with the app (editor + output). */
+    (function () {
+      var demo = document.querySelector('.qd-demo');
+      function fit() { document.documentElement.style.setProperty('--qd-top', demo.offsetTop + 'px'); }
+      fit();
+      window.addEventListener('resize', fit);
+    })();
+  </script>
+  {%- endif %}
+  {% include demos/{{ page.demo_id }}_scripts.html %}
+</body>
+</html>

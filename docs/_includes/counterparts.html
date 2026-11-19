@@ -1,0 +1,52 @@
+{%- comment -%}
+  Build-time targets of the C++/Python and EN/JA switches, so that no switch
+  links to a page that does not exist. Sets (for pages under en/ and ja/):
+    qbpp_mode_exact — URL of the other-mode page (en/X.md <-> en/python/X.md),
+                      "" when it does not exist or the page is mode_shared
+                      (used by the footer "Python version" / "C++ version" link)
+    qbpp_mode_href  — target of the C++/Python button: qbpp_mode_exact, or the
+                      other mode's top page (DOCUMENT) when there is none
+    qbpp_lang_href  — target of the EN/JA button: the same page in the other
+                      language, or that language's home when there is none
+  All three are "" on pages outside en/ and ja/ (root redirect stubs).
+{%- endcomment -%}
+{%- assign qbpp_mode_exact = "" -%}
+{%- assign qbpp_mode_href = "" -%}
+{%- assign qbpp_lang_href = "" -%}
+{%- assign cp_parts = page.path | split: "/" -%}
+{%- assign cp_lang = "" -%}
+{%- if cp_parts.size > 1 -%}{%- assign cp_lang = cp_parts[0] -%}{%- endif -%}
+{%- if cp_lang == "en" or cp_lang == "ja" -%}
+  {%- if cp_lang == "en" -%}{%- assign cp_olang = "ja" -%}{%- else -%}{%- assign cp_olang = "en" -%}{%- endif -%}
+  {%- assign cp_rest = page.path | slice: 3, 1000 -%}
+
+  {%- assign cp_path = cp_olang | append: "/" | append: cp_rest -%}
+  {%- assign cp_page = site.pages | where: "path", cp_path | first -%}
+  {%- if cp_page -%}
+    {%- assign qbpp_lang_href = cp_page.url | relative_url -%}
+  {%- else -%}
+    {%- assign qbpp_lang_href = "/" | append: cp_olang | append: "/" | relative_url -%}
+  {%- endif -%}
+
+  {%- unless page.mode_shared -%}
+    {%- assign cp_head = cp_rest | slice: 0, 7 -%}
+    {%- if cp_head == "python/" -%}
+      {%- assign cp_path = cp_lang | append: "/" | append: cp_rest | remove_first: "python/" -%}
+      {%- assign cp_top = "/" | append: cp_lang | append: "/DOCUMENT.html" -%}
+    {%- else -%}
+      {%- assign cp_path = cp_lang | append: "/python/" | append: cp_rest -%}
+      {%- assign cp_top = "/" | append: cp_lang | append: "/python/DOCUMENT.html" -%}
+    {%- endif -%}
+    {%- assign cp_page = site.pages | where: "path", cp_path | first -%}
+    {%- if page.mode_counterpart -%}
+      {%- assign qbpp_mode_exact = page.mode_counterpart | relative_url -%}
+    {%- elsif cp_page -%}
+      {%- assign qbpp_mode_exact = cp_page.url | relative_url -%}
+    {%- endif -%}
+    {%- if qbpp_mode_exact != "" -%}
+      {%- assign qbpp_mode_href = qbpp_mode_exact -%}
+    {%- else -%}
+      {%- assign qbpp_mode_href = cp_top | relative_url -%}
+    {%- endif -%}
+  {%- endunless -%}
+{%- endif -%}

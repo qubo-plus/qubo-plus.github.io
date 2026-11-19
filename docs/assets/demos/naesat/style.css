@@ -1,0 +1,510 @@
+/* Generated from demos/naesat/style.css by demos/sync_docs_demos.py. Do not edit. */
+/* NAE-SAT Demo - Dark / Light Theme */
+
+:root, [data-theme="dark"] {
+    --bg: #0b0f1a;
+    --surface: #131929;
+    --border: #1e2a42;
+    --text: #c8d6e5;
+    --text-muted: #5a6a82;
+    --accent: #00d4ff;
+    --accent-glow: rgba(0, 212, 255, 0.3);
+    --accent-hover: #33ddff;
+    --heading: #ffffff;
+    --btn-bg: #00d4ff;
+    --btn-text: #0b0f1a;
+    --overlay-bg: rgba(11, 15, 26, 0.75);
+    --true-color: #ffd700;
+    --true-bg: rgba(255, 215, 0, 0.15);
+    --true-glow: rgba(255, 215, 0, 0.3);
+    --false-color: #7b8ea8;
+    --false-bg: rgba(123, 142, 168, 0.08);
+    --conflict: #ff3860;
+    --conflict-glow: rgba(255, 56, 96, 0.4);
+    --success: #0be881;
+    --th-bg: rgba(30, 42, 66, 0.5);
+    --check-bg: rgba(0, 212, 255, 0.08);
+    --check-accent: #00d4ff;
+    --radius: 6px;
+}
+
+[data-theme="light"] {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #656d76;
+    --accent: #0969da;
+    --accent-glow: rgba(9, 105, 218, 0.2);
+    --accent-hover: #2188ff;
+    --heading: #1f2328;
+    --btn-bg: #0969da;
+    --btn-text: #ffffff;
+    --overlay-bg: rgba(255, 255, 255, 0.8);
+    --true-color: #b8860b;
+    --true-bg: rgba(184, 134, 11, 0.15);
+    --true-glow: rgba(184, 134, 11, 0.25);
+    --false-color: #656d76;
+    --false-bg: rgba(101, 109, 118, 0.06);
+    --conflict: #cf222e;
+    --conflict-glow: rgba(207, 34, 46, 0.2);
+    --success: #1a7f37;
+    --th-bg: rgba(208, 215, 222, 0.4);
+    --check-bg: rgba(9, 105, 218, 0.06);
+    --check-accent: #0969da;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.app {
+    width: 100%;
+    max-width: 760px;
+}
+
+/* Header */
+header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--heading);
+}
+
+.title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.problem-desc {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    padding: 2px 8px;
+}
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.5rem 1.4rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+#btn-solve {
+    background: var(--accent);
+    color: var(--btn-text);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+#btn-solve:hover:not(:disabled) {
+    background: var(--accent-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+#btn-solve:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#btn-solve[aria-busy="true"] {
+    position: relative;
+    color: transparent;
+}
+
+button.outline {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+button.outline:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+#btn-theme {
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.slider-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Theme button in header */
+header #btn-theme {
+    margin-left: auto;
+}
+
+.slider-control label {
+    white-space: nowrap;
+}
+
+.slider-control input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+}
+
+.slider-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
+}
+
+.slider-control input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
+}
+
+.slider-control span {
+    min-width: 2em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Clause section */
+.clause-section {
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+.clause-matrix-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 0.5rem;
+}
+
+.clause-matrix-wrap table {
+    border-collapse: collapse;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+.clause-matrix-wrap th,
+.clause-matrix-wrap td {
+    text-align: center;
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.4rem;
+    min-width: 2.5em;
+}
+
+.clause-matrix-wrap th {
+    color: var(--text-muted);
+    font-weight: 500;
+    background: var(--th-bg);
+    font-size: 0.75rem;
+}
+
+.clause-matrix-wrap td {
+    color: var(--text-muted);
+}
+
+.clause-matrix-wrap td input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--check-accent);
+}
+
+.clause-matrix-wrap td.checked {
+    background: var(--check-bg);
+}
+
+.clause-matrix-wrap td.checked-true {
+    background: var(--true-bg);
+}
+
+.clause-matrix-wrap td.checked-false {
+    background: var(--false-bg);
+}
+
+/* Assignment row */
+.clause-matrix-wrap tr.assign-row td {
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+}
+
+.clause-matrix-wrap tr.assign-row td.val-true {
+    color: var(--true-color);
+    background: var(--true-bg);
+}
+
+.clause-matrix-wrap tr.assign-row td.val-false {
+    color: var(--false-color);
+    background: var(--false-bg);
+}
+
+/* Clause status column */
+.clause-matrix-wrap td.status-ok {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.clause-matrix-wrap td.status-violated {
+    color: var(--conflict);
+    font-weight: 700;
+    background: var(--conflict-glow);
+}
+
+/* Remove clause button */
+.clause-matrix-wrap td.remove-cell {
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+.btn-remove-clause {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.1rem 0.3rem;
+    opacity: 0.5;
+    transition: opacity 0.15s, color 0.15s;
+}
+
+.btn-remove-clause:hover {
+    opacity: 1;
+    color: var(--conflict);
+}
+
+/* Matrix control buttons */
+.matrix-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.matrix-btn {
+    padding: 0.35rem 1rem;
+    font-size: 0.8rem;
+}
+
+.random-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.5rem;
+}
+
+.random-controls input[type="number"] {
+    width: 3.5em;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.8rem;
+    font-family: inherit;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+}
+
+/* Solving overlay */
+.solving-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay-bg);
+    border-radius: var(--radius);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--accent-glow);
+    letter-spacing: 0.05em;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 100;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 20px var(--accent-glow); }
+    50% { text-shadow: 0 0 40px var(--accent), 0 0 60px var(--accent-glow); }
+}
+
+.solving-overlay.hidden {
+    display: none;
+}
+
+/* Status bar */
+.status-bar {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-height: 1.5em;
+}
+
+.status-bar.success {
+    color: var(--success);
+}
+
+.status-bar.error {
+    color: var(--conflict);
+}
+
+/* Result panels */
+.result-panels {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.result-panels.hidden {
+    display: none;
+}
+
+.panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    background: var(--surface);
+}
+
+.panel h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.03em;
+}
+
+.expr-info {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* Term count table */
+.term-table-wrap {
+    overflow-x: auto;
+}
+
+.term-table {
+    border-collapse: collapse;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.75rem;
+    width: auto;
+}
+
+.term-table th,
+.term-table td {
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.6rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.term-table th {
+    background: var(--th-bg);
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.term-table td.row-label {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.term-table td.total {
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* HUBO expression */
+.expr-box {
+    max-height: 400px;
+    overflow: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Build info footer */
+.build-date {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+    .toolbar { flex-wrap: wrap; }
+    .slider-control:first-of-type { margin-left: 0; }
+    .slider-control { width: 100%; }
+    .slider-control input[type="range"] { flex: 1; }
+}

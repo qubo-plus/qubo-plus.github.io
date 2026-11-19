@@ -1,0 +1,99 @@
+// Reduce gap between switch buttons and nav list
+@include mq(md) {
+  .site-nav {
+    padding-top: $sp-4;
+  }
+}
+
+// Smaller site title to fit narrow sidebar
+.site-title {
+  font-size: 1.1rem !important;
+}
+
+// Smaller body text (but not code blocks)
+.main-content {
+  font-size: 0.85rem !important;
+  color: #1a1a1a !important;
+
+  h1 { font-size: 1.6rem !important; font-weight: 700 !important; }
+  h2 { font-size: 1.3rem !important; font-weight: 500 !important; }
+  h3 { font-size: 1.1rem !important; font-weight: 500 !important; }
+  h4 { font-size: 0.95rem !important; font-weight: 500 !important; }
+}
+
+// Code blocks: tighter line-height, darker text, smaller margins, larger font
+pre,
+code,
+.highlight {
+  line-height: 1.3;
+  font-size: 0.85rem !important;
+}
+
+// Rouge syntax highlighting — VSCode-like colors
+.highlight {
+  .n, .na, .no, .nv, .nc, .ni, .ne { color: #24292e; }               // names/variables — black
+  .nn { color: #24292e; }                                              // module names
+  .k, .kd, .kn, .kp, .kr { color: #0000ff; }                         // keywords — blue
+  .kt { color: #267f99; }                                              // keyword type (int, auto) — teal
+  .nb { color: #267f99; }                                              // builtins — teal
+  .bp { color: #267f99; }                                              // builtin pseudo (self) — teal
+  .nf, .fm { color: #795e26; }                                        // function def — dark yellow
+  .s, .s1, .s2, .sa, .sb, .sc, .dl, .sd, .sh, .si, .sx { color: #a31515; } // strings — dark red
+  .mi, .mf, .mh, .mo, .il { color: #098658; }                        // numbers — green
+  .o, .ow { color: #24292e; }                                         // operators — black
+  .p { color: #24292e; }                                               // punctuation — black
+  .cp, .cpf { color: #808080; }                                       // preprocessor — gray
+  .c, .c1, .ch, .cm, .cs { color: #008000; font-style: italic; }     // comments — green italic
+}
+
+.main-content div.highlighter-rouge,
+.main-content figure.highlight {
+  margin-top: 0.4rem !important;
+  margin-bottom: 0.4rem !important;
+}
+
+// Wider content area (2026-10-08). The theme caps .main at $content-width
+// (50rem) and centers sidebar + content, so widening the browser beyond that
+// changed nothing. $content-width itself must stay: the theme also uses it as
+// the md breakpoint (below it the sidebar collapses into the mobile menu), so
+// only the cap and the centering math from the theme's layout.scss are
+// overridden here. Narrower windows wrap exactly as before.
+$qbpp-content-width: 60rem;
+
+.main {
+  @include mq(md) {
+    max-width: $qbpp-content-width;
+  }
+}
+
+.side-bar {
+  @include mq(lg) {
+    width: calc((100% - #{$nav-width + $qbpp-content-width}) / 2 + #{$nav-width});
+  }
+
+  & + .main {
+    @include mq(lg) {
+      // Capitalized so Sass leaves it to the CSS max() (as the theme does).
+      margin-left: Max(
+        #{$nav-width},
+        calc((100% - #{$nav-width + $qbpp-content-width}) / 2 + #{$nav-width})
+      );
+    }
+  }
+}
+
+// Images sized as a share of the column (<img width="50%">, 136 of them) were
+// tuned for the old 46rem text column. Keep that size as their upper bound so
+// diagrams and plots do not grow with the column (and raster images do not
+// blur); they still shrink with narrow windows as before.
+$qbpp-old-column: 46rem;
+
+.main-content img[width$="%"] {
+  max-width: $qbpp-old-column;
+}
+
+@each $p in 30, 32, 35, 40, 45, 50, 70, 80, 90 {
+  .main-content img[width="#{$p}%"] {
+    max-width: $qbpp-old-column * $p * 0.01;
+  }
+}
